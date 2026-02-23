@@ -13,67 +13,34 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // Create admin user
-        $adminUser = \App\Models\User::create([
+        \App\Models\User::create([
             'name' => 'Admin',
             'email' => 'admin@gmail.com',
             'password' => bcrypt('password'),
             'role' => 'admin',
         ]);
 
-        // Create sample users for each role
-        $govUser = \App\Models\User::create([
+        // Create gov user
+        \App\Models\User::create([
             'name' => 'Government User',
-            'email' => 'government@gmail.com',
+            'email' => 'gov@gmail.com',
             'password' => bcrypt('password'),
-            'role' => 'government',
+            'role' => 'gov',
         ]);
 
-        $privateUser = \App\Models\User::create([
-            'name' => 'Private User',
-            'email' => 'private@gmail.com',
+        // Additional test users
+        \App\Models\User::create([
+            'name' => 'Gov User 2',
+            'email' => 'gov2@gmail.com',
             'password' => bcrypt('password'),
-            'role' => 'private',
+            'role' => 'gov',
         ]);
 
-        $soeUser = \App\Models\User::create([
-            'name' => 'SOE User',
-            'email' => 'soe@gmail.com',
+        \App\Models\User::create([
+            'name' => 'Admin 2',
+            'email' => 'admin2@gmail.com',
             'password' => bcrypt('password'),
-            'role' => 'soe',
-        ]);
-
-        // Sample project data for Government (like in the image)
-        \App\Models\Project::create([
-            'user_id' => $govUser->id,
-            'role' => 'government',
-            'project_name' => 'Astinct Baliqe',
-            'id_lop' => '',
-            'cc' => 'Toba', 
-            'nipnas' => '',
-            'am' => 'Dicky',
-            'mitra' => 'Tanpa Mitra',
-            'phn_bulan_billcomp' => '8',
-            'est_nilai_bc' => '',
-            'f0_inisiasi_solusi' => '',
-            'f1_technical_budget' => '',
-            'f2_p0_p1_jukbok' => '',
-            'p2_evaluasi_bakal_calon' => '',
-            'f2_p3_permintaan_penawaran' => '',
-            'f2_p4_rapat_penjelasan' => '',
-            'offering_harga_final' => '',
-            'f2_p5_evaluasi_sph' => '',
-            'f3_p6_klarifikasi_negosiasi' => '',
-            'f3_p7_penetapan_mitra' => '',
-            'f3_submit_proposal' => '',
-            'negosiasi' => '',
-            'surat' => 'FALSE',
-            'tanda' => 'FALSE',
-            'f5_p8_surat_penetapan' => '',
-            'del_kontrak_layanan' => '',
-            'baut' => '',
-            'del_baso' => '',
-            'billing_complete' => 'FALSE',
-            'keterangan' => '',
+            'role' => 'admin',
         ]);
     }
 }

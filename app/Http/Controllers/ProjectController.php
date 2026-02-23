@@ -123,6 +123,14 @@ class ProjectController extends Controller
         }
         $data['custom_fields'] = $customFields;
 
+        // Handle boolean fields (checkboxes) - set to null if not present
+        $booleanFields = ['f1_technical_budget', 'f2_p5_evaluasi_sph', 'negosiasi', 'f5_p8_surat_penetapan'];
+        foreach ($booleanFields as $field) {
+            if (!isset($data[$field])) {
+                $data[$field] = null;
+            }
+        }
+
         $project->update($data);
 
         return redirect()->route('dashboard')->with('success', 'Data berhasil diupdate!');
