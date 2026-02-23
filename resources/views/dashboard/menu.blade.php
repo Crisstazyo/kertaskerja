@@ -18,6 +18,7 @@
         </div>
 
         <!-- Menu Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
             <!-- SCALLING Card -->
             <a href="{{ route('scalling.index') }}" class="group">
                 <div class="bg-white rounded-xl shadow-2xl p-8 transform transition-all duration-300 hover:scale-105 hover:shadow-3xl">

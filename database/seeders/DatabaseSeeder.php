@@ -48,7 +48,7 @@ class DatabaseSeeder extends Seeder
             'role' => 'government',
             'project_name' => 'Astinct Baliqe',
             'id_lop' => '',
-            'cc' => 'Toba',
+            'cc' => 'Toba', 
             'nipnas' => '',
             'am' => 'Dicky',
             'mitra' => 'Tanpa Mitra',
