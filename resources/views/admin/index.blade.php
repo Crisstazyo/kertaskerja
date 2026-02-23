@@ -1,94 +1,157 @@
 @extends('layouts.app')
 
-@section('title', 'Admin Panel')
+@section('title', 'Admin Dashboard - Management')
 
 @section('content')
-<div class="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-pink-50 py-8 px-4">
-    <div class="max-w-7xl mx-auto">
+<div class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Header -->
-        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-            <div class="flex justify-between items-center">
+        <div class="mb-8">
+            <div class="flex items-center justify-between mb-4">
                 <div>
-                    <h1 class="text-4xl font-bold text-gray-800">🛠️ Admin Panel</h1>
-                    <p class="text-gray-600 mt-2">Pilih role yang ingin dikelola</p>
+                    <h1 class="text-4xl font-bold text-gray-900 mb-2">👨‍💼 Admin Dashboard</h1>
+                    <p class="text-gray-600 text-lg">Kertas Kerja Management System</p>
                 </div>
-                <form action="{{ route('logout') }}" method="POST" class="inline">
+                <form action="{{ route('logout') }}" method="POST">
                     @csrf
-                    <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg transition duration-300 shadow-md">
-                        Logout
+                    <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300 shadow-md hover:shadow-lg">
+                        🚪 Logout
                     </button>
                 </form>
             </div>
+            <div class="h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-full"></div>
         </div>
 
-        <!-- Role Selection Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <!-- Government Card -->
-            <a href="{{ route('admin.select-role', 'government') }}" class="group bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
-                <div class="bg-gradient-to-br from-green-500 to-green-600 p-8 text-white">
-                    <div class="text-6xl mb-4">🏛️</div>
-                    <h2 class="text-3xl font-bold mb-2">Government</h2>
-                    <p class="text-green-100">Kelola worksheet Government</p>
-                </div>
-                <div class="p-6">
-                    <div class="flex items-center justify-between text-green-600 group-hover:text-green-700">
-                        <span class="font-semibold">Akses Pengelolaan</span>
-                        <svg class="w-6 h-6 transform group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                        </svg>
+        <!-- Entity Management Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Government Management Card -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden border-2 border-green-100 hover:border-green-300 transition-all duration-300 transform hover:scale-105">
+                <div class="bg-gradient-to-r from-green-500 to-green-600 p-6 text-white">
+                    <div class="flex items-center justify-center space-x-3 mb-2">
+                        <div class="bg-white bg-opacity-20 p-3 rounded-lg">
+                            <span class="text-4xl">🏛️</span>
+                        </div>
+                        <div>
+                            <h2 class="text-2xl font-bold">Government</h2>
+                            <p class="text-green-100 text-sm">Pemerintah</p>
+                        </div>
                     </div>
                 </div>
-            </a>
+                <div class="p-6">
+                    <p class="text-gray-600 mb-6 text-center">Kelola data kertas kerja untuk instansi pemerintah</p>
+                    <div class="space-y-3">
+                        <!-- Scalling Button -->
+                        <a href="{{ route('admin.lop.type-select', 'government') }}" class="block">
+                            <div class="border-2 border-green-200 rounded-lg p-4 hover:border-green-500 hover:shadow-lg transition-all duration-300 cursor-pointer bg-gradient-to-r from-green-50 to-green-100 hover:from-green-100 hover:to-green-200">
+                                <div class="flex items-center justify-center space-x-3">
+                                    <span class="text-3xl">📊</span>
+                                    <div class="text-left">
+                                        <h3 class="font-bold text-gray-800 text-lg">Scalling & PSAK</h3>
+                                        <p class="text-xs text-gray-600">Manage Data</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
 
-            <!-- Private Card -->
-            <a href="{{ route('admin.select-role', 'private') }}" class="group bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
-                <div class="bg-gradient-to-br from-yellow-500 to-yellow-600 p-8 text-white">
-                    <div class="text-6xl mb-4">🏢</div>
-                    <h2 class="text-3xl font-bold mb-2">Private</h2>
-                    <p class="text-yellow-100">Kelola worksheet Private</p>
-                </div>
-                <div class="p-6">
-                    <div class="flex items-center justify-between text-yellow-600 group-hover:text-yellow-700">
-                        <span class="font-semibold">Akses Pengelolaan</span>
-                        <svg class="w-6 h-6 transform group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                        </svg>
+            <!-- Private Management Card -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden border-2 border-blue-100 hover:border-blue-300 transition-all duration-300 transform hover:scale-105">
+                <div class="bg-gradient-to-r from-blue-500 to-blue-600 p-6 text-white">
+                    <div class="flex items-center justify-center space-x-3 mb-2">
+                        <div class="bg-white bg-opacity-20 p-3 rounded-lg">
+                            <span class="text-4xl">🏢</span>
+                        </div>
+                        <div>
+                            <h2 class="text-2xl font-bold">Private</h2>
+                            <p class="text-blue-100 text-sm">Swasta</p>
+                        </div>
                     </div>
                 </div>
-            </a>
+                <div class="p-6">
+                    <p class="text-gray-600 mb-6 text-center">Kelola data kertas kerja untuk perusahaan swasta</p>
+                    <div class="space-y-3">
+                        <!-- Scalling Button -->
+                        <a href="{{ route('admin.lop.type-select', 'private') }}" class="block">
+                            <div class="border-2 border-blue-200 rounded-lg p-4 hover:border-blue-500 hover:shadow-lg transition-all duration-300 cursor-pointer bg-gradient-to-r from-blue-50 to-blue-100 hover:from-blue-100 hover:to-blue-200">
+                                <div class="flex items-center justify-center space-x-3">
+                                    <span class="text-3xl">📊</span>
+                                    <div class="text-left">
+                                        <h3 class="font-bold text-gray-800 text-lg">Scalling & PSAK</h3>
+                                        <p class="text-xs text-gray-600">Manage Data</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
 
-            <!-- SOE Card -->
-            <a href="{{ route('admin.select-role', 'soe') }}" class="group bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
-                <div class="bg-gradient-to-br from-purple-500 to-purple-600 p-8 text-white">
-                    <div class="text-6xl mb-4">🏭</div>
-                    <h2 class="text-3xl font-bold mb-2">SOE</h2>
-                    <p class="text-purple-100">Kelola worksheet SOE</p>
-                </div>
-                <div class="p-6">
-                    <div class="flex items-center justify-between text-purple-600 group-hover:text-purple-700">
-                        <span class="font-semibold">Akses Pengelolaan</span>
-                        <svg class="w-6 h-6 transform group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                        </svg>
+            <!-- SOE Management Card -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden border-2 border-purple-100 hover:border-purple-300 transition-all duration-300 transform hover:scale-105">
+                <div class="bg-gradient-to-r from-purple-500 to-purple-600 p-6 text-white">
+                    <div class="flex items-center justify-center space-x-3 mb-2">
+                        <div class="bg-white bg-opacity-20 p-3 rounded-lg">
+                            <span class="text-4xl">🏭</span>
+                        </div>
+                        <div>
+                            <h2 class="text-2xl font-bold">SOE</h2>
+                            <p class="text-purple-100 text-sm">BUMN</p>
+                        </div>
                     </div>
                 </div>
-            </a>
+                <div class="p-6">
+                    <p class="text-gray-600 mb-6 text-center">Kelola data kertas kerja untuk BUMN</p>
+                    <div class="space-y-3">
+                        <!-- Scalling Button -->
+                        <a href="{{ route('admin.lop.type-select', 'soe') }}" class="block">
+                            <div class="border-2 border-purple-200 rounded-lg p-4 hover:border-purple-500 hover:shadow-lg transition-all duration-300 cursor-pointer bg-gradient-to-r from-purple-50 to-purple-100 hover:from-purple-100 hover:to-purple-200">
+                                <div class="flex items-center justify-center space-x-3">
+                                    <span class="text-3xl">📊</span>
+                                    <div class="text-left">
+                                        <h3 class="font-bold text-gray-800 text-lg">Scalling & PSAK</h3>
+                                        <p class="text-xs text-gray-600">Manage Data</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <!-- Recap Section -->
-        <div class="mt-12 bg-white rounded-lg shadow-lg p-6">
-            <h2 class="text-2xl font-bold text-gray-800 mb-4">📊 Rekap Data</h2>
-            <p class="text-gray-600 mb-4">Lihat rekap lengkap semua worksheet per role</p>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <a href="{{ route('admin.recap', ['role' => 'government', 'all']) }}" class="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-6 py-4 rounded-lg shadow-md transition duration-300 text-center">
-                    <div class="text-xl font-bold">Rekap Government</div>
-                </a>
-                <a href="{{ route('admin.recap', ['role' => 'private', 'all']) }}" class="bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white px-6 py-4 rounded-lg shadow-md transition duration-300 text-center">
-                    <div class="text-xl font-bold">Rekap Private</div>
-                </a>
-                <a href="{{ route('admin.recap', ['role' => 'soe', 'all']) }}" class="bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white px-6 py-4 rounded-lg shadow-md transition duration-300 text-center">
-                    <div class="text-xl font-bold">Rekap SOE</div>
-                </a>
+        <!-- Info Section -->
+        <div class="mt-8 bg-white rounded-xl shadow-lg p-6 border-2 border-gray-100">
+            <div class="flex items-start space-x-4">
+                <div class="bg-blue-100 p-3 rounded-lg">
+                    <span class="text-3xl">💡</span>
+                </div>
+                <div class="flex-1">
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">Panduan Penggunaan</h3>
+                    <ul class="space-y-2 text-gray-600">
+                        <li class="flex items-start">
+                            <span class="mr-2">•</span>
+                            <span>Pilih entity (Government/Private/SOE) untuk memulai</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="mr-2">•</span>
+                            <span>Pilih tipe data (Scalling atau PSAK)</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="mr-2">•</span>
+                            <span>Untuk Scalling: Pilih kategori LOP (On Hand, Qualified, Koreksi, atau Initiate)</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="mr-2">•</span>
+                            <span>Import Excel untuk On Hand, Qualified, dan Koreksi secara bersamaan</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="mr-2">•</span>
+                            <span>Tambah data manual untuk LOP Initiate</span>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>

@@ -1,14 +1,14 @@
 @extends('layouts.app')
 
-@section('title', 'Login - ' . ucfirst($role))
+@section('title', 'Login Admin')
 
 @section('content')
-<div class="min-h-screen flex items-center justify-center px-4">
+<div class="min-h-screen flex items-center justify-center px-4 bg-gradient-to-br from-blue-50 to-indigo-100">
     <div class="max-w-md w-full">
         <!-- Logo -->
         <div class="text-center mb-8">
-            <img src="{{ asset('img/Telkom.png') }}" alt="Logo Telkom" class="h-20 w-auto mx-auto mb-6">
-            <h1 class="text-3xl font-bold text-gray-800 mb-2">Login {{ ucfirst($role) }}</h1>
+            <div class="text-6xl mb-4">🛠️</div>
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">Admin Panel Login</h1>
             <p class="text-gray-600">Masukkan kredensial Anda untuk melanjutkan</p>
         </div>
 
@@ -22,14 +22,13 @@
 
             <form action="{{ route('login') }}" method="POST">
                 @csrf
-                <input type="hidden" name="role" value="{{ $role }}">
                 
                 <!-- Email -->
                 <div class="mb-4">
                     <label for="email" class="block text-gray-700 font-semibold mb-2">Email</label>
                     <input type="email" id="email" name="email" value="{{ old('email') }}" required
                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                           placeholder="Masukkan email Anda">
+                           placeholder="admin@example.com">
                 </div>
 
                 <!-- Password -->
@@ -37,7 +36,7 @@
                     <label for="password" class="block text-gray-700 font-semibold mb-2">Password</label>
                     <input type="password" id="password" name="password" required
                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                           placeholder="Masukkan password Anda">
+                           placeholder="••••••••">
                 </div>
 
                 <!-- Submit Button -->
@@ -50,8 +49,8 @@
 
         <!-- Back Link -->
         <div class="text-center mt-6">
-            <a href="{{ route('roles') }}" class="text-gray-600 hover:text-gray-800 font-semibold transition duration-300">
-                ← Kembali ke Pilihan Role
+            <a href="{{ route('home') }}" class="text-gray-600 hover:text-gray-800 font-semibold transition duration-300">
+                ← Kembali ke Beranda
             </a>
         </div>
     </div>
