@@ -105,36 +105,51 @@ class PrivateController extends Controller
     
     public function updateFunnelCheckbox(Request $request)
     {
-        $dataId = $request->input('data_id');
-        $dataType = $request->input('data_type');
-        $field = $request->input('field');
-        $value = $request->input('value');
+        $request->validate([
+            'data_type' => 'required|in:on_hand,qualified,koreksi,initiate,initiated,correction',
+            'data_id' => 'required|integer',
+            'field' => 'required|string',
+            'value' => 'required|boolean',
+            'est_nilai_bc' => 'nullable|numeric',
+        ]);
         
-        $funnel = FunnelTracking::updateOrCreate(
+        $funnel = FunnelTracking::firstOrCreate(
             [
-                'data_id' => $dataId,
-                'data_type' => $dataType,
-            ],
-            [
-                $field => $value == 'true' || $value === true,
-                'updated_by' => Auth::id(),
-                'last_updated_at' => now(),
+                'data_type' => $request->data_type,
+                'data_id' => $request->data_id,
             ]
         );
         
-        // Calculate total if billing complete
-        $total = 0;
-        if ($field === 'delivery_billing_complete' && ($value == 'true' || $value === true)) {
-            $estNilaiBc = $request->input('est_nilai_bc', 0);
-            $total = (int) str_replace(['.', ','], '', $estNilaiBc);
+        // Update the checkbox field
+        $funnel->{$request->field} = $request->value;
+        
+        // Track user and timestamp
+        $funnel->updated_by = auth()->id();
+        $funnel->last_updated_at = now();
+        
+        // If the field is delivery_billing_complete and it's being checked
+        if ($request->field === 'delivery_billing_complete' && $request->value) {
+            // Set delivery_nilai_billcomp to est_nilai_bc value
+            $funnel->delivery_nilai_billcomp = $request->est_nilai_bc ?? 0;
+        } elseif ($request->field === 'delivery_billing_complete' && !$request->value) {
+            // If unchecked, clear the nilai_billcomp
+            $funnel->delivery_nilai_billcomp = null;
         }
+        
+        $funnel->save();
+        
+        // Calculate total for all billing complete values in this data type
+        $total = FunnelTracking::where('data_type', $request->data_type)
+            ->where('delivery_billing_complete', true)
+            ->whereNotNull('delivery_nilai_billcomp')
+            ->sum('delivery_nilai_billcomp');
         
         return response()->json([
             'success' => true,
-            'nilai_billcomp' => $total,
+            'nilai_billcomp' => $funnel->delivery_nilai_billcomp,
             'total' => number_format($total, 0, ',', '.'),
-            'updated_by' => Auth::user()->name ?? 'System',
-            'updated_at' => now()->format('d M Y H:i'),
+            'updated_by' => auth()->user()->name,
+            'updated_at' => $funnel->last_updated_at->format('d M Y H:i'),
         ]);
     }
 }

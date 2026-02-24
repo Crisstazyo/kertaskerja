@@ -21,16 +21,57 @@ use App\Http\Controllers\SmeController;
 
 // Landing Page
 Route::get('/', function() {
+    // If user is already authenticated, redirect to their dashboard
+    if (auth()->check()) {
+        $role = auth()->user()->role;
+        
+        if ($role === 'admin') {
+            return redirect()->route('admin.dashboard');
+        }
+        if ($role === 'government') {
+            return redirect()->route('government.dashboard');
+        }
+        if ($role === 'gov') {
+            return redirect()->route('gov.dashboard');
+        }
+        if ($role === 'private') {
+            return redirect()->route('private.dashboard');
+        }
+        if ($role === 'soe') {
+            return redirect()->route('soe.dashboard');
+        }
+        if ($role === 'sme') {
+            return redirect()->route('sme.dashboard');
+        }
+    }
+    
     return view('welcome');
 })->name('home');
 
-// Authentication Routes
-Route::get('/login', [AuthController::class, 'showLogin'])->name('login.show');
+// Authentication Routes - guest middleware prevents authenticated users from accessing
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [AuthController::class, 'showLogin'])->name('login.show');
+});
+
 Route::post('/login', [AuthController::class, 'login'])->name('login');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-// Government Routes (Protected)
+// Government Routes (Protected) - using 'gov' prefix for backward compatibility
 Route::middleware(['auth'])->prefix('gov')->name('gov.')->group(function () {
+    Route::get('/dashboard', [GovController::class, 'dashboard'])->name('dashboard');
+    Route::get('/scalling', [GovController::class, 'scalling'])->name('scalling');
+    Route::get('/psak', [GovController::class, 'psak'])->name('psak');
+    Route::get('/lop-on-hand', [GovController::class, 'lopOnHand'])->name('lop-on-hand');
+    Route::get('/lop-qualified', [GovController::class, 'lopQualified'])->name('lop-qualified');
+    Route::get('/lop-koreksi', [GovController::class, 'lopKoreksi'])->name('lop-koreksi');
+    Route::get('/lop-initiate', [GovController::class, 'lopInitiate'])->name('lop-initiate');
+    
+    // Funnel Tracking Update (AJAX)
+    Route::post('/funnel/update', [GovController::class, 'updateFunnelCheckbox'])->name('funnel.update');
+});
+
+// Government Routes (Protected) - using 'government' prefix (alternative)
+Route::middleware(['auth'])->prefix('government')->name('government.')->group(function () {
     Route::get('/dashboard', [GovController::class, 'dashboard'])->name('dashboard');
     Route::get('/scalling', [GovController::class, 'scalling'])->name('scalling');
     Route::get('/psak', [GovController::class, 'psak'])->name('psak');
