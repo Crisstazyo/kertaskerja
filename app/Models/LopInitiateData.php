@@ -27,6 +27,7 @@ class LopInitiateData extends Model
     
     public function funnel()
     {
-        return $this->morphOne(FunnelTracking::class, 'data', 'data_type', 'data_id');
+        return $this->hasOne(FunnelTracking::class, 'data_id', 'id')
+                    ->where('data_type', 'initiate');
     }
 }

@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class LopQualifiedData extends Model
+class LopSoeCorrectionData extends Model
 {
     use HasFactory;
 
@@ -24,12 +24,12 @@ class LopQualifiedData extends Model
 
     public function import()
     {
-        return $this->belongsTo(LopQualifiedImport::class, 'import_id');
+        return $this->belongsTo(LopSoeCorrectionImport::class, 'import_id');
     }
     
     public function funnel()
     {
         return $this->hasOne(FunnelTracking::class, 'data_id', 'id')
-                    ->where('data_type', 'qualified');
+                    ->where('data_type', 'soe_correction');
     }
 }

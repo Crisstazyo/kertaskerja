@@ -21,11 +21,8 @@ class GovController extends Controller
     
     public function scalling()
     {
-        $scallingData = ScallingData::with(['responses' => function($query) {
-            $query->where('user_id', Auth::id());
-        }])->latest()->get();
-        
-        return view('gov.scalling', compact('scallingData'));
+        // Scalling page acts as parent menu for LOP categories
+        return view('gov.scalling');
     }
     
     public function psak()
@@ -116,5 +113,55 @@ class GovController extends Controller
             ->first();
         
         return view('gov.lop-initiate', compact('data', 'adminNote', 'currentMonth', 'currentYear'));
+    }
+    
+    public function updateFunnelCheckbox(Request $request)
+    {
+        $request->validate([
+            'data_type' => 'required|in:on_hand,qualified,koreksi,initiate',
+            'data_id' => 'required|integer',
+            'field' => 'required|string',
+            'value' => 'required|boolean',
+            'est_nilai_bc' => 'nullable|numeric',
+        ]);
+        
+        $funnel = \App\Models\FunnelTracking::firstOrCreate(
+            [
+                'data_type' => $request->data_type,
+                'data_id' => $request->data_id,
+            ]
+        );
+        
+        // Update the checkbox field
+        $funnel->{$request->field} = $request->value;
+        
+        // Track user and timestamp
+        $funnel->updated_by = auth()->id();
+        $funnel->last_updated_at = now();
+        
+        // If the field is delivery_billing_complete and it's being checked
+        if ($request->field === 'delivery_billing_complete' && $request->value) {
+            // Set delivery_nilai_billcomp to est_nilai_bc value
+            $funnel->delivery_nilai_billcomp = $request->est_nilai_bc ?? 0;
+        } elseif ($request->field === 'delivery_billing_complete' && !$request->value) {
+            // If unchecked, clear the nilai_billcomp
+            $funnel->delivery_nilai_billcomp = null;
+        }
+        
+        $funnel->save();
+        
+        // Calculate total for all billing complete values in this data type
+        $total = \App\Models\FunnelTracking::where('data_type', $request->data_type)
+            ->where('delivery_billing_complete', true)
+            ->whereNotNull('delivery_nilai_billcomp')
+            ->sum('delivery_nilai_billcomp');
+        
+        return response()->json([
+            'success' => true,
+            'nilai_billcomp' => $funnel->delivery_nilai_billcomp,
+            'total' => number_format($total, 0, ',', '.'),
+            'updated_by' => auth()->user()->name,
+            'updated_at' => $funnel->last_updated_at->format('d M Y H:i'),
+        ]);
     }
 }

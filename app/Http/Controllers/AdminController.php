@@ -854,4 +854,42 @@ class AdminController extends Controller
         
         return response()->json(['note' => $note ? $note->note : '']);
     }
+    
+    /**
+     * Show LOP Progress Tracking - Admin View
+     */
+    public function lopProgressTracking()
+    {
+        // Get all LOP data with funnel tracking and user info
+        $onHandData = LopOnHandData::with(['funnel.updatedByUser'])
+            ->whereHas('funnel', function($query) {
+                $query->whereNotNull('updated_by');
+            })
+            ->get();
+        
+        $qualifiedData = LopQualifiedData::with(['funnel.updatedByUser'])
+            ->whereHas('funnel', function($query) {
+                $query->whereNotNull('updated_by');
+            })
+            ->get();
+        
+        $koreksiData = LopKoreksiData::with(['funnel.updatedByUser'])
+            ->whereHas('funnel', function($query) {
+                $query->whereNotNull('updated_by');
+            })
+            ->get();
+        
+        $initiateData = LopInitiateData::with(['funnel.updatedByUser'])
+            ->whereHas('funnel', function($query) {
+                $query->whereNotNull('updated_by');
+            })
+            ->get();
+        
+        return view('admin.lop-progress-tracking', compact(
+            'onHandData',
+            'qualifiedData',
+            'koreksiData',
+            'initiateData'
+        ));
+    }
 }

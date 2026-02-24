@@ -4,6 +4,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\GovController;
+use App\Http\Controllers\PrivateController;
+use App\Http\Controllers\SoeController;
+use App\Http\Controllers\SmeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -35,6 +38,48 @@ Route::middleware(['auth'])->prefix('gov')->name('gov.')->group(function () {
     Route::get('/lop-qualified', [GovController::class, 'lopQualified'])->name('lop-qualified');
     Route::get('/lop-koreksi', [GovController::class, 'lopKoreksi'])->name('lop-koreksi');
     Route::get('/lop-initiate', [GovController::class, 'lopInitiate'])->name('lop-initiate');
+    
+    // Funnel Tracking Update (AJAX)
+    Route::post('/funnel/update', [GovController::class, 'updateFunnelCheckbox'])->name('funnel.update');
+});
+
+// Private Routes (Protected)
+Route::middleware(['auth'])->prefix('private')->name('private.')->group(function () {
+    Route::get('/dashboard', [PrivateController::class, 'dashboard'])->name('dashboard');
+    Route::get('/scalling', [PrivateController::class, 'scalling'])->name('scalling');
+    Route::get('/lop-on-hand', [PrivateController::class, 'lopOnHand'])->name('lop-on-hand');
+    Route::get('/lop-qualified', [PrivateController::class, 'lopQualified'])->name('lop-qualified');
+    Route::get('/lop-initiated', [PrivateController::class, 'lopInitiated'])->name('lop-initiated');
+    Route::get('/lop-correction', [PrivateController::class, 'lopCorrection'])->name('lop-correction');
+    
+    // Funnel Tracking Update (AJAX)
+    Route::post('/funnel/update', [PrivateController::class, 'updateFunnelCheckbox'])->name('funnel.update');
+});
+
+// SOE Routes (Protected)
+Route::middleware(['auth'])->prefix('soe')->name('soe.')->group(function () {
+    Route::get('/dashboard', [SoeController::class, 'dashboard'])->name('dashboard');
+    Route::get('/scalling', [SoeController::class, 'scalling'])->name('scalling');
+    Route::get('/lop-on-hand', [SoeController::class, 'lopOnHand'])->name('lop-on-hand');
+    Route::get('/lop-qualified', [SoeController::class, 'lopQualified'])->name('lop-qualified');
+    Route::get('/lop-initiated', [SoeController::class, 'lopInitiated'])->name('lop-initiated');
+    Route::get('/lop-correction', [SoeController::class, 'lopCorrection'])->name('lop-correction');
+    
+    // Funnel Tracking Update (AJAX)
+    Route::post('/funnel/update', [SoeController::class, 'updateFunnelCheckbox'])->name('funnel.update');
+});
+
+// SME Routes (Protected)
+Route::middleware(['auth'])->prefix('sme')->name('sme.')->group(function () {
+    Route::get('/dashboard', [SmeController::class, 'dashboard'])->name('dashboard');
+    Route::get('/scalling', [SmeController::class, 'scalling'])->name('scalling');
+    Route::get('/lop-on-hand', [SmeController::class, 'lopOnHand'])->name('lop-on-hand');
+    Route::get('/lop-qualified', [SmeController::class, 'lopQualified'])->name('lop-qualified');
+    Route::get('/lop-initiated', [SmeController::class, 'lopInitiated'])->name('lop-initiated');
+    Route::get('/lop-correction', [SmeController::class, 'lopCorrection'])->name('lop-correction');
+    
+    // Funnel Tracking Update (AJAX)
+    Route::post('/funnel/update', [SmeController::class, 'updateFunnelCheckbox'])->name('funnel.update');
 });
 
 // Admin Routes (Protected)
@@ -71,6 +116,9 @@ Route::middleware(['auth', 'admin'])->group(function () {
     // Admin Notes
     Route::post('/admin/lop/note/save', [AdminController::class, 'saveAdminNote'])->name('admin.lop.note.save');
     Route::get('/admin/lop/note/{entity}/{category}/{month}/{year}', [AdminController::class, 'getAdminNote'])->name('admin.lop.note.get');
+    
+    // LOP Progress Tracking
+    Route::get('/admin/lop/progress-tracking', [AdminController::class, 'lopProgressTracking'])->name('admin.lop.progress-tracking');
     
     // Step 2: Select Type (Scalling/PSAK)
     Route::get('/admin/lop/{entity}', [AdminController::class, 'lopTypeSelect'])->name('admin.lop.type-select');
