@@ -131,6 +131,10 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::post('/admin/{role}/scalling/upload', [AdminController::class, 'uploadScalling'])->name('admin.scalling.upload');
     Route::get('/admin/{role}/scalling/data', [AdminController::class, 'scallingData'])->name('admin.scalling.data');
     
+    // Upload History and Progress Tracking for all roles
+    Route::get('/admin/{role}/upload-history', [AdminController::class, 'uploadHistory'])->name('admin.upload-history');
+    Route::get('/admin/{role}/progress-tracking', [AdminController::class, 'progressTracking'])->name('admin.progress-tracking');
+    
     // PSAK Management for Gov (OLD - keeping for backward compatibility)
     Route::get('/admin/{role}/psak', [AdminController::class, 'psak'])->name('admin.psak');
 });

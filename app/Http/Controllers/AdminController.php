@@ -36,13 +36,90 @@ class AdminController extends Controller
     // Scalling Management Page
     public function scalling($role)
     {
-        if ($role !== 'gov') {
+        if (!in_array($role, ['gov', 'government', 'private', 'soe', 'sme'])) {
             abort(404);
         }
         
-        $scallingData = ScallingData::with('responses.user')->latest()->get();
+        // Normalize role name
+        $roleNormalized = ($role === 'gov') ? 'government' : $role;
         
-        return view('admin.scalling', compact('role', 'scallingData'));
+        // Get upload history with filters
+        $uploadHistory = ScallingData::query()
+            ->when(request('role_filter'), function($q, $roleFilter) {
+                return $q->where('role', $roleFilter);
+            })
+            ->when(request('date_from'), function($q, $dateFrom) {
+                return $q->whereDate('created_at', '>=', $dateFrom);
+            })
+            ->when(request('date_to'), function($q, $dateTo) {
+                return $q->whereDate('created_at', '<=', $dateTo);
+            })
+            ->latest()
+            ->paginate(20);
+        
+        return view('admin.scalling', compact('role', 'roleNormalized', 'uploadHistory'));
+    }
+    
+    // Upload History Page
+    public function uploadHistory($role)
+    {
+        if (!in_array($role, ['gov', 'government', 'private', 'soe', 'sme'])) {
+            abort(404);
+        }
+        
+        // Get upload history for this role
+        $roleNormalized = ($role === 'gov') ? 'government' : $role;
+        
+        $uploadHistory = LopOnHandImport::where('entity_type', $roleNormalized)
+            ->when(request('month'), function($q, $month) {
+                return $q->where('month', $month);
+            })
+            ->when(request('year'), function($q, $year) {
+                return $q->where('year', $year);
+            })
+            ->when(request('date_from'), function($q, $dateFrom) {
+                return $q->whereDate('created_at', '>=', $dateFrom);
+            })
+            ->when(request('date_to'), function($q, $dateTo) {
+                return $q->whereDate('created_at', '<=', $dateTo);
+            })
+            ->latest()
+            ->paginate(20);
+            
+        return view('admin.upload-history', compact('role', 'uploadHistory'));
+    }
+    
+    // Progress Tracking Page
+    public function progressTracking($role)
+    {
+        if (!in_array($role, ['gov', 'government', 'private', 'soe', 'sme'])) {
+            abort(404);
+        }
+        
+        // Get funnel tracking data with filters
+        $roleNormalized = ($role === 'gov') ? 'government' : $role;
+        
+        $progressData = FunnelTracking::query()
+            ->with(['onHandData.import', 'qualifiedData.import', 'koreksiData.import'])
+            ->when(request('user_filter'), function($q, $userFilter) {
+                return $q->where('updated_by', $userFilter);
+            })
+            ->when(request('data_type'), function($q, $dataType) {
+                return $q->where('data_type', $dataType);
+            })
+            ->when(request('date_from'), function($q, $dateFrom) {
+                return $q->whereDate('last_updated_at', '>=', $dateFrom);
+            })
+            ->when(request('date_to'), function($q, $dateTo) {
+                return $q->whereDate('last_updated_at', '<=', $dateTo);
+            })
+            ->latest('last_updated_at')
+            ->paginate(50);
+            
+        // Get unique users for filter
+        $users = User::where('role', $roleNormalized)->get();
+        
+        return view('admin.progress-tracking', compact('role', 'progressData', 'users'));
     }
     
     // Upload Scalling Data from Excel
@@ -559,7 +636,7 @@ class AdminController extends Controller
     
     public function uploadLopData(Request $request, $entity, $category)
     {
-        if (!in_array($entity, ['government', 'private', 'soe'])) {
+        if (!in_array($entity, ['government', 'private', 'soe', 'sme'])) {
             abort(404);
         }
         if (!in_array($category, ['on_hand', 'qualified', 'koreksi'])) {
