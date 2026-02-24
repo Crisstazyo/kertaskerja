@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('title', 'Private - LOP On Hand')
 
@@ -76,12 +76,9 @@
                                 <th colspan="3" class="px-3 py-2 text-center font-bold text-white bg-gradient-to-r from-orange-600 to-orange-700 border-r border-gray-300">F3</th>
                                 <th class="px-3 py-2 text-center font-bold text-white bg-gradient-to-r from-teal-600 to-teal-700 border-r border-gray-300">F4</th>
                                 <th colspan="3" class="px-3 py-2 text-center font-bold text-white bg-gradient-to-r from-green-600 to-emerald-700 border-r border-gray-300">F5</th>
-                                <th colspan="4" class="px-3 py-2 text-center font-bold text-white bg-gradient-to-r from-emerald-600 to-emerald-800 border-r border-gray-300">DELIVERY</th>
+                                <th colspan="3" class="px-3 py-2 text-center font-bold text-white bg-gradient-to-r from-emerald-600 to-emerald-800 border-r border-gray-300">DELIVERY</th>
                                 <th rowspan="2" class="px-3 py-2 text-center font-bold text-white bg-gradient-to-r from-indigo-600 to-indigo-700 border-r border-gray-300">BILLING<br>COMPLETE</th>
                                 <th rowspan="2" class="px-3 py-2 text-center font-bold text-white bg-gradient-to-r from-violet-600 to-violet-700 border-r border-gray-300">NILAI BILL COMP</th>
-                                
-                                <!-- Update Column -->
-                                <th rowspan="2" class="px-4 py-2 text-center font-bold text-gray-700 uppercase tracking-wider bg-amber-50">Update</th>
                             </tr>
                             <tr class="text-xs">
                                 <!-- Data columns handled by rowspan above -->
@@ -111,7 +108,6 @@
                                 <th class="px-2 py-1.5 text-center text-gray-700 font-semibold bg-emerald-50 border-r border-gray-200">Kontrak</th>
                                 <th class="px-2 py-1.5 text-center text-gray-700 font-semibold bg-emerald-50 border-r border-gray-200">BAUT/BAST</th>
                                 <th class="px-2 py-1.5 text-center text-gray-700 font-semibold bg-emerald-50 border-r border-gray-200">BASO</th>
-                                <th class="px-2 py-1.5 text-center text-gray-700 font-semibold bg-emerald-50 border-r border-gray-200">Billing</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
@@ -149,20 +145,21 @@
                                 <td class="px-2 py-2 text-center border-r bg-purple-50">
                                     <input type="checkbox" 
                                            class="funnel-checkbox w-4 h-4 text-purple-600 cursor-pointer" 
-                                           data-field="f1_p0_p1"
+                                           data-field="f1_tech_budget"
                                            data-data-type="on_hand"
                                            data-data-id="{{ $row->id }}"
-                                           {{ $funnel && $funnel->f1_p0_p1 ? 'checked' : '' }}>
+                                           {{ $funnel && $funnel->todayProgress && $funnel->todayProgress->f1_tech_budget ? 'checked' : '' }}>
+                                </td>
                                 </td>
                                 <!-- F2: P0/P1, P2, P3, P4, Offering, P5, Proposal -->
                                 @if($denganMitra)
                                 <td class="px-2 py-2 text-center border-r bg-pink-50">
                                     <input type="checkbox" 
                                            class="funnel-checkbox w-4 h-4 text-pink-600 cursor-pointer" 
-                                           data-field="f1_juskeb"
+                                           data-field="f2_p0_p1"
                                            data-data-type="on_hand"
                                            data-data-id="{{ $row->id }}"
-                                           {{ $funnel && $funnel->f1_juskeb ? 'checked' : '' }}>
+                                           {{ $funnel && $funnel->todayProgress && $funnel->todayProgress->f2_p0_p1 ? 'checked' : '' }}>
                                 </td>
                                 @else
                                 <td class="px-2 py-2 text-center border-r bg-pink-50"><span class="text-gray-300">-</span></td>
@@ -175,7 +172,7 @@
                                            data-field="f2_p2"
                                            data-data-type="on_hand"
                                            data-data-id="{{ $row->id }}"
-                                           {{ $funnel && $funnel->f2_p2 ? 'checked' : '' }}>
+                                           {{ $funnel && $funnel->todayProgress && $funnel->todayProgress->f2_p2 ? 'checked' : '' }}>
                                 </td>
                                 @else
                                 <td class="px-2 py-2 text-center border-r bg-pink-50"><span class="text-gray-300">-</span></td>
@@ -185,10 +182,10 @@
                                 <td class="px-2 py-2 text-center border-r bg-pink-50">
                                     <input type="checkbox" 
                                            class="funnel-checkbox w-4 h-4 text-pink-600 cursor-pointer" 
-                                           data-field="f1_bod_dm"
+                                           data-field="f2_p3"
                                            data-data-type="on_hand"
                                            data-data-id="{{ $row->id }}"
-                                           {{ $funnel && $funnel->f1_bod_dm ? 'checked' : '' }}>
+                                           {{ $funnel && $funnel->todayProgress && $funnel->todayProgress->f2_p3 ? 'checked' : '' }}>
                                 </td>
                                 @else
                                 <td class="px-2 py-2 text-center border-r bg-pink-50"><span class="text-gray-300">-</span></td>
@@ -198,10 +195,10 @@
                                 <td class="px-2 py-2 text-center border-r bg-pink-50">
                                     <input type="checkbox" 
                                            class="funnel-checkbox w-4 h-4 text-pink-600 cursor-pointer" 
-                                           data-field="f2_evaluasi"
+                                           data-field="f2_p4"
                                            data-data-type="on_hand"
                                            data-data-id="{{ $row->id }}"
-                                           {{ $funnel && $funnel->f2_evaluasi ? 'checked' : '' }}>
+                                           {{ $funnel && $funnel->todayProgress && $funnel->todayProgress->f2_p4 ? 'checked' : '' }}>
                                 </td>
                                 @else
                                 <td class="px-2 py-2 text-center border-r bg-pink-50"><span class="text-gray-300">-</span></td>
@@ -211,10 +208,10 @@
                                 <td class="px-2 py-2 text-center border-r bg-pink-50">
                                     <input type="checkbox" 
                                            class="funnel-checkbox w-4 h-4 text-pink-600 cursor-pointer" 
-                                           data-field="f2_taf"
+                                           data-field="f2_offering"
                                            data-data-type="on_hand"
                                            data-data-id="{{ $row->id }}"
-                                           {{ $funnel && $funnel->f2_taf ? 'checked' : '' }}>
+                                           {{ $funnel && $funnel->todayProgress && $funnel->todayProgress->f2_offering ? 'checked' : '' }}>
                                 </td>
                                 @else
                                 <td class="px-2 py-2 text-center border-r bg-pink-50"><span class="text-gray-300">-</span></td>
@@ -224,10 +221,10 @@
                                 <td class="px-2 py-2 text-center border-r bg-pink-50">
                                     <input type="checkbox" 
                                            class="funnel-checkbox w-4 h-4 text-pink-600 cursor-pointer" 
-                                           data-field="f2_juskeb"
+                                           data-field="f2_p5"
                                            data-data-type="on_hand"
                                            data-data-id="{{ $row->id }}"
-                                           {{ $funnel && $funnel->f2_juskeb ? 'checked' : '' }}>
+                                           {{ $funnel && $funnel->todayProgress && $funnel->todayProgress->f2_p5 ? 'checked' : '' }}>
                                 </td>
                                 @else
                                 <td class="px-2 py-2 text-center border-r bg-pink-50"><span class="text-gray-300">-</span></td>
@@ -237,20 +234,20 @@
                                 <td class="px-2 py-2 text-center border-r bg-pink-50">
                                     <input type="checkbox" 
                                            class="funnel-checkbox w-4 h-4 text-pink-600 cursor-pointer" 
-                                           data-field="f2_bod_dm"
+                                           data-field="f2_proposal"
                                            data-data-type="on_hand"
                                            data-data-id="{{ $row->id }}"
-                                           {{ $funnel && $funnel->f2_bod_dm ? 'checked' : '' }}>
+                                           {{ $funnel && $funnel->todayProgress && $funnel->todayProgress->f2_proposal ? 'checked' : '' }}>
                                 </td>
                                 <!-- F3: P6, P7, Submit -->
                                 @if($denganMitra)
                                 <td class="px-2 py-2 text-center border-r bg-orange-50">
                                     <input type="checkbox" 
                                            class="funnel-checkbox w-4 h-4 text-orange-600 cursor-pointer" 
-                                           data-field="f3_p3_1"
+                                           data-field="f3_p6"
                                            data-data-type="on_hand"
                                            data-data-id="{{ $row->id }}"
-                                           {{ $funnel && $funnel->f3_p3_1 ? 'checked' : '' }}>
+                                           {{ $funnel && $funnel->todayProgress && $funnel->todayProgress->f3_p6 ? 'checked' : '' }}>
                                 </td>
                                 @else
                                 <td class="px-2 py-2 text-center border-r bg-orange-50"><span class="text-gray-300">-</span></td>
@@ -260,10 +257,10 @@
                                 <td class="px-2 py-2 text-center border-r bg-orange-50">
                                     <input type="checkbox" 
                                            class="funnel-checkbox w-4 h-4 text-orange-600 cursor-pointer" 
-                                           data-field="f3_sph"
+                                           data-field="f3_p7"
                                            data-data-type="on_hand"
                                            data-data-id="{{ $row->id }}"
-                                           {{ $funnel && $funnel->f3_sph ? 'checked' : '' }}>
+                                           {{ $funnel && $funnel->todayProgress && $funnel->todayProgress->f3_p7 ? 'checked' : '' }}>
                                 </td>
                                 @else
                                 <td class="px-2 py-2 text-center border-r bg-orange-50"><span class="text-gray-300">-</span></td>
@@ -273,19 +270,19 @@
                                 <td class="px-2 py-2 text-center border-r bg-orange-50">
                                     <input type="checkbox" 
                                            class="funnel-checkbox w-4 h-4 text-orange-600 cursor-pointer" 
-                                           data-field="f3_juskeb"
+                                           data-field="f3_submit"
                                            data-data-type="on_hand"
                                            data-data-id="{{ $row->id }}"
-                                           {{ $funnel && $funnel->f3_juskeb ? 'checked' : '' }}>
+                                           {{ $funnel && $funnel->todayProgress && $funnel->todayProgress->f3_submit ? 'checked' : '' }}>
                                 </td>
                                 <!-- F4: Negosiasi - Ditampilkan untuk semua -->
                                 <td class="px-2 py-2 text-center border-r bg-teal-50">
                                     <input type="checkbox" 
                                            class="funnel-checkbox w-4 h-4 text-teal-600 cursor-pointer" 
-                                           data-field="f4_p3_2"
+                                           data-field="f4_negosiasi"
                                            data-data-type="on_hand"
                                            data-data-id="{{ $row->id }}"
-                                           {{ $funnel && $funnel->f4_p3_2 ? 'checked' : '' }}>
+                                           {{ $funnel && $funnel->todayProgress && $funnel->todayProgress->f4_negosiasi ? 'checked' : '' }}>
                                 </td>
                                 
                                 <!-- F5: SK Mitra, TTD Kontrak, P8 -->
@@ -293,10 +290,10 @@
                                 <td class="px-2 py-2 text-center border-r bg-green-50">
                                     <input type="checkbox" 
                                            class="funnel-checkbox w-4 h-4 text-green-600 cursor-pointer" 
-                                           data-field="f4_pks"
+                                           data-field="f5_sk_mitra"
                                            data-data-type="on_hand"
                                            data-data-id="{{ $row->id }}"
-                                           {{ $funnel && $funnel->f4_pks ? 'checked' : '' }}>
+                                           {{ $funnel && $funnel->todayProgress && $funnel->todayProgress->f5_sk_mitra ? 'checked' : '' }}>
                                 </td>
                                 @else
                                 <td class="px-2 py-2 text-center border-r bg-green-50"><span class="text-gray-300">-</span></td>
@@ -306,74 +303,45 @@
                                 <td class="px-2 py-2 text-center border-r bg-green-50">
                                     <input type="checkbox" 
                                            class="funnel-checkbox w-4 h-4 text-green-600 cursor-pointer" 
-                                           data-field="f4_bast"
+                                           data-field="f5_ttd_kontrak"
                                            data-data-type="on_hand"
                                            data-data-id="{{ $row->id }}"
-                                           {{ $funnel && $funnel->f4_bast ? 'checked' : '' }}>
+                                           {{ $funnel && $funnel->todayProgress && $funnel->todayProgress->f5_ttd_kontrak ? 'checked' : '' }}>
                                 </td>
                                 
                                 @if($denganMitra)
                                 <td class="px-2 py-2 text-center border-r bg-green-50">
                                     <input type="checkbox" 
                                            class="funnel-checkbox w-4 h-4 text-green-600 cursor-pointer" 
-                                           data-field="f5_p4"
+                                           data-field="f5_p8"
                                            data-data-type="on_hand"
                                            data-data-id="{{ $row->id }}"
-                                           {{ $funnel && $funnel->f5_p4 ? 'checked' : '' }}>
+                                           {{ $funnel && $funnel->todayProgress && $funnel->todayProgress->f5_p8 ? 'checked' : '' }}>
                                 </td>
                                 @else
                                 <td class="px-2 py-2 text-center border-r bg-green-50"><span class="text-gray-300">-</span></td>
                                 @endif
                                 
-                                <!-- DELIVERY: Kontrak, BAUT/BAST, BASO, Billing -->
-                                @if($denganMitra)
+                                <!-- DELIVERY: Kontrak (checkbox), BAUT/BAST (text), BASO (text) -->
+                                <!-- Kontrak -->
                                 <td class="px-2 py-2 text-center border-r bg-emerald-50">
                                     <input type="checkbox" 
                                            class="funnel-checkbox w-4 h-4 text-emerald-600 cursor-pointer" 
-                                           data-field="f5_p5"
+                                           data-field="delivery_kontrak"
                                            data-data-type="on_hand"
                                            data-data-id="{{ $row->id }}"
-                                           {{ $funnel && $funnel->f5_p5 ? 'checked' : '' }}>
-                                </td>
-                                @else
-                                <td class="px-2 py-2 text-center border-r bg-emerald-50"><span class="text-gray-300">-</span></td>
-                                @endif
-                                
-                                <!-- BASO - Ditampilkan untuk semua -->
-                                <td class="px-2 py-2 text-center border-r bg-emerald-50">
-                                    <input type="checkbox" 
-                                           class="funnel-checkbox w-4 h-4 text-emerald-600 cursor-pointer" 
-                                           data-field="delivery_baso"
-                                           data-data-type="on_hand"
-                                           data-data-id="{{ $row->id }}"
-                                           {{ $funnel && $funnel->delivery_baso ? 'checked' : '' }}>
+                                           {{ $funnel && $funnel->todayProgress && $funnel->todayProgress->delivery_kontrak ? 'checked' : '' }}>
                                 </td>
                                 
-                                @if($denganMitra)
-                                <td class="px-2 py-2 text-center border-r bg-emerald-50">
-                                    <input type="checkbox" 
-                                           class="funnel-checkbox w-4 h-4 text-emerald-600 cursor-pointer" 
-                                           data-field="f5_kontrak_layanan"
-                                           data-data-type="on_hand"
-                                           data-data-id="{{ $row->id }}"
-                                           {{ $funnel && $funnel->f5_kontrak_layanan ? 'checked' : '' }}>
+                                <!-- BAUT/BAST (text display from funnel, NOT todayProgress) -->
+                                <td class="px-2 py-2 text-center border-r bg-emerald-50 text-xs">
+                                    {{ $funnel && $funnel->delivery_baut_bast ? $funnel->delivery_baut_bast : '-' }}
                                 </td>
-                                @else
-                                <td class="px-2 py-2 text-center border-r bg-emerald-50"><span class="text-gray-300">-</span></td>
-                                @endif
                                 
-                                @if($denganMitra)
-                                <td class="px-2 py-2 text-center border-r bg-emerald-50">
-                                    <input type="checkbox" 
-                                           class="funnel-checkbox w-4 h-4 text-emerald-600 cursor-pointer" 
-                                           data-field="delivery_billing"
-                                           data-data-type="on_hand"
-                                           data-data-id="{{ $row->id }}"
-                                           {{ $funnel && $funnel->delivery_billing ? 'checked' : '' }}>
+                                <!-- BASO (text display from funnel, NOT todayProgress) -->
+                                <td class="px-2 py-2 text-center border-r bg-emerald-50 text-xs">
+                                    {{ $funnel && $funnel->delivery_baso ? $funnel->delivery_baso : '-' }}
                                 </td>
-                                @else
-                                <td class="px-2 py-2 text-center border-r bg-emerald-50"><span class="text-gray-300">-</span></td>
-                                @endif
                                 
                                 <!-- BILLING COMPLETE - Ditampilkan untuk semua -->
                                 <td class="px-2 py-2 text-center border-r bg-indigo-50">
@@ -383,18 +351,18 @@
                                            data-data-type="on_hand"
                                            data-data-id="{{ $row->id }}"
                                            data-est-nilai="{{ $row->est_nilai_bc }}"
-                                           {{ $funnel && $funnel->delivery_billing_complete ? 'checked' : '' }}>
+                                           {{ $funnel && $funnel->todayProgress && $funnel->todayProgress->delivery_billing_complete ? 'checked' : '' }}>
                                 </td>
                                 
                                 <!-- NILAI BILL COMP -->
-                                @if($denganMitra)
                                 <td class="px-2 py-2 text-center border-r bg-violet-50 nilai-billcomp-cell" data-row-id="{{ $row->id }}">
                                     <span class="font-semibold text-gray-900">
                                         @php
-                                            if ($funnel && $funnel->delivery_billing_complete) {
-                                                $nilaiToShow = $funnel->delivery_nilai_billcomp;
+                                            $todayProgress = $funnel ? $funnel->todayProgress : null;
+                                            if ($todayProgress && $todayProgress->delivery_billing_complete) {
+                                                $nilaiToShow = $todayProgress->delivery_nilai_billcomp;
                                                 if (!$nilaiToShow) {
-                                                    // Clean est_nilai_bc from string format
+                                                    // Fallback to est_nilai_bc if not set
                                                     $cleanValue = str_replace(['.', ','], '', $row->est_nilai_bc ?? '0');
                                                     $nilaiToShow = (int) $cleanValue;
                                                 }
@@ -405,9 +373,6 @@
                                         @endphp
                                     </span>
                                 </td>
-                                @else
-                                <td class="px-2 py-2 text-center border-r bg-violet-50"><span class="text-gray-300">-</span></td>
-                                @endif
                                 
                                 <!-- Update Button -->
                                 <td class="px-4 py-2 text-center border-r">
@@ -449,10 +414,15 @@
                                     @endphp
                                     {{ number_format($totalEstNilai, 0, ',', '.') }}
                                 </td>
-                                <td colspan="20" class="border-r"></td>
+                                <td colspan="19" class="border-r"></td>
                                 <td class="px-4 py-4 text-center font-bold text-violet-700 text-lg border-r bg-violet-50" id="total-nilai-billcomp">
                                     @php
-                                        $totalBillComp = \App\Models\FunnelTracking::where('data_type', 'on_hand')
+                                        // Calculate total from task_progress table (today's progress for current user)
+                                        $totalBillComp = \App\Models\TaskProgress::whereHas('task', function($query) {
+                                                $query->where('data_type', 'on_hand');
+                                            })
+                                            ->where('user_id', auth()->id())
+                                            ->whereDate('tanggal', today())
                                             ->where('delivery_billing_complete', true)
                                             ->whereNotNull('delivery_nilai_billcomp')
                                             ->sum('delivery_nilai_billcomp');
@@ -480,7 +450,7 @@
                                 <div class="bg-white/70 p-3 rounded-lg border border-blue-200">
                                     <div class="font-semibold text-blue-700 mb-1">F0</div>
                                     <div class="ml-3 space-y-0.5 text-gray-600">
-                                        <div>• Inisiasi</div>
+                                        <div>ΓÇó Inisiasi</div>
                                     </div>
                                 </div>
                                 
@@ -488,7 +458,7 @@
                                 <div class="bg-white/70 p-3 rounded-lg border border-purple-200">
                                     <div class="font-semibold text-purple-700 mb-1">F1</div>
                                     <div class="ml-3 space-y-0.5 text-gray-600">
-                                        <div>• Technical & Budget Discussion</div>
+                                        <div>ΓÇó Technical & Budget Discussion</div>
                                     </div>
                                 </div>
                                 
@@ -496,13 +466,13 @@
                                 <div class="bg-white/70 p-3 rounded-lg border border-pink-200">
                                     <div class="font-semibold text-pink-700 mb-1">F2</div>
                                     <div class="ml-3 space-y-0.5 text-gray-600">
-                                        <div>• P0/P1. Juskeb barang / jasa</div>
-                                        <div>• P2. Evaluasi bakal calon mitra</div>
-                                        <div>• P3. Permintaan Penawaran Harga</div>
-                                        <div>• P4. Rapat Penjelasan</div>
-                                        <div>• Offering Harga Mitra</div>
-                                        <div>• P5. Evaluasi SPH Mitra</div>
-                                        <div>• Proposal Solusi</div>
+                                        <div>ΓÇó P0/P1. Juskeb barang / jasa</div>
+                                        <div>ΓÇó P2. Evaluasi bakal calon mitra</div>
+                                        <div>ΓÇó P3. Permintaan Penawaran Harga</div>
+                                        <div>ΓÇó P4. Rapat Penjelasan</div>
+                                        <div>ΓÇó Offering Harga Mitra</div>
+                                        <div>ΓÇó P5. Evaluasi SPH Mitra</div>
+                                        <div>ΓÇó Proposal Solusi</div>
                                     </div>
                                 </div>
                                 
@@ -510,9 +480,9 @@
                                 <div class="bg-white/70 p-3 rounded-lg border border-orange-200">
                                     <div class="font-semibold text-orange-700 mb-1">F3</div>
                                     <div class="ml-3 space-y-0.5 text-gray-600">
-                                        <div>• P6. Klarifikasi & Negosiasi</div>
-                                        <div>• P7. Penetapan Calon Mitra</div>
-                                        <div>• Submit proposal penawaran / SPH ke plgn</div>
+                                        <div>ΓÇó P6. Klarifikasi & Negosiasi</div>
+                                        <div>ΓÇó P7. Penetapan Calon Mitra</div>
+                                        <div>ΓÇó Submit proposal penawaran / SPH ke plgn</div>
                                     </div>
                                 </div>
                                 
@@ -520,7 +490,7 @@
                                 <div class="bg-white/70 p-3 rounded-lg border border-teal-200">
                                     <div class="font-semibold text-teal-700 mb-1">F4</div>
                                     <div class="ml-3 space-y-0.5 text-gray-600">
-                                        <div>• Negosiasi</div>
+                                        <div>ΓÇó Negosiasi</div>
                                     </div>
                                 </div>
                                 
@@ -528,9 +498,9 @@
                                 <div class="bg-white/70 p-3 rounded-lg border border-green-200">
                                     <div class="font-semibold text-green-700 mb-1">F5</div>
                                     <div class="ml-3 space-y-0.5 text-gray-600">
-                                        <div>• Surat Kesanggupan Mitra</div>
-                                        <div>• Tanda Tangan Kontrak</div>
-                                        <div>• P8. Surat Penetapan Mitra</div>
+                                        <div>ΓÇó Surat Kesanggupan Mitra</div>
+                                        <div>ΓÇó Tanda Tangan Kontrak</div>
+                                        <div>ΓÇó P8. Surat Penetapan Mitra</div>
                                     </div>
                                 </div>
                             </div>
@@ -582,13 +552,13 @@ document.addEventListener('DOMContentLoaded', function() {
     const csrfTokenMeta = document.querySelector('meta[name="csrf-token"]');
     
     if (!csrfTokenMeta) {
-        console.error('❌ CSRF token meta tag not found! AJAX requests will fail.');
+        console.error('Γ¥î CSRF token meta tag not found! AJAX requests will fail.');
         console.error('Please add this to your layout <head>: <meta name="csrf-token" content="{{ csrf_token() }}">');
         return;
     }
     
     const csrfToken = csrfTokenMeta.getAttribute('content');
-    console.log('✅ CSRF token loaded:', csrfToken ? 'YES' : 'NO');
+    console.log('Γ£à CSRF token loaded:', csrfToken ? 'YES' : 'NO');
     
     // Number formatting function
     function formatNumber(num) {
@@ -596,14 +566,11 @@ document.addEventListener('DOMContentLoaded', function() {
         return Math.round(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
     }
     
-    // Track pending changes per row
-    const pendingChanges = {};
-    
     // Check if checkboxes are found
     const funnelCheckboxes = document.querySelectorAll('.funnel-checkbox');
     const billingCheckboxes = document.querySelectorAll('.billing-checkbox');
-    console.log(`✅ Found ${funnelCheckboxes.length} funnel checkboxes`);
-    console.log(`✅ Found ${billingCheckboxes.length} billing checkboxes`);
+    console.log(`Γ£à Found ${funnelCheckboxes.length} funnel checkboxes`);
+    console.log(`Γ£à Found ${billingCheckboxes.length} billing checkboxes`);
     
     // Handle regular funnel checkboxes - save immediately
     funnelCheckboxes.forEach(checkbox => {
@@ -613,7 +580,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const field = this.dataset.field;
             const value = this.checked;
             
-            console.log('🔵 Funnel checkbox changed:', { rowId, dataType, field, value });
+            console.log('≡ƒö╡ Funnel checkbox changed:', { rowId, dataType, field, value });
             
             // Visual feedback - yellow background for saving
             this.parentElement.classList.add('bg-yellow-100');
@@ -635,34 +602,13 @@ document.addEventListener('DOMContentLoaded', function() {
             // Clean the est_nilai_bc value
             estNilai = estNilai ? estNilai.replace(/[.,]/g, '') : '0';
             
-            console.log('🟣 Billing checkbox changed:', { rowId, dataType, field, value, estNilai });
+            console.log('≡ƒƒú Billing checkbox changed:', { rowId, dataType, field, value, estNilai });
             
             // Visual feedback - yellow background for saving
             this.parentElement.classList.add('bg-yellow-100');
             
             // Save immediately - UI will be updated from server response
             saveCheckboxChange(rowId, dataType, field, value, estNilai, this.parentElement);
-        });
-    });
-    
-    // Handle Update button click
-    document.querySelectorAll('.update-progress-btn').forEach(button => {
-        button.addEventListener('click', function() {
-            const rowId = this.dataset.rowId;
-            const dataType = this.dataset.dataType;
-            
-            // Check if there are pending changes for this row
-            if (!pendingChanges[rowId] || Object.keys(pendingChanges[rowId].changes).length === 0) {
-                alert('Tidak ada perubahan untuk disimpan');
-                return;
-            }
-            
-            // Disable button and show loading
-            this.disabled = true;
-            this.innerHTML = '<svg class="w-3 h-3 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Saving...';
-            
-            // Save all changes for this row
-            saveRowChanges(rowId, dataType, pendingChanges[rowId], this);
         });
     });
     
@@ -764,7 +710,7 @@ document.addEventListener('DOMContentLoaded', function() {
             checkbox.style.pointerEvents = 'auto';
             
             if (data.success) {
-                console.log('✓ Checkbox updated successfully');
+                console.log('Γ£ô Checkbox updated successfully');
                 // If checkbox was checked, auto-check all previous stages
                 if (value) {
                     autoCheckPreviousStages(dataType, dataId, field);
@@ -815,7 +761,7 @@ document.addEventListener('DOMContentLoaded', function() {
             checkbox.style.pointerEvents = 'auto';
             
             if (data.success) {
-                console.log('✓ Billing complete updated successfully');
+                console.log('Γ£ô Billing complete updated successfully');
                 // Update the nilai billcomp cell
                 const nilaiCell = document.querySelector(`.nilai-billcomp-cell[data-row-id="${dataId}"] span`);
                 if (nilaiCell) {
@@ -855,7 +801,7 @@ document.addEventListener('DOMContentLoaded', function() {
             payload.est_nilai_bc = estNilaiBc || '0';
         }
         
-        console.log('📤 Sending request:', payload);
+        console.log('≡ƒôñ Sending request:', payload);
         
         fetch('{{ route("private.funnel.update") }}', {
             method: 'POST',
@@ -867,14 +813,14 @@ document.addEventListener('DOMContentLoaded', function() {
             body: JSON.stringify(payload)
         })
         .then(response => {
-            console.log('📥 Response status:', response.status, response.statusText);
+            console.log('≡ƒôÑ Response status:', response.status, response.statusText);
             return response.json();
         })
         .then(data => {
-            console.log('📥 Response data:', data);
+            console.log('≡ƒôÑ Response data:', data);
             
             if (data.success) {
-                console.log('✅ Save successful!');
+                console.log('Γ£à Save successful!');
                 
                 // Success - flash green
                 checkboxContainer.classList.remove('bg-yellow-100');
@@ -895,12 +841,12 @@ document.addEventListener('DOMContentLoaded', function() {
                         if (value && data.nilai_billcomp) {
                             // Checked - show nilai from server
                             const formattedValue = formatNumber(data.nilai_billcomp);
-                            console.log('💰 Updating Nilai Bill Comp:', formattedValue);
+                            console.log('≡ƒÆ░ Updating Nilai Bill Comp:', formattedValue);
                             nilaiBillCompCell.innerHTML = '<span class="font-semibold text-gray-900">' + 
                                 formattedValue + '</span>';
                         } else {
                             // Unchecked - hide value
-                            console.log('💰 Hiding Nilai Bill Comp');
+                            console.log('≡ƒÆ░ Hiding Nilai Bill Comp');
                             nilaiBillCompCell.innerHTML = '<span class="text-gray-400">-</span>';
                         }
                     }
@@ -910,12 +856,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (data.total) {
                     const totalCell = document.getElementById('total-nilai-billcomp');
                     if (totalCell) {
-                        console.log('💵 Updating total:', data.total);
+                        console.log('≡ƒÆ╡ Updating total:', data.total);
                         totalCell.querySelector('span').textContent = data.total;
                     }
                 }
             } else {
-                console.error('❌ Save failed:', data);
+                console.error('Γ¥î Save failed:', data);
                 // Failed - revert checkbox and remove yellow
                 checkboxContainer.classList.remove('bg-yellow-100');
                 const checkbox = checkboxContainer.querySelector('input[type="checkbox"]');
@@ -926,7 +872,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         })
         .catch(error => {
-            console.error('❌ Network/Parse error:', error);
+            console.error('Γ¥î Network/Parse error:', error);
             // Revert checkbox and remove yellow
             checkboxContainer.classList.remove('bg-yellow-100');
             const checkbox = checkboxContainer.querySelector('input[type="checkbox"]');
@@ -935,95 +881,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             alert('Terjadi kesalahan: ' + error.message + '. Silakan coba lagi.');
         });
-    }
-    
-    // Save all changes for a row
-    function saveRowChanges(rowId, dataType, rowData, button) {
-        const changes = rowData.changes;
-        const promises = [];
-        
-        // Process each change
-        for (const [field, value] of Object.entries(changes)) {
-            const payload = {
-                data_type: dataType,
-                data_id: rowId,
-                field: field,
-                value: value
-            };
-            
-            // Add est_nilai_bc if this is billing_complete
-            if (field === 'delivery_billing_complete' && rowData.est_nilai_bc) {
-                payload.est_nilai_bc = rowData.est_nilai_bc;
-            }
-            
-            const promise = fetch('{{ route("private.funnel.update") }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken,
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify(payload)
-            }).then(response => response.json());
-            
-            promises.push(promise);
-        }
-        
-        // Wait for all updates to complete
-        Promise.all(promises)
-            .then(results => {
-                // Check if all successful
-                const allSuccess = results.every(data => data.success);
-                
-                if (allSuccess) {
-                    // Remove yellow backgrounds
-                    document.querySelectorAll(`[data-data-id="${rowId}"]`).forEach(el => {
-                        el.parentElement.classList.remove('bg-yellow-100');
-                        el.parentElement.classList.add('bg-green-50');
-                        setTimeout(() => {
-                            el.parentElement.classList.remove('bg-green-50');
-                        }, 2000);
-                    });
-                    
-                    // Update totals if billing was changed
-                    const billingResult = results.find(r => r.total);
-                    if (billingResult) {
-                        const totalCell = document.getElementById('total-nilai-billcomp');
-                        if (totalCell) {
-                            totalCell.querySelector('span').textContent = billingResult.total;
-                        }
-                        
-                        // Update nilai billcomp cell
-                        const nilaiCell = document.querySelector(`.nilai-billcomp-cell[data-row-id="${rowId}"] span`);
-                        if (nilaiCell && billingResult.nilai_billcomp) {
-                            nilaiCell.textContent = formatNumber(billingResult.nilai_billcomp);
-                        }
-                    }
-                    
-                    // Clear pending changes
-                    delete pendingChanges[rowId];
-                    
-                    // Show success message
-                    button.innerHTML = '<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> Saved!';
-                    setTimeout(() => {
-                        button.innerHTML = '<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> Update';
-                        button.disabled = false;
-                    }, 2000);
-                    
-                    // Refresh page to update timestamp
-                    setTimeout(() => {
-                        location.reload();
-                    }, 2500);
-                } else {
-                    throw new Error('Some updates failed');
-                }
-            })
-            .catch(error => {
-                console.error('Error saving changes:', error);
-                alert('Gagal menyimpan perubahan. Silakan coba lagi.');
-                button.innerHTML = '<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> Update';
-                button.disabled = false;
-            });
     }
 });
 </script>

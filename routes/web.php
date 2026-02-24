@@ -48,11 +48,8 @@ Route::get('/', function() {
     return view('welcome');
 })->name('home');
 
-// Authentication Routes - guest middleware prevents authenticated users from accessing
-Route::middleware('guest')->group(function () {
-    Route::get('/login', [AuthController::class, 'showLogin'])->name('login.show');
-});
-
+// Authentication Routes
+Route::get('/login', [AuthController::class, 'showLogin'])->name('login.show');
 Route::post('/login', [AuthController::class, 'login'])->name('login');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
@@ -68,6 +65,9 @@ Route::middleware(['auth'])->prefix('gov')->name('gov.')->group(function () {
     
     // Funnel Tracking Update (AJAX)
     Route::post('/funnel/update', [GovController::class, 'updateFunnelCheckbox'])->name('funnel.update');
+    
+    // PSAK AJAX
+    Route::post('/psak/save', [GovController::class, 'savePsak'])->name('psak.save');
 });
 
 // Government Routes (Protected) - using 'government' prefix (alternative)
@@ -82,51 +82,85 @@ Route::middleware(['auth'])->prefix('government')->name('government.')->group(fu
     
     // Funnel Tracking Update (AJAX)
     Route::post('/funnel/update', [GovController::class, 'updateFunnelCheckbox'])->name('funnel.update');
+    
+    // PSAK AJAX
+    Route::post('/psak/save', [GovController::class, 'savePsak'])->name('psak.save');
 });
 
 // Private Routes (Protected)
 Route::middleware(['auth'])->prefix('private')->name('private.')->group(function () {
     Route::get('/dashboard', [PrivateController::class, 'dashboard'])->name('dashboard');
     Route::get('/scalling', [PrivateController::class, 'scalling'])->name('scalling');
+    Route::get('/psak', [PrivateController::class, 'psak'])->name('psak');
     Route::get('/lop-on-hand', [PrivateController::class, 'lopOnHand'])->name('lop-on-hand');
     Route::get('/lop-qualified', [PrivateController::class, 'lopQualified'])->name('lop-qualified');
+    Route::get('/lop-koreksi', [PrivateController::class, 'lopKoreksi'])->name('lop-koreksi');
+    Route::get('/lop-initiate', [PrivateController::class, 'lopInitiate'])->name('lop-initiate');
     Route::get('/lop-initiated', [PrivateController::class, 'lopInitiated'])->name('lop-initiated');
     Route::get('/lop-correction', [PrivateController::class, 'lopCorrection'])->name('lop-correction');
     
     // Funnel Tracking Update (AJAX)
     Route::post('/funnel/update', [PrivateController::class, 'updateFunnelCheckbox'])->name('funnel.update');
+    
+    // PSAK AJAX
+    Route::post('/psak/save', [PrivateController::class, 'savePsak'])->name('psak.save');
 });
 
 // SOE Routes (Protected)
 Route::middleware(['auth'])->prefix('soe')->name('soe.')->group(function () {
     Route::get('/dashboard', [SoeController::class, 'dashboard'])->name('dashboard');
     Route::get('/scalling', [SoeController::class, 'scalling'])->name('scalling');
+    Route::get('/psak', [SoeController::class, 'psak'])->name('psak');
     Route::get('/lop-on-hand', [SoeController::class, 'lopOnHand'])->name('lop-on-hand');
     Route::get('/lop-qualified', [SoeController::class, 'lopQualified'])->name('lop-qualified');
+    Route::get('/lop-koreksi', [SoeController::class, 'lopKoreksi'])->name('lop-koreksi');
+    Route::get('/lop-initiate', [SoeController::class, 'lopInitiate'])->name('lop-initiate');
     Route::get('/lop-initiated', [SoeController::class, 'lopInitiated'])->name('lop-initiated');
     Route::get('/lop-correction', [SoeController::class, 'lopCorrection'])->name('lop-correction');
     
     // Funnel Tracking Update (AJAX)
     Route::post('/funnel/update', [SoeController::class, 'updateFunnelCheckbox'])->name('funnel.update');
+    
+    // PSAK AJAX
+    Route::post('/psak/save', [SoeController::class, 'savePsak'])->name('psak.save');
 });
 
 // SME Routes (Protected)
 Route::middleware(['auth'])->prefix('sme')->name('sme.')->group(function () {
     Route::get('/dashboard', [SmeController::class, 'dashboard'])->name('dashboard');
     Route::get('/scalling', [SmeController::class, 'scalling'])->name('scalling');
+    Route::get('/psak', [SmeController::class, 'psak'])->name('psak');
     Route::get('/lop-on-hand', [SmeController::class, 'lopOnHand'])->name('lop-on-hand');
     Route::get('/lop-qualified', [SmeController::class, 'lopQualified'])->name('lop-qualified');
+    Route::get('/lop-koreksi', [SmeController::class, 'lopKoreksi'])->name('lop-koreksi');
+    Route::get('/lop-initiate', [SmeController::class, 'lopInitiate'])->name('lop-initiate');
     Route::get('/lop-initiated', [SmeController::class, 'lopInitiated'])->name('lop-initiated');
     Route::get('/lop-correction', [SmeController::class, 'lopCorrection'])->name('lop-correction');
     
     // Funnel Tracking Update (AJAX)
     Route::post('/funnel/update', [SmeController::class, 'updateFunnelCheckbox'])->name('funnel.update');
+    
+    // PSAK AJAX
+    Route::post('/psak/save', [SmeController::class, 'savePsak'])->name('psak.save');
 });
 
 // Admin Routes (Protected)
 Route::middleware(['auth', 'admin'])->group(function () {
     // Admin Dashboard
     Route::get('/admin', [AdminController::class, 'index'])->name('admin.dashboard');
+    
+    // NEW SIMPLIFIED FLOW - Role Selection and Actions
+    Route::get('/admin/role/{role}', [AdminController::class, 'roleMenu'])->name('admin.role.menu');
+    
+    // Category-specific Upload and Progress Routes
+    Route::get('/admin/role/{role}/upload/{category}', [AdminController::class, 'uploadCategoryPage'])->name('admin.upload.category');
+    Route::get('/admin/role/{role}/progress/{category}', [AdminController::class, 'progressCategoryPage'])->name('admin.progress.category');
+    Route::post('/admin/role/{role}/progress/{category}/toggle-visibility', [AdminController::class, 'toggleUploadVisibility'])->name('admin.progress.toggle-visibility');
+    
+    // OLD Routes (deprecated)
+    Route::get('/admin/role/{role}/upload', [AdminController::class, 'uploadPage'])->name('admin.upload.page');
+    Route::get('/admin/role/{role}/progress', [AdminController::class, 'progressPage'])->name('admin.progress.page');
+    Route::get('/admin/role/{role}/progress/{category}/{month}/{year}', [AdminController::class, 'progressDetail'])->name('admin.progress.detail');
     
     // NEW LOP Management Routes
     // LOP On Hand Routes

@@ -61,8 +61,6 @@
                                 <th class="px-4 py-3 text-left font-bold text-gray-700 uppercase tracking-wider">No</th>
                                 <th class="px-4 py-3 text-left font-bold text-gray-700 uppercase tracking-wider">Project</th>
                                 <th class="px-4 py-3 text-left font-bold text-gray-700 uppercase tracking-wider">ID LOP</th>
-                                <th class="px-4 py-3 text-left font-bold text-gray-700 uppercase tracking-wider">Last Updated By</th>
-                                <th class="px-4 py-3 text-left font-bold text-gray-700 uppercase tracking-wider">Last Update</th>
                                 <th class="px-4 py-3 text-center font-bold text-gray-700 uppercase tracking-wider">Progress</th>
                             </tr>
                         </thead>
@@ -73,22 +71,16 @@
                                 <td class="px-4 py-3 text-gray-700">{{ $data->project }}</td>
                                 <td class="px-4 py-3 text-gray-700">{{ $data->id_lop }}</td>
                                 <td class="px-4 py-3">
-                                    <span class="font-semibold text-gray-900">{{ $data->funnel->updatedByUser->name ?? '-' }}</span>
-                                </td>
-                                <td class="px-4 py-3 text-gray-600">
-                                    {{ $data->funnel->last_updated_at ? $data->funnel->last_updated_at->format('d M Y H:i') : '-' }}
-                                </td>
-                                <td class="px-4 py-3">
                                     <div class="flex gap-1 justify-center">
-                                        @foreach(['f0_inisiasi_solusi', 'f1_p0_p1', 'f2_bod_dm', 'f3_juskeb', 'f4_p3_2', 'delivery_billing_complete'] as $stage)
-                                            <div class="w-3 h-3 rounded-full {{ $data->funnel->{$stage} ? 'bg-green-500' : 'bg-gray-300' }}" title="{{ ucfirst(str_replace('_', ' ', $stage)) }}"></div>
+                                        @foreach(['f0_inisiasi_solusi', 'f1_tech_budget', 'f2_p0_p1', 'f3_p6', 'f4_negosiasi', 'f5_ttd_kontrak', 'delivery_billing_complete'] as $stage)
+                                            <div class="w-3 h-3 rounded-full {{ $data->funnel && $data->funnel->{$stage} ? 'bg-green-500' : 'bg-gray-300' }}" title="{{ ucfirst(str_replace('_', ' ', $stage)) }}"></div>
                                         @endforeach
                                     </div>
                                 </td>
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="6" class="px-4 py-8 text-center text-gray-500">No updates yet</td>
+                                <td colspan="4" class="px-4 py-8 text-center text-gray-500">No updates yet</td>
                             </tr>
                             @endforelse
                         </tbody>
@@ -105,8 +97,6 @@
                                 <th class="px-4 py-3 text-left font-bold text-gray-700 uppercase tracking-wider">No</th>
                                 <th class="px-4 py-3 text-left font-bold text-gray-700 uppercase tracking-wider">Project</th>
                                 <th class="px-4 py-3 text-left font-bold text-gray-700 uppercase tracking-wider">ID LOP</th>
-                                <th class="px-4 py-3 text-left font-bold text-gray-700 uppercase tracking-wider">Last Updated By</th>
-                                <th class="px-4 py-3 text-left font-bold text-gray-700 uppercase tracking-wider">Last Update</th>
                                 <th class="px-4 py-3 text-center font-bold text-gray-700 uppercase tracking-wider">Progress</th>
                             </tr>
                         </thead>
@@ -117,22 +107,16 @@
                                 <td class="px-4 py-3 text-gray-700">{{ $data->project }}</td>
                                 <td class="px-4 py-3 text-gray-700">{{ $data->id_lop }}</td>
                                 <td class="px-4 py-3">
-                                    <span class="font-semibold text-gray-900">{{ $data->funnel->updatedByUser->name ?? '-' }}</span>
-                                </td>
-                                <td class="px-4 py-3 text-gray-600">
-                                    {{ $data->funnel->last_updated_at ? $data->funnel->last_updated_at->format('d M Y H:i') : '-' }}
-                                </td>
-                                <td class="px-4 py-3">
                                     <div class="flex gap-1 justify-center">
-                                        @foreach(['f0_inisiasi_solusi', 'f1_p0_p1', 'f2_bod_dm', 'f3_juskeb', 'f4_p3_2', 'delivery_billing_complete'] as $stage)
-                                            <div class="w-3 h-3 rounded-full {{ $data->funnel->{$stage} ? 'bg-green-500' : 'bg-gray-300' }}" title="{{ ucfirst(str_replace('_', ' ', $stage)) }}"></div>
+                                        @foreach(['f0_inisiasi_solusi', 'f1_tech_budget', 'f2_p0_p1', 'f3_p6', 'f4_negosiasi', 'f5_ttd_kontrak', 'delivery_billing_complete'] as $stage)
+                                            <div class="w-3 h-3 rounded-full {{ $data->funnel && $data->funnel->{$stage} ? 'bg-green-500' : 'bg-gray-300' }}" title="{{ ucfirst(str_replace('_', ' ', $stage)) }}"></div>
                                         @endforeach
                                     </div>
                                 </td>
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="6" class="px-4 py-8 text-center text-gray-500">No updates yet</td>
+                                <td colspan="4" class="px-4 py-8 text-center text-gray-500">No updates yet</td>
                             </tr>
                             @endforelse
                         </tbody>
@@ -149,8 +133,6 @@
                                 <th class="px-4 py-3 text-left font-bold text-gray-700 uppercase tracking-wider">No</th>
                                 <th class="px-4 py-3 text-left font-bold text-gray-700 uppercase tracking-wider">Project</th>
                                 <th class="px-4 py-3 text-left font-bold text-gray-700 uppercase tracking-wider">ID LOP</th>
-                                <th class="px-4 py-3 text-left font-bold text-gray-700 uppercase tracking-wider">Last Updated By</th>
-                                <th class="px-4 py-3 text-left font-bold text-gray-700 uppercase tracking-wider">Last Update</th>
                                 <th class="px-4 py-3 text-center font-bold text-gray-700 uppercase tracking-wider">Progress</th>
                             </tr>
                         </thead>
@@ -161,22 +143,16 @@
                                 <td class="px-4 py-3 text-gray-700">{{ $data->project }}</td>
                                 <td class="px-4 py-3 text-gray-700">{{ $data->id_lop }}</td>
                                 <td class="px-4 py-3">
-                                    <span class="font-semibold text-gray-900">{{ $data->funnel->updatedByUser->name ?? '-' }}</span>
-                                </td>
-                                <td class="px-4 py-3 text-gray-600">
-                                    {{ $data->funnel->last_updated_at ? $data->funnel->last_updated_at->format('d M Y H:i') : '-' }}
-                                </td>
-                                <td class="px-4 py-3">
                                     <div class="flex gap-1 justify-center">
-                                        @foreach(['f0_inisiasi_solusi', 'f1_p0_p1', 'f2_bod_dm', 'f3_juskeb', 'f4_p3_2', 'delivery_billing_complete'] as $stage)
-                                            <div class="w-3 h-3 rounded-full {{ $data->funnel->{$stage} ? 'bg-green-500' : 'bg-gray-300' }}" title="{{ ucfirst(str_replace('_', ' ', $stage)) }}"></div>
+                                        @foreach(['f0_inisiasi_solusi', 'f1_tech_budget', 'f2_p0_p1', 'f3_p6', 'f4_negosiasi', 'f5_ttd_kontrak', 'delivery_billing_complete'] as $stage)
+                                            <div class="w-3 h-3 rounded-full {{ $data->funnel && $data->funnel->{$stage} ? 'bg-green-500' : 'bg-gray-300' }}" title="{{ ucfirst(str_replace('_', ' ', $stage)) }}"></div>
                                         @endforeach
                                     </div>
                                 </td>
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="6" class="px-4 py-8 text-center text-gray-500">No updates yet</td>
+                                <td colspan="4" class="px-4 py-8 text-center text-gray-500">No updates yet</td>
                             </tr>
                             @endforelse
                         </tbody>
@@ -193,8 +169,6 @@
                                 <th class="px-4 py-3 text-left font-bold text-gray-700 uppercase tracking-wider">No</th>
                                 <th class="px-4 py-3 text-left font-bold text-gray-700 uppercase tracking-wider">Project</th>
                                 <th class="px-4 py-3 text-left font-bold text-gray-700 uppercase tracking-wider">ID LOP</th>
-                                <th class="px-4 py-3 text-left font-bold text-gray-700 uppercase tracking-wider">Last Updated By</th>
-                                <th class="px-4 py-3 text-left font-bold text-gray-700 uppercase tracking-wider">Last Update</th>
                                 <th class="px-4 py-3 text-center font-bold text-gray-700 uppercase tracking-wider">Progress</th>
                             </tr>
                         </thead>
@@ -205,22 +179,16 @@
                                 <td class="px-4 py-3 text-gray-700">{{ $data->project }}</td>
                                 <td class="px-4 py-3 text-gray-700">{{ $data->id_lop }}</td>
                                 <td class="px-4 py-3">
-                                    <span class="font-semibold text-gray-900">{{ $data->funnel->updatedByUser->name ?? '-' }}</span>
-                                </td>
-                                <td class="px-4 py-3 text-gray-600">
-                                    {{ $data->funnel->last_updated_at ? $data->funnel->last_updated_at->format('d M Y H:i') : '-' }}
-                                </td>
-                                <td class="px-4 py-3">
                                     <div class="flex gap-1 justify-center">
-                                        @foreach(['f0_inisiasi_solusi', 'f1_p0_p1', 'f2_bod_dm', 'f3_juskeb', 'f4_p3_2', 'delivery_billing_complete'] as $stage)
-                                            <div class="w-3 h-3 rounded-full {{ $data->funnel->{$stage} ? 'bg-green-500' : 'bg-gray-300' }}" title="{{ ucfirst(str_replace('_', ' ', $stage)) }}"></div>
+                                        @foreach(['f0_inisiasi_solusi', 'f1_tech_budget', 'f2_p0_p1', 'f3_p6', 'f4_negosiasi', 'f5_ttd_kontrak', 'delivery_billing_complete'] as $stage)
+                                            <div class="w-3 h-3 rounded-full {{ $data->funnel && $data->funnel->{$stage} ? 'bg-green-500' : 'bg-gray-300' }}" title="{{ ucfirst(str_replace('_', ' ', $stage)) }}"></div>
                                         @endforeach
                                     </div>
                                 </td>
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="6" class="px-4 py-8 text-center text-gray-500">No updates yet</td>
+                                <td colspan="4" class="px-4 py-8 text-center text-gray-500">No updates yet</td>
                             </tr>
                             @endforelse
                         </tbody>

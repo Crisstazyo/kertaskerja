@@ -78,10 +78,7 @@
                                 <th colspan="3" class="px-3 py-2 text-center font-bold text-white bg-gradient-to-r from-green-600 to-emerald-700 border-r border-gray-300">F5</th>
                                 <th colspan="4" class="px-3 py-2 text-center font-bold text-white bg-gradient-to-r from-emerald-600 to-emerald-800 border-r border-gray-300">DELIVERY</th>
                                 <th rowspan="2" class="px-3 py-2 text-center font-bold text-white bg-gradient-to-r from-indigo-600 to-indigo-700 border-r border-gray-300">BILLING<br>COMPLETE</th>
-                                <th rowspan="2" class="px-3 py-2 text-center font-bold text-white bg-gradient-to-r from-violet-600 to-violet-700 border-r border-gray-300">NILAI BILL COMP</th>
-                                
-                                <!-- Update Column -->
-                                <th rowspan="2" class="px-4 py-2 text-center font-bold text-gray-700 uppercase tracking-wider bg-amber-50">Update</th>
+                                <th rowspan="2" class="px-3 py-2 text-center font-bold text-white bg-gradient-to-r from-violet-600 to-violet-700">NILAI BILL COMP</th>
                             </tr>
                             <tr class="text-xs">
                                 <!-- Data columns handled by rowspan above -->
@@ -408,19 +405,6 @@
                                 @else
                                 <td class="px-2 py-2 text-center border-r bg-violet-50"><span class="text-gray-300">-</span></td>
                                 @endif
-                                
-                                <!-- Update Button -->
-                                <td class="px-4 py-2 text-center border-r">
-                                    <button type="button" 
-                                            class="update-progress-btn inline-flex items-center gap-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition-all shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
-                                            data-row-id="{{ $row->id }}"
-                                            data-data-type="on_hand">
-                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                                        </svg>
-                                        Update
-                                    </button>
-                                </td>
                             </tr>
                             @endforeach
                         </tbody>
@@ -596,9 +580,6 @@ document.addEventListener('DOMContentLoaded', function() {
         return Math.round(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
     }
     
-    // Track pending changes per row
-    const pendingChanges = {};
-    
     // Check if checkboxes are found
     const funnelCheckboxes = document.querySelectorAll('.funnel-checkbox');
     const billingCheckboxes = document.querySelectorAll('.billing-checkbox');
@@ -642,27 +623,6 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Save immediately - UI will be updated from server response
             saveCheckboxChange(rowId, dataType, field, value, estNilai, this.parentElement);
-        });
-    });
-    
-    // Handle Update button click
-    document.querySelectorAll('.update-progress-btn').forEach(button => {
-        button.addEventListener('click', function() {
-            const rowId = this.dataset.rowId;
-            const dataType = this.dataset.dataType;
-            
-            // Check if there are pending changes for this row
-            if (!pendingChanges[rowId] || Object.keys(pendingChanges[rowId].changes).length === 0) {
-                alert('Tidak ada perubahan untuk disimpan');
-                return;
-            }
-            
-            // Disable button and show loading
-            this.disabled = true;
-            this.innerHTML = '<svg class="w-3 h-3 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Saving...';
-            
-            // Save all changes for this row
-            saveRowChanges(rowId, dataType, pendingChanges[rowId], this);
         });
     });
     
@@ -935,95 +895,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             alert('Terjadi kesalahan: ' + error.message + '. Silakan coba lagi.');
         });
-    }
-    
-    // Save all changes for a row
-    function saveRowChanges(rowId, dataType, rowData, button) {
-        const changes = rowData.changes;
-        const promises = [];
-        
-        // Process each change
-        for (const [field, value] of Object.entries(changes)) {
-            const payload = {
-                data_type: dataType,
-                data_id: rowId,
-                field: field,
-                value: value
-            };
-            
-            // Add est_nilai_bc if this is billing_complete
-            if (field === 'delivery_billing_complete' && rowData.est_nilai_bc) {
-                payload.est_nilai_bc = rowData.est_nilai_bc;
-            }
-            
-            const promise = fetch('{{ route("sme.funnel.update") }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken,
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify(payload)
-            }).then(response => response.json());
-            
-            promises.push(promise);
-        }
-        
-        // Wait for all updates to complete
-        Promise.all(promises)
-            .then(results => {
-                // Check if all successful
-                const allSuccess = results.every(data => data.success);
-                
-                if (allSuccess) {
-                    // Remove yellow backgrounds
-                    document.querySelectorAll(`[data-data-id="${rowId}"]`).forEach(el => {
-                        el.parentElement.classList.remove('bg-yellow-100');
-                        el.parentElement.classList.add('bg-green-50');
-                        setTimeout(() => {
-                            el.parentElement.classList.remove('bg-green-50');
-                        }, 2000);
-                    });
-                    
-                    // Update totals if billing was changed
-                    const billingResult = results.find(r => r.total);
-                    if (billingResult) {
-                        const totalCell = document.getElementById('total-nilai-billcomp');
-                        if (totalCell) {
-                            totalCell.querySelector('span').textContent = billingResult.total;
-                        }
-                        
-                        // Update nilai billcomp cell
-                        const nilaiCell = document.querySelector(`.nilai-billcomp-cell[data-row-id="${rowId}"] span`);
-                        if (nilaiCell && billingResult.nilai_billcomp) {
-                            nilaiCell.textContent = formatNumber(billingResult.nilai_billcomp);
-                        }
-                    }
-                    
-                    // Clear pending changes
-                    delete pendingChanges[rowId];
-                    
-                    // Show success message
-                    button.innerHTML = '<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> Saved!';
-                    setTimeout(() => {
-                        button.innerHTML = '<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> Update';
-                        button.disabled = false;
-                    }, 2000);
-                    
-                    // Refresh page to update timestamp
-                    setTimeout(() => {
-                        location.reload();
-                    }, 2500);
-                } else {
-                    throw new Error('Some updates failed');
-                }
-            })
-            .catch(error => {
-                console.error('Error saving changes:', error);
-                alert('Gagal menyimpan perubahan. Silakan coba lagi.');
-                button.innerHTML = '<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> Update';
-                button.disabled = false;
-            });
     }
 });
 </script>

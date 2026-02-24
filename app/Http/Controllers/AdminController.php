@@ -16,6 +16,10 @@ use App\Models\LopKoreksiData;
 use App\Models\LopInitiateData;
 use App\Models\FunnelTracking;
 use App\Models\LopAdminNote;
+use App\Models\PsakGovernment;
+use App\Models\PsakPrivate;
+use App\Models\PsakSoe;
+use App\Models\PsakSme;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -31,6 +35,388 @@ class AdminController extends Controller
         $users = User::all()->groupBy('role');
         
         return view('admin.index', compact('users'));
+    }
+    
+    // NEW SIMPLIFIED FLOW
+    // Role Menu - Choose Upload or Progress
+    public function roleMenu($role)
+    {
+        if (!in_array($role, ['government', 'private', 'soe', 'sme'])) {
+            abort(404);
+        }
+        
+        return view('admin.role-menu', compact('role'));
+    }
+    
+    // Category-specific Upload Page
+    public function uploadCategoryPage($role, $category)
+    {
+        if (!in_array($role, ['government', 'private', 'soe', 'sme'])) {
+            abort(404);
+        }
+        
+        if (!in_array($category, ['on_hand', 'qualified', 'koreksi', 'initiate'])) {
+            abort(404);
+        }
+        
+        // Government doesn't have initiate
+        if ($role === 'government' && $category === 'initiate') {
+            abort(404);
+        }
+        
+        // Get upload history for this specific category
+        // Map role and category to model name
+        $importModelMap = [
+            'government' => [
+                'on_hand' => 'App\Models\LopOnHandImport',
+                'qualified' => 'App\Models\LopQualifiedImport',
+                'koreksi' => 'App\Models\LopKoreksiImport',
+            ],
+            'private' => [
+                'on_hand' => 'App\Models\LopPrivateOnHandImport',
+                'qualified' => 'App\Models\LopPrivateQualifiedImport',
+                'koreksi' => 'App\Models\LopKoreksiImport',
+                'initiate' => 'App\Models\LopInitiateData', // Check this
+            ],
+            'soe' => [
+                'on_hand' => 'App\Models\LopSoeOnHandImport',
+                'qualified' => 'App\Models\LopSoeQualifiedImport',
+                'koreksi' => 'App\Models\LopKoreksiImport',
+                'initiate' => 'App\Models\LopInitiateData', // Check this
+            ],
+            'sme' => [
+                'on_hand' => 'App\Models\LopSmeOnHandImport',
+                'qualified' => 'App\Models\LopSmeQualifiedImport',
+                'koreksi' => 'App\Models\LopKoreksiImport',
+                'initiate' => 'App\Models\LopInitiateData', // Check this
+            ],
+        ];
+        
+        $uploadHistory = collect();
+        
+        if (isset($importModelMap[$role][$category])) {
+            $modelClass = $importModelMap[$role][$category];
+            
+            if (class_exists($modelClass)) {
+                $query = $modelClass::query();
+                
+                // Apply filters
+                if (request('filter_month')) {
+                    $query->where('month', request('filter_month'));
+                }
+                if (request('filter_year')) {
+                    $query->where('year', request('filter_year'));
+                }
+                
+                $uploadHistory = $query->latest()->get();
+            }
+        }
+        
+        return view('admin.upload-category', compact('role', 'category', 'uploadHistory'));
+    }
+    
+    // Category-specific Progress Page
+    public function progressCategoryPage($role, $category)
+    {
+        if (!in_array($role, ['government', 'private', 'soe', 'sme'])) {
+            abort(404);
+        }
+        
+        if (!in_array($category, ['on_hand', 'qualified', 'koreksi', 'initiate'])) {
+            abort(404);
+        }
+        
+        // Government doesn't have initiate
+        if ($role === 'government' && $category === 'initiate') {
+            abort(404);
+        }
+        
+        // Get view mode
+        $view = request()->get('view', 'current');
+        
+        // Map role and category to model
+        $importModelMap = [
+            'government' => [
+                'on_hand' => 'App\Models\LopOnHandImport',
+                'qualified' => 'App\Models\LopQualifiedImport',
+                'koreksi' => 'App\Models\LopKoreksiImport',
+            ],
+            'private' => [
+                'on_hand' => 'App\Models\LopPrivateOnHandImport',
+                'qualified' => 'App\Models\LopPrivateQualifiedImport',
+                'koreksi' => 'App\Models\LopKoreksiImport',
+                'initiate' => 'App\Models\LopInitiateData',
+            ],
+            'soe' => [
+                'on_hand' => 'App\Models\LopSoeOnHandImport',
+                'qualified' => 'App\Models\LopSoeQualifiedImport',
+                'koreksi' => 'App\Models\LopKoreksiImport',
+                'initiate' => 'App\Models\LopInitiateData',
+            ],
+            'sme' => [
+                'on_hand' => 'App\Models\LopSmeOnHandImport',
+                'qualified' => 'App\Models\LopSmeQualifiedImport',
+                'koreksi' => 'App\Models\LopKoreksiImport',
+                'initiate' => 'App\Models\LopInitiateData',
+            ],
+        ];
+        
+        $allUploads = collect();
+        $visibleData = collect();
+        
+        if (isset($importModelMap[$role][$category])) {
+            $modelClass = $importModelMap[$role][$category];
+            
+            if (class_exists($modelClass)) {
+                // Get all uploads for history view
+                $allUploads = $modelClass::with(['data.funnel.progress' => function($query) {
+                        $query->whereDate('tanggal', today())->with('user');
+                    }])
+                    ->latest()
+                    ->get()
+                    ->unique(function($item) {
+                        return $item->month . '-' . $item->year;
+                    })
+                    ->sortByDesc(function($item) {
+                        return $item->year * 100 + $item->month;
+                    });
+                
+                // For current progress view
+                if ($view !== 'history') {
+                    $currentMonth = 2; // February 2026
+                    $currentYear = 2026;
+                    
+                    // Get visible upload IDs from session
+                    $visibleUploadIds = session('visible_uploads_' . $role . '_' . $category, []);
+                    
+                    // Get selected user filter (default: show aggregate)
+                    $selectedUserId = request()->get('user_id', null);
+                    
+                    // Always include current month data with task_progress
+                    $currentMonthUpload = $modelClass::with(['data.funnel.progress' => function($query) use ($selectedUserId) {
+                            $query->whereDate('tanggal', today())->with('user');
+                            if ($selectedUserId) {
+                                $query->where('user_id', $selectedUserId);
+                            }
+                        }])
+                        ->where('month', $currentMonth)
+                        ->where('year', $currentYear)
+                        ->latest()
+                        ->first();
+                    
+                    if ($currentMonthUpload) {
+                        $visibleData = $visibleData->merge($currentMonthUpload->data);
+                    }
+                    
+                    // Include data from visible uploads
+                    if (!empty($visibleUploadIds)) {
+                        $visibleUploads = $modelClass::with(['data.funnel.progress' => function($query) use ($selectedUserId) {
+                                $query->whereDate('tanggal', today())->with('user');
+                                if ($selectedUserId) {
+                                    $query->where('user_id', $selectedUserId);
+                                }
+                            }])
+                            ->whereIn('id', $visibleUploadIds)
+                            ->where(function($query) use ($currentMonth, $currentYear) {
+                                $query->where('month', '!=', $currentMonth)
+                                      ->orWhere('year', '!=', $currentYear);
+                            })
+                            ->get();
+                        
+                        foreach ($visibleUploads as $upload) {
+                            $visibleData = $visibleData->merge($upload->data);
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Get all users for the filter dropdown
+        $users = User::whereIn('role', ['government', 'private', 'soe', 'sme', 'admin'])
+            ->orderBy('name')
+            ->get();
+        
+        $selectedUserId = request()->get('user_id', null);
+        
+        // Get month filter (default: current month)
+        $selectedMonth = request()->get('month', now()->format('Y-m'));
+        list($filterYear, $filterMonth) = explode('-', $selectedMonth);
+        $filterYear = (int) $filterYear;
+        $filterMonth = (int) $filterMonth;
+        
+        // Get list of available months for history dropdown
+        $availableMonths = [];
+        if ($modelClass && class_exists($modelClass)) {
+            $availableMonths = $modelClass::selectRaw('DISTINCT year, month')
+                ->orderByDesc('year')
+                ->orderByDesc('month')
+                ->get()
+                ->map(function($item) {
+                    return [
+                        'value' => sprintf('%04d-%02d', $item->year, $item->month),
+                        'label' => date('F Y', mktime(0, 0, 0, $item->month, 1, $item->year))
+                    ];
+                })
+                ->toArray();
+        }
+        
+        // Get latestImport for selected month (for full table view)
+        $latestImport = null;
+        if ($modelClass && class_exists($modelClass)) {
+            $latestImport = $modelClass::with(['data.funnel' => function($query) use ($selectedUserId) {
+                    $query->with(['progress' => function($q) use ($selectedUserId) {
+                        $q->whereDate('tanggal', today())->with('user');
+                        if ($selectedUserId) {
+                            $q->where('user_id', $selectedUserId);
+                        }
+                    }, 'todayProgress' => function($q) use ($selectedUserId) {
+                        $q->whereDate('tanggal', today());
+                        if ($selectedUserId) {
+                            $q->where('user_id', $selectedUserId);
+                        }
+                    }]);
+                }])
+                ->where('year', $filterYear)
+                ->where('month', $filterMonth)
+                ->latest()
+                ->first();
+        }
+        
+        return view('admin.progress-category', compact(
+            'role', 
+            'category', 
+            'allUploads', 
+            'visibleData', 
+            'users', 
+            'selectedUserId',
+            'availableMonths',
+            'selectedMonth',
+            'latestImport'
+        ));
+    }
+    
+    // Toggle visibility of upload in progress view
+    public function toggleUploadVisibility($role, $category)
+    {
+        $uploadId = request('upload_id');
+        $sessionKey = 'visible_uploads_' . $role . '_' . $category;
+        
+        $visibleUploads = session($sessionKey, []);
+        
+        if (in_array($uploadId, $visibleUploads)) {
+            // Remove from visible
+            $visibleUploads = array_diff($visibleUploads, [$uploadId]);
+        } else {
+            // Add to visible
+            $visibleUploads[] = $uploadId;
+        }
+        
+        session([$sessionKey => array_values($visibleUploads)]);
+        
+        return redirect()->back()->with('success', 'Visibility updated successfully');
+    }
+    
+    // Upload Page - Shows upload forms and history (DEPRECATED)
+    public function uploadPage($role)
+    {
+        if (!in_array($role, ['government', 'private', 'soe', 'sme'])) {
+            abort(404);
+        }
+        
+        // You can add history data here later
+        return view('admin.upload', compact('role'));
+    }
+    
+    // Progress Page - Shows progress monitoring with filters
+    public function progressPage($role)
+    {
+        if (!in_array($role, ['government', 'private', 'soe', 'sme'])) {
+            abort(404);
+        }
+        
+        // Get all users for this role
+        $users = User::where('role', $role)->get();
+        
+        // Get filter parameters
+        $category = request()->get('category', 'on_hand');
+        $month = request()->get('month', date('n'));
+        $year = request()->get('year', date('Y'));
+        $userId = request()->get('user_id');
+        
+        // Normalize role for database queries
+        $roleNormalized = ($role === 'government') ? 'government' : $role;
+        
+        // Get latest import based on category
+        $importModelMap = [
+            'on_hand' => 'App\Models\Lop' . ucfirst($roleNormalized) . 'OnHandImport',
+            'qualified' => 'App\Models\Lop' . ucfirst($roleNormalized) . 'QualifiedImport',
+            'koreksi' => 'App\Models\Lop' . ucfirst($roleNormalized) . 'CorrectionImport',
+            'initiate' => 'App\Models\Lop' . ucfirst($roleNormalized) . 'InitiatedImport',
+        ];
+        
+        $latestImport = null;
+        if (isset($importModelMap[$category]) && class_exists($importModelMap[$category])) {
+            $query = $importModelMap[$category]::with(['data.funnel'])
+                ->where('entity_type', $roleNormalized)
+                ->where('month', $month)
+                ->where('year', $year);
+            
+            $latestImport = $query->latest()->first();
+        }
+        
+        return view('admin.progress', compact('role', 'users', 'category', 'month', 'year', 'latestImport'));
+    }
+    
+    // Progress Detail - Shows full table like user view (read-only)
+    public function progressDetail($role, $category, $month, $year)
+    {
+        if (!in_array($role, ['government', 'private', 'soe', 'sme'])) {
+            abort(404);
+        }
+        
+        if (!in_array($category, ['on_hand', 'qualified', 'koreksi', 'initiate'])) {
+            abort(404);
+        }
+        
+        // Normalize role
+        $roleNormalized = ($role === 'government') ? 'government' : $role;
+        
+        // Get data similar to user controller
+        $importModelMap = [
+            'on_hand' => 'App\Models\Lop' . ucfirst($roleNormalized) . 'OnHandImport',
+            'qualified' => 'App\Models\Lop' . ucfirst($roleNormalized) . 'QualifiedImport',
+            'koreksi' => 'App\Models\Lop' . ucfirst($roleNormalized) . 'CorrectionImport',
+            'initiate' => 'App\Models\Lop' . ucfirst($roleNormalized) . 'InitiatedImport',
+        ];
+        
+        $latestImport = null;
+        if (isset($importModelMap[$category]) && class_exists($importModelMap[$category])) {
+            $latestImport = $importModelMap[$category]::with(['data.funnel'])
+                ->where('entity_type', $roleNormalized)
+                ->where('month', $month)
+                ->where('year', $year)
+                ->latest()
+                ->first();
+        }
+        
+        // Get admin note
+        $adminNote = LopAdminNote::where('entity_type', $roleNormalized)
+            ->where('category', $category)
+            ->where('month', $month)
+            ->where('year', $year)
+            ->first();
+        
+        // Use the same view as users but with read-only mode
+        $viewMap = [
+            'on_hand' => 'admin.lop-on-hand-detail',
+            'qualified' => 'admin.lop-qualified-detail',
+            'koreksi' => 'admin.lop-koreksi-detail',
+            'initiate' => 'admin.lop-initiate-detail',
+        ];
+        
+        $view = $viewMap[$category] ?? 'admin.lop-on-hand-detail';
+        
+        return view($view, compact('role', 'latestImport', 'adminNote', 'category', 'month', 'year'));
     }
     
     // Scalling Management Page
@@ -150,11 +536,32 @@ class AdminController extends Controller
     // PSAK Management Page
     public function psak($role)
     {
-        if ($role !== 'gov') {
+        if (!in_array($role, ['government', 'private', 'soe', 'sme'])) {
             abort(404);
         }
         
-        return view('admin.psak', compact('role'));
+        // Get PSAK model based on role
+        $modelClass = match($role) {
+            'government' => PsakGovernment::class,
+            'private' => PsakPrivate::class,
+            'soe' => PsakSoe::class,
+            'sme' => PsakSme::class,
+        };
+        
+        // Get PSAK data with users
+        $psakData = $modelClass::with('user')
+            ->orderBy('tanggal', 'desc')
+            ->orderBy('user_id')
+            ->get();
+        
+        // Get unique dates
+        $dates = $modelClass::select('tanggal')
+            ->distinct()
+            ->orderBy('tanggal', 'desc')
+            ->limit(30)
+            ->pluck('tanggal');
+        
+        return view('admin.psak', compact('role', 'psakData', 'dates'));
     }
     
     // Step 2: Type Selection (Scalling/PSAK)
@@ -867,25 +1274,26 @@ class AdminController extends Controller
         
         // Update all funnel fields
         $funnel->update([
-            'f0_lead' => $request->has('f0_lead'),
             'f0_inisiasi_solusi' => $request->has('f0_inisiasi_solusi'),
-            'f0_technical_proposal' => $request->has('f0_technical_proposal'),
-            'f1_p0_p1_juskeb' => $request->has('f1_p0_p1_juskeb'),
-            'f2_p2_evaluasi' => $request->has('f2_p2_evaluasi'),
-            'f2_p3_permintaan_harga' => $request->has('f2_p3_permintaan_harga'),
-            'f2_p4_rapat_penjelasan' => $request->has('f2_p4_rapat_penjelasan'),
-            'f2_offering_harga' => $request->has('f2_offering_harga'),
-            'f2_p5_evaluasi_sph' => $request->has('f2_p5_evaluasi_sph'),
-            'f3_propos_al' => $request->has('f3_propos_al'),
-            'f3_p6_klarifikasi' => $request->has('f3_p6_klarifikasi'),
-            'f3_p7_penetapan' => $request->has('f3_p7_penetapan'),
-            'f3_submit_proposal' => $request->has('f3_submit_proposal'),
+            'f1_tech_budget' => $request->has('f1_tech_budget'),
+            'f2_p0_p1' => $request->has('f2_p0_p1'),
+            'f2_p2' => $request->has('f2_p2'),
+            'f2_p3' => $request->has('f2_p3'),
+            'f2_p4' => $request->has('f2_p4'),
+            'f2_offering' => $request->has('f2_offering'),
+            'f2_p5' => $request->has('f2_p5'),
+            'f2_proposal' => $request->has('f2_proposal'),
+            'f3_p6' => $request->has('f3_p6'),
+            'f3_p7' => $request->has('f3_p7'),
+            'f3_submit' => $request->has('f3_submit'),
             'f4_negosiasi' => $request->has('f4_negosiasi'),
-            'f4_surat_kesanggupan' => $request->has('f4_surat_kesanggupan'),
-            'f4_p8_surat_pemenang' => $request->has('f4_p8_surat_pemenang'),
-            'f5_kontrak_layanan' => $request->has('f5_kontrak_layanan'),
+            'f5_sk_mitra' => $request->has('f5_sk_mitra'),
+            'f5_ttd_kontrak' => $request->has('f5_ttd_kontrak'),
+            'f5_p8' => $request->has('f5_p8'),
+            'delivery_kontrak' => $request->has('delivery_kontrak'),
             'delivery_billing_complete' => $request->has('delivery_billing_complete'),
             'delivery_nilai_billcomp' => $request->delivery_nilai_billcomp,
+            'delivery_baut_bast' => $request->delivery_baut_bast,
             'delivery_baso' => $request->delivery_baso,
         ]);
         
@@ -937,30 +1345,14 @@ class AdminController extends Controller
      */
     public function lopProgressTracking()
     {
-        // Get all LOP data with funnel tracking and user info
-        $onHandData = LopOnHandData::with(['funnel.updatedByUser'])
-            ->whereHas('funnel', function($query) {
-                $query->whereNotNull('updated_by');
-            })
-            ->get();
+        // Get all LOP data with funnel tracking
+        $onHandData = LopOnHandData::with(['funnel'])->get();
         
-        $qualifiedData = LopQualifiedData::with(['funnel.updatedByUser'])
-            ->whereHas('funnel', function($query) {
-                $query->whereNotNull('updated_by');
-            })
-            ->get();
+        $qualifiedData = LopQualifiedData::with(['funnel'])->get();
         
-        $koreksiData = LopKoreksiData::with(['funnel.updatedByUser'])
-            ->whereHas('funnel', function($query) {
-                $query->whereNotNull('updated_by');
-            })
-            ->get();
+        $koreksiData = LopKoreksiData::with(['funnel'])->get();
         
-        $initiateData = LopInitiateData::with(['funnel.updatedByUser'])
-            ->whereHas('funnel', function($query) {
-                $query->whereNotNull('updated_by');
-            })
-            ->get();
+        $initiateData = LopInitiateData::with(['funnel'])->get();
         
         return view('admin.lop-progress-tracking', compact(
             'onHandData',

@@ -5,15 +5,16 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class FunnelTracking extends Model
+class TaskProgress extends Model
 {
     use HasFactory;
 
-    protected $table = 'funnel_tracking';
+    protected $table = 'task_progress';
 
     protected $fillable = [
-        'data_type',
-        'data_id',
+        'task_id',
+        'user_id',
+        'tanggal',
         // F0
         'f0_inisiasi_solusi',
         // F1
@@ -45,6 +46,7 @@ class FunnelTracking extends Model
     ];
 
     protected $casts = [
+        'tanggal' => 'date',
         // F0
         'f0_inisiasi_solusi' => 'boolean',
         // F1
@@ -74,30 +76,26 @@ class FunnelTracking extends Model
     ];
 
     /**
-     * Get all progress records for this task
+     * Get the funnel tracking task
      */
-    public function progress()
+    public function task()
     {
-        return $this->hasMany(TaskProgress::class, 'task_id');
+        return $this->belongsTo(FunnelTracking::class, 'task_id');
     }
 
     /**
-     * Get today's progress for current user
+     * Get the user who made the progress
      */
-    public function todayProgress()
+    public function user()
     {
-        return $this->hasOne(TaskProgress::class, 'task_id')
-            ->whereDate('tanggal', today())
-            ->where('user_id', auth()->id());
+        return $this->belongsTo(User::class);
     }
 
     /**
-     * Scope to eager load today's progress for a specific user
+     * Scope to get today's progress
      */
-    public function scopeWithTodayProgress($query, $userId)
+    public function scopeForToday($query)
     {
-        return $query->with(['todayProgress' => function($q) use ($userId) {
-            $q->where('user_id', $userId)->whereDate('tanggal', today());
-        }]);
+        return $query->whereDate('tanggal', today());
     }
 }
