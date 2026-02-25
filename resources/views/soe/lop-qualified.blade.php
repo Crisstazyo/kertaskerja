@@ -21,7 +21,7 @@
                             <h1 class="text-3xl font-bold text-gray-900 tracking-tight">LOP Qualified</h1>
                             <span class="px-3 py-1 bg-gradient-to-r from-purple-500 to-indigo-600 text-white text-xs font-semibold rounded-full shadow-sm">SOE</span>
                         </div>
-                        <p class="text-sm text-gray-500">Qualified Lead Opportunity Pipeline</p>
+
                     </div>
                 </div>
                 <a href="{{ route('soe.scalling') }}" class="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-5 py-2.5 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl flex items-center gap-2 text-sm">

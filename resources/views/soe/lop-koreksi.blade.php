@@ -21,7 +21,6 @@
                             <h1 class="text-3xl font-bold text-gray-900 tracking-tight">LOP Koreksi</h1>
                             <span class="px-3 py-1 bg-gradient-to-r from-pink-500 to-rose-600 text-white text-xs font-semibold rounded-full shadow-sm">SOE</span>
                         </div>
-                        <p class="text-sm text-gray-500">Correction & Adjustment Pipeline</p>
                     </div>
                 </div>
             </div>

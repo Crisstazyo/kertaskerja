@@ -11,6 +11,8 @@ class LopPrivateInitiatedData extends Model
 
     protected $fillable = [
         'import_id',
+        'added_by_user_id',
+        'is_user_added',
         'no',
         'project',
         'id_lop',
@@ -25,6 +27,11 @@ class LopPrivateInitiatedData extends Model
     public function import()
     {
         return $this->belongsTo(LopPrivateInitiatedImport::class, 'import_id');
+    }
+    
+    public function addedByUser()
+    {
+        return $this->belongsTo(User::class, 'added_by_user_id');
     }
     
     public function funnel()

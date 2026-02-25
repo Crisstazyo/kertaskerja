@@ -21,18 +21,25 @@
                             <h1 class="text-3xl font-bold text-gray-900 tracking-tight">LOP Initiate</h1>
                             <span class="px-3 py-1 bg-gradient-to-r from-orange-500 to-amber-600 text-white text-xs font-semibold rounded-full shadow-sm">GOVERNMENT</span>
                         </div>
-                        <p class="text-sm text-gray-500">Initiated Lead Opportunity Pipeline</p>
                     </div>
                 </div>
-                <form action="{{ route('logout') }}" method="POST">
-                    @csrf
-                    <button type="submit" class="bg-gradient-to-r from-gray-700 to-gray-900 hover:from-gray-800 hover:to-black text-white px-5 py-2.5 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl flex items-center gap-2 text-sm">
+                <div class="flex items-center gap-3">
+                    <a href="{{ route('gov.lop.initiate.create') }}" class="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-5 py-2.5 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl flex items-center gap-2 text-sm">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                         </svg>
-                        Logout
-                    </button>
-                </form>
+                        Add New Project
+                    </a>
+                    <form action="{{ route('logout') }}" method="POST">
+                        @csrf
+                        <button type="submit" class="bg-gradient-to-r from-gray-700 to-gray-900 hover:from-gray-800 hover:to-black text-white px-5 py-2.5 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl flex items-center gap-2 text-sm">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                            </svg>
+                            Logout
+                        </button>
+                    </form>
+                </div>
             </div>
             <div class="h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
         </div>
@@ -309,7 +316,7 @@
                                     @php
                                         // Calculate total from task_progress table (today's progress for current user)
                                         $totalBillComp = \App\Models\TaskProgress::whereHas('task', function($query) {
-                                                $query->where('data_type', 'initiated');
+                                                $query->where('data_type', 'initiate');
                                             })
                                             ->where('user_id', auth()->id())
                                             ->whereDate('tanggal', today())

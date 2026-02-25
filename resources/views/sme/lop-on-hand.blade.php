@@ -21,7 +21,6 @@
                             <h1 class="text-3xl font-bold text-gray-900 tracking-tight">LOP On Hand</h1>
                             <span class="px-3 py-1 bg-gradient-to-r from-emerald-500 to-teal-600 text-white text-xs font-semibold rounded-full shadow-sm">SME</span>
                         </div>
-                        <p class="text-sm text-gray-500">Lead Opportunity Pipeline Management</p>
                     </div>
                 </div>
             </div>

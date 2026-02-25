@@ -16,6 +16,7 @@ use App\Models\LopKoreksiImport;
 use App\Models\LopKoreksiData;
 use App\Models\LopInitiateData;
 use App\Models\FunnelTracking;
+use App\Models\TaskProgress;
 use App\Models\LopAdminNote;
 use App\Models\PsakGovernment;
 use App\Models\PsakPrivate;
@@ -1367,4 +1368,162 @@ class AdminController extends Controller
             'initiateData'
         ));
     }
+
+    /**
+     * Update Task Progress for Admin (AJAX)
+     */
+    public function updateTaskProgress(Request $request)
+    {
+        try {
+            $request->validate([
+                'funnel_id' => 'required|exists:funnel_tracking,id',
+                'delivery_billing_complete' => 'required|boolean',
+                'delivery_nilai_billcomp' => 'nullable|numeric',
+            ]);
+
+            $funnelId = $request->funnel_id;
+            $userId = Auth::id();
+            $today = today();
+
+            // Find or create TaskProgress for current admin user and today's date
+            $taskProgress = TaskProgress::firstOrCreate(
+                [
+                    'task_id' => $funnelId,
+                    'user_id' => $userId,
+                    'tanggal' => $today,
+                ],
+                [
+                    // Initialize all fields to false
+                    'f0_inisiasi_solusi' => false,
+                    'f1_tech_budget' => false,
+                    'f2_p0_p1' => false,
+                    'f2_p2' => false,
+                    'f2_p3' => false,
+                    'f2_p4' => false,
+                    'f2_offering' => false,
+                    'f2_p5' => false,
+                    'f2_proposal' => false,
+                    'f3_p6' => false,
+                    'f3_p7' => false,
+                    'f3_submit' => false,
+                    'f4_negosiasi' => false,
+                    'f5_sk_mitra' => false,
+                    'f5_ttd_kontrak' => false,
+                    'f5_p8' => false,
+                    'delivery_kontrak' => false,
+                ]
+            );
+
+            // Update billing complete and nilai
+            $taskProgress->delivery_billing_complete = $request->delivery_billing_complete;
+            $taskProgress->delivery_nilai_billcomp = $request->delivery_billing_complete 
+                ? $request->delivery_nilai_billcomp 
+                : 0;
+            $taskProgress->save();
+
+            // IMPORTANT: Also update FunnelTracking table (master status)
+            $funnelTracking = FunnelTracking::find($funnelId);
+            if ($funnelTracking) {
+                $funnelTracking->delivery_billing_complete = $request->delivery_billing_complete;
+                $funnelTracking->delivery_nilai_billcomp = $request->delivery_billing_complete 
+                    ? $request->delivery_nilai_billcomp 
+                    : 0;
+                $funnelTracking->save();
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Task progress and funnel tracking updated successfully',
+                'data' => [
+                    'task_progress' => $taskProgress,
+                    'funnel_tracking' => $funnelTracking
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update task progress: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Special Dashboard for Collection, CTC, and Rising Star
+     * Shows user activities with timestamps and filters
+     */
+    public function specialDashboard(Request $request, $role)
+    {
+        // Validate role
+        if (!in_array($role, ['collection', 'ctc', 'rising-star'])) {
+            abort(404);
+        }
+
+        // Get users with the specific role
+        $users = User::where('role', $role)->get();
+
+        // Get task progress (activities) with filters
+        $query = TaskProgress::with(['user', 'task'])
+            ->whereHas('user', function($q) use ($role) {
+                $q->where('role', $role);
+            });
+
+        // Apply user filter
+        if ($request->has('user_id') && $request->user_id) {
+            $query->where('user_id', $request->user_id);
+        }
+
+        // Apply date range filter
+        if ($request->has('date_from') && $request->date_from) {
+            $query->whereDate('tanggal', '>=', $request->date_from);
+        }
+
+        if ($request->has('date_to') && $request->date_to) {
+            $query->whereDate('tanggal', '<=', $request->date_to);
+        }
+
+        // Get activities with pagination
+        $activities = $query->orderBy('updated_at', 'desc')
+            ->paginate(20)
+            ->through(function ($activity) {
+                // Add module and action info
+                $activity->module = $this->getModuleFromDataType($activity->task->data_type ?? '');
+                $activity->action = 'Data Update';
+                $activity->data_id = $activity->task->data_id ?? '-';
+                return $activity;
+            });
+
+        // Get today's activity count
+        $todayActivities = TaskProgress::whereHas('user', function($q) use ($role) {
+                $q->where('role', $role);
+            })
+            ->whereDate('tanggal', today())
+            ->count();
+
+        return view('admin.special-dashboard', compact('role', 'users', 'activities', 'todayActivities'));
+    }
+
+    /**
+     * Helper method to get module name from data type
+     */
+    private function getModuleFromDataType($dataType)
+    {
+        $modules = [
+            'on_hand' => 'On Hand',
+            'qualified' => 'Qualified',
+            'koreksi' => 'Koreksi',
+            'initiate' => 'Initiate',
+            'collection_on_hand' => 'Collection On Hand',
+            'collection_qualified' => 'Collection Qualified',
+            'collection_koreksi' => 'Collection Koreksi',
+            'ctc_on_hand' => 'CTC On Hand',
+            'ctc_qualified' => 'CTC Qualified',
+            'ctc_koreksi' => 'CTC Koreksi',
+            'rising_star_on_hand' => 'Rising Star On Hand',
+            'rising_star_qualified' => 'Rising Star Qualified',
+            'rising_star_koreksi' => 'Rising Star Koreksi',
+        ];
+
+        return $modules[$dataType] ?? ucfirst(str_replace('_', ' ', $dataType));
+    }
 }
+

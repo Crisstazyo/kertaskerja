@@ -21,7 +21,6 @@
                             <h1 class="text-3xl font-bold text-gray-900 tracking-tight">LOP Initiate</h1>
                             <span class="px-3 py-1 bg-gradient-to-r from-orange-500 to-amber-600 text-white text-xs font-semibold rounded-full shadow-sm">SOE</span>
                         </div>
-                        <p class="text-sm text-gray-500">Initiated Lead Opportunity Pipeline</p>
                     </div>
                 </div>
                 <form action="{{ route('logout') }}" method="POST">

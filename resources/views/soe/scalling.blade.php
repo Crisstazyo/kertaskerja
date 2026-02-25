@@ -23,7 +23,6 @@
                         <div class="border-l-2 border-gray-300 h-12"></div>
                         <div>
                             <h1 class="text-4xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">Scalling Management</h1>
-                            <p class="text-gray-500 text-sm font-medium">LOP Data Categories</p>
                         </div>
                     </div>
                 </div>
@@ -38,22 +37,20 @@
                     <div class="absolute inset-0 bg-gradient-to-br from-emerald-500 to-teal-600 opacity-0 group-hover:opacity-5 transition-opacity duration-500"></div>
                     
                     <div class="relative">
-                        <div class="bg-gradient-to-br from-emerald-500 to-teal-600 p-8 text-white relative overflow-hidden">
+                        <div class="bg-gradient-to-br from-emerald-500 to-teal-600 p-10 text-white relative overflow-hidden">
                             <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
-                            <div class="relative flex items-start justify-between mb-4">
-                                <div class="bg-white/20 backdrop-blur-sm p-4 rounded-2xl shadow-lg group-hover:scale-110 transition-transform duration-500">
-                                    <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                                    </svg>
+                            <div class="absolute -bottom-6 -left-6 w-40 h-40 bg-white/5 rounded-full"></div>
+                            <div class="relative">
+                                <div class="flex items-start justify-between mb-6">
+                                    <div>
+                                        <h2 class="text-3xl font-bold mb-2">LOP On Hand</h2>
+                                    </div>
+                                    <span class="px-4 py-1.5 bg-white/20 backdrop-blur-sm text-xs font-bold rounded-full">ACTIVE</span>
                                 </div>
-                                <span class="px-3 py-1 bg-white/20 backdrop-blur-sm text-xs font-bold rounded-full">ACTIVE</span>
                             </div>
-                            <h2 class="text-2xl font-bold mb-2">LOP On Hand</h2>
-                            <p class="text-emerald-100 text-sm font-medium">Data Visualization & Tracking</p>
                         </div>
                         
                         <div class="p-6">
-                            <p class="text-gray-600 mb-6 leading-relaxed">Access and manage LOP On Hand data with advanced filtering and real-time funnel tracking</p>
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center text-emerald-600 font-bold group-hover:text-emerald-700 transition-colors">
                                     <span>Open Data</span>
@@ -73,22 +70,20 @@
                     <div class="absolute inset-0 bg-gradient-to-br from-purple-500 to-fuchsia-600 opacity-0 group-hover:opacity-5 transition-opacity duration-500"></div>
                     
                     <div class="relative">
-                        <div class="bg-gradient-to-br from-purple-500 to-fuchsia-600 p-8 text-white relative overflow-hidden">
+                        <div class="bg-gradient-to-br from-purple-500 to-fuchsia-600 p-10 text-white relative overflow-hidden">
                             <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
-                            <div class="relative flex items-start justify-between mb-4">
-                                <div class="bg-white/20 backdrop-blur-sm p-4 rounded-2xl shadow-lg group-hover:scale-110 transition-transform duration-500">
-                                    <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                    </svg>
+                            <div class="absolute -bottom-6 -left-6 w-40 h-40 bg-white/5 rounded-full"></div>
+                            <div class="relative">
+                                <div class="flex items-start justify-between mb-6">
+                                    <div>
+                                        <h2 class="text-3xl font-bold mb-2">LOP Qualified</h2>
+                                    </div>
+                                    <span class="px-4 py-1.5 bg-white/20 backdrop-blur-sm text-xs font-bold rounded-full">ACTIVE</span>
                                 </div>
-                                <span class="px-3 py-1 bg-white/20 backdrop-blur-sm text-xs font-bold rounded-full">ACTIVE</span>
                             </div>
-                            <h2 class="text-2xl font-bold mb-2">LOP Qualified</h2>
-                            <p class="text-purple-100 text-sm font-medium">Qualified Data Management</p>
                         </div>
                         
                         <div class="p-6">
-                            <p class="text-gray-600 mb-6 leading-relaxed">Manage qualified LOP data with comprehensive tracking and analytics capabilities</p>
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center text-purple-600 font-bold group-hover:text-purple-700 transition-colors">
                                     <span>Open Data</span>
@@ -108,22 +103,20 @@
                     <div class="absolute inset-0 bg-gradient-to-br from-pink-500 to-rose-600 opacity-0 group-hover:opacity-5 transition-opacity duration-500"></div>
                     
                     <div class="relative">
-                        <div class="bg-gradient-to-br from-pink-500 to-rose-600 p-8 text-white relative overflow-hidden">
+                        <div class="bg-gradient-to-br from-pink-500 to-rose-600 p-10 text-white relative overflow-hidden">
                             <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
-                            <div class="relative flex items-start justify-between mb-4">
-                                <div class="bg-white/20 backdrop-blur-sm p-4 rounded-2xl shadow-lg group-hover:scale-110 transition-transform duration-500">
-                                    <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                                    </svg>
+                            <div class="absolute -bottom-6 -left-6 w-40 h-40 bg-white/5 rounded-full"></div>
+                            <div class="relative">
+                                <div class="flex items-start justify-between mb-6">
+                                    <div>
+                                        <h2 class="text-3xl font-bold mb-2">LOP Koreksi</h2>
+                                    </div>
+                                    <span class="px-4 py-1.5 bg-white/20 backdrop-blur-sm text-xs font-bold rounded-full">ACTIVE</span>
                                 </div>
-                                <span class="px-3 py-1 bg-white/20 backdrop-blur-sm text-xs font-bold rounded-full">ACTIVE</span>
                             </div>
-                            <h2 class="text-2xl font-bold mb-2">LOP Koreksi</h2>
-                            <p class="text-pink-100 text-sm font-medium">Correction & Amendment Data</p>
                         </div>
                         
                         <div class="p-6">
-                            <p class="text-gray-600 mb-6 leading-relaxed">Handle correction and amendment data with detailed tracking and validation</p>
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center text-pink-600 font-bold group-hover:text-pink-700 transition-colors">
                                     <span>Open Data</span>
@@ -136,6 +129,42 @@
                     </div>
                 </div>
             </a>
+
+            <!-- LOP Initiate Card -->
+            <div class="group">
+                <div class="relative bg-white/90 backdrop-blur-lg rounded-2xl shadow-xl overflow-hidden border border-yellow-200/50 hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 mb-6">
+                    <div class="absolute inset-0 bg-gradient-to-br from-yellow-500 to-yellow-600 opacity-0 group-hover:opacity-5 transition-opacity duration-500"></div>
+                    <div class="relative">
+                        <div class="bg-gradient-to-br from-yellow-500 to-yellow-600 p-10 text-white relative overflow-hidden">
+                            <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+                            <div class="absolute -bottom-6 -left-6 w-40 h-40 bg-white/5 rounded-full"></div>
+                            <div class="relative">
+                                <div class="flex items-start justify-between mb-6">
+                                    <div>
+                                        <h2 class="text-3xl font-bold mb-2">LOP Initiate</h2>
+                                        <p class="text-sm text-white/80">Tambah projek baru LOP Initiate.</p>
+                                    </div>
+                                    <span class="px-4 py-1.5 bg-white/20 backdrop-blur-sm text-xs font-bold rounded-full">ACTIVE</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <form action="{{ route('soe.lop-initiate.store') }}" method="POST" class="space-y-4">
+                                @csrf
+                                <div>
+                                    <label for="project_name" class="block text-sm font-medium text-gray-700 mb-2">Nama Projek</label>
+                                    <input type="text" name="project_name" id="project_name" required class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 p-2.5">
+                                </div>
+                                <div>
+                                    <label for="description" class="block text-sm font-medium text-gray-700 mb-2">Deskripsi</label>
+                                    <textarea name="description" id="description" rows="2" class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 p-2.5"></textarea>
+                                </div>
+                                <button type="submit" class="bg-yellow-600 hover:bg-yellow-700 text-white px-8 py-3 rounded-lg font-semibold transition-all duration-300 shadow-md hover:shadow-lg">Tambah Projek</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>

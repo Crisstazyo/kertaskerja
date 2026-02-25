@@ -147,6 +147,80 @@ class GovController extends Controller
         return view('gov.lop-initiate', compact('data', 'adminNote', 'currentMonth', 'currentYear'));
     }
     
+    public function createLopInitiate()
+    {
+        return view('gov.lop-initiate-create');
+    }
+    
+    public function storeLopInitiate(Request $request)
+    {
+        $validated = $request->validate([
+            'project' => 'required|string|max:255',
+            'id_lop' => 'nullable|string|max:255',
+            'cc' => 'nullable|string|max:255',
+            'nipnas' => 'nullable|string|max:255',
+            'am' => 'nullable|string|max:255',
+            'mitra' => 'nullable|string|max:255',
+            'plan_bulan_billcom_p_2025' => 'nullable|string|max:255',
+            'est_nilai_bc' => 'nullable|numeric',
+            'month' => 'required|integer|min:1|max:12',
+            'year' => 'required|integer|min:2020|max:2030',
+        ]);
+        
+        // Get the last no for auto-increment
+        $lastNo = LopInitiateData::where('entity_type', 'government')
+            ->where('month', $validated['month'])
+            ->where('year', $validated['year'])
+            ->max('no');
+        
+        // Create new project
+        $project = LopInitiateData::create([
+            'entity_type' => 'government',
+            'created_by' => auth()->user()->name ?? 'User',
+            'added_by_user_id' => auth()->id(),
+            'is_user_added' => true,
+            'no' => $lastNo ? $lastNo + 1 : 1,
+            'project' => $validated['project'],
+            'id_lop' => $validated['id_lop'],
+            'cc' => $validated['cc'],
+            'nipnas' => $validated['nipnas'],
+            'am' => $validated['am'],
+            'mitra' => $validated['mitra'],
+            'plan_bulan_billcom_p_2025' => $validated['plan_bulan_billcom_p_2025'],
+            'est_nilai_bc' => $validated['est_nilai_bc'],
+            'month' => $validated['month'],
+            'year' => $validated['year'],
+        ]);
+        
+        return redirect()->route('gov.lop.initiate', [
+            'month' => $validated['month'],
+            'year' => $validated['year']
+        ])->with('success', 'Project has been successfully added to LOP Initiate!');
+    }
+    
+    public function lopInitiated()
+    {
+        $currentMonth = request()->get('month', date('n'));
+        $currentYear = request()->get('year', date('Y'));
+        
+        // Note: Government doesn't have separate initiated import model like private/soe/sme
+        // Using the same data as lopInitiate for now
+        $data = LopInitiateData::with('funnel.todayProgress')
+            ->where('entity_type', 'government')
+            ->where('month', $currentMonth)
+            ->where('year', $currentYear)
+            ->latest()
+            ->get();
+        
+        $adminNote = LopAdminNote::where('entity_type', 'government')
+            ->where('category', 'initiated')
+            ->where('month', $currentMonth)
+            ->where('year', $currentYear)
+            ->first();
+        
+        return view('gov.lop-initiated', compact('data', 'adminNote', 'currentMonth', 'currentYear'));
+    }
+    
     public function updateFunnelCheckbox(Request $request)
     {
         $request->validate([

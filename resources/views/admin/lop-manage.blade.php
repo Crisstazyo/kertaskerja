@@ -18,10 +18,7 @@
                         ← Kembali ke Pilih Tipe
                     </a>
                     @endif
-                    <h1 class="text-4xl font-bold text-gray-800">
-                        @if($role === 'government') 🏛️ @endif
-                        @if($role === 'private') 🏢 @endif
-                        @if($role === 'soe') 🏭 @endif
+                    <h1 class="text-2xl font-bold text-gray-900">
                         {{ ucfirst($role) }} - 
                         @if($lopCategory === 'none')
                             PSAK
@@ -49,53 +46,35 @@
         <!-- Action Cards -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <!-- Tambah Tabel -->
-            <button onclick="toggleCreateModal()" class="group bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden text-left">
-                <div class="bg-gradient-to-br from-purple-500 to-purple-600 p-6 text-white">
-                    <div class="text-5xl mb-3">➕</div>
-                    <h2 class="text-2xl font-bold mb-1">Tambah Tabel</h2>
+            <button onclick="toggleCreateModal()" class="bg-white rounded-lg shadow-sm border border-gray-200 hover:border-purple-500 hover:shadow-md transition-all overflow-hidden text-left">
+                <div class="bg-purple-600 p-6 text-white">
+                    <h2 class="text-xl font-semibold mb-1">Tambah Tabel</h2>
                     <p class="text-purple-100 text-sm">Buat worksheet baru</p>
                 </div>
                 <div class="p-4">
-                    <div class="flex items-center justify-between text-purple-600 group-hover:text-purple-700">
-                        <span class="font-semibold text-sm">Klik untuk buat</span>
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                        </svg>
-                    </div>
+                    <span class="text-purple-600 font-medium text-sm">Klik untuk buat</span>
                 </div>
             </button>
 
             <!-- Lihat Data -->
-            <a href="{{ route('admin.view-data', [$role, $type, $lopCategory]) }}" class="group bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
-                <div class="bg-gradient-to-br from-blue-500 to-blue-600 p-6 text-white">
-                    <div class="text-5xl mb-3">📋</div>
-                    <h2 class="text-2xl font-bold mb-1">Lihat Data</h2>
+            <a href="{{ route('admin.view-data', [$role, $type, $lopCategory]) }}" class="bg-white rounded-lg shadow-sm border border-gray-200 hover:border-blue-500 hover:shadow-md transition-all overflow-hidden">
+                <div class="bg-blue-600 p-6 text-white">
+                    <h2 class="text-xl font-semibold mb-1">Lihat Data</h2>
                     <p class="text-blue-100 text-sm">Worksheet aktif</p>
                 </div>
                 <div class="p-4">
-                    <div class="flex items-center justify-between text-blue-600 group-hover:text-blue-700">
-                        <span class="font-semibold text-sm">Lihat worksheet</span>
-                        <svg class="w-5 h-5 transform group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                        </svg>
-                    </div>
+                    <span class="text-blue-600 font-medium text-sm">Lihat worksheet</span>
                 </div>
             </a>
 
             <!-- Lihat Riwayat -->
-            <a href="{{ route('admin.view-history', [$role, $type, $lopCategory]) }}" class="group bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
-                <div class="bg-gradient-to-br from-green-500 to-green-600 p-6 text-white">
-                    <div class="text-5xl mb-3">📜</div>
-                    <h2 class="text-2xl font-bold mb-1">Lihat Riwayat</h2>
+            <a href="{{ route('admin.view-history', [$role, $type, $lopCategory]) }}" class="bg-white rounded-lg shadow-sm border border-gray-200 hover:border-green-500 hover:shadow-md transition-all overflow-hidden">
+                <div class="bg-green-600 p-6 text-white">
+                    <h2 class="text-xl font-semibold mb-1">Lihat Riwayat</h2>
                     <p class="text-green-100 text-sm">Semua worksheet</p>
                 </div>
                 <div class="p-4">
-                    <div class="flex items-center justify-between text-green-600 group-hover:text-green-700">
-                        <span class="font-semibold text-sm">Lihat riwayat</span>
-                        <svg class="w-5 h-5 transform group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                        </svg>
-                    </div>
+                    <span class="text-green-600 font-medium text-sm">Lihat riwayat</span>
                 </div>
             </a>
         </div>

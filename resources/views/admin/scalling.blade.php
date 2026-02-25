@@ -9,14 +9,14 @@
         <div class="mb-8">
             <div class="flex items-center justify-between mb-4">
                 <div>
-                    <a href="{{ route('admin.dashboard') }}" class="text-blue-600 hover:text-blue-800 mb-2 inline-block">← Back to Dashboard</a>
-                    <h1 class="text-4xl font-bold text-gray-900 mb-2">📊 Scalling Management</h1>
-                    <p class="text-gray-600 text-lg">Government Data - Upload & View</p>
+                    <a href="{{ route('admin.dashboard') }}" class="text-blue-600 hover:text-blue-800 mb-2 inline-block text-sm font-medium">← Back to Dashboard</a>
+                    <h1 class="text-2xl font-bold text-gray-900 mb-2">Scalling Management</h1>
+                    <p class="text-gray-600">Government Data - Upload & View</p>
                 </div>
                 <form action="{{ route('logout') }}" method="POST">
                     @csrf
-                    <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300 shadow-md hover:shadow-lg">
-                        🚪 Logout
+                    <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-md font-medium transition-colors">
+                        Logout
                     </button>
                 </form>
             </div>
@@ -24,18 +24,14 @@
         </div>
 
         @if(session('success'))
-        <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded-lg shadow-md">
-            <div class="flex items-center">
-                <span class="text-2xl mr-3">✅</span>
-                <span class="font-semibold">{{ session('success') }}</span>
-            </div>
+        <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded-md">
+            <span class="font-semibold">{{ session('success') }}</span>
         </div>
         @endif
 
         <!-- Upload Section -->
-        <div class="bg-white rounded-xl shadow-lg p-6 mb-8 border-2 border-blue-100">
-            <h2 class="text-2xl font-bold text-gray-800 mb-4 flex items-center">
-                <span class="text-3xl mr-3">📤</span>
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">
                 Upload Excel File
             </h2>
             <form action="{{ route('admin.scalling.upload', $role) }}" method="POST" enctype="multipart/form-data" class="space-y-4">
@@ -57,14 +53,14 @@
         <!-- Uploaded Data Display -->
         <div class="space-y-6">
             @forelse($scallingData as $data)
-            <div class="bg-white rounded-xl shadow-lg overflow-hidden border-2 border-gray-100">
-                <div class="bg-gradient-to-r from-green-500 to-green-600 p-4 text-white">
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                <div class="bg-green-600 p-4 text-white">
                     <div class="flex items-center justify-between">
                         <div>
-                            <h3 class="text-xl font-bold">📄 {{ $data->file_name }}</h3>
+                            <h3 class="text-lg font-semibold">{{ $data->file_name }}</h3>
                             <p class="text-sm text-green-100 mt-1">Uploaded by {{ $data->uploaded_by }} on {{ $data->created_at->format('d M Y H:i') }}</p>
                         </div>
-                        <span class="bg-white bg-opacity-20 px-4 py-2 rounded-lg font-semibold">
+                        <span class="bg-white bg-opacity-20 px-4 py-2 rounded-md font-medium">
                             {{ count($data->data) }} rows
                         </span>
                     </div>
@@ -117,9 +113,8 @@
                 </div>
             </div>
             @empty
-            <div class="bg-white rounded-xl shadow-lg p-12 text-center">
-                <div class="text-6xl mb-4">📊</div>
-                <h3 class="text-2xl font-bold text-gray-800 mb-2">No Data Yet</h3>
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
+                <h3 class="text-xl font-semibold text-gray-900 mb-2">No Data Yet</h3>
                 <p class="text-gray-600">Upload an Excel file to get started</p>
             </div>
             @endforelse
