@@ -229,14 +229,12 @@
                                     <th class="px-2 py-2 text-center text-[10px] font-semibold text-gray-700 bg-indigo-50 border-r border-gray-200">BAUT/<br>BAST</th>
                                     <th class="px-2 py-2 text-center text-[10px] font-semibold text-gray-700 bg-indigo-50 border-r border-gray-200">BASO</th>
                                     <th class="px-2 py-2 text-center text-[10px] font-semibold text-gray-700 bg-indigo-50 border-r-2 border-gray-300">Billing</th>
-                                    <th class="px-2 py-2 text-center text-[10px] font-semibold text-gray-700 bg-indigo-50 border-r border-gray-200">BAUT &<br>BASO</th>
-                                    <th class="px-2 py-2 text-center text-[10px] font-semibold text-gray-700 bg-indigo-50 border-r border-gray-200">Billing</th>
-                                    <th class="px-2 py-2 text-center text-[10px] font-semibold text-gray-700 bg-indigo-50">Nilai<br>BILLCOMP</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @php 
                                     $totalBillcomp = 0;
+                                    $totalEstNilai = 0;
                                     
                                     // Helper function to get checkbox state
                                     $getCheckboxState = function($data, $field) use ($selectedUserId) {
@@ -267,6 +265,11 @@
                                 @foreach($visibleData as $index => $data)
                                 @php
                                     $denganMitra = stripos($data->mitra ?? '', 'dengan') !== false || stripos($data->mitra ?? '', 'with') !== false;
+                                    
+                                    // Calculate total EST NILAI BC
+                                    if ($data->est_nilai_bc) {
+                                        $totalEstNilai += floatval(str_replace([',', '.'], ['', ''], $data->est_nilai_bc));
+                                    }
                                     
                                     // Calculate total from task_progress
                                     if ($data->funnel && $data->funnel->progress) {
@@ -303,18 +306,12 @@
                                     @php $f0State = $getCheckboxState($data, 'f0_inisiasi_solusi'); @endphp
                                     <td class="px-2 py-2 text-center bg-blue-50 border-r-2 border-gray-300" title="{{ $f0State['count'] > 0 ? $f0State['count'] . ' user(s): ' . implode(', ', $f0State['users']) : 'Belum ada yang complete' }}">
                                         <input type="checkbox" disabled {{ $f0State['checked'] ? 'checked' : '' }} class="w-4 h-4">
-                                        @if(!$selectedUserId && $f0State['count'] > 0)
-                                            <span class="text-[9px] text-blue-600 font-bold">{{ $f0State['count'] }}</span>
-                                        @endif
                                     </td>
                                     
                                     <!-- F1 -->
                                     @php $f1State = $getCheckboxState($data, 'f1_tech_budget'); @endphp
                                     <td class="px-2 py-2 text-center bg-purple-50 border-r-2 border-gray-300" title="{{ $f1State['count'] > 0 ? $f1State['count'] . ' user(s): ' . implode(', ', $f1State['users']) : 'Belum ada yang complete' }}">
                                         <input type="checkbox" disabled {{ $f1State['checked'] ? 'checked' : '' }} class="w-4 h-4">
-                                        @if(!$selectedUserId && $f1State['count'] > 0)
-                                            <span class="text-[9px] text-purple-600 font-bold">{{ $f1State['count'] }}</span>
-                                        @endif
                                     </td>
                                     
                                     <!-- F2 -->
@@ -322,7 +319,6 @@
                                     <td class="px-2 py-2 text-center bg-pink-50 border-r border-gray-200" title="{{ $f2p0State['count'] > 0 ? implode(', ', $f2p0State['users']) : '' }}">
                                         @if($denganMitra)
                                             <input type="checkbox" disabled {{ $f2p0State['checked'] ? 'checked' : '' }} class="w-4 h-4">
-                                            @if(!$selectedUserId && $f2p0State['count'] > 0)<span class="text-[9px] text-pink-600 font-bold">{{ $f2p0State['count'] }}</span>@endif
                                         @else
                                             <span class="text-gray-400">-</span>
                                         @endif
@@ -331,7 +327,6 @@
                                     <td class="px-2 py-2 text-center bg-pink-50 border-r border-gray-200" title="{{ $f2p2State['count'] > 0 ? implode(', ', $f2p2State['users']) : '' }}">
                                         @if($denganMitra)
                                             <input type="checkbox" disabled {{ $f2p2State['checked'] ? 'checked' : '' }} class="w-4 h-4">
-                                            @if(!$selectedUserId && $f2p2State['count'] > 0)<span class="text-[9px] text-pink-600 font-bold">{{ $f2p2State['count'] }}</span>@endif
                                         @else
                                             <span class="text-gray-400">-</span>
                                         @endif
@@ -340,7 +335,6 @@
                                     <td class="px-2 py-2 text-center bg-pink-50 border-r border-gray-200" title="{{ $f2p3State['count'] > 0 ? implode(', ', $f2p3State['users']) : '' }}">
                                         @if($denganMitra)
                                             <input type="checkbox" disabled {{ $f2p3State['checked'] ? 'checked' : '' }} class="w-4 h-4">
-                                            @if(!$selectedUserId && $f2p3State['count'] > 0)<span class="text-[9px] text-pink-600 font-bold">{{ $f2p3State['count'] }}</span>@endif
                                         @else
                                             <span class="text-gray-400">-</span>
                                         @endif
@@ -349,7 +343,6 @@
                                     <td class="px-2 py-2 text-center bg-pink-50 border-r border-gray-200" title="{{ $f2p4State['count'] > 0 ? implode(', ', $f2p4State['users']) : '' }}">
                                         @if($denganMitra)
                                             <input type="checkbox" disabled {{ $f2p4State['checked'] ? 'checked' : '' }} class="w-4 h-4">
-                                            @if(!$selectedUserId && $f2p4State['count'] > 0)<span class="text-[9px] text-pink-600 font-bold">{{ $f2p4State['count'] }}</span>@endif
                                         @else
                                             <span class="text-gray-400">-</span>
                                         @endif
@@ -357,13 +350,11 @@
                                     @php $f2OfferState = $getCheckboxState($data, 'f2_offering'); @endphp
                                     <td class="px-2 py-2 text-center bg-pink-50 border-r border-gray-200" title="{{ $f2OfferState['count'] > 0 ? implode(', ', $f2OfferState['users']) : '' }}">
                                         <input type="checkbox" disabled {{ $f2OfferState['checked'] ? 'checked' : '' }} class="w-4 h-4">
-                                        @if(!$selectedUserId && $f2OfferState['count'] > 0)<span class="text-[9px] text-pink-600 font-bold">{{ $f2OfferState['count'] }}</span>@endif
                                     </td>
                                     @php $f2p5State = $getCheckboxState($data, 'f2_p5'); @endphp
                                     <td class="px-2 py-2 text-center bg-pink-50 border-r border-gray-200" title="{{ $f2p5State['count'] > 0 ? implode(', ', $f2p5State['users']) : '' }}">
                                         @if($denganMitra)
                                             <input type="checkbox" disabled {{ $f2p5State['checked'] ? 'checked' : '' }} class="w-4 h-4">
-                                            @if(!$selectedUserId && $f2p5State['count'] > 0)<span class="text-[9px] text-pink-600 font-bold">{{ $f2p5State['count'] }}</span>@endif
                                         @else
                                             <span class="text-gray-400">-</span>
                                         @endif
@@ -372,7 +363,6 @@
                                     <td class="px-2 py-2 text-center bg-pink-50 border-r-2 border-gray-300" title="{{ $f2PropState['count'] > 0 ? implode(', ', $f2PropState['users']) : '' }}">
                                         @if($denganMitra)
                                             <input type="checkbox" disabled {{ $f2PropState['checked'] ? 'checked' : '' }} class="w-4 h-4">
-                                            @if(!$selectedUserId && $f2PropState['count'] > 0)<span class="text-[9px] text-pink-600 font-bold">{{ $f2PropState['count'] }}</span>@endif
                                         @else
                                             <span class="text-gray-400">-</span>
                                         @endif
@@ -383,7 +373,6 @@
                                     <td class="px-2 py-2 text-center bg-orange-50 border-r border-gray-200" title="{{ $f3p6State['count'] > 0 ? implode(', ', $f3p6State['users']) : '' }}">
                                         @if($denganMitra)
                                             <input type="checkbox" disabled {{ $f3p6State['checked'] ? 'checked' : '' }} class="w-4 h-4">
-                                            @if(!$selectedUserId && $f3p6State['count'] > 0)<span class="text-[9px] text-orange-600 font-bold">{{ $f3p6State['count'] }}</span>@endif
                                         @else
                                             <span class="text-gray-400">-</span>
                                         @endif
@@ -392,7 +381,6 @@
                                     <td class="px-2 py-2 text-center bg-orange-50 border-r border-gray-200" title="{{ $f3p7State['count'] > 0 ? implode(', ', $f3p7State['users']) : '' }}">
                                         @if($denganMitra)
                                             <input type="checkbox" disabled {{ $f3p7State['checked'] ? 'checked' : '' }} class="w-4 h-4">
-                                            @if(!$selectedUserId && $f3p7State['count'] > 0)<span class="text-[9px] text-orange-600 font-bold">{{ $f3p7State['count'] }}</span>@endif
                                         @else
                                             <span class="text-gray-400">-</span>
                                         @endif
@@ -401,7 +389,6 @@
                                     <td class="px-2 py-2 text-center bg-orange-50 border-r-2 border-gray-300" title="{{ $f3SubmitState['count'] > 0 ? implode(', ', $f3SubmitState['users']) : '' }}">
                                         @if($denganMitra)
                                             <input type="checkbox" disabled {{ $f3SubmitState['checked'] ? 'checked' : '' }} class="w-4 h-4">
-                                            @if(!$selectedUserId && $f3SubmitState['count'] > 0)<span class="text-[9px] text-orange-600 font-bold">{{ $f3SubmitState['count'] }}</span>@endif
                                         @else
                                             <span class="text-gray-400">-</span>
                                         @endif
@@ -411,7 +398,6 @@
                                     @php $f4State = $getCheckboxState($data, 'f4_negosiasi'); @endphp
                                     <td class="px-2 py-2 text-center bg-green-50 border-r-2 border-gray-300" title="{{ $f4State['count'] > 0 ? implode(', ', $f4State['users']) : '' }}">
                                         <input type="checkbox" disabled {{ $f4State['checked'] ? 'checked' : '' }} class="w-4 h-4">
-                                        @if(!$selectedUserId && $f4State['count'] > 0)<span class="text-[9px] text-green-600 font-bold">{{ $f4State['count'] }}</span>@endif
                                     </td>
                                     
                                     <!-- F5 -->
@@ -419,7 +405,6 @@
                                     <td class="px-2 py-2 text-center bg-teal-50 border-r border-gray-200" title="{{ $f5SkState['count'] > 0 ? implode(', ', $f5SkState['users']) : '' }}">
                                         @if($denganMitra)
                                             <input type="checkbox" disabled {{ $f5SkState['checked'] ? 'checked' : '' }} class="w-4 h-4">
-                                            @if(!$selectedUserId && $f5SkState['count'] > 0)<span class="text-[9px] text-teal-600 font-bold">{{ $f5SkState['count'] }}</span>@endif
                                         @else
                                             <span class="text-gray-400">-</span>
                                         @endif
@@ -427,13 +412,11 @@
                                     @php $f5TtdState = $getCheckboxState($data, 'f5_ttd_kontrak'); @endphp
                                     <td class="px-2 py-2 text-center bg-teal-50 border-r border-gray-200" title="{{ $f5TtdState['count'] > 0 ? implode(', ', $f5TtdState['users']) : '' }}">
                                         <input type="checkbox" disabled {{ $f5TtdState['checked'] ? 'checked' : '' }} class="w-4 h-4">
-                                        @if(!$selectedUserId && $f5TtdState['count'] > 0)<span class="text-[9px] text-teal-600 font-bold">{{ $f5TtdState['count'] }}</span>@endif
                                     </td>
                                     @php $f5p8State = $getCheckboxState($data, 'f5_p8'); @endphp
                                     <td class="px-2 py-2 text-center bg-teal-50 border-r-2 border-gray-300" title="{{ $f5p8State['count'] > 0 ? implode(', ', $f5p8State['users']) : '' }}">
                                         @if($denganMitra)
                                             <input type="checkbox" disabled {{ $f5p8State['checked'] ? 'checked' : '' }} class="w-4 h-4">
-                                            @if(!$selectedUserId && $f5p8State['count'] > 0)<span class="text-[9px] text-teal-600 font-bold">{{ $f5p8State['count'] }}</span>@endif
                                         @else
                                             <span class="text-gray-400">-</span>
                                         @endif
@@ -450,7 +433,6 @@
                                     @endphp
                                     <td class="px-2 py-2 text-center bg-indigo-50 border-r border-gray-200" title="{{ $delivKontrakState['count'] > 0 ? implode(', ', $delivKontrakState['users']) : '' }}">
                                         <input type="checkbox" disabled {{ $delivKontrakState['checked'] ? 'checked' : '' }} class="w-4 h-4">
-                                        @if(!$selectedUserId && $delivKontrakState['count'] > 0)<span class="text-[9px] text-indigo-600 font-bold">{{ $delivKontrakState['count'] }}</span>@endif
                                     </td>
                                     <td class="px-2 py-2 text-center bg-indigo-50 border-r border-gray-200">
                                         {{ $bautBast }}
@@ -460,24 +442,31 @@
                                     </td>
                                     <td class="px-2 py-2 text-center bg-indigo-50 border-r-2 border-gray-300" title="{{ $delivBillState['count'] > 0 ? implode(', ', $delivBillState['users']) : '' }}">
                                         <input type="checkbox" disabled {{ $delivBillState['checked'] ? 'checked' : '' }} class="w-4 h-4">
-                                        @if(!$selectedUserId && $delivBillState['count'] > 0)<span class="text-[9px] text-indigo-600 font-bold">{{ $delivBillState['count'] }}</span>@endif
                                     </td>
                                     
                                     <!-- BILLING COMPLETE (duplicate of DELIVERY billing) -->
                                     <td class="px-2 py-2 text-center bg-purple-50 border-r-2 border-gray-300" title="{{ $delivBillState['count'] > 0 ? implode(', ', $delivBillState['users']) : '' }}">
-                                        <input type="checkbox" disabled {{ $delivBillState['checked'] ? 'checked' : '' }} class="w-4 h-4">
-                                        @if(!$selectedUserId && $delivBillState['count'] > 0)<span class="text-[9px] text-purple-600 font-bold">{{ $delivBillState['count'] }}</span>@endif
+                                        <input type="checkbox" 
+                                               {{ $delivBillState['checked'] ? 'checked' : '' }} 
+                                               class="w-4 h-4 billing-complete-checkbox cursor-pointer"
+                                               data-funnel-id="{{ $data->funnel ? $data->funnel->id : '' }}"
+                                               data-data-id="{{ $data->id }}"
+                                               data-category="{{ $category }}"
+                                               data-est-nilai="{{ $data->est_nilai_bc ? floatval(str_replace([',', '.'], ['', ''], $data->est_nilai_bc)) : 0 }}"
+                                               data-row-index="{{ $index }}">
                                     </td>
                                     
                                     <!-- NILAI BILL COMP -->
-                                    <td class="px-2 py-2 text-right bg-purple-50 font-semibold">
+                                    <td class="px-2 py-2 text-right bg-purple-50 font-semibold nilai-billcomp-cell" data-row-index="{{ $index }}">
                                         @php
                                             $nilaiDisplay = '-';
+                                            $rawNilai = 0;
                                             if ($data->funnel && $data->funnel->progress) {
                                                 if ($selectedUserId) {
                                                     $userProgress = $data->funnel->progress->where('user_id', $selectedUserId)->first();
                                                     if ($userProgress && $userProgress->delivery_billing_complete && $userProgress->delivery_nilai_billcomp) {
-                                                        $nilaiDisplay = 'Rp ' . number_format(floatval($userProgress->delivery_nilai_billcomp), 0, ',', '.');
+                                                        $rawNilai = floatval($userProgress->delivery_nilai_billcomp);
+                                                        $nilaiDisplay = 'Rp ' . number_format($rawNilai, 0, ',', '.');
                                                     }
                                                 } else {
                                                     // Aggregate: sum all users' billcomp
@@ -488,19 +477,21 @@
                                                         }
                                                     }
                                                     if ($totalNilai > 0) {
+                                                        $rawNilai = $totalNilai;
                                                         $nilaiDisplay = 'Rp ' . number_format(floatval($totalNilai), 0, ',', '.');
                                                     }
                                                 }
                                             }
                                         @endphp
-                                        {{ $nilaiDisplay }}
+                                        <span class="nilai-display" data-raw-nilai="{{ $rawNilai }}">{{ $nilaiDisplay }}</span>
                                     </td>
                                 </tr>
                                 @endforeach
                             </tbody>
                             <tfoot>
                                 <tr class="bg-gradient-to-r from-emerald-100 to-green-100 font-bold border-t-2 border-gray-300">
-                                    <td colspan="8" class="px-3 py-3 text-right text-lg border-r-2 border-gray-300">TOTAL:</td>
+                                    <td colspan="7" class="px-3 py-3 text-right text-lg border-r-2 border-gray-300">TOTAL:</td>
+                                    <td class="px-3 py-3 text-right text-lg text-blue-700 border-r-2 border-gray-300">Rp {{ number_format($totalEstNilai, 0, ',', '.') }}</td>
                                     <td colspan="19" class="px-3 py-3"></td>
                                     <td class="px-3 py-3 text-right text-lg text-green-700">Rp {{ number_format($totalBillcomp, 0, ',', '.') }}</td>
                                 </tr>
@@ -694,90 +685,74 @@
                                     <!-- F0 -->
                                     <td class="px-2 py-2 text-center bg-blue-50 border-r" title="{{ $f0State['count'] > 0 ? $f0State['count'] . ' user(s): ' . implode(', ', $f0State['users']) : 'Belum ada yang complete' }}">
                                         <input type="checkbox" disabled {{ $f0State['checked'] ? 'checked' : '' }} class="w-4 h-4">
-                                        @if(!$selectedUserId && $f0State['count'] > 0)<span class="text-[9px] text-blue-600 font-bold block">{{ $f0State['count'] }}</span>@endif
                                     </td>
                                     
                                     <!-- F1 -->
                                     <td class="px-2 py-2 text-center bg-purple-50 border-r" title="{{ $f1State['count'] > 0 ? $f1State['count'] . ' user(s): ' . implode(', ', $f1State['users']) : 'Belum ada yang complete' }}">
                                         <input type="checkbox" disabled {{ $f1State['checked'] ? 'checked' : '' }} class="w-4 h-4">
-                                        @if(!$selectedUserId && $f1State['count'] > 0)<span class="text-[9px] text-purple-600 font-bold block">{{ $f1State['count'] }}</span>@endif
                                     </td>
                                     
                                     <!-- F2 Fields -->
                                     @if($denganMitra)
                                         <td class="px-2 py-2 text-center bg-pink-50 border-r" title="{{ $f2p0State['count'] > 0 ? implode(', ', $f2p0State['users']) : '' }}">
                                             <input type="checkbox" disabled {{ $f2p0State['checked'] ? 'checked' : '' }} class="w-4 h-4">
-                                            @if(!$selectedUserId && $f2p0State['count'] > 0)<span class="text-[9px] text-pink-600 font-bold block">{{ $f2p0State['count'] }}</span>@endif
                                         </td>
                                         <td class="px-2 py-2 text-center bg-pink-50 border-r" title="{{ $f2p2State['count'] > 0 ? implode(', ', $f2p2State['users']) : '' }}">
                                             <input type="checkbox" disabled {{ $f2p2State['checked'] ? 'checked' : '' }} class="w-4 h-4">
-                                            @if(!$selectedUserId && $f2p2State['count'] > 0)<span class="text-[9px] text-pink-600 font-bold block">{{ $f2p2State['count'] }}</span>@endif
                                         </td>
                                         <td class="px-2 py-2 text-center bg-pink-50 border-r" title="{{ $f2p3State['count'] > 0 ? implode(', ', $f2p3State['users']) : '' }}">
                                             <input type="checkbox" disabled {{ $f2p3State['checked'] ? 'checked' : '' }} class="w-4 h-4">
-                                            @if(!$selectedUserId && $f2p3State['count'] > 0)<span class="text-[9px] text-pink-600 font-bold block">{{ $f2p3State['count'] }}</span>@endif
                                         </td>
                                         <td class="px-2 py-2 text-center bg-pink-50 border-r" title="{{ $f2p4State['count'] > 0 ? implode(', ', $f2p4State['users']) : '' }}">
                                             <input type="checkbox" disabled {{ $f2p4State['checked'] ? 'checked' : '' }} class="w-4 h-4">
-                                            @if(!$selectedUserId && $f2p4State['count'] > 0)<span class="text-[9px] text-pink-600 font-bold block">{{ $f2p4State['count'] }}</span>@endif
                                         </td>
                                         <td class="px-2 py-2 text-center bg-pink-50 border-r" title="{{ $f2OfferState['count'] > 0 ? implode(', ', $f2OfferState['users']) : '' }}">
                                             <input type="checkbox" disabled {{ $f2OfferState['checked'] ? 'checked' : '' }} class="w-4 h-4">
-                                            @if(!$selectedUserId && $f2OfferState['count'] > 0)<span class="text-[9px] text-pink-600 font-bold block">{{ $f2OfferState['count'] }}</span>@endif
                                         </td>
                                         <td class="px-2 py-2 text-center bg-pink-50 border-r" title="{{ $f2p5State['count'] > 0 ? implode(', ', $f2p5State['users']) : '' }}">
                                             <input type="checkbox" disabled {{ $f2p5State['checked'] ? 'checked' : '' }} class="w-4 h-4">
-                                            @if(!$selectedUserId && $f2p5State['count'] > 0)<span class="text-[9px] text-pink-600 font-bold block">{{ $f2p5State['count'] }}</span>@endif
                                         </td>
                                     @else
                                         <td colspan="6" class="px-2 py-2 text-center bg-pink-50 border-r text-gray-400">-</td>
                                     @endif
                                     <td class="px-2 py-2 text-center bg-pink-50 border-r" title="{{ $f2PropState['count'] > 0 ? implode(', ', $f2PropState['users']) : '' }}">
                                         <input type="checkbox" disabled {{ $f2PropState['checked'] ? 'checked' : '' }} class="w-4 h-4">
-                                        @if(!$selectedUserId && $f2PropState['count'] > 0)<span class="text-[9px] text-pink-600 font-bold block">{{ $f2PropState['count'] }}</span>@endif
                                     </td>
                                     
                                     <!-- F3 Fields -->
                                     @if($denganMitra)
                                         <td class="px-2 py-2 text-center bg-orange-50 border-r" title="{{ $f3p6State['count'] > 0 ? implode(', ', $f3p6State['users']) : '' }}">
                                             <input type="checkbox" disabled {{ $f3p6State['checked'] ? 'checked' : '' }} class="w-4 h-4">
-                                            @if(!$selectedUserId && $f3p6State['count'] > 0)<span class="text-[9px] text-orange-600 font-bold block">{{ $f3p6State['count'] }}</span>@endif
                                         </td>
                                         <td class="px-2 py-2 text-center bg-orange-50 border-r" title="{{ $f3p7State['count'] > 0 ? implode(', ', $f3p7State['users']) : '' }}">
                                             <input type="checkbox" disabled {{ $f3p7State['checked'] ? 'checked' : '' }} class="w-4 h-4">
-                                            @if(!$selectedUserId && $f3p7State['count'] > 0)<span class="text-[9px] text-orange-600 font-bold block">{{ $f3p7State['count'] }}</span>@endif
                                         </td>
                                     @else
                                         <td colspan="2" class="px-2 py-2 text-center bg-orange-50 border-r text-gray-400">-</td>
                                     @endif
                                     <td class="px-2 py-2 text-center bg-orange-50 border-r" title="{{ $f3SubmitState['count'] > 0 ? implode(', ', $f3SubmitState['users']) : '' }}">
                                         <input type="checkbox" disabled {{ $f3SubmitState['checked'] ? 'checked' : '' }} class="w-4 h-4">
-                                        @if(!$selectedUserId && $f3SubmitState['count'] > 0)<span class="text-[9px] text-orange-600 font-bold block">{{ $f3SubmitState['count'] }}</span>@endif
                                     </td>
                                     
                                     <!-- F4 -->
                                     <td class="px-2 py-2 text-center bg-teal-50 border-r" title="{{ $f4State['count'] > 0 ? implode(', ', $f4State['users']) : '' }}">
                                         <input type="checkbox" disabled {{ $f4State['checked'] ? 'checked' : '' }} class="w-4 h-4">
-                                        @if(!$selectedUserId && $f4State['count'] > 0)<span class="text-[9px] text-teal-600 font-bold block">{{ $f4State['count'] }}</span>@endif
                                     </td>
                                     
                                     <!-- F5 Fields -->
                                     @if($denganMitra)
                                         <td class="px-2 py-2 text-center bg-green-50 border-r" title="{{ $f5SkState['count'] > 0 ? implode(', ', $f5SkState['users']) : '' }}">
                                             <input type="checkbox" disabled {{ $f5SkState['checked'] ? 'checked' : '' }} class="w-4 h-4">
-                                            @if(!$selectedUserId && $f5SkState['count'] > 0)<span class="text-[9px] text-green-600 font-bold block">{{ $f5SkState['count'] }}</span>@endif
                                         </td>
                                     @else
                                         <td class="px-2 py-2 text-center bg-green-50 border-r text-gray-400">-</td>
                                     @endif
                                     <td class="px-2 py-2 text-center bg-green-50 border-r" title="{{ $f5TtdState['count'] > 0 ? implode(', ', $f5TtdState['users']) : '' }}">
                                         <input type="checkbox" disabled {{ $f5TtdState['checked'] ? 'checked' : '' }} class="w-4 h-4">
-                                        @if(!$selectedUserId && $f5TtdState['count'] > 0)<span class="text-[9px] text-green-600 font-bold block">{{ $f5TtdState['count'] }}</span>@endif
                                     </td>
                                     @if($denganMitra)
                                         <td class="px-2 py-2 text-center bg-green-50 border-r" title="{{ $f5p8State['count'] > 0 ? implode(', ', $f5p8State['users']) : '' }}">
                                             <input type="checkbox" disabled {{ $f5p8State['checked'] ? 'checked' : '' }} class="w-4 h-4">
-                                            @if(!$selectedUserId && $f5p8State['count'] > 0)<span class="text-[9px] text-green-600 font-bold block">{{ $f5p8State['count'] }}</span>@endif
                                         </td>
                                     @else
                                         <td class="px-2 py-2 text-center bg-green-50 border-r text-gray-400">-</td>
@@ -786,7 +761,6 @@
                                     <!-- DELIVERY -->
                                     <td class="px-2 py-2 text-center bg-emerald-50 border-r" title="{{ $delivKontrakState['count'] > 0 ? implode(', ', $delivKontrakState['users']) : '' }}">
                                         <input type="checkbox" disabled {{ $delivKontrakState['checked'] ? 'checked' : '' }} class="w-4 h-4">
-                                        @if(!$selectedUserId && $delivKontrakState['count'] > 0)<span class="text-[9px] text-emerald-600 font-bold block">{{ $delivKontrakState['count'] }}</span>@endif
                                     </td>
                                     <td class="px-2 py-2 text-center bg-emerald-50 border-r">
                                         <span class="text-xs {{ $funnel && $funnel->delivery_baut_bast ? 'text-emerald-700 font-semibold' : 'text-gray-400' }}">
@@ -802,7 +776,6 @@
                                     <!-- BILLING COMPLETE -->
                                     <td class="px-2 py-2 text-center bg-indigo-50 border-r" title="{{ $delivBillState['count'] > 0 ? implode(', ', $delivBillState['users']) : '' }}">
                                         <input type="checkbox" disabled {{ $delivBillState['checked'] ? 'checked' : '' }} class="w-4 h-4">
-                                        @if(!$selectedUserId && $delivBillState['count'] > 0)<span class="text-[9px] text-indigo-600 font-bold block">{{ $delivBillState['count'] }}</span>@endif
                                     </td>
                                     
                                     <!-- NILAI BILL COMP -->
@@ -871,4 +844,97 @@
         @endif
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle checkbox change for BILLING COMPLETE
+    const checkboxes = document.querySelectorAll('.billing-complete-checkbox');
+    
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const rowIndex = this.dataset.rowIndex;
+            const funnelId = this.dataset.funnelId;
+            const dataId = this.dataset.dataId;
+            const category = this.dataset.category;
+            const estNilai = parseFloat(this.dataset.estNilai) || 0;
+            const isChecked = this.checked;
+            
+            // Find the NILAI BILL COMP cell for this row
+            const nilaiCell = document.querySelector(`.nilai-billcomp-cell[data-row-index="${rowIndex}"]`);
+            const nilaiDisplay = nilaiCell ? nilaiCell.querySelector('.nilai-display') : null;
+            
+            if (isChecked && estNilai > 0) {
+                // Auto-fill with EST NILAI BC value
+                const formattedNilai = 'Rp ' + estNilai.toLocaleString('id-ID');
+                if (nilaiDisplay) {
+                    nilaiDisplay.textContent = formattedNilai;
+                    nilaiDisplay.dataset.rawNilai = estNilai;
+                }
+                
+                // Send AJAX request to update TaskProgress
+                updateTaskProgress(funnelId, dataId, category, true, estNilai);
+            } else {
+                // Clear the value
+                if (nilaiDisplay) {
+                    nilaiDisplay.textContent = '-';
+                    nilaiDisplay.dataset.rawNilai = '0';
+                }
+                
+                // Send AJAX request to update TaskProgress
+                updateTaskProgress(funnelId, dataId, category, false, 0);
+            }
+            
+            // Recalculate total
+            updateTotal();
+        });
+    });
+    
+    function updateTaskProgress(funnelId, dataId, category, isChecked, nilaiValue) {
+        if (!funnelId) {
+            console.error('No funnel ID available');
+            return;
+        }
+        
+        fetch('/admin/task-progress/update', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify({
+                funnel_id: funnelId,
+                data_id: dataId,
+                category: category,
+                delivery_billing_complete: isChecked,
+                delivery_nilai_billcomp: nilaiValue
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log('Task progress updated successfully');
+            } else {
+                console.error('Failed to update task progress:', data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error updating task progress:', error);
+        });
+    }
+    
+    function updateTotal() {
+        let total = 0;
+        document.querySelectorAll('.nilai-display').forEach(display => {
+            const rawNilai = parseFloat(display.dataset.rawNilai) || 0;
+            total += rawNilai;
+        });
+        
+        // Update the total display in tfoot
+        const totalCell = document.querySelector('tfoot .text-green-700');
+        if (totalCell) {
+            totalCell.textContent = 'Rp ' + total.toLocaleString('id-ID');
+        }
+    }
+});
+</script>
 @endsection

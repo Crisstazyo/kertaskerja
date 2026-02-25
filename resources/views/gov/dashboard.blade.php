@@ -17,11 +17,7 @@
                         <img src="{{ asset('img/Telkom.png') }}" alt="Telkom Logo" class="h-16 w-auto">
                         <div class="border-l-2 border-gray-300 h-16"></div>
                         <div>
-                            <div class="flex items-center space-x-3 mb-1">
-                                <h1 class="text-4xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">Government Dashboard</h1>
-                                <span class="px-3 py-1 bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-xs font-semibold rounded-full shadow-lg">PREMIUM</span>
-                            </div>
-                            <p class="text-gray-500 text-sm font-medium">Kertas Kerja Management System - Executive Portal</p>
+                            <h1 class="text-4xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">Government Dashboard</h1>
                         </div>
                     </div>
                     <form action="{{ route('logout') }}" method="POST">
@@ -48,22 +44,20 @@
                     <div class="absolute inset-0 bg-gradient-to-br from-blue-500 to-indigo-600 opacity-0 group-hover:opacity-5 transition-opacity duration-500"></div>
                     
                     <div class="relative">
-                        <div class="bg-gradient-to-br from-blue-500 to-indigo-600 p-8 text-white relative overflow-hidden">
+                        <div class="bg-gradient-to-br from-blue-500 to-indigo-600 p-10 text-white relative overflow-hidden">
                             <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
-                            <div class="relative flex items-start justify-between mb-4">
-                                <div class="bg-white/20 backdrop-blur-sm p-4 rounded-2xl shadow-lg group-hover:scale-110 transition-transform duration-500">
-                                    <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"/>
-                                    </svg>
+                            <div class="absolute -bottom-6 -left-6 w-40 h-40 bg-white/5 rounded-full"></div>
+                            <div class="relative">
+                                <div class="flex items-start justify-between mb-6">
+                                    <div>
+                                        <h2 class="text-3xl font-bold mb-2">Scalling</h2>
+                                    </div>
+                                    <span class="px-4 py-1.5 bg-white/20 backdrop-blur-sm text-xs font-bold rounded-full">ACTIVE</span>
                                 </div>
-                                <span class="px-3 py-1 bg-white/20 backdrop-blur-sm text-xs font-bold rounded-full">ACTIVE</span>
                             </div>
-                            <h2 class="text-2xl font-bold mb-2">Scalling</h2>
-                            <p class="text-blue-100 text-sm font-medium">Advanced Analytics & Forms</p>
                         </div>
                         
                         <div class="p-6">
-                            <p class="text-gray-600 mb-6 leading-relaxed">Comprehensive scaling data management with interactive forms and analytics</p>
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center text-blue-600 font-bold group-hover:text-blue-700 transition-colors">
                                     <span>Open Dashboard</span>
@@ -78,33 +72,37 @@
             </a>
 
             <!-- PSAK Card -->
-            <div class="relative bg-white/60 backdrop-blur-lg rounded-2xl shadow-xl overflow-hidden border border-gray-200/50 opacity-60">
-                <div class="relative">
-                    <div class="bg-gradient-to-br from-purple-400 to-purple-500 p-8 text-white relative overflow-hidden">
-                        <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
-                        <div class="relative flex items-start justify-between mb-4">
-                            <div class="bg-white/20 backdrop-blur-sm p-4 rounded-2xl shadow-lg">
-                                <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                                </svg>
-                            </div>
-                            <span class="px-3 py-1 bg-white/20 backdrop-blur-sm text-xs font-bold rounded-full">SOON</span>
-                        </div>
-                        <h2 class="text-2xl font-bold mb-2">PSAK</h2>
-                        <p class="text-purple-100 text-sm font-medium">Coming Soon</p>
-                    </div>
+            <a href="{{ route('gov.psak') }}" class="group">
+                <div class="relative bg-white/90 backdrop-blur-lg rounded-2xl shadow-xl overflow-hidden border border-gray-200/50 hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3">
+                    <div class="absolute inset-0 bg-gradient-to-br from-purple-500 to-fuchsia-600 opacity-0 group-hover:opacity-5 transition-opacity duration-500"></div>
                     
-                    <div class="p-6">
-                        <p class="text-gray-500 mb-6 leading-relaxed">PSAK management feature is currently under development</p>
-                        <div class="flex items-center text-gray-400 font-medium">
-                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                            </svg>
-                            <span>Not Available</span>
+                    <div class="relative">
+                        <div class="bg-gradient-to-br from-purple-500 to-fuchsia-600 p-10 text-white relative overflow-hidden">
+                            <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+                            <div class="absolute -bottom-6 -left-6 w-40 h-40 bg-white/5 rounded-full"></div>
+                            <div class="relative">
+                                <div class="flex items-start justify-between mb-6">
+                                    <div>
+                                        <h2 class="text-3xl font-bold mb-2">PSAK</h2>
+                                    </div>
+                                    <span class="px-4 py-1.5 bg-white/20 backdrop-blur-sm text-xs font-bold rounded-full">ACTIVE</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="p-6">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center text-purple-600 font-bold group-hover:text-purple-700 transition-colors">
+                                    <span>Open Dashboard</span>
+                                    <svg class="w-5 h-5 ml-2 group-hover:translate-x-2 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                                    </svg>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            </a>
         </div>
     </div>
 </div>

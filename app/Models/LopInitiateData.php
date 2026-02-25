@@ -12,6 +12,8 @@ class LopInitiateData extends Model
     protected $fillable = [
         'entity_type',
         'created_by',
+        'added_by_user_id',
+        'is_user_added',
         'month',
         'year',
         'no',
@@ -24,6 +26,11 @@ class LopInitiateData extends Model
         'plan_bulan_billcom_p_2025',
         'est_nilai_bc',
     ];
+    
+    public function addedByUser()
+    {
+        return $this->belongsTo(User::class, 'added_by_user_id');
+    }
     
     public function funnel()
     {

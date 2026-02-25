@@ -9,16 +9,13 @@
         <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
             <div class="flex justify-between items-center">
                 <div>
-                    <a href="{{ route('admin.dashboard') }}" class="text-blue-600 hover:text-blue-800 text-sm mb-2 inline-block">
+                    <a href="{{ route('admin.dashboard') }}" class="text-blue-600 hover:text-blue-800 text-sm mb-2 inline-block font-medium">
                         ← Kembali ke Admin Panel
                     </a>
-                    <h1 class="text-4xl font-bold text-gray-800">
-                        @if($role === 'government') 🏛️ @endif
-                        @if($role === 'private') 🏢 @endif
-                        @if($role === 'soe') 🏭 @endif
+                    <h1 class="text-2xl font-bold text-gray-900">
                         {{ ucfirst($role) }}
                     </h1>
-                    <p class="text-gray-600 mt-2">Pilih tipe worksheet yang ingin dikelola</p>
+                    <p class="text-gray-600 mt-1">Pilih tipe worksheet yang ingin dikelola</p>
                 </div>
             </div>
         </div>
@@ -26,10 +23,9 @@
         <!-- Type Selection Cards -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
             <!-- Scalling Card -->
-            <a href="{{ route('admin.select-type', [$role, 'scalling']) }}" class="group bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
-                <div class="bg-gradient-to-br from-blue-500 to-blue-600 p-8 text-white">
-                    <div class="text-6xl mb-4">📈</div>
-                    <h2 class="text-3xl font-bold mb-2">Scalling</h2>
+            <a href="{{ route('admin.select-type', [$role, 'scalling']) }}" class="bg-white rounded-lg shadow-sm border border-gray-200 hover:border-blue-500 hover:shadow-md transition-all overflow-hidden">
+                <div class="bg-blue-600 p-8 text-white">
+                    <h2 class="text-2xl font-semibold mb-2">Scalling</h2>
                     <p class="text-blue-100">Kelola worksheet Scalling dengan kategori LOP</p>
                 </div>
                 <div class="p-6">
@@ -44,20 +40,16 @@
                             <li>• LOP Koreksi</li>
                         </ul>
                     </div>
-                    <div class="flex items-center justify-between text-blue-600 group-hover:text-blue-700">
-                        <span class="font-semibold">Pilih Kategori LOP</span>
-                        <svg class="w-6 h-6 transform group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                        </svg>
+                    <div class="text-blue-600 font-medium">
+                        Pilih Kategori LOP
                     </div>
                 </div>
             </a>
 
             <!-- PSAK Card -->
-            <a href="{{ route('admin.select-type', [$role, 'psak']) }}" class="group bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
-                <div class="bg-gradient-to-br from-green-500 to-green-600 p-8 text-white">
-                    <div class="text-6xl mb-4">📊</div>
-                    <h2 class="text-3xl font-bold mb-2">PSAK</h2>
+            <a href="{{ route('admin.select-type', [$role, 'psak']) }}" class="bg-white rounded-lg shadow-sm border border-gray-200 hover:border-green-500 hover:shadow-md transition-all overflow-hidden">
+                <div class="bg-green-600 p-8 text-white">
+                    <h2 class="text-2xl font-semibold mb-2">PSAK</h2>
                     <p class="text-green-100">Kelola worksheet PSAK</p>
                 </div>
                 <div class="p-6">
@@ -69,11 +61,8 @@
                             <li>• Lihat riwayat worksheet</li>
                         </ul>
                     </div>
-                    <div class="flex items-center justify-between text-green-600 group-hover:text-green-700">
-                        <span class="font-semibold">Kelola PSAK</span>
-                        <svg class="w-6 h-6 transform group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                        </svg>
+                    <div class="text-green-600 font-medium">
+                        Kelola PSAK
                     </div>
                 </div>
             </a>

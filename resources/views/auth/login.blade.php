@@ -16,7 +16,7 @@
                     <img src="{{ asset('img/Telkom.png') }}" alt="Telkom Logo" class="h-16 w-auto mx-auto">
                 </div>
             </div>
-            <h1 class="text-4xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent mb-3">Admin Panel</h1>
+            <h1 class="text-4xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent mb-3">LOGIN FORM</h1>
             <p class="text-gray-600 font-medium">Kertas Kerja Management System</p>
             <div class="w-24 h-1 bg-gradient-to-r from-red-600 to-red-700 mx-auto mt-4 rounded-full"></div>
         </div>
@@ -54,7 +54,7 @@
                             </div>
                             <input type="email" id="email" name="email" value="{{ old('email') }}" required
                                    class="w-full pl-12 pr-4 py-3.5 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200 bg-gray-50 hover:bg-white"
-                                   placeholder="admin@telkom.co.id">
+                                   placeholder="@gmail.com">
                         </div>
                     </div>
 

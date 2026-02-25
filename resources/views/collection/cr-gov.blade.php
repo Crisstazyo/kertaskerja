@@ -1,0 +1,172 @@
+@extends('layouts.app')
+
+@section('title', 'CR Gov')
+
+@section('content')
+<div class="min-h-screen bg-gradient-to-br from-green-50 via-white to-green-100 py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="mb-8">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <h1 class="text-4xl font-bold text-gray-900 mb-2">🏛️ CR Gov</h1>
+                    <p class="text-gray-600 text-lg">Collection Ratio - Government Segment</p>
+                </div>
+                <a href="{{ route('collection.collection-ratio') }}" class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300 shadow-md hover:shadow-lg">
+                    ← Kembali
+                </a>
+            </div>
+            <div class="h-1 bg-gradient-to-r from-green-500 to-green-600 rounded-full"></div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-xl overflow-hidden mb-8">
+            <div class="flex border-b border-gray-100 bg-gray-50/50">
+                <button onclick="switchTab('komitmen')" id="tab-komitmen" class="flex-1 py-4 text-center font-bold text-green-600 border-b-4 border-green-500 transition-all">
+                    📝 Form Komitmen (Bulanan)
+                </button>
+                <button onclick="switchTab('realisasi')" id="tab-realisasi" class="flex-1 py-4 text-center font-bold text-gray-500 hover:text-green-500 border-b-4 border-transparent transition-all">
+                    ✅ Form Realisasi (Harian)
+                </button>
+            </div>
+
+            <div class="p-8">
+                <div id="content-komitmen" class="space-y-6">
+                    <div class="flex items-center justify-between border-b pb-4">
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-800">Input Komitmen Bulanan - Government</h2>
+                            <p class="text-sm text-gray-500 italic">Tentukan target collection ratio Government untuk bulan ini.</p>
+                        </div>
+                        <span class="bg-green-100 text-green-700 text-xs font-semibold px-3 py-1 rounded-full uppercase">Periode: {{ now()->translatedFormat('F Y') }}</span>
+                    </div>
+                    
+                    @if($hasMonthlyCommitment)
+                        <div class="bg-amber-50 border-l-4 border-amber-400 p-6 rounded-r-lg">
+                            <div class="flex items-center">
+                                <div class="text-2xl mr-4">ℹ️</div>
+                                <div>
+                                    <p class="text-amber-800 font-bold">Target Sudah Terkunci</p>
+                                    <p class="text-sm text-amber-700">
+                                        Anda telah menginput target ratio CR Government untuk periode <strong>{{ now()->translatedFormat('F Y') }}</strong>. Input baru hanya tersedia di bulan depan.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    @else
+                        <form action="{{ route('cr-gov.storeKomitmen') }}" method="POST" class="max-w-md mx-auto bg-gray-50 p-6 rounded-xl border border-gray-200 shadow-sm">
+                            @csrf
+                            <div class="mb-6">
+                                <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide text-center">Target Ratio (%)</label>
+                                <div class="relative mt-1">
+                                    <input type="number" step="0.01" name="target_ratio" required class="block w-full p-4 text-2xl font-bold text-green-700 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none" placeholder="0.00">
+                                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                        <span class="text-gray-500 font-bold">%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white px-6 py-4 rounded-lg font-bold shadow-lg transition-all transform hover:-translate-y-1">
+                                Simpan Target Bulanan
+                            </button>
+                        </form>
+                    @endif
+                </div>
+
+                <div id="content-realisasi" class="hidden space-y-6">
+                    <div class="flex items-center justify-between border-b pb-4">
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-800">Input Realisasi CR Government</h2>
+                            <p class="text-sm text-gray-500 italic">Catat realisasi collection ratio harian.</p>
+                        </div>
+                        <span class="bg-green-100 text-green-700 text-xs font-semibold px-3 py-1 rounded-full uppercase">Harian</span>
+                    </div>
+
+                    <form action="{{ route('cr-gov.storeRealisasi') }}" method="POST" class="max-w-lg mx-auto space-y-6">
+                        @csrf
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-2">Realisasi CR (%)</label>
+                            <div class="relative">
+                                <input type="number" step="0.01" name="ratio_aktual" required class="w-full p-4 text-2xl font-bold text-green-600 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none" placeholder="0.00">
+                                <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                                    <span class="text-gray-500 font-bold text-xl">%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex justify-end">
+                            <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-bold shadow-md transition-all">Simpan Realisasi</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200">
+            <div class="bg-gray-800 px-6 py-4 flex justify-between items-center">
+                <h3 class="text-lg font-bold text-white uppercase tracking-wider">
+                    📜 Riwayat Aktivitas CR Government
+                </h3>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-gray-100 border-b border-gray-200">
+                            <th class="p-4 font-bold text-xs uppercase text-gray-600">Tanggal</th>
+                            <th class="p-4 font-bold text-xs uppercase text-gray-600">Tipe</th>
+                            <th class="p-4 font-bold text-xs uppercase text-gray-600 text-right">Ratio (%)</th>
+                            <th class="p-4 font-bold text-xs uppercase text-gray-600">Keterangan</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        @forelse($data as $item)
+                            <tr class="{{ $item->type == 'komitmen' ? 'bg-green-50/30' : '' }}">
+                                <td class="p-4 text-sm text-gray-600 font-medium">{{ $item->entry_date->translatedFormat('d M Y, H:i') }}</td>
+                                <td class="p-4">
+                                    @if($item->type == 'komitmen')
+                                        <span class="bg-green-600 text-white px-2 py-1 rounded text-[10px] font-bold uppercase">Komitmen</span>
+                                    @else
+                                        <span class="bg-emerald-600 text-white px-2 py-1 rounded text-[10px] font-bold uppercase">Realisasi</span>
+                                    @endif
+                                </td>
+                                <td class="p-4 text-right">
+                                    <span class="font-bold text-lg {{ $item->type == 'komitmen' ? 'text-green-700' : 'text-emerald-700' }}">
+                                        {{ number_format($item->type == 'komitmen' ? $item->target_ratio : $item->ratio_aktual, 2) }}%
+                                    </span>
+                                </td>
+                                <td class="p-4 text-sm text-gray-600">{{ $item->keterangan ?? '-' }}</td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="4" class="p-8 text-center text-gray-400 italic">
+                                    Belum ada data aktivitas
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function switchTab(tab) {
+        const kTab = document.getElementById('tab-komitmen');
+        const rTab = document.getElementById('tab-realisasi');
+        const kContent = document.getElementById('content-komitmen');
+        const rContent = document.getElementById('content-realisasi');
+
+        if (tab === 'komitmen') {
+            kTab.classList.add('text-green-600', 'border-green-500');
+            kTab.classList.remove('text-gray-500', 'border-transparent');
+            rTab.classList.add('text-gray-500', 'border-transparent');
+            rTab.classList.remove('text-green-600', 'border-green-500');
+            kContent.classList.remove('hidden');
+            rContent.classList.add('hidden');
+        } else {
+            rTab.classList.add('text-green-600', 'border-green-500');
+            rTab.classList.remove('text-gray-500', 'border-transparent');
+            kTab.classList.add('text-gray-500', 'border-transparent');
+            kTab.classList.remove('text-green-600', 'border-green-500');
+            rContent.classList.remove('hidden');
+            kContent.classList.add('hidden');
+        }
+    }
+</script>
+@endsection

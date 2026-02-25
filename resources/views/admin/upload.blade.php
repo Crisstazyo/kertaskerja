@@ -9,27 +9,11 @@
         <div class="mb-8">
             <div class="flex items-center justify-between mb-4">
                 <div>
-                    <a href="{{ route('admin.role.menu', $role) }}" class="text-gray-500 hover:text-gray-700 transition-colors flex items-center gap-2 text-sm font-medium mb-3">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                        </svg>
-                        Kembali
+                    <a href="{{ route('admin.role.menu', $role) }}" class="text-blue-600 hover:text-blue-800 text-sm font-medium mb-3 inline-block">
+                        ← Kembali
                     </a>
-                    <div class="flex items-center gap-3">
-                        @if($role === 'government')
-                            <span class="text-4xl">🏛️</span>
-                        @elseif($role === 'private')
-                            <span class="text-4xl">🏢</span>
-                        @elseif($role === 'soe')
-                            <span class="text-4xl">🏭</span>
-                        @elseif($role === 'sme')
-                            <span class="text-4xl">🏪</span>
-                        @endif
-                        <div>
-                            <h1 class="text-3xl font-bold text-gray-900">Upload File - {{ ucfirst($role) }}</h1>
-                            <p class="text-gray-600 mt-1">Upload data LOP dan lihat history</p>
-                        </div>
-                    </div>
+                    <h1 class="text-2xl font-bold text-gray-900">Upload File - {{ ucfirst($role) }}</h1>
+                    <p class="text-gray-600 mt-1">Upload data LOP dan lihat history</p>
                 </div>
             </div>
             <div class="h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
@@ -38,15 +22,10 @@
         <!-- Upload Cards -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
             <!-- LOP On Hand Upload -->
-            <div class="bg-white rounded-xl shadow-lg p-6 border-2 border-blue-100">
-                <div class="flex items-center gap-3 mb-4">
-                    <div class="bg-blue-100 p-3 rounded-lg">
-                        <span class="text-3xl">📄</span>
-                    </div>
-                    <div>
-                        <h3 class="text-lg font-bold text-gray-900">LOP On Hand</h3>
-                        <p class="text-xs text-gray-500">Upload Excel Data</p>
-                    </div>
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <div class="mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900">LOP On Hand</h3>
+                    <p class="text-sm text-gray-600">Upload Excel Data</p>
                 </div>
                 <form action="{{ route('admin.lop.upload', [$role, 'on_hand']) }}" method="POST" enctype="multipart/form-data" class="space-y-4">
                     @csrf
@@ -78,15 +57,10 @@
             </div>
 
             <!-- LOP Qualified Upload -->
-            <div class="bg-white rounded-xl shadow-lg p-6 border-2 border-emerald-100">
-                <div class="flex items-center gap-3 mb-4">
-                    <div class="bg-emerald-100 p-3 rounded-lg">
-                        <span class="text-3xl">✅</span>
-                    </div>
-                    <div>
-                        <h3 class="text-lg font-bold text-gray-900">LOP Qualified</h3>
-                        <p class="text-xs text-gray-500">Upload Excel Data</p>
-                    </div>
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <div class="mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900">LOP Qualified</h3>
+                    <p class="text-sm text-gray-600">Upload Excel Data</p>
                 </div>
                 <form action="{{ route('admin.lop.upload', [$role, 'qualified']) }}" method="POST" enctype="multipart/form-data" class="space-y-4">
                     @csrf
@@ -118,15 +92,10 @@
             </div>
 
             <!-- LOP Koreksi Upload -->
-            <div class="bg-white rounded-xl shadow-lg p-6 border-2 border-orange-100">
-                <div class="flex items-center gap-3 mb-4">
-                    <div class="bg-orange-100 p-3 rounded-lg">
-                        <span class="text-3xl">🔧</span>
-                    </div>
-                    <div>
-                        <h3 class="text-lg font-bold text-gray-900">LOP Koreksi</h3>
-                        <p class="text-xs text-gray-500">Upload Excel Data</p>
-                    </div>
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <div class="mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900">LOP Koreksi</h3>
+                    <p class="text-sm text-gray-600">Upload Excel Data</p>
                 </div>
                 <form action="{{ route('admin.lop.upload', [$role, 'koreksi']) }}" method="POST" enctype="multipart/form-data" class="space-y-4">
                     @csrf
@@ -159,19 +128,10 @@
         </div>
 
         <!-- Upload History -->
-        <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200">
-            <div class="bg-gradient-to-r from-slate-700 to-gray-800 p-6">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-3">
-                        <div class="bg-white bg-opacity-20 p-3 rounded-lg">
-                            <span class="text-3xl">📚</span>
-                        </div>
-                        <div>
-                            <h2 class="text-2xl font-bold text-white">History Upload</h2>
-                            <p class="text-gray-300 text-sm">Riwayat upload file LOP</p>
-                        </div>
-                    </div>
-                </div>
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+            <div class="bg-gray-800 p-6">
+                <h2 class="text-xl font-semibold text-white">History Upload</h2>
+                <p class="text-gray-300 text-sm mt-1">Riwayat upload file LOP</p>
             </div>
             
             <div class="p-6">

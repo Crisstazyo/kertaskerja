@@ -9,27 +9,16 @@
         <div class="mb-8">
             <div class="flex items-center justify-between mb-4">
                 <div>
-                    <a href="{{ route('admin.scalling', ['role' => request()->get('role', 'gov')]) }}" class="text-purple-600 hover:text-purple-800 mb-2 inline-block transition-colors duration-200">
-                        <span class="flex items-center space-x-2">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-                            </svg>
-                            <span>Back to Scalling</span>
-                        </span>
+                    <a href="{{ route('admin.scalling', ['role' => request()->get('role', 'gov')]) }}" class="text-blue-600 hover:text-blue-800 mb-2 inline-block text-sm font-medium">
+                        ← Back to Scalling
                     </a>
-                    <h1 class="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">📋 Upload History</h1>
-                    <p class="text-gray-600 text-lg">View and manage all file uploads</p>
+                    <h1 class="text-2xl font-bold text-gray-900 mb-2">Upload History</h1>
+                    <p class="text-gray-600">View and manage all file uploads</p>
                 </div>
                 <form action="{{ route('logout') }}" method="POST">
                     @csrf
-                    <button type="submit" class="group relative px-6 py-3 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 overflow-hidden">
-                        <div class="absolute inset-0 bg-gradient-to-r from-red-700 to-red-800 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                        <div class="relative flex items-center space-x-2">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
-                            </svg>
-                            <span>Logout</span>
-                        </div>
+                    <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-md font-medium transition-colors">
+                        Logout
                     </button>
                 </form>
             </div>
@@ -37,18 +26,14 @@
         </div>
 
         @if(session('success'))
-        <div class="bg-gradient-to-r from-green-50 to-emerald-50 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded-xl shadow-md">
-            <div class="flex items-center">
-                <span class="text-2xl mr-3">✅</span>
-                <span class="font-semibold">{{ session('success') }}</span>
-            </div>
+        <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded-md">
+            <span class="font-semibold">{{ session('success') }}</span>
         </div>
         @endif
 
         <!-- Filter Section -->
-        <div class="bg-white rounded-xl shadow-lg p-6 mb-8 border-2 border-purple-100">
-            <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
-                <span class="text-3xl mr-3">🔍</span>
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
+            <h2 class="text-xl font-semibold text-gray-900 mb-6">
                 Filter Upload History
             </h2>
             <form method="GET" action="{{ route('admin.uploadHistory') }}" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">

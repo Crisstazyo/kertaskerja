@@ -9,42 +9,21 @@
         <div class="mb-8">
             <div class="flex items-center justify-between mb-4">
                 <div>
-                    <a href="{{ route('admin.role.menu', $role) }}" class="text-gray-500 hover:text-gray-700 transition-colors flex items-center gap-2 text-sm font-medium mb-3">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                        </svg>
-                        Kembali
+                    <a href="{{ route('admin.role.menu', $role) }}" class="text-blue-600 hover:text-blue-800 text-sm font-medium mb-3 inline-block">
+                        ← Kembali
                     </a>
-                    <div class="flex items-center gap-3">
-                        @if($role === 'government')
-                            <span class="text-4xl">🏛️</span>
-                        @elseif($role === 'private')
-                            <span class="text-4xl">🏢</span>
-                        @elseif($role === 'soe')
-                            <span class="text-4xl">🏭</span>
-                        @elseif($role === 'sme')
-                            <span class="text-4xl">🏪</span>
-                        @endif
-                        <div>
-                            <h1 class="text-3xl font-bold text-gray-900">Monitor Progress - {{ ucfirst($role) }}</h1>
-                            <p class="text-gray-600 mt-1">Lihat progress update dari user</p>
-                        </div>
-                    </div>
+                    <h1 class="text-2xl font-bold text-gray-900">Monitor Progress - {{ ucfirst($role) }}</h1>
+                    <p class="text-gray-600 mt-1">Lihat progress update dari user</p>
                 </div>
             </div>
             <div class="h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
         </div>
 
         <!-- Filter Section -->
-        <div class="bg-white rounded-2xl shadow-xl p-6 mb-8 border border-gray-200">
-            <div class="flex items-center gap-3 mb-6">
-                <div class="bg-blue-100 p-3 rounded-lg">
-                    <span class="text-3xl">🔍</span>
-                </div>
-                <div>
-                    <h2 class="text-xl font-bold text-gray-900">Filter Data</h2>
-                    <p class="text-sm text-gray-600">Pilih kategori dan periode untuk melihat progress</p>
-                </div>
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
+            <div class="mb-6">
+                <h2 class="text-lg font-semibold text-gray-900">Filter Data</h2>
+                <p class="text-sm text-gray-600 mt-1">Pilih kategori dan periode untuk melihat progress</p>
             </div>
 
             <form method="GET" class="grid grid-cols-1 md:grid-cols-5 gap-4">
@@ -96,8 +75,8 @@
 
                 <!-- Submit Button -->
                 <div class="flex items-end">
-                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg font-semibold transition-all duration-300 shadow-md hover:shadow-lg">
-                        🔍 Filter
+                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md font-medium transition-colors">
+                        Filter
                     </button>
                 </div>
             </form>
@@ -105,28 +84,23 @@
 
         <!-- Data Display -->
         @if($latestImport)
-        <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200">
-            <div class="bg-gradient-to-r from-slate-700 to-gray-800 p-6">
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+            <div class="bg-gray-800 p-6">
                 <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-3">
-                        <div class="bg-white bg-opacity-20 p-3 rounded-lg">
-                            <span class="text-3xl">📈</span>
-                        </div>
-                        <div>
-                            <h2 class="text-2xl font-bold text-white">
-                                {{ ucfirst(str_replace('_', ' ', $category)) }}
-                            </h2>
-                            <p class="text-gray-300 text-sm">
-                                {{ date('F', mktime(0, 0, 0, $month, 1)) }} {{ $year }}
-                                @if(request('user_id'))
-                                    - Filtered by User
-                                @endif
-                            </p>
-                        </div>
+                    <div>
+                        <h2 class="text-xl font-semibold text-white">
+                            {{ ucfirst(str_replace('_', ' ', $category)) }}
+                        </h2>
+                        <p class="text-gray-300 text-sm mt-1">
+                            {{ date('F', mktime(0, 0, 0, $month, 1)) }} {{ $year }}
+                            @if(request('user_id'))
+                                - Filtered by User
+                            @endif
+                        </p>
                     </div>
-                    <div class="text-right">
+                    <div>
                         <p class="text-gray-300 text-sm">Total Data</p>
-                        <p class="text-3xl font-bold text-white">{{ $latestImport->data->count() }}</p>
+                        <p class="text-2xl font-semibold text-white">{{ $latestImport->data->count() }}</p>
                     </div>
                 </div>
             </div>
@@ -177,12 +151,8 @@
                 <!-- Add link to go to detailed view like user page -->
                 <div class="text-center py-8">
                     <a href="{{ route('admin.progress.detail', [$role, $category, $month, $year]) }}" 
-                       class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
-                        <span class="text-2xl">📊</span>
+                       class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-md font-medium transition-colors">
                         <span>Lihat Detail Tabel Progress</span>
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                        </svg>
                     </a>
                     <p class="mt-3 text-sm text-gray-600">Klik untuk melihat tabel lengkap seperti tampilan user</p>
                 </div>
@@ -209,12 +179,10 @@
             </div>
         </div>
         @else
-        <div class="bg-white rounded-2xl shadow-xl p-12 text-center border border-gray-200">
-            <span class="text-6xl mb-4 inline-block">📭</span>
-            <h3 class="text-2xl font-bold text-gray-900 mb-2">Tidak Ada Data</h3>
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
+            <h3 class="text-xl font-semibold text-gray-900 mb-2">Tidak Ada Data</h3>
             <p class="text-gray-600 mb-6">Belum ada data untuk kategori, bulan, dan tahun yang dipilih</p>
-            <a href="{{ route('admin.upload.page', $role) }}" class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300">
-                <span>📤</span>
+            <a href="{{ route('admin.upload.page', $role) }}" class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md font-medium transition-colors">
                 <span>Upload Data</span>
             </a>
         </div>

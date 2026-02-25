@@ -9,18 +9,11 @@
         <div class="mb-8">
             <div class="flex items-center justify-between mb-4">
                 <div>
-                    <a href="{{ route('admin.role.menu', $role) }}" class="text-indigo-600 hover:text-indigo-800 mb-2 inline-block flex items-center gap-2">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                        </svg>
-                        Kembali ke {{ ucfirst($role) }} Menu
+                    <a href="{{ route('admin.role.menu', $role) }}" class="text-blue-600 hover:text-blue-800 mb-2 inline-block text-sm font-medium">
+                        ← Kembali ke {{ ucfirst($role) }} Menu
                     </a>
-                    <h1 class="text-4xl font-bold text-gray-900 mb-2">📊 PSAK Data - {{ ucfirst($role) }}</h1>
-                    <p class="text-gray-600 text-lg">Penyisihan Kerugian Aset - Monitor & Tracking</p>
+                    <h1 class="text-2xl font-bold text-gray-900 mb-2">PSAK Data - {{ ucfirst($role) }}</h1>
                 </div>
-                <a href="{{ route('admin.dashboard') }}" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300">
-                    Dashboard
-                </a>
             </div>
             <div class="h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-full"></div>
         </div>
@@ -81,12 +74,9 @@
         </div>
         @else
         <!-- No Data Card -->
-        <div class="bg-white rounded-2xl shadow-xl p-16 text-center border border-gray-200">
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-16 text-center">
             <div class="max-w-md mx-auto">
-                <div class="text-6xl mb-4 text-gray-300">
-                    📊
-                </div>
-                <h2 class="text-2xl font-bold text-gray-800 mb-2">Belum Ada Data PSAK</h2>
+                <h2 class="text-xl font-semibold text-gray-900 mb-2">Belum Ada Data PSAK</h2>
                 <p class="text-gray-600">
                     Data PSAK untuk role {{ ucfirst($role) }} belum tersedia. User dapat menginput data PSAK melalui dashboard mereka.
                 </p>

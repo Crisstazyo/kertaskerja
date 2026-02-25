@@ -9,18 +9,18 @@
         <div class="mb-8">
             <div class="flex items-center justify-between mb-4">
                 <div>
-                    <a href="{{ route('admin.dashboard') }}" class="text-green-600 hover:text-green-800 mb-2 inline-block">← Back to Dashboard</a>
-                    <h1 class="text-4xl font-bold text-gray-900 mb-2">📊 LOP On Hand Management</h1>
-                    <p class="text-gray-600 text-lg">Upload & Manage LOP On Hand Data</p>
+                    <a href="{{ route('admin.dashboard') }}" class="text-blue-600 hover:text-blue-800 mb-2 inline-block text-sm font-medium">← Back to Dashboard</a>
+                    <h1 class="text-2xl font-bold text-gray-900 mb-2">LOP On Hand Management</h1>
+                    <p class="text-gray-600">Upload & Manage LOP On Hand Data</p>
                 </div>
-                <div class="flex items-center space-x-4">
-                    <a href="{{ route('admin.lop-on-hand.history') }}" class="bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300 shadow-md hover:shadow-lg">
-                        📜 View History
+                <div class="flex items-center space-x-3">
+                    <a href="{{ route('admin.lop-on-hand.history') }}" class="bg-purple-600 hover:bg-purple-700 text-white px-5 py-2 rounded-md font-medium transition-colors">
+                        View History
                     </a>
                     <form action="{{ route('logout') }}" method="POST">
                         @csrf
-                        <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300 shadow-md hover:shadow-lg">
-                            🚪 Logout
+                        <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-md font-medium transition-colors">
+                            Logout
                         </button>
                     </form>
                 </div>
@@ -29,18 +29,14 @@
         </div>
 
         @if(session('success'))
-        <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded-lg shadow-md">
-            <div class="flex items-center">
-                <span class="text-2xl mr-3">✅</span>
-                <span class="font-semibold">{{ session('success') }}</span>
-            </div>
+        <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded-md">
+            <span class="font-semibold">{{ session('success') }}</span>
         </div>
         @endif
 
         <!-- Upload Section -->
-        <div class="bg-white rounded-xl shadow-lg p-6 mb-8 border-2 border-green-100">
-            <h2 class="text-2xl font-bold text-gray-800 mb-4 flex items-center">
-                <span class="text-3xl mr-3">📤</span>
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">
                 Upload Excel File
             </h2>
             <form action="{{ route('admin.lop-on-hand.upload') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
@@ -53,29 +49,29 @@
                     <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
-                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div class="bg-blue-50 border border-blue-200 rounded-md p-4">
                     <p class="text-sm text-blue-800">
-                        <span class="font-semibold">ℹ️ Format Excel:</span> NO | PROJECT | ID LOP | CC | NIPNAS | AM | Mitra | Plan Bulan Billcom p 2025 | Est Nilai BC
+                        <span class="font-semibold">Format Excel:</span> NO | PROJECT | ID LOP | CC | NIPNAS | AM | Mitra | Plan Bulan Billcom p 2025 | Est Nilai BC
                     </p>
                 </div>
-                <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-semibold transition-all duration-300 shadow-md hover:shadow-lg">
-                    📤 Upload File
+                <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-md font-medium transition-colors">
+                    Upload File
                 </button>
             </form>
         </div>
 
         <!-- Latest Data Display -->
         @if($latestImport)
-        <div class="bg-white rounded-xl shadow-lg overflow-hidden border-2 border-gray-100">
-            <div class="bg-gradient-to-r from-green-500 to-teal-600 p-6 text-white">
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+            <div class="bg-green-600 p-6 text-white">
                 <div class="flex items-center justify-between">
                     <div>
-                        <h3 class="text-2xl font-bold">📄 {{ $latestImport->file_name }}</h3>
+                        <h3 class="text-xl font-semibold">{{ $latestImport->file_name }}</h3>
                         <p class="text-sm text-green-100 mt-1">Uploaded by {{ $latestImport->uploaded_by }} on {{ $latestImport->created_at->format('d M Y H:i') }}</p>
                     </div>
-                    <div class="bg-white bg-opacity-20 px-6 py-3 rounded-lg">
-                        <p class="text-sm font-semibold">Total Rows</p>
-                        <p class="text-3xl font-bold">{{ $latestImport->total_rows }}</p>
+                    <div class="bg-white bg-opacity-20 px-6 py-3 rounded-md">
+                        <p class="text-sm font-medium">Total Rows</p>
+                        <p class="text-2xl font-semibold">{{ $latestImport->total_rows }}</p>
                     </div>
                 </div>
             </div>
@@ -125,9 +121,8 @@
             </div>
         </div>
         @else
-        <div class="bg-white rounded-xl shadow-lg p-12 text-center">
-            <div class="text-6xl mb-4">📊</div>
-            <h3 class="text-2xl font-bold text-gray-800 mb-2">No Data Yet</h3>
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
+            <h3 class="text-xl font-semibold text-gray-900 mb-2">No Data Yet</h3>
             <p class="text-gray-600">Upload an Excel file to get started</p>
         </div>
         @endif

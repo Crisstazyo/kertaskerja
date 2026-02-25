@@ -57,18 +57,6 @@
                                 </svg>
                             </div>
                         </a>
-                        <a href="{{ route('admin.upload.category', [$role, 'koreksi']) }}" class="block bg-gradient-to-r from-orange-50 to-orange-100 hover:from-orange-100 hover:to-orange-200 border-2 border-orange-200 hover:border-orange-400 rounded-lg p-4 transition-all duration-300 transform hover:scale-105">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <h4 class="font-bold text-gray-800">LOP Koreksi</h4>
-                                    <p class="text-xs text-gray-600">Upload & History</p>
-                                </div>
-                                <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                                </svg>
-                            </div>
-                        </a>
-                        @if($role !== 'government')
                         <a href="{{ route('admin.upload.category', [$role, 'initiate']) }}" class="block bg-gradient-to-r from-purple-50 to-purple-100 hover:from-purple-100 hover:to-purple-200 border-2 border-purple-200 hover:border-purple-400 rounded-lg p-4 transition-all duration-300 transform hover:scale-105">
                             <div class="flex items-center justify-between">
                                 <div>
@@ -80,7 +68,6 @@
                                 </svg>
                             </div>
                         </a>
-                        @endif
                     </div>
                 </div>
             </div>
@@ -116,18 +103,6 @@
                                 </svg>
                             </div>
                         </a>
-                        <a href="{{ route('admin.progress.category', [$role, 'koreksi']) }}" class="block bg-gradient-to-r from-orange-50 to-orange-100 hover:from-orange-100 hover:to-orange-200 border-2 border-orange-200 hover:border-orange-400 rounded-lg p-4 transition-all duration-300 transform hover:scale-105">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <h4 class="font-bold text-gray-800">LOP Koreksi</h4>
-                                    <p class="text-xs text-gray-600">Monitor Progress</p>
-                                </div>
-                                <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                                </svg>
-                            </div>
-                        </a>
-                        @if($role !== 'government')
                         <a href="{{ route('admin.progress.category', [$role, 'initiate']) }}" class="block bg-gradient-to-r from-purple-50 to-purple-100 hover:from-purple-100 hover:to-purple-200 border-2 border-purple-200 hover:border-purple-400 rounded-lg p-4 transition-all duration-300 transform hover:scale-105">
                             <div class="flex items-center justify-between">
                                 <div>
@@ -139,7 +114,6 @@
                                 </svg>
                             </div>
                         </a>
-                        @endif
                     </div>
                 </div>
             </div>
@@ -149,7 +123,7 @@
         <div class="mt-8">
             <div class="group bg-white rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden border-2 border-gray-100">
                 <div class="bg-gradient-to-br from-indigo-500 to-indigo-600 p-8 text-white">
-                    <h2 class="text-3xl font-bold text-center mb-2">PSAK - Penyisihan Kerugian Aset</h2>
+                    <h2 class="text-3xl font-bold text-center mb-2">PSAK</h2>
                     <p class="text-indigo-100 text-center">Monitor data PSAK per role</p>
                 </div>
                 <div class="p-6">

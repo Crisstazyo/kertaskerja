@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\LopSmeOnHandImport;
 use App\Models\LopSmeQualifiedImport;
 use App\Models\LopSmeInitiatedImport;
+use App\Models\LopSmeInitiatedData;
 use App\Models\LopSmeCorrectionImport;
 use App\Models\LopAdminNote;
 use App\Models\FunnelTracking;
@@ -14,6 +15,52 @@ use Illuminate\Support\Facades\Auth;
 
 class SmeController extends Controller
 {
+    public function createLopInitiate()
+    {
+        return view('sme.lop-initiate-create');
+    }
+
+    public function storeLopInitiate(Request $request)
+    {
+        $validated = $request->validate([
+            'project' => 'required|string|max:255',
+            'id_lop' => 'nullable|string|max:255',
+            'cc' => 'nullable|string|max:255',
+            'nipnas' => 'nullable|string|max:255',
+            'am' => 'nullable|string|max:255',
+            'mitra' => 'nullable|string|max:255',
+            'plan_bulan_billcom_p_2025' => 'nullable|string|max:255',
+            'est_nilai_bc' => 'nullable|numeric',
+            'month' => 'required|integer|min:1|max:12',
+            'year' => 'required|integer|min:2020|max:2030',
+        ]);
+
+        $lastNo = LopSmeInitiatedData::where('import_id', $validated['month'])
+            ->where('year', $validated['year'])
+            ->max('no');
+
+        $project = LopSmeInitiatedData::create([
+            'import_id' => $validated['month'],
+            'added_by_user_id' => auth()->id(),
+            'is_user_added' => true,
+            'no' => $lastNo ? $lastNo + 1 : 1,
+            'project' => $validated['project'],
+            'id_lop' => $validated['id_lop'],
+            'cc' => $validated['cc'],
+            'nipnas' => $validated['nipnas'],
+            'am' => $validated['am'],
+            'mitra' => $validated['mitra'],
+            'plan_bulan_billcom_p_2025' => $validated['plan_bulan_billcom_p_2025'],
+            'est_nilai_bc' => $validated['est_nilai_bc'],
+            'month' => $validated['month'],
+            'year' => $validated['year'],
+        ]);
+
+        return redirect()->route('sme.lop.initiate', [
+            'month' => $validated['month'],
+            'year' => $validated['year']
+        ])->with('success', 'Project has been successfully added to LOP Initiate!');
+    }
     public function dashboard()
     {
         return view('sme.dashboard');
@@ -118,6 +165,58 @@ class SmeController extends Controller
             ->first();
         
         return view('sme.lop-initiated', compact('latestImport', 'adminNote', 'currentMonth', 'currentYear'));
+    }
+    
+    public function createLopInitiated()
+    {
+        return view('sme.lop-initiated-create');
+    }
+    
+    public function storeLopInitiated(Request $request)
+    {
+        $validated = $request->validate([
+            'project' => 'required|string|max:255',
+            'id_lop' => 'nullable|string|max:255',
+            'cc' => 'nullable|string|max:255',
+            'nipnas' => 'nullable|string|max:255',
+            'am' => 'nullable|string|max:255',
+            'mitra' => 'nullable|string|max:255',
+            'plan_bulan_billcom_p_2025' => 'nullable|string|max:255',
+            'est_nilai_bc' => 'nullable|numeric',
+        ]);
+        
+        // Create a dummy import to attach the data
+        $import = LopSmeInitiatedImport::firstOrCreate([
+            'month' => date('n'),
+            'year' => date('Y'),
+            'file_name' => 'User Added Data',
+            'uploaded_by' => 'user_' . auth()->id(),
+        ]);
+        
+        // Get the last no for auto-increment
+        $lastNo = LopSmeInitiatedData::where('import_id', $import->id)
+            ->max('no');
+        
+        // Create new project
+        $project = LopSmeInitiatedData::create([
+            'import_id' => $import->id,
+            'added_by_user_id' => auth()->id(),
+            'is_user_added' => true,
+            'no' => $lastNo ? $lastNo + 1 : 1,
+            'project' => $validated['project'],
+            'id_lop' => $validated['id_lop'],
+            'cc' => $validated['cc'],
+            'nipnas' => $validated['nipnas'],
+            'am' => $validated['am'],
+            'mitra' => $validated['mitra'],
+            'plan_bulan_billcom_p_2025' => $validated['plan_bulan_billcom_p_2025'],
+            'est_nilai_bc' => $validated['est_nilai_bc'],
+        ]);
+        
+        return redirect()->route('sme.lop.initiated', [
+            'month' => date('n'),
+            'year' => date('Y')
+        ])->with('success', 'Project has been successfully added to LOP Initiated!');
     }
     
     public function lopCorrection()
