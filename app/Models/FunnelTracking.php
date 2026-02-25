@@ -14,46 +14,90 @@ class FunnelTracking extends Model
     protected $fillable = [
         'data_type',
         'data_id',
-        'f0_lead',
+        // F0
         'f0_inisiasi_solusi',
-        'f0_technical_proposal',
-        'f1_p0_p1_juskeb',
-        'f2_p2_evaluasi',
-        'f2_p3_permintaan_harga',
-        'f2_p4_rapat_penjelasan',
-        'f2_offering_harga',
-        'f2_p5_evaluasi_sph',
-        'f3_propos_al',
-        'f3_p6_klarifikasi',
-        'f3_p7_penetapan',
-        'f3_submit_proposal',
+        // F1
+        'f1_tech_budget',
+        // F2
+        'f2_p0_p1',
+        'f2_p2',
+        'f2_p3',
+        'f2_p4',
+        'f2_offering',
+        'f2_p5',
+        'f2_proposal',
+        // F3
+        'f3_p6',
+        'f3_p7',
+        'f3_submit',
+        // F4
         'f4_negosiasi',
-        'f4_surat_kesanggupan',
-        'f4_p8_surat_pemenang',
-        'f5_kontrak_layanan',
+        // F5
+        'f5_sk_mitra',
+        'f5_ttd_kontrak',
+        'f5_p8',
+        // DELIVERY
+        'delivery_kontrak',
+        'delivery_baut_bast',
+        'delivery_baso',
         'delivery_billing_complete',
         'delivery_nilai_billcomp',
-        'delivery_baso',
     ];
 
     protected $casts = [
-        'f0_lead' => 'boolean',
+        // F0
         'f0_inisiasi_solusi' => 'boolean',
-        'f0_technical_proposal' => 'boolean',
-        'f1_p0_p1_juskeb' => 'boolean',
-        'f2_p2_evaluasi' => 'boolean',
-        'f2_p3_permintaan_harga' => 'boolean',
-        'f2_p4_rapat_penjelasan' => 'boolean',
-        'f2_offering_harga' => 'boolean',
-        'f2_p5_evaluasi_sph' => 'boolean',
-        'f3_propos_al' => 'boolean',
-        'f3_p6_klarifikasi' => 'boolean',
-        'f3_p7_penetapan' => 'boolean',
-        'f3_submit_proposal' => 'boolean',
+        // F1
+        'f1_tech_budget' => 'boolean',
+        // F2
+        'f2_p0_p1' => 'boolean',
+        'f2_p2' => 'boolean',
+        'f2_p3' => 'boolean',
+        'f2_p4' => 'boolean',
+        'f2_offering' => 'boolean',
+        'f2_p5' => 'boolean',
+        'f2_proposal' => 'boolean',
+        // F3
+        'f3_p6' => 'boolean',
+        'f3_p7' => 'boolean',
+        'f3_submit' => 'boolean',
+        // F4
         'f4_negosiasi' => 'boolean',
-        'f4_surat_kesanggupan' => 'boolean',
-        'f4_p8_surat_pemenang' => 'boolean',
-        'f5_kontrak_layanan' => 'boolean',
+        // F5
+        'f5_sk_mitra' => 'boolean',
+        'f5_ttd_kontrak' => 'boolean',
+        'f5_p8' => 'boolean',
+        // DELIVERY
+        'delivery_kontrak' => 'boolean',
         'delivery_billing_complete' => 'boolean',
+        'delivery_nilai_billcomp' => 'decimal:2',
     ];
+
+    /**
+     * Get all progress records for this task
+     */
+    public function progress()
+    {
+        return $this->hasMany(TaskProgress::class, 'task_id');
+    }
+
+    /**
+     * Get today's progress for current user
+     */
+    public function todayProgress()
+    {
+        return $this->hasOne(TaskProgress::class, 'task_id')
+            ->whereDate('tanggal', today())
+            ->where('user_id', auth()->id());
+    }
+
+    /**
+     * Scope to eager load today's progress for a specific user
+     */
+    public function scopeWithTodayProgress($query, $userId)
+    {
+        return $query->with(['todayProgress' => function($q) use ($userId) {
+            $q->where('user_id', $userId)->whereDate('tanggal', today());
+        }]);
+    }
 }

@@ -9,11 +9,11 @@
         <div class="mb-8">
             <div class="flex items-center justify-between mb-6">
                 <div class="flex items-center gap-6">
-                    <a href="{{ route('gov.dashboard') }}" class="text-gray-500 hover:text-gray-700 transition-colors flex items-center gap-2 text-sm font-medium">
+                    <a href="{{ route('gov.scalling') }}" class="text-gray-500 hover:text-gray-700 transition-colors flex items-center gap-2 text-sm font-medium">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                         </svg>
-                        Dashboard
+                        Scalling
                     </a>
                     <div class="h-6 w-px bg-gray-300"></div>
                     <div>
@@ -24,15 +24,6 @@
                         <p class="text-sm text-gray-500">Correction & Adjustment Pipeline</p>
                     </div>
                 </div>
-                <form action="{{ route('logout') }}" method="POST">
-                    @csrf
-                    <button type="submit" class="bg-gradient-to-r from-gray-700 to-gray-900 hover:from-gray-800 hover:to-black text-white px-5 py-2.5 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl flex items-center gap-2 text-sm">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
-                        </svg>
-                        Logout
-                    </button>
-                </form>
             </div>
             <div class="h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
         </div>
@@ -41,65 +32,83 @@
         @if($latestImport)
         <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200">
             <div class="p-8">
+                <!-- Last Update Info -->
+                @php
+                    $lastUpdate = $latestImport->data
+                        ->map(fn($row) => $row->funnel?->updated_at)
+                        ->filter()
+                        ->max();
+                @endphp
+                @if($lastUpdate)
+                <div class="mb-6 bg-gradient-to-r from-pink-50 to-rose-50 border border-pink-200 rounded-xl p-4">
+                    <div class="flex items-center gap-3">
+                        <div class="bg-pink-500 rounded-full p-2">
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="text-sm font-semibold text-gray-900">Terakhir Diupdate</p>
+                            <p class="text-xs text-gray-600">{{ $lastUpdate->format('d M Y, H:i:s') }} WIB</p>
+                        </div>
+                    </div>
+                </div>
+                @endif
 
                 <div class="overflow-x-auto rounded-xl border border-gray-200">
                     <table class="min-w-full divide-y divide-gray-200 text-xs">
                         <thead class="bg-gradient-to-r from-slate-50 to-gray-100">
                             <tr>
                                 <!-- Original Columns -->
-                                <th class="px-3 py-2 text-left font-bold text-gray-700 uppercase tracking-wider border-r border-gray-300">NO</th>
-                                <th class="px-4 py-2 text-left font-bold text-gray-700 uppercase tracking-wider border-r border-gray-300">PROJECT</th>
-                                <th class="px-4 py-2 text-left font-bold text-gray-700 uppercase tracking-wider border-r border-gray-300 bg-pink-50">ID LOP</th>
-                                <th class="px-3 py-2 text-left font-bold text-gray-700 uppercase tracking-wider border-r border-gray-300">CC</th>
-                                <th class="px-4 py-2 text-left font-bold text-gray-700 uppercase tracking-wider border-r border-gray-300">NIPNAS</th>
-                                <th class="px-4 py-2 text-left font-bold text-gray-700 uppercase tracking-wider border-r border-gray-300">AM</th>
-                                <th class="px-4 py-2 text-left font-bold text-gray-700 uppercase tracking-wider border-r border-gray-300 bg-pink-50">Mitra</th>
-                                <th class="px-4 py-2 text-left font-bold text-gray-700 uppercase tracking-wider border-r border-gray-300">Plan Bulan</th>
-                                <th class="px-4 py-2 text-left font-bold text-gray-700 uppercase tracking-wider border-r border-gray-300">Est Nilai BC</th>
+                                <th rowspan="2" class="px-3 py-2 text-left font-bold text-gray-700 uppercase tracking-wider border-r border-gray-300">NO</th>
+                                <th rowspan="2" class="px-4 py-2 text-left font-bold text-gray-700 uppercase tracking-wider border-r border-gray-300">PROJECT</th>
+                                <th rowspan="2" class="px-4 py-2 text-left font-bold text-gray-700 uppercase tracking-wider border-r border-gray-300 bg-pink-50">ID LOP</th>
+                                <th rowspan="2" class="px-3 py-2 text-left font-bold text-gray-700 uppercase tracking-wider border-r border-gray-300">CC</th>
+                                <th rowspan="2" class="px-4 py-2 text-left font-bold text-gray-700 uppercase tracking-wider border-r border-gray-300">NIPNAS</th>
+                                <th rowspan="2" class="px-4 py-2 text-left font-bold text-gray-700 uppercase tracking-wider border-r border-gray-300">AM</th>
+                                <th rowspan="2" class="px-4 py-2 text-left font-bold text-gray-700 uppercase tracking-wider border-r border-gray-300 bg-pink-50">Mitra</th>
+                                <th rowspan="2" class="px-4 py-2 text-left font-bold text-gray-700 uppercase tracking-wider border-r border-gray-300">Plan Bulan</th>
+                                <th rowspan="2" class="px-4 py-2 text-left font-bold text-gray-700 uppercase tracking-wider border-r border-gray-300">Est Nilai BC</th>
                                 
                                 <!-- Funnel Tracking Columns -->
-                                <th colspan="2" class="px-4 py-2 text-center font-bold text-white bg-blue-600 border-r border-gray-300">F0</th>
-                                <th colspan="3" class="px-4 py-2 text-center font-bold text-white bg-purple-600 border-r border-gray-300">F1</th>
-                                <th colspan="5" class="px-4 py-2 text-center font-bold text-white bg-pink-600 border-r border-gray-300">F2</th>
-                                <th colspan="4" class="px-4 py-2 text-center font-bold text-white bg-orange-600 border-r border-gray-300">F3</th>
-                                <th colspan="3" class="px-4 py-2 text-center font-bold text-white bg-teal-600 border-r border-gray-300">F4</th>
-                                <th colspan="2" class="px-4 py-2 text-center font-bold text-white bg-indigo-600 border-r border-gray-300">F5</th>
-                                <th colspan="2" class="px-4 py-2 text-center font-bold text-white bg-green-700 border-r border-gray-300">DELIVERY</th>
-                                
-                                <!-- Action Column -->
-                                <th class="px-4 py-2 text-center font-bold text-gray-700 uppercase tracking-wider bg-yellow-100">Action</th>
+                                <th rowspan="2" class="px-3 py-2 text-center font-bold text-white bg-gradient-to-r from-blue-600 to-blue-700 border-r border-gray-300">F0</th>
+                                <th rowspan="2" class="px-3 py-2 text-center font-bold text-white bg-gradient-to-r from-purple-600 to-purple-700 border-r border-gray-300">F1</th>
+                                <th colspan="7" class="px-3 py-2 text-center font-bold text-white bg-gradient-to-r from-pink-600 to-pink-700 border-r border-gray-300">F2</th>
+                                <th colspan="3" class="px-3 py-2 text-center font-bold text-white bg-gradient-to-r from-orange-600 to-orange-700 border-r border-gray-300">F3</th>
+                                <th class="px-3 py-2 text-center font-bold text-white bg-gradient-to-r from-teal-600 to-teal-700 border-r border-gray-300">F4</th>
+                                <th colspan="3" class="px-3 py-2 text-center font-bold text-white bg-gradient-to-r from-green-600 to-emerald-700 border-r border-gray-300">F5</th>
+                                <th colspan="3" class="px-3 py-2 text-center font-bold text-white bg-gradient-to-r from-emerald-600 to-emerald-800 border-r border-gray-300">DELIVERY</th>
+                                <th rowspan="2" class="px-3 py-2 text-center font-bold text-white bg-gradient-to-r from-indigo-600 to-indigo-700 border-r border-gray-300">BILLING<br>COMPLETE</th>
+                                <th rowspan="2" class="px-3 py-2 text-center font-bold text-white bg-gradient-to-r from-violet-600 to-violet-700">NILAI BILL COMP</th>
                             </tr>
-                            <tr>
-                                <th colspan="9" class="border-r border-gray-300"></th>
-                                <!-- F0 Sub-headers -->
-                                <th class="px-2 py-1 text-center text-gray-700 bg-blue-100 border-r">Lead</th>
-                                <th class="px-2 py-1 text-center text-gray-700 bg-blue-100 border-r">Inisiasi</th>
-                                <!-- F1 Sub-headers -->
-                                <th class="px-2 py-1 text-center text-gray-700 bg-purple-100 border-r">P0/P1</th>
-                                <th class="px-2 py-1 text-center text-gray-700 bg-purple-100 border-r">Juskeb</th>
-                                <th class="px-2 py-1 text-center text-gray-700 bg-purple-100 border-r">BoD DM</th>
+                            <tr class="text-xs">
+                                <!-- Data columns handled by rowspan above -->
+                                <!-- F0 Sub-header (Inisiasi only, no Lead) is handled by rowspan above -->
+                                <!-- F1 Sub-header (Tech & Budget) is handled by rowspan above -->
                                 <!-- F2 Sub-headers -->
-                                <th class="px-2 py-1 text-center text-gray-700 bg-pink-100 border-r">P2</th>
-                                <th class="px-2 py-1 text-center text-gray-700 bg-pink-100 border-r">Eval</th>
-                                <th class="px-2 py-1 text-center text-gray-700 bg-pink-100 border-r">TAF</th>
-                                <th class="px-2 py-1 text-center text-gray-700 bg-pink-100 border-r">Juskeb</th>
-                                <th class="px-2 py-1 text-center text-gray-700 bg-pink-100 border-r">BoD DM</th>
+                                <th class="px-2 py-1 text-center text-xs font-semibold text-gray-700 bg-pink-50 border-r border-gray-200">P0/P1</th>
+                                <th class="px-2 py-1 text-center text-xs font-semibold text-gray-700 bg-pink-50 border-r border-gray-200">P2</th>
+                                <th class="px-2 py-1 text-center text-xs font-semibold text-gray-700 bg-pink-50 border-r border-gray-200">P3</th>
+                                <th class="px-2 py-1 text-center text-xs font-semibold text-gray-700 bg-pink-50 border-r border-gray-200">P4</th>
+                                <th class="px-2 py-1 text-center text-xs font-semibold text-gray-700 bg-pink-50 border-r border-gray-200">Offering</th>
+                                <th class="px-2 py-1 text-center text-xs font-semibold text-gray-700 bg-pink-50 border-r border-gray-200">P5</th>
+                                <th class="px-2 py-1 text-center text-xs font-semibold text-gray-700 bg-pink-50 border-r border-gray-200">Proposal</th>
                                 <!-- F3 Sub-headers -->
-                                <th class="px-2 py-1 text-center text-gray-700 bg-orange-100 border-r">P3_1</th>
-                                <th class="px-2 py-1 text-center text-gray-700 bg-orange-100 border-r">SPH</th>
-                                <th class="px-2 py-1 text-center text-gray-700 bg-orange-100 border-r">Juskeb</th>
-                                <th class="px-2 py-1 text-center text-gray-700 bg-orange-100 border-r">BoD DM</th>
-                                <!-- F4 Sub-headers -->
-                                <th class="px-2 py-1 text-center text-gray-700 bg-teal-100 border-r">P3_2</th>
-                                <th class="px-2 py-1 text-center text-gray-700 bg-teal-100 border-r">PKS</th>
-                                <th class="px-2 py-1 text-center text-gray-700 bg-teal-100 border-r">BAST</th>
+                                <th class="px-2 py-1 text-center text-xs font-semibold text-gray-700 bg-orange-50 border-r border-gray-200">P6</th>
+                                <th class="px-2 py-1 text-center text-xs font-semibold text-gray-700 bg-orange-50 border-r border-gray-200">P7</th>
+                                <th class="px-2 py-1 text-center text-xs font-semibold text-gray-700 bg-orange-50 border-r border-gray-200">Submit</th>
+                                <!-- F4 Sub-header -->
+                                <th class="px-2 py-1 text-center text-xs font-semibold text-gray-700 bg-teal-50 border-r border-gray-200">Negosiasi</th>
                                 <!-- F5 Sub-headers -->
-                                <th class="px-2 py-1 text-center text-gray-700 bg-indigo-100 border-r">P4</th>
-                                <th class="px-2 py-1 text-center text-gray-700 bg-indigo-100 border-r">P5</th>
+                                <th class="px-2 py-1 text-center text-xs font-semibold text-gray-700 bg-green-50 border-r border-gray-200">SK Mitra</th>
+                                <th class="px-2 py-1 text-center text-xs font-semibold text-gray-700 bg-green-50 border-r border-gray-200">TTD Kontrak</th>
+                                <th class="px-2 py-1 text-center text-xs font-semibold text-gray-700 bg-green-50 border-r border-gray-200">P8</th>
                                 <!-- DELIVERY Sub-headers -->
-                                <th class="px-2 py-1 text-center text-gray-700 bg-green-100 border-r">BC</th>
-                                <th class="px-2 py-1 text-center text-gray-700 bg-green-100 border-r">BASO</th>
-                                <th class="border-r"></th>
+                                <th class="px-2 py-1 text-center text-xs font-semibold text-gray-700 bg-emerald-50 border-r border-gray-200">Kontrak</th>
+                                <th class="px-2 py-1 text-center text-xs font-semibold text-gray-700 bg-emerald-50 border-r border-gray-200">BAUT/BAST</th>
+                                <th class="px-2 py-1 text-center text-xs font-semibold text-gray-700 bg-emerald-50 border-r border-gray-200">BASO</th>
+                                <!-- BILLING COMPLETE and NILAI BILL COMP columns handled by rowspan above -->
+                                <!-- Action column handled by rowspan above -->
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
@@ -107,6 +116,10 @@
                             @php
                                 $funnel = $row->funnel;
                                 $denganMitra = strtolower(trim($row->mitra ?? '')) === 'dengan mitra';
+                                // Skip row TOTAL di body (akan ditampilkan di footer)
+                                if (strtoupper(trim($row->no ?? '')) === 'TOTAL') {
+                                    continue;
+                                }
                             @endphp
                             <tr class="hover:bg-gray-50 transition-colors">
                                 <!-- Original Data -->
@@ -121,84 +134,375 @@
                                 <td class="px-4 py-2 whitespace-nowrap font-semibold text-gray-900 border-r">{{ $row->est_nilai_bc }}</td>
                                 
                                 <!-- Funnel Data -->
-                                <td class="px-2 py-2 text-center border-r">
-                                    {!! $funnel && $funnel->f0_lead ? '✅' : ($denganMitra ? '⬜' : '<span class="text-gray-400">-</span>') !!}
+                                <!-- F0: Inisiasi only (no Lead) -->
+                                <td class="px-2 py-2 text-center border-r bg-blue-50">
+                                    <input type="checkbox" 
+                                           class="funnel-checkbox w-4 h-4 text-blue-600 cursor-pointer" 
+                                           data-field="f0_inisiasi_solusi"
+                                           data-data-type="koreksi"
+                                           data-data-id="{{ $row->id }}"
+                                           {{ $funnel && $funnel->todayProgress && $funnel->todayProgress->f0_inisiasi_solusi ? 'checked' : '' }}>
                                 </td>
-                                <td class="px-2 py-2 text-center border-r">
-                                    {!! $funnel && $funnel->f0_inisiasi_solusi ? '✅' : ($denganMitra ? '⬜' : '<span class="text-gray-400">-</span>') !!}
+                                <!-- F1: Technical & Budget Discussion -->
+                                <td class="px-2 py-2 text-center border-r bg-purple-50">
+                                    <input type="checkbox" 
+                                           class="funnel-checkbox w-4 h-4 text-purple-600 cursor-pointer" 
+                                           data-field="f1_tech_budget"
+                                           data-data-type="koreksi"
+                                           data-data-id="{{ $row->id }}"
+                                           {{ $funnel && $funnel->todayProgress && $funnel->todayProgress->f1_tech_budget ? 'checked' : '' }}>
                                 </td>
-                                <td class="px-2 py-2 text-center border-r">
-                                    {!! $funnel && $funnel->f1_p0_p1 ? '✅' : ($denganMitra ? '⬜' : '<span class="text-gray-400">-</span>') !!}
+                                <!-- F2: P0/P1, P2, P3, P4, Offering, P5, Proposal -->
+                                @if($denganMitra)
+                                <td class="px-2 py-2 text-center border-r bg-pink-50">
+                                    <input type="checkbox" 
+                                           class="funnel-checkbox w-4 h-4 text-pink-600 cursor-pointer" 
+                                           data-field="f2_p0_p1"
+                                           data-data-type="koreksi"
+                                           data-data-id="{{ $row->id }}"
+                                           {{ $funnel && $funnel->todayProgress && $funnel->todayProgress->f2_p0_p1 ? 'checked' : '' }}>
                                 </td>
-                                <td class="px-2 py-2 text-center border-r">
-                                    {!! $funnel && $funnel->f1_juskeb ? '✅' : ($denganMitra ? '⬜' : '<span class="text-gray-400">-</span>') !!}
+                                @else
+                                <td class="px-2 py-2 text-center border-r bg-pink-50"><span class="text-gray-300">-</span></td>
+                                @endif
+                                
+                                @if($denganMitra)
+                                <td class="px-2 py-2 text-center border-r bg-pink-50">
+                                    <input type="checkbox" 
+                                           class="funnel-checkbox w-4 h-4 text-pink-600 cursor-pointer" 
+                                           data-field="f2_p2"
+                                           data-data-type="koreksi"
+                                           data-data-id="{{ $row->id }}"
+                                           {{ $funnel && $funnel->todayProgress && $funnel->todayProgress->f2_p2 ? 'checked' : '' }}>
                                 </td>
-                                <td class="px-2 py-2 text-center border-r">
-                                    {!! $funnel && $funnel->f1_bod_dm ? '✅' : ($denganMitra ? '⬜' : '<span class="text-gray-400">-</span>') !!}
+                                @else
+                                <td class="px-2 py-2 text-center border-r bg-pink-50"><span class="text-gray-300">-</span></td>
+                                @endif
+                                
+                                @if($denganMitra)
+                                <td class="px-2 py-2 text-center border-r bg-pink-50">
+                                    <input type="checkbox" 
+                                           class="funnel-checkbox w-4 h-4 text-pink-600 cursor-pointer" 
+                                           data-field="f2_p3"
+                                           data-data-type="koreksi"
+                                           data-data-id="{{ $row->id }}"
+                                           {{ $funnel && $funnel->todayProgress && $funnel->todayProgress->f2_p3 ? 'checked' : '' }}>
                                 </td>
-                                <td class="px-2 py-2 text-center border-r">
-                                    {!! $funnel && $funnel->f2_p2 ? '✅' : '⬜' !!}
+                                @else
+                                <td class="px-2 py-2 text-center border-r bg-pink-50"><span class="text-gray-300">-</span></td>
+                                @endif
+                                
+                                @if($denganMitra)
+                                <td class="px-2 py-2 text-center border-r bg-pink-50">
+                                    <input type="checkbox" 
+                                           class="funnel-checkbox w-4 h-4 text-pink-600 cursor-pointer" 
+                                           data-field="f2_p4"
+                                           data-data-type="koreksi"
+                                           data-data-id="{{ $row->id }}"
+                                           {{ $funnel && $funnel->todayProgress && $funnel->todayProgress->f2_p4 ? 'checked' : '' }}>
                                 </td>
-                                <td class="px-2 py-2 text-center border-r">
-                                    {!! $funnel && $funnel->f2_evaluasi ? '✅' : '⬜' !!}
+                                @else
+                                <td class="px-2 py-2 text-center border-r bg-pink-50"><span class="text-gray-300">-</span></td>
+                                @endif
+                                
+                                @if($denganMitra)
+                                <td class="px-2 py-2 text-center border-r bg-pink-50">
+                                    <input type="checkbox" 
+                                           class="funnel-checkbox w-4 h-4 text-pink-600 cursor-pointer" 
+                                           data-field="f2_offering"
+                                           data-data-type="koreksi"
+                                           data-data-id="{{ $row->id }}"
+                                           {{ $funnel && $funnel->todayProgress && $funnel->todayProgress->f2_offering ? 'checked' : '' }}>
                                 </td>
-                                <td class="px-2 py-2 text-center border-r">
-                                    {!! $funnel && $funnel->f2_taf ? '✅' : ($denganMitra ? '⬜' : '<span class="text-gray-400">-</span>') !!}
+                                @else
+                                <td class="px-2 py-2 text-center border-r bg-pink-50"><span class="text-gray-300">-</span></td>
+                                @endif
+                                
+                                @if($denganMitra)
+                                <td class="px-2 py-2 text-center border-r bg-pink-50">
+                                    <input type="checkbox" 
+                                           class="funnel-checkbox w-4 h-4 text-pink-600 cursor-pointer" 
+                                           data-field="f2_p5"
+                                           data-data-type="koreksi"
+                                           data-data-id="{{ $row->id }}"
+                                           {{ $funnel && $funnel->todayProgress && $funnel->todayProgress->f2_p5 ? 'checked' : '' }}>
                                 </td>
-                                <td class="px-2 py-2 text-center border-r">
-                                    {!! $funnel && $funnel->f2_juskeb ? '✅' : ($denganMitra ? '⬜' : '<span class="text-gray-400">-</span>') !!}
+                                @else
+                                <td class="px-2 py-2 text-center border-r bg-pink-50"><span class="text-gray-300">-</span></td>
+                                @endif
+                                
+                                <!-- F2: Proposal - Ditampilkan untuk semua -->
+                                <td class="px-2 py-2 text-center border-r bg-pink-50">
+                                    <input type="checkbox" 
+                                           class="funnel-checkbox w-4 h-4 text-pink-600 cursor-pointer" 
+                                           data-field="f2_proposal"
+                                           data-data-type="koreksi"
+                                           data-data-id="{{ $row->id }}"
+                                           {{ $funnel && $funnel->todayProgress && $funnel->todayProgress->f2_proposal ? 'checked' : '' }}>
                                 </td>
-                                <td class="px-2 py-2 text-center border-r">
-                                    {!! $funnel && $funnel->f2_bod_dm ? '✅' : ($denganMitra ? '⬜' : '<span class="text-gray-400">-</span>') !!}
+                                <!-- F3: P6, P7, Submit -->
+                                @if($denganMitra)
+                                <td class="px-2 py-2 text-center border-r bg-orange-50">
+                                    <input type="checkbox" 
+                                           class="funnel-checkbox w-4 h-4 text-orange-600 cursor-pointer" 
+                                           data-field="f3_p6"
+                                           data-data-type="koreksi"
+                                           data-data-id="{{ $row->id }}"
+                                           {{ $funnel && $funnel->todayProgress && $funnel->todayProgress->f3_p6 ? 'checked' : '' }}>
                                 </td>
-                                <td class="px-2 py-2 text-center border-r">
-                                    {!! $funnel && $funnel->f3_p3_1 ? '✅' : ($denganMitra ? '⬜' : '<span class="text-gray-400">-</span>') !!}
+                                @else
+                                <td class="px-2 py-2 text-center border-r bg-orange-50"><span class="text-gray-300">-</span></td>
+                                @endif
+                                
+                                @if($denganMitra)
+                                <td class="px-2 py-2 text-center border-r bg-orange-50">
+                                    <input type="checkbox" 
+                                           class="funnel-checkbox w-4 h-4 text-orange-600 cursor-pointer" 
+                                           data-field="f3_p7"
+                                           data-data-type="koreksi"
+                                           data-data-id="{{ $row->id }}"
+                                           {{ $funnel && $funnel->todayProgress && $funnel->todayProgress->f3_p7 ? 'checked' : '' }}>
                                 </td>
-                                <td class="px-2 py-2 text-center border-r">
-                                    {!! $funnel && $funnel->f3_sph ? '✅' : ($denganMitra ? '⬜' : '<span class="text-gray-400">-</span>') !!}
+                                @else
+                                <td class="px-2 py-2 text-center border-r bg-orange-50"><span class="text-gray-300">-</span></td>
+                                @endif
+                                
+                                <!-- F3: Submit - Ditampilkan untuk semua -->
+                                <td class="px-2 py-2 text-center border-r bg-orange-50">
+                                    <input type="checkbox" 
+                                           class="funnel-checkbox w-4 h-4 text-orange-600 cursor-pointer" 
+                                           data-field="f3_submit"
+                                           data-data-type="koreksi"
+                                           data-data-id="{{ $row->id }}"
+                                           {{ $funnel && $funnel->todayProgress && $funnel->todayProgress->f3_submit ? 'checked' : '' }}>
                                 </td>
-                                <td class="px-2 py-2 text-center border-r">
-                                    {!! $funnel && $funnel->f3_juskeb ? '✅' : ($denganMitra ? '⬜' : '<span class="text-gray-400">-</span>') !!}
+                                <!-- F4: Negosiasi - Ditampilkan untuk semua -->
+                                <td class="px-2 py-2 text-center border-r bg-teal-50">
+                                    <input type="checkbox" 
+                                           class="funnel-checkbox w-4 h-4 text-teal-600 cursor-pointer" 
+                                           data-field="f4_negosiasi"
+                                           data-data-type="koreksi"
+                                           data-data-id="{{ $row->id }}"
+                                           {{ $funnel && $funnel->todayProgress && $funnel->todayProgress->f4_negosiasi ? 'checked' : '' }}>
                                 </td>
-                                <td class="px-2 py-2 text-center border-r">
-                                    {!! $funnel && $funnel->f3_bod_dm ? '✅' : ($denganMitra ? '⬜' : '<span class="text-gray-400">-</span>') !!}
+                                <!-- F5: SK Mitra, TTD Kontrak, P8 -->
+                                @if($denganMitra)
+                                <td class="px-2 py-2 text-center border-r bg-green-50">
+                                    <input type="checkbox" 
+                                           class="funnel-checkbox w-4 h-4 text-green-600 cursor-pointer" 
+                                           data-field="f5_sk_mitra"
+                                           data-data-type="koreksi"
+                                           data-data-id="{{ $row->id }}"
+                                           {{ $funnel && $funnel->todayProgress && $funnel->todayProgress->f5_sk_mitra ? 'checked' : '' }}>
                                 </td>
-                                <td class="px-2 py-2 text-center border-r">
-                                    {!! $funnel && $funnel->f4_p3_2 ? '✅' : ($denganMitra ? '⬜' : '<span class="text-gray-400">-</span>') !!}
-                                </td>
-                                <td class="px-2 py-2 text-center border-r">
-                                    {!! $funnel && $funnel->f4_pks ? '✅' : ($denganMitra ? '⬜' : '<span class="text-gray-400">-</span>') !!}
-                                </td>
-                                <td class="px-2 py-2 text-center border-r">
-                                    {!! $funnel && $funnel->f4_bast ? '✅' : '⬜' !!}
-                                </td>
-                                <td class="px-2 py-2 text-center border-r">
-                                    {!! $funnel && $funnel->f5_p4 ? '✅' : '⬜' !!}
-                                </td>
-                                <td class="px-2 py-2 text-center border-r">
-                                    {!! $funnel && $funnel->f5_p5 ? '✅' : '⬜' !!}
-                                </td>
-                                <td class="px-2 py-2 text-center border-r">
-                                    {!! $funnel && $funnel->delivery_nilai_billcomp ? '✅' : '⬜' !!}
-                                </td>
-                                <td class="px-2 py-2 text-center border-r">
-                                    {!! $funnel && $funnel->delivery_baso ? '✅' : '⬜' !!}
+                                @else
+                                <td class="px-2 py-2 text-center border-r bg-green-50"><span class="text-gray-300">-</span></td>
+                                @endif
+                                
+                                <!-- F5: TTD Kontrak - Ditampilkan untuk semua -->
+                                <td class="px-2 py-2 text-center border-r bg-green-50">
+                                    <input type="checkbox" 
+                                           class="funnel-checkbox w-4 h-4 text-green-600 cursor-pointer" 
+                                           data-field="f5_ttd_kontrak"
+                                           data-data-type="koreksi"
+                                           data-data-id="{{ $row->id }}"
+                                           {{ $funnel && $funnel->todayProgress && $funnel->todayProgress->f5_ttd_kontrak ? 'checked' : '' }}>
                                 </td>
                                 
-                                <!-- Action -->
-                                <td class="px-4 py-2 text-center border-r">
-                                    <a href="{{ route('admin.lop.funnel.show', ['koreksi', $row->id]) }}" 
-                                       class="inline-flex items-center gap-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition-all shadow-sm hover:shadow-md">
-                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                                        </svg>
-                                        Update
-                                    </a>
+                                @if($denganMitra)
+                                <td class="px-2 py-2 text-center border-r bg-green-50">
+                                    <input type="checkbox" 
+                                           class="funnel-checkbox w-4 h-4 text-green-600 cursor-pointer" 
+                                           data-field="f5_p8"
+                                           data-data-type="koreksi"
+                                           data-data-id="{{ $row->id }}"
+                                           {{ $funnel && $funnel->todayProgress && $funnel->todayProgress->f5_p8 ? 'checked' : '' }}>
                                 </td>
+                                @else
+                                <td class="px-2 py-2 text-center border-r bg-green-50"><span class="text-gray-300">-</span></td>
+                                @endif
+                                <!-- DELIVERY: Kontrak, BAUT/BAST (text), BASO (text) -->
+                                <td class="px-2 py-2 text-center border-r bg-emerald-50">
+                                    <input type="checkbox" 
+                                           class="funnel-checkbox w-4 h-4 text-emerald-600 cursor-pointer" 
+                                           data-field="delivery_kontrak"
+                                           data-data-type="koreksi"
+                                           data-data-id="{{ $row->id }}"
+                                           {{ $funnel && $funnel->todayProgress && $funnel->todayProgress->delivery_kontrak ? 'checked' : '' }}>
+                                </td>
+                                
+                                <!-- BAUT/BAST - Display text value -->
+                                <td class="px-2 py-2 text-center border-r bg-emerald-50">
+                                    <span class="text-xs {{ $funnel && $funnel->delivery_baut_bast ? 'text-emerald-700 font-semibold' : 'text-gray-400' }}">
+                                        {{ $funnel && $funnel->delivery_baut_bast ? $funnel->delivery_baut_bast : '-' }}
+                                    </span>
+                                </td>
+                                
+                                <!-- BASO - Display text value -->
+                                <td class="px-2 py-2 text-center border-r bg-emerald-50">
+                                    <span class="text-xs {{ $funnel && $funnel->delivery_baso ? 'text-emerald-700 font-semibold' : 'text-gray-400' }}">
+                                        {{ $funnel && $funnel->delivery_baso ? $funnel->delivery_baso : '-' }}
+                                    </span>
+                                </td>
+                                
+                                <!-- BILLING COMPLETE - Ditampilkan untuk semua -->
+                                <td class="px-2 py-2 text-center border-r bg-indigo-50">
+                                    <input type="checkbox" 
+                                           class="billing-checkbox w-4 h-4 text-indigo-600 cursor-pointer" 
+                                           data-field="delivery_billing_complete"
+                                           data-data-type="koreksi"
+                                           data-data-id="{{ $row->id }}"
+                                           data-est-nilai="{{ $row->est_nilai_bc }}"
+                                           {{ $funnel && $funnel->todayProgress && $funnel->todayProgress->delivery_billing_complete ? 'checked' : '' }}>
+                                </td>
+                                
+                                <!-- NILAI BILL COMP -->
+                                @if($denganMitra)
+                                <td class="px-2 py-2 text-center border-r bg-violet-50 nilai-billcomp-cell" data-row-id="{{ $row->id }}">
+                                    <span class="font-semibold text-gray-900">
+                                        @php
+                                            $todayProgress = $funnel ? $funnel->todayProgress : null;
+                                            if ($todayProgress && $todayProgress->delivery_billing_complete) {
+                                                $nilaiToShow = $todayProgress->delivery_nilai_billcomp;
+                                                if (!$nilaiToShow) {
+                                                    // Clean est_nilai_bc from string format
+                                                    $cleanValue = str_replace(['.', ','], '', $row->est_nilai_bc ?? '0');
+                                                    $nilaiToShow = (int) $cleanValue;
+                                                }
+                                                echo number_format($nilaiToShow, 0, ',', '.');
+                                            } else {
+                                                echo '-';
+                                            }
+                                        @endphp
+                                    </span>
+                                </td>
+                                @else
+                                <td class="px-2 py-2 text-center bg-violet-50"><span class="text-gray-300">-</span></td>
+                                @endif
                             </tr>
                             @endforeach
                         </tbody>
+                        <tfoot class="bg-gradient-to-r from-gray-50 to-gray-100">
+                            <tr class="border-t-2 border-pink-500">
+                                <td colspan="8" class="px-4 py-4 text-right font-bold text-gray-900 border-r">TOTAL:</td>
+                                <td class="px-4 py-4 text-center font-bold text-pink-700 text-lg border-r bg-pink-50">
+                                    @php
+                                        // Cari row dengan no = "TOTAL"
+                                        $totalRow = $latestImport->data->first(function($item) {
+                                            return strtoupper(trim($item->no ?? '')) === 'TOTAL';
+                                        });
+                                        
+                                        if ($totalRow) {
+                                            // Ambil dari row TOTAL
+                                            $totalEstNilai = str_replace(['.', ','], '', $totalRow->est_nilai_bc ?? '0');
+                                            $totalEstNilai = (int) $totalEstNilai;
+                                        } else {
+                                            // Fallback: hitung manual jika tidak ada row TOTAL
+                                            $totalEstNilai = $latestImport->data->sum(function($item) {
+                                                if (strtoupper(trim($item->no ?? '')) === 'TOTAL') return 0;
+                                                $value = str_replace(['.', ','], '', $item->est_nilai_bc ?? '0');
+                                                return (int) $value;
+                                            });
+                                        }
+                                    @endphp
+                                    {{ number_format($totalEstNilai, 0, ',', '.') }}
+                                </td>
+                                <td colspan="20" class="border-r"></td>
+                                <td class="px-4 py-4 text-center font-bold text-violet-700 text-lg border-r bg-violet-50" id="total-nilai-billcomp">
+                                    @php
+                                        // Calculate total from task_progress table (today's progress for current user)
+                                        $totalBillComp = \App\Models\TaskProgress::whereHas('task', function($query) {
+                                                $query->where('data_type', 'correction');
+                                            })
+                                            ->where('user_id', auth()->id())
+                                            ->whereDate('tanggal', today())
+                                            ->where('delivery_billing_complete', true)
+                                            ->whereNotNull('delivery_nilai_billcomp')
+                                            ->sum('delivery_nilai_billcomp');
+                                        $totalBillComp = (float) $totalBillComp;
+                                    @endphp
+                                    <span>{{ number_format($totalBillComp, 0, ',', '.') }}</span>
+                                </td>
+                                <td class="border-r"></td>
+                            </tr>
+                        </tfoot>
                     </table>
+                </div>
+                
+                <!-- Catatan Funnel Stages -->
+                <div class="mt-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-blue-400 rounded-xl p-6 shadow-sm">
+                    <div class="flex items-start gap-3">
+                        <div class="flex-shrink-0 w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-gray-900 mb-4 text-sm">Catatan Tahapan Funnel</h4>
+                            <div class="text-gray-700 text-xs space-y-3 leading-relaxed">
+                                <!-- F0 -->
+                                <div class="bg-white/70 p-3 rounded-lg border border-blue-200">
+                                    <div class="font-semibold text-blue-700 mb-1">F0 - Funnel 0</div>
+                                    <div class="ml-3 space-y-0.5 text-gray-600">
+                                        <div>• Lead</div>
+                                        <div>• Inisiasi</div>
+                                    </div>
+                                </div>
+                                
+                                <!-- F1 -->
+                                <div class="bg-white/70 p-3 rounded-lg border border-purple-200">
+                                    <div class="font-semibold text-purple-700 mb-1">F1 - Funnel 1</div>
+                                    <div class="ml-3 space-y-0.5 text-gray-600">
+                                        <div>• Opportunity</div>
+                                        <div>• Technical & Budget Discussion</div>
+                                    </div>
+                                </div>
+                                
+                                <!-- F2 -->
+                                <div class="bg-white/70 p-3 rounded-lg border border-pink-200">
+                                    <div class="font-semibold text-pink-700 mb-1">F2 - Funnel 2</div>
+                                    <div class="ml-3 space-y-0.5 text-gray-600">
+                                        <div>• Self Assessment & Management Solution</div>
+                                        <div>• P0/P1. Juskeb barang / jasa</div>
+                                        <div>• P2. Evaluasi bakal calon mitra</div>
+                                        <div>• P3. Permintaan Penawaran Harga</div>
+                                        <div>• P4. Rapat Penjelasan</div>
+                                        <div>• Offering Harga Mitra</div>
+                                        <div>• P5. Evaluasi SPH Mitra</div>
+                                        <div>• Proposal Solusi</div>
+                                    </div>
+                                </div>
+                                
+                                <!-- F3 -->
+                                <div class="bg-white/70 p-3 rounded-lg border border-orange-200">
+                                    <div class="font-semibold text-orange-700 mb-1">F3 - Funnel 3</div>
+                                    <div class="ml-3 space-y-0.5 text-gray-600">
+                                        <div>• P6. Klarifikasi & Negosiasi</div>
+                                        <div>• P7. Penetapan Calon Mitra</div>
+                                        <div>• Submit proposal penawaran / SPH ke plgn</div>
+                                    </div>
+                                </div>
+                                
+                                <!-- F4 -->
+                                <div class="bg-white/70 p-3 rounded-lg border border-teal-200">
+                                    <div class="font-semibold text-teal-700 mb-1">F4 - Funnel 4</div>
+                                    <div class="ml-3 space-y-0.5 text-gray-600">
+                                        <div>• Negosiasi</div>
+                                    </div>
+                                </div>
+                                
+                                <!-- F5 (Delivery) -->
+                                <div class="bg-white/70 p-3 rounded-lg border border-green-200">
+                                    <div class="font-semibold text-green-700 mb-1">F5 - Delivery</div>
+                                    <div class="ml-3 space-y-0.5 text-gray-600">
+                                        <div>• Surat Kesanggupan Mitra</div>
+                                        <div>• Tanda Tangan Kontrak</div>
+                                        <div>• P8. Surat Penetapan Mitra</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 
                 <!-- Admin Notes Section -->
@@ -238,4 +542,306 @@
         @endif
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // CSRF Token
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    
+    // Number formatting function
+    function formatNumber(num) {
+        if (!num) return '-';
+        return Math.round(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    }
+    
+    // Handle regular funnel checkboxes - save immediately
+    document.querySelectorAll('.funnel-checkbox').forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const rowId = this.dataset.dataId;
+            const dataType = this.dataset.dataType;
+            const field = this.dataset.field;
+            const value = this.checked;
+            
+            // Visual feedback - yellow background for saving
+            this.parentElement.classList.add('bg-yellow-100');
+            
+            // Save immediately
+            saveCheckboxChange(rowId, dataType, field, value, null, this.parentElement);
+        });
+    });
+    
+    // Handle billing complete checkbox - save immediately and update NILAI BILL COMP
+    document.querySelectorAll('.billing-checkbox').forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const rowId = this.dataset.dataId;
+            const dataType = this.dataset.dataType;
+            const field = this.dataset.field;
+            const value = this.checked;
+            let estNilai = this.dataset.estNilai;
+            
+            // Clean the est_nilai_bc value
+            estNilai = estNilai ? estNilai.replace(/[.,]/g, '') : '0';
+            
+            // Visual feedback - yellow background for saving
+            this.parentElement.classList.add('bg-yellow-100');
+            
+            // Find NILAI BILL COMP cell in the same row
+            const row = this.closest('tr');
+            const nilaiBillCompCell = row.querySelector('.nilai-billcomp-cell');
+            
+            if (nilaiBillCompCell) {
+                if (value) {
+                    // Checked - show EST NILAI BC
+                    nilaiBillCompCell.innerHTML = '<span class="text-gray-900 font-medium">' + formatNumber(estNilai) + '</span>';
+                } else {
+                    // Unchecked - hide value
+                    nilaiBillCompCell.innerHTML = '<span class="text-gray-400">-</span>';
+                }
+            }
+            
+            // Save immediately
+            saveCheckboxChange(rowId, dataType, field, value, estNilai, this.parentElement);
+        });
+    });
+    
+    // Funnel stage definitions for cascade auto-checking
+    const funnelStages = {
+        'f0': ['f0_inisiasi_solusi'],
+        'f1': ['f1_tech_budget'],
+        'f2': ['f2_p0_p1', 'f2_p2', 'f2_p3', 'f2_p4', 'f2_offering', 'f2_p5', 'f2_proposal'],
+        'f3': ['f3_p6', 'f3_p7', 'f3_submit'],
+        'f4': ['f4_negosiasi'],
+        'f5': ['f5_sk_mitra', 'f5_ttd_kontrak', 'f5_p8'],
+        'delivery': ['delivery_kontrak']
+    };
+    
+    // Get stage name from field
+    function getStageFromField(field) {
+        for (const [stage, fields] of Object.entries(funnelStages)) {
+            if (fields.includes(field)) {
+                return stage;
+            }
+        }
+        return null;
+    }
+    
+    // Get all fields in stages before the given stage
+    function getPreviousStageFields(currentStage) {
+        const stageOrder = ['f0', 'f1', 'f2', 'f3', 'f4', 'f5', 'delivery'];
+        const currentIndex = stageOrder.indexOf(currentStage);
+        
+        if (currentIndex <= 0) return [];
+        
+        let previousFields = [];
+        for (let i = 0; i < currentIndex; i++) {
+            previousFields = previousFields.concat(funnelStages[stageOrder[i]]);
+        }
+        return previousFields;
+    }
+    
+    // Auto-check previous stages
+    function autoCheckPreviousStages(dataType, dataId, clickedField) {
+        const currentStage = getStageFromField(clickedField);
+        if (!currentStage) return;
+        
+        const previousFields = getPreviousStageFields(currentStage);
+        
+        previousFields.forEach(field => {
+            // Find the checkbox for this field in the same row
+            const checkbox = document.querySelector(
+                `.funnel-checkbox[data-field="${field}"][data-data-id="${dataId}"][data-data-type="${dataType}"]`
+            );
+            
+            if (checkbox && !checkbox.checked) {
+                // Check the checkbox visually
+                checkbox.checked = true;
+                
+                // Send AJAX to update in database
+                fetch('{{ route("gov.funnel.update") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        data_type: dataType,
+                        data_id: dataId,
+                        field: field,
+                        value: true
+                    })
+                })
+                .catch(error => console.error('Auto-check error:', error));
+            }
+        });
+    }
+    
+    function updateFunnelCheckbox(checkbox) {
+        const dataType = checkbox.dataset.dataType;
+        const dataId = checkbox.dataset.dataId;
+        const field = checkbox.dataset.field;
+        const value = checkbox.checked;
+        
+        fetch('{{ route("gov.funnel.update") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                data_type: dataType,
+                data_id: dataId,
+                field: field,
+                value: value
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Re-enable checkbox
+            checkbox.style.opacity = '1';
+            checkbox.style.pointerEvents = 'auto';
+            
+            if (data.success) {
+                console.log('✓ Checkbox updated successfully');
+                // If checkbox was checked, auto-check all previous stages
+                if (value) {
+                    autoCheckPreviousStages(dataType, dataId, field);
+                }
+            } else {
+                console.error('Update failed');
+                checkbox.checked = !value; // Revert
+            }
+        })
+        .catch(error => {
+            // Re-enable checkbox
+            checkbox.style.opacity = '1';
+            checkbox.style.pointerEvents = 'auto';
+            console.error('Error:', error);
+            checkbox.checked = !value; // Revert on error
+        });
+    }
+    
+    function updateBillingComplete(checkbox) {
+        const dataType = checkbox.dataset.dataType;
+        const dataId = checkbox.dataset.dataId;
+        const field = checkbox.dataset.field;
+        const value = checkbox.checked;
+        let estNilai = checkbox.dataset.estNilai;
+        
+        // Clean the est_nilai_bc value - remove dots and commas
+        estNilai = estNilai ? estNilai.replace(/[.,]/g, '') : '0';
+        
+        fetch('{{ route("gov.funnel.update") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                data_type: dataType,
+                data_id: dataId,
+                field: field,
+                value: value,
+                est_nilai_bc: estNilai
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Re-enable checkbox
+            checkbox.style.opacity = '1';
+            checkbox.style.pointerEvents = 'auto';
+            
+            if (data.success) {
+                console.log('✓ Billing complete updated successfully');
+                // Update the nilai billcomp cell
+                const nilaiCell = document.querySelector(`.nilai-billcomp-cell[data-row-id="${dataId}"] span`);
+                if (nilaiCell) {
+                    nilaiCell.textContent = value ? formatNumber(data.nilai_billcomp) : '-';
+                }
+                
+                // Update total
+                const totalCell = document.getElementById('total-nilai-billcomp');
+                if (totalCell) {
+                    totalCell.querySelector('span').textContent = data.total;
+                }
+            } else {
+                console.error('Update failed');
+                checkbox.checked = !value; // Revert
+            }
+        })
+        .catch(error => {
+            // Re-enable checkbox
+            checkbox.style.opacity = '1';
+            checkbox.style.pointerEvents = 'auto';
+            console.error('Error:', error);
+            checkbox.checked = !value; // Revert on error
+        });
+    }
+    
+    // Save a single checkbox change immediately
+    function saveCheckboxChange(rowId, dataType, field, value, estNilaiBc, checkboxContainer) {
+        const payload = {
+            data_type: dataType,
+            data_id: rowId,
+            field: field,
+            value: value
+        };
+        
+        // Add est_nilai_bc if this is billing_complete
+        if (field === 'delivery_billing_complete' && estNilaiBc) {
+            payload.est_nilai_bc = estNilaiBc;
+        }
+        
+        fetch('{{ route("gov.funnel.update") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Success - flash green
+                checkboxContainer.classList.remove('bg-yellow-100');
+                checkboxContainer.classList.add('bg-green-50');
+                setTimeout(() => {
+                    checkboxContainer.classList.remove('bg-green-50');
+                }, 1500);
+                
+                // Update totals if billing was changed
+                if (data.total) {
+                    const totalCell = document.getElementById('total-nilai-billcomp');
+                    if (totalCell) {
+                        totalCell.querySelector('span').textContent = data.total;
+                    }
+                }
+            } else {
+                // Failed - revert checkbox and remove yellow
+                checkboxContainer.classList.remove('bg-yellow-100');
+                const checkbox = checkboxContainer.querySelector('input[type="checkbox"]');
+                if (checkbox) {
+                    checkbox.checked = !value;
+                }
+                alert('Gagal menyimpan perubahan. Silakan coba lagi.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            // Revert checkbox and remove yellow
+            checkboxContainer.classList.remove('bg-yellow-100');
+            const checkbox = checkboxContainer.querySelector('input[type="checkbox"]');
+            if (checkbox) {
+                checkbox.checked = !value;
+            }
+            alert('Terjadi kesalahan. Silakan coba lagi.');
+        });
+    }
+});
+</script>
+
 @endsection

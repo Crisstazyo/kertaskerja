@@ -20,27 +20,36 @@ class DatabaseSeeder extends Seeder
             'role' => 'admin',
         ]);
 
-        // Create gov user
+        // Create government user
         \App\Models\User::create([
             'name' => 'Government User',
-            'email' => 'gov@gmail.com',
+            'email' => 'government@gmail.com',
             'password' => bcrypt('password'),
-            'role' => 'gov',
+            'role' => 'government',
         ]);
 
-        // Additional test users
+        // Create private user
         \App\Models\User::create([
-            'name' => 'Gov User 2',
-            'email' => 'gov2@gmail.com',
+            'name' => 'Private User',
+            'email' => 'private@gmail.com',
             'password' => bcrypt('password'),
-            'role' => 'gov',
+            'role' => 'private',
         ]);
 
+        // Create SOE user
         \App\Models\User::create([
-            'name' => 'Admin 2',
-            'email' => 'admin2@gmail.com',
+            'name' => 'SOE User',
+            'email' => 'soe@gmail.com',
             'password' => bcrypt('password'),
-            'role' => 'admin',
+            'role' => 'soe',
+        ]);
+
+        // Create SME user
+        \App\Models\User::create([
+            'name' => 'SME User',
+            'email' => 'sme@gmail.com',
+            'password' => bcrypt('password'),
+            'role' => 'sme',
         ]);
     }
 }

@@ -24,12 +24,30 @@ class AuthController extends Controller
             $request->session()->regenerate();
             
             // Redirect based on role
-            if (Auth::user()->role === 'admin') {
+            $role = Auth::user()->role;
+            
+            if ($role === 'admin') {
                 return redirect()->route('admin.dashboard');
             }
             
-            if (Auth::user()->role === 'gov') {
+            if ($role === 'government') {
+                return redirect()->route('government.dashboard');
+            }
+            
+            if ($role === 'gov') {
                 return redirect()->route('gov.dashboard');
+            }
+            
+            if ($role === 'private') {
+                return redirect()->route('private.dashboard');
+            }
+            
+            if ($role === 'soe') {
+                return redirect()->route('soe.dashboard');
+            }
+            
+            if ($role === 'sme') {
+                return redirect()->route('sme.dashboard');
             }
             
             return redirect('/');
