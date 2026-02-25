@@ -6,6 +6,7 @@ use App\Models\Project;
 use App\Models\Worksheet;
 use App\Models\User;
 use App\Models\ScallingData;
+use App\Models\ProjectItem;
 use App\Models\ScallingGovResponse;
 use App\Models\LopOnHandImport;
 use App\Models\LopOnHandData;
@@ -29,8 +30,13 @@ class AdminController extends Controller
     {
         // Get all users grouped by role
         $users = User::all()->groupBy('role');
-        
-        return view('admin.index', compact('users'));
+        // Get recent project items to display on dashboard, grouped by unit_scope for table rowspan
+        $projects = ProjectItem::orderBy('unit_scope')
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->groupBy('unit_scope');
+
+        return view('admin.index', compact('users', 'projects'));
     }
     
     // Scalling Management Page
@@ -41,6 +47,7 @@ class AdminController extends Controller
         }
         
         $scallingData = ScallingData::with('responses.user')->latest()->get();
+        $projects = ProjectItem::where('role', $role);
         
         return view('admin.scalling', compact('role', 'scallingData'));
     }

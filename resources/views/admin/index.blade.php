@@ -154,6 +154,73 @@
                 </div>
             </div>
         </div>
+
+        <!-- 11-Column Table -->
+        <div class="mt-8 bg-white rounded-xl shadow-lg p-6 border-2 border-gray-100">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <h3 class="text-xl font-bold text-gray-800">Laporan</h3>
+                    <!-- <p class="text-sm text-gray-500">Laporan</p> -->
+                </div>
+                <div class="flex items-center space-x-2">
+                    <!-- <input type="text" placeholder="Cari..." class="px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-300" />
+                    <a href="#" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700">Tambah</a> -->
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th rowspan= "2" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200 last:border-r-0">Number</th>
+                            <th rowspan= "2" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200 last:border-r-0">Unit/ Scope</th>
+                            <th rowspan= "2" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200 last:border-r-0">Indicator</th>
+                            <th rowspan= "2" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200 last:border-r-0">Denom</th>
+                            <th colspan="2" class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-b border-gray-200 last:border-r-0">Commitment</th>
+                            <th colspan= "2" class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-b border-gray-200 last:border-r-0">Real</th>
+                            <th rowspan= "2" class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200 last:border-r-0">Fairness</th>
+                            <th rowspan= "2" class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200 last:border-r-0">Ach</th>
+                            <th rowspan= "2" class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Score</th>
+                        </tr>
+                        <tr>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200 last:border-r-0">Amount</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200 last:border-r-0">Rp Million</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200 last:border-r-0">Amount</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200 last:border-r-0">Rp Million</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-100">
+                        @php
+                            // projects is a collection grouped by unit_scope
+                        @endphp
+                        @forelse($projects ?? [] as $unitScope => $group)
+                            @foreach($group as $index => $project)
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-4 py-3 text-sm text-gray-700">{{ $project->id }}</td>
+                                    @if($index === 0)
+                                        <td rowspan="{{ $group->count() }}" class="px-4 py-3 text-sm text-gray-900 font-medium">{{ $unitScope }}</td>
+                                    @endif
+                                    <td class="px-4 py-3 text-sm text-gray-700">{{ $project->indicator }}</td>
+                                    <td class="px-4 py-3 text-sm text-gray-700">{{ $project->denom }}</td>
+                                    <td class="px-4 py-3 text-sm text-gray-700">{{ number_format($project->commitment_amount ?? 0) }}</td>
+                                    <td class="px-4 py-3 text-sm text-gray-700">{{ number_format($project->commitment_rp_million ?? 0, 2, ',', '.') }}</td>
+                                    <td class="px-4 py-3 text-sm text-gray-700">{{ number_format($project->real_amount ?? 0) }}</td>
+                                    <td class="px-4 py-3 text-sm text-gray-700">{{ number_format($project->real_rp_amount ?? 0, 2, ',', '.') }}</td>
+                                    <td class="px-4 py-3 text-sm text-right text-gray-800">{{ number_format($project->fairness ?? 0, 4) }}</td>
+                                    <td class="px-4 py-3 text-center text-sm">{{ number_format($project->ach ?? 0, 2) }}%</td>
+                                    <td class="px-4 py-3 text-center text-sm">{{ number_format($project->score ?? 0, 2) }}</td>
+                                </tr>
+                            @endforeach
+                        @empty
+                        <tr>
+                            <td class="px-4 py-6 text-center text-sm text-gray-500" colspan="11">Belum ada data proyek. Gunakan tombol "Tambah" untuk membuat data baru.</td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
     </div>
 </div>
 @endsection
