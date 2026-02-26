@@ -3,168 +3,144 @@
 @section('title', 'Admin - PSAK ' . ucfirst($role))
 
 @section('content')
-<div class="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 py-8">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <!-- Header -->
-        <div class="mb-8">
-            <div class="flex items-center justify-between mb-4">
-                <div>
-                    <a href="{{ route('admin.dashboard') }}" class="text-blue-600 hover:text-blue-800 mb-2 inline-block text-sm font-medium">
-                        ← Kembali ke Dashboard
+<div class="min-h-screen" style="background:#f1f5f9;">
+    <div class="max-w-7xl mx-auto px-8 py-10">
+
+        {{-- ══ HEADER ══ --}}
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 px-10 py-7 mb-8 relative overflow-hidden">
+            <div class="absolute top-0 left-0 right-0 h-1.5"
+                style="background: linear-gradient(90deg, #dc2626, #ef4444, #dc2626);"></div>
+            <div class="absolute -right-10 -top-10 w-56 h-56 rounded-full opacity-[0.04]" style="background: #dc2626;"></div>
+            <div class="relative flex items-center justify-between">
+                <div class="flex items-center space-x-6">
+                    <img src="{{ asset('img/Telkom.png') }}" alt="Telkom" class="h-12 w-auto">
+                    <div class="w-px h-12 bg-slate-200"></div>
+                    <div>
+                        <p class="text-[10px] font-black tracking-[0.3em] text-red-600 uppercase mb-1">Witel Sumut</p>
+                        <h1 class="text-2xl font-black tracking-tight text-slate-900 leading-none uppercase">
+                            PSAK <span class="text-red-600">{{ ucfirst($role) }}</span>
+                        </h1>
+                        <p class="text-slate-400 text-xs font-bold mt-1 uppercase tracking-tight">Admin mengelola semua data Commitment & Realisasi</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="{{ route('admin.dashboard') }}"
+                        class="flex items-center space-x-2.5 bg-white border-2 border-slate-900 hover:bg-slate-900 text-slate-900 hover:text-white px-6 py-3 rounded-xl font-black text-xs transition-all duration-300 shadow-sm uppercase tracking-wider">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/>
+                        </svg>
+                        <span>Back to Dashboard</span>
                     </a>
-                    <h1 class="text-2xl font-bold text-gray-900 mb-2">PSAK Data - {{ ucfirst($role) }}</h1>
-                    <p class="text-gray-600">Admin mengelola semua data Commitment dan Realisasi</p>
+                    <form action="{{ route('logout') }}" method="POST">
+                        @csrf
+                        <button type="submit"
+                            class="group flex items-center space-x-2.5 bg-slate-900 hover:bg-red-600 text-white font-bold text-sm px-5 py-3 rounded-xl transition-all duration-300 shadow-md hover:shadow-lg hover:shadow-red-200">
+                            <svg class="w-4 h-4 transition-transform duration-300 group-hover:rotate-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                            </svg>
+                            <span>Logout</span>
+                        </button>
+                    </form>
                 </div>
             </div>
-            <div class="h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-full"></div>
         </div>
 
+        {{-- ══ FLASH MESSAGES ══ --}}
         @if(session('success'))
-            <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded">
-                <p class="font-medium">{{ session('success') }}</p>
-            </div>
+        <div class="flex items-center space-x-3 bg-green-50 border border-green-200 text-green-800 px-5 py-3.5 mb-6 rounded-xl text-sm font-semibold">
+            <svg class="w-4 h-4 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <span>{{ session('success') }}</span>
+        </div>
         @endif
 
-        <!-- Input Form -->
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
-            <h2 class="text-xl font-bold text-gray-900 mb-4 flex items-center space-x-2">
-                <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                </svg>
-                <span>Input Data PSAK</span>
-            </h2>
-            
-            <form action="{{ route('admin.psak.store', $role) }}" method="POST" class="space-y-6">
+        {{-- ══ INPUT FORM ══ --}}
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-8 mb-8">
+            <div class="flex items-center space-x-3 mb-6">
+                <div class="w-1 h-6 bg-red-600 rounded-full"></div>
+                <h2 class="text-base font-black text-slate-900 uppercase tracking-wide">Input Data PSAK</h2>
+            </div>
+
+            <form action="{{ route('admin.psak.store', $role) }}" method="POST">
                 @csrf
-                
-                <!-- Periode Input -->
-                <div>
-                    <label for="periode" class="block text-sm font-medium text-gray-700 mb-2 flex items-center space-x-2">
-                        <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                        </svg>
-                        <span>Periode</span>
-                    </label>
-                    <input type="month" 
-                           id="periode" 
-                           name="periode" 
-                           required 
-                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-gray-900 font-medium"
-                           value="{{ date('Y-m') }}">
-                    @error('periode')
-                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                    @enderror
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Periode</label>
+                        <input type="month" name="periode" required value="{{ date('Y-m') }}"
+                            class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors">
+                        @error('periode')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Pilih Segmen</label>
+                        <select name="segment" required
+                            class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors bg-white">
+                            <option value="">— Pilih Segmen —</option>
+                            <option value="nc_step14">Not Close Step 1-4</option>
+                            <option value="nc_step5">Not Close Step 5</option>
+                            <option value="nc_konfirmasi">Not Close Konfirmasi</option>
+                            <option value="nc_splitbill">Not Close Split Bill</option>
+                            <option value="nc_crvariable">Not Close CR Variable</option>
+                            <option value="nc_unidentified">Not Close Unidentified KB</option>
+                        </select>
+                        @error('segment')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
+                    </div>
                 </div>
 
-                <!-- Segment Selection -->
-                <div>
-                    <label for="segment" class="block text-sm font-medium text-gray-700 mb-2 flex items-center space-x-2">
-                        <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
-                        </svg>
-                        <span>Pilih Segmen</span>
-                    </label>
-                    <select id="segment" 
-                            name="segment" 
-                            required
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-900 font-medium">
-                        <option value="">-- Pilih Segmen --</option>
-                        <option value="nc_step14">Not Close Step 1-4</option>
-                        <option value="nc_step5">Not Close Step 5</option>
-                        <option value="nc_konfirmasi">Not Close Konfirmasi</option>
-                        <option value="nc_splitbill">Not Close Split Bill</option>
-                        <option value="nc_crvariable">Not Close CR Variable</option>
-                        <option value="nc_unidentified">Not Close Unidentified KB</option>
-                    </select>
-                    @error('segment')
-                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Order Section -->
-                    <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6 border-2 border-blue-200">
-                        <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center space-x-2">
-                            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                            </svg>
-                            <span class="text-blue-800">Format Order</span>
-                        </h3>
-                        
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
+                    {{-- Order --}}
+                    <div class="bg-slate-50 rounded-xl border border-slate-200 p-5">
+                        <div class="flex items-center space-x-2 mb-4">
+                            <div class="w-1 h-5 bg-red-600 rounded-full"></div>
+                            <h3 class="text-xs font-black text-slate-700 uppercase tracking-widest">Format Order</h3>
+                        </div>
                         <div class="space-y-4">
                             <div>
-                                <label for="commitment_order" class="block text-sm font-semibold text-gray-700 mb-2">Commitment (Order)</label>
-                                <input type="number" 
-                                       id="commitment_order" 
-                                       name="commitment_order" 
-                                       step="0.01"
-                                       placeholder="Contoh: 150.50"
-                                       class="w-full px-4 py-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white">
-                                @error('commitment_order')
-                                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                                @enderror
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Commitment (Order)</label>
+                                <input type="number" name="commitment_order" step="0.01" placeholder="cth: 150.50"
+                                    class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors bg-white">
+                                @error('commitment_order')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                             </div>
-                            
                             <div>
-                                <label for="real_order" class="block text-sm font-semibold text-gray-700 mb-2">Realisasi (Order)</label>
-                                <input type="number" 
-                                       id="real_order" 
-                                       name="real_order" 
-                                       step="0.01"
-                                       placeholder="Contoh: 140.75"
-                                       class="w-full px-4 py-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white">
-                                @error('real_order')
-                                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                                @enderror
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Realisasi (Order)</label>
+                                <input type="number" name="real_order" step="0.01" placeholder="cth: 140.75"
+                                    class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors bg-white">
+                                @error('real_order')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                             </div>
                         </div>
                     </div>
-                    
-                    <!-- Rupiah Section -->
-                    <div class="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-6 border-2 border-purple-200">
-                        <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center space-x-2">
-                            <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                            <span class="text-purple-800">Format Rupiah</span>
-                        </h3>
-                        
+
+                    {{-- Rupiah --}}
+                    <div class="bg-slate-50 rounded-xl border border-slate-200 p-5">
+                        <div class="flex items-center space-x-2 mb-4">
+                            <div class="w-1 h-5 bg-red-600 rounded-full"></div>
+                            <h3 class="text-xs font-black text-slate-700 uppercase tracking-widest">Format Rupiah</h3>
+                        </div>
                         <div class="space-y-4">
                             <div>
-                                <label for="commitment_rp" class="block text-sm font-semibold text-gray-700 mb-2">Commitment (Rp)</label>
-                                <input type="number" 
-                                       id="commitment_rp" 
-                                       name="commitment_rp" 
-                                       step="0.01"
-                                       placeholder="Contoh: 50000000"
-                                       class="w-full px-4 py-2 border border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white">
-                                @error('commitment_rp')
-                                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                                @enderror
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Commitment (Rp)</label>
+                                <input type="number" name="commitment_rp" step="0.01" placeholder="cth: 50000000"
+                                    class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors bg-white">
+                                @error('commitment_rp')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                             </div>
-                            
                             <div>
-                                <label for="real_rp" class="block text-sm font-semibold text-gray-700 mb-2">Realisasi (Rp)</label>
-                                <input type="number" 
-                                       id="real_rp" 
-                                       name="real_rp" 
-                                       step="0.01"
-                                       placeholder="Contoh: 48000000"
-                                       class="w-full px-4 py-2 border border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white">
-                                @error('real_rp')
-                                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                                @enderror
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Realisasi (Rp)</label>
+                                <input type="number" name="real_rp" step="0.01" placeholder="cth: 48000000"
+                                    class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors bg-white">
+                                @error('real_rp')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                             </div>
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="flex justify-end space-x-3">
-                    <button type="reset" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-2 rounded-lg font-medium transition-all">
-                        Reset
+                    <button type="reset"
+                        class="flex items-center space-x-2 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-xs px-5 py-2.5 rounded-lg transition-all duration-200 uppercase tracking-wider">
+                        <span>Reset</span>
                     </button>
-                    <button type="submit" class="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-8 py-2 rounded-lg font-medium transition-all shadow-md hover:shadow-lg flex items-center space-x-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <button type="submit"
+                        class="flex items-center space-x-2 bg-slate-900 hover:bg-red-600 text-white font-bold text-xs px-6 py-2.5 rounded-lg transition-all duration-200 uppercase tracking-wider">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                         </svg>
                         <span>Simpan Data</span>
@@ -175,20 +151,18 @@
 
         @if($psakData->count() > 0)
 
-        <!-- ===== UNIFIED FILTER PANEL ===== -->
-        <div class="bg-white rounded-2xl shadow-lg border border-indigo-100 p-6 mb-6">
-            <div class="flex items-center space-x-2 mb-4">
-                <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z"/>
-                </svg>
-                <h3 class="text-base font-bold text-gray-800">Filter & Pencarian Data</h3>
+        {{-- ══ FILTER ══ --}}
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 mb-6">
+            <div class="flex items-center space-x-3 mb-4">
+                <div class="w-1 h-6 bg-red-600 rounded-full"></div>
+                <h3 class="text-base font-black text-slate-900 uppercase tracking-wide">Filter & Pencarian</h3>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <!-- Segment Dropdown Filter -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
                 <div>
-                    <label class="block text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wide">Segmen</label>
-                    <select id="masterFilterSegmen" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white">
-                        <option value="">-- Semua Segmen --</option>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Segmen</label>
+                    <select id="masterFilterSegmen"
+                        class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-semibold text-slate-700 focus:outline-none focus:border-red-400 bg-white">
+                        <option value="">Semua Segmen</option>
                         <option value="Not Close Step 1-4">Not Close Step 1-4</option>
                         <option value="Not Close Step 5">Not Close Step 5</option>
                         <option value="Not Close Konfirmasi">Not Close Konfirmasi</option>
@@ -197,129 +171,102 @@
                         <option value="Not Close Unidentified KB">Not Close Unidentified KB</option>
                     </select>
                 </div>
-                <!-- Period Month Filter -->
                 <div>
-                    <label class="block text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wide">Bulan</label>
-                    <select id="masterFilterBulan" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white">
-                        <option value="">-- Semua Bulan --</option>
-                        <option value="Jan">Januari</option>
-                        <option value="Feb">Februari</option>
-                        <option value="Mar">Maret</option>
-                        <option value="Apr">April</option>
-                        <option value="May">Mei</option>
-                        <option value="Jun">Juni</option>
-                        <option value="Jul">Juli</option>
-                        <option value="Aug">Agustus</option>
-                        <option value="Sep">September</option>
-                        <option value="Oct">Oktober</option>
-                        <option value="Nov">November</option>
-                        <option value="Dec">Desember</option>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Bulan</label>
+                    <select id="masterFilterBulan"
+                        class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-semibold text-slate-700 focus:outline-none focus:border-red-400 bg-white">
+                        <option value="">Semua Bulan</option>
+                        <option value="Jan">Januari</option><option value="Feb">Februari</option>
+                        <option value="Mar">Maret</option><option value="Apr">April</option>
+                        <option value="May">Mei</option><option value="Jun">Juni</option>
+                        <option value="Jul">Juli</option><option value="Aug">Agustus</option>
+                        <option value="Sep">September</option><option value="Oct">Oktober</option>
+                        <option value="Nov">November</option><option value="Dec">Desember</option>
                     </select>
                 </div>
-                <!-- Period Year Filter -->
                 <div>
-                    <label class="block text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wide">Tahun</label>
-                    <select id="masterFilterTahun" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white">
-                        <option value="">-- Semua Tahun --</option>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Tahun</label>
+                    <select id="masterFilterTahun"
+                        class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-semibold text-slate-700 focus:outline-none focus:border-red-400 bg-white">
+                        <option value="">Semua Tahun</option>
                         @for($y = date('Y'); $y >= date('Y') - 3; $y--)
                             <option value="{{ $y }}">{{ $y }}</option>
                         @endfor
                     </select>
                 </div>
-                <!-- Custom Text Search -->
                 <div>
-                    <label class="block text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wide">Pencarian</label>
-                    <div class="relative">
-                        <input type="text" id="masterFilterText" placeholder="Cari user, periode, segmen..." class="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                            </svg>
-                        </div>
-                    </div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Cari</label>
+                    <input type="text" id="masterFilterText" placeholder="Cari user, periode, segmen..."
+                        class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-semibold text-slate-700 focus:outline-none focus:border-red-400">
                 </div>
             </div>
-            <div class="flex items-center justify-between mt-4">
-                <button onclick="applyMasterFilter()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-lg text-sm font-semibold transition-colors flex items-center space-x-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z"/>
-                    </svg>
-                    <span>Terapkan Filter</span>
+            <div class="flex items-center space-x-3">
+                <button onclick="resetMasterFilter()"
+                    class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-xs rounded-lg transition-colors uppercase tracking-wider">
+                    Reset Filter
                 </button>
-                <button onclick="resetMasterFilter()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-5 py-2 rounded-lg text-sm font-medium transition-colors flex items-center space-x-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                    </svg>
-                    <span>Reset</span>
-                </button>
-                <span id="filterResultCount" class="text-sm text-gray-500 italic"></span>
+                <span id="filterResultCount" class="text-xs font-bold text-slate-400"></span>
             </div>
         </div>
 
-        <!-- Data Table Order -->
-        <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200 mb-8">
-            <div class="p-6 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
-                <div class="flex items-center justify-between mb-2">
-                    <h2 class="text-xl font-bold text-gray-900 flex items-center space-x-2">
-                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                        </svg>
-                        <span>Data PSAK - Format Order</span>
-                    </h2>
-                    <span class="bg-blue-100 text-blue-800 px-4 py-2 rounded-full text-sm font-semibold">
-                        Order
-                    </span>
+        {{-- ══ TABEL ORDER ══ --}}
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-6">
+            <div class="px-8 py-5 border-b border-slate-100 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-1 h-6 bg-red-600 rounded-full"></div>
+                    <h2 class="text-base font-black text-slate-900 uppercase tracking-wide">Data PSAK — Format Order</h2>
                 </div>
+                <span class="text-[10px] font-black tracking-widest text-red-600 bg-red-50 border border-red-100 rounded-md px-2 py-0.5">ORDER</span>
             </div>
             <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200" id="tableOrder">
-                    <thead class="bg-gradient-to-r from-blue-500 to-indigo-600 text-white">
-                        <tr>
-                            <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Periode</th>
-                            <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Segmen</th>
-                            <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">User</th>
-                            <th class="px-6 py-4 text-right text-xs font-bold uppercase tracking-wider">Commitment<br>(Order)</th>
-                            <th class="px-6 py-4 text-right text-xs font-bold uppercase tracking-wider">Realisasi<br>(Order)</th>
+                <table class="min-w-full" id="tableOrder">
+                    <thead>
+                        <tr class="bg-slate-50 border-b border-slate-100">
+                            <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Periode</th>
+                            <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Segmen</th>
+                            <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">User</th>
+                            <th class="px-6 py-3 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">Commitment (Order)</th>
+                            <th class="px-6 py-3 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">Realisasi (Order)</th>
                         </tr>
                     </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
+                    <tbody class="divide-y divide-slate-100">
                         @foreach($psakData as $psak)
-                        <tr class="hover:bg-blue-50 transition-colors">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
-                                <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs">
+                        @php
+                            $segmentNames = [
+                                'nc_step14' => 'Not Close Step 1-4',
+                                'nc_step5' => 'Not Close Step 5',
+                                'nc_konfirmasi' => 'Not Close Konfirmasi',
+                                'nc_splitbill' => 'Not Close Split Bill',
+                                'nc_crvariable' => 'Not Close CR Variable',
+                                'nc_unidentified' => 'Not Close Unidentified KB',
+                            ];
+                            $segmentName = $segmentNames[$psak->segment] ?? $psak->segment;
+                        @endphp
+                        <tr class="hover:bg-slate-50 transition-colors">
+                            <td class="px-6 py-4">
+                                <span class="text-xs font-bold text-red-600 bg-red-50 border border-red-100 rounded-md px-2.5 py-1">
                                     {{ $psak->periode ? \Carbon\Carbon::parse($psak->periode)->format('M Y') : '-' }}
                                 </span>
                             </td>
-                            <td class="px-6 py-4 text-sm text-gray-900">
-                                @php
-                                    $segmentNames = [
-                                        'nc_step14' => 'Not Close Step 1-4',
-                                        'nc_step5' => 'Not Close Step 5',
-                                        'nc_konfirmasi' => 'Not Close Konfirmasi',
-                                        'nc_splitbill' => 'Not Close Split Bill',
-                                        'nc_crvariable' => 'Not Close CR Variable',
-                                        'nc_unidentified' => 'Not Close Unidentified KB',
-                                    ];
-                                    $segmentName = $segmentNames[$psak->segment] ?? $psak->segment;
-                                @endphp
-                                <span class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-xs font-semibold">
+                            <td class="px-6 py-4">
+                                <span class="text-xs font-bold text-slate-600 bg-slate-100 border border-slate-200 rounded-md px-2.5 py-1">
                                     {{ $segmentName }}
                                 </span>
                             </td>
-                            <td class="px-6 py-4 text-sm text-gray-900">
-                                <div class="flex items-center space-x-2">
-                                    <div class="bg-blue-100 p-1.5 rounded-full">
-                                        <svg class="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                            <td class="px-6 py-4">
+                                <div class="flex items-center space-x-2.5">
+                                    <div class="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center flex-shrink-0">
+                                        <svg class="w-3.5 h-3.5 text-slate-400" fill="currentColor" viewBox="0 0 20 20">
                                             <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
                                         </svg>
                                     </div>
-                                    <span class="font-medium">{{ $psak->user->name ?? 'Unknown' }}</span>
+                                    <span class="text-sm font-semibold text-slate-700">{{ $psak->user->name ?? 'Unknown' }}</span>
                                 </div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-bold text-indigo-600">
+                            <td class="px-6 py-4 text-right text-sm font-black text-slate-800">
                                 {{ $psak->commitment_order ? number_format($psak->commitment_order, 2, ',', '.') . ' Order' : '-' }}
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-bold text-blue-600">
+                            <td class="px-6 py-4 text-right text-sm font-black text-slate-800">
                                 {{ $psak->real_order ? number_format($psak->real_order, 2, ',', '.') . ' Order' : '-' }}
                             </td>
                         </tr>
@@ -329,95 +276,89 @@
             </div>
         </div>
 
-        <!-- Data Table Rupiah -->
-        <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200 mb-8">
-            <div class="p-6 border-b border-gray-200 bg-gradient-to-r from-purple-50 to-pink-50">
-                <div class="flex items-center justify-between mb-2">
-                    <h2 class="text-xl font-bold text-gray-900 flex items-center space-x-2">
-                        <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                        <span>Data PSAK - Format Rupiah</span>
-                    </h2>
-                    <span class="bg-purple-100 text-purple-800 px-4 py-2 rounded-full text-sm font-semibold">
-                        Rp
-                    </span>
+        {{-- ══ TABEL RUPIAH ══ --}}
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-6">
+            <div class="px-8 py-5 border-b border-slate-100 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-1 h-6 bg-red-600 rounded-full"></div>
+                    <h2 class="text-base font-black text-slate-900 uppercase tracking-wide">Data PSAK — Format Rupiah</h2>
                 </div>
+                <span class="text-[10px] font-black tracking-widest text-red-600 bg-red-50 border border-red-100 rounded-md px-2 py-0.5">RP</span>
             </div>
             <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200" id="tableRupiah">
-                    <thead class="bg-gradient-to-r from-purple-500 to-pink-600 text-white">
-                        <tr>
-                            <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Periode</th>
-                            <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Segmen</th>
-                            <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">User</th>
-                            <th class="px-6 py-4 text-right text-xs font-bold uppercase tracking-wider">Commitment<br>(Rp)</th>
-                            <th class="px-6 py-4 text-right text-xs font-bold uppercase tracking-wider">Realisasi<br>(Rp)</th>
+                <table class="min-w-full" id="tableRupiah">
+                    <thead>
+                        <tr class="bg-slate-50 border-b border-slate-100">
+                            <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Periode</th>
+                            <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Segmen</th>
+                            <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">User</th>
+                            <th class="px-6 py-3 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">Commitment (Rp)</th>
+                            <th class="px-6 py-3 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">Realisasi (Rp)</th>
                         </tr>
                     </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
+                    <tbody class="divide-y divide-slate-100">
                         @foreach($psakData as $psak)
-                        <tr class="hover:bg-purple-50 transition-colors">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
-                                <span class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-xs">
+                        @php
+                            $segmentNames = [
+                                'nc_step14' => 'Not Close Step 1-4',
+                                'nc_step5' => 'Not Close Step 5',
+                                'nc_konfirmasi' => 'Not Close Konfirmasi',
+                                'nc_splitbill' => 'Not Close Split Bill',
+                                'nc_crvariable' => 'Not Close CR Variable',
+                                'nc_unidentified' => 'Not Close Unidentified KB',
+                            ];
+                            $segmentName = $segmentNames[$psak->segment] ?? $psak->segment;
+                        @endphp
+                        <tr class="hover:bg-slate-50 transition-colors">
+                            <td class="px-6 py-4">
+                                <span class="text-xs font-bold text-red-600 bg-red-50 border border-red-100 rounded-md px-2.5 py-1">
                                     {{ $psak->periode ? \Carbon\Carbon::parse($psak->periode)->format('M Y') : '-' }}
                                 </span>
                             </td>
-                            <td class="px-6 py-4 text-sm text-gray-900">
-                                @php
-                                    $segmentNames = [
-                                        'nc_step14' => 'Not Close Step 1-4',
-                                        'nc_step5' => 'Not Close Step 5',
-                                        'nc_konfirmasi' => 'Not Close Konfirmasi',
-                                        'nc_splitbill' => 'Not Close Split Bill',
-                                        'nc_crvariable' => 'Not Close CR Variable',
-                                        'nc_unidentified' => 'Not Close Unidentified KB',
-                                    ];
-                                    $segmentName = $segmentNames[$psak->segment] ?? $psak->segment;
-                                @endphp
-                                <span class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-xs font-semibold">
+                            <td class="px-6 py-4">
+                                <span class="text-xs font-bold text-slate-600 bg-slate-100 border border-slate-200 rounded-md px-2.5 py-1">
                                     {{ $segmentName }}
                                 </span>
                             </td>
-                            <td class="px-6 py-4 text-sm text-gray-900">
-                                <div class="flex items-center space-x-2">
-                                    <div class="bg-purple-100 p-1.5 rounded-full">
-                                        <svg class="w-4 h-4 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+                            <td class="px-6 py-4">
+                                <div class="flex items-center space-x-2.5">
+                                    <div class="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center flex-shrink-0">
+                                        <svg class="w-3.5 h-3.5 text-slate-400" fill="currentColor" viewBox="0 0 20 20">
                                             <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
                                         </svg>
                                     </div>
-                                    <span class="font-medium">{{ $psak->user->name ?? 'Unknown' }}</span>
+                                    <span class="text-sm font-semibold text-slate-700">{{ $psak->user->name ?? 'Unknown' }}</span>
                                 </div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-bold text-purple-600">
+                            <td class="px-6 py-4 text-right text-sm font-black text-slate-800">
                                 {{ $psak->commitment_rp ? 'Rp ' . number_format($psak->commitment_rp, 0, ',', '.') : '-' }}
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-bold text-green-600">
+                            <td class="px-6 py-4 text-right text-sm font-black text-slate-800">
                                 {{ $psak->real_rp ? 'Rp ' . number_format($psak->real_rp, 0, ',', '.') : '-' }}
                             </td>
-                                        </tr>
+                        </tr>
                         @endforeach
                     </tbody>
                 </table>
             </div>
         </div>
+
         @else
-        <!-- No Data Card -->
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-16 text-center">
-            <div class="max-w-md mx-auto">
-                <h2 class="text-xl font-semibold text-gray-900 mb-2">Belum Ada Data PSAK</h2>
-                <p class="text-gray-600">
-Data PSAK untuk role {{ ucfirst($role) }} belum tersedia. Silakan input commitment terlebih dahulu.
-                </p>
-            </div>
+        {{-- ══ EMPTY STATE ══ --}}
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-16 text-center">
+            <svg class="mx-auto w-10 h-10 text-slate-200 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+            </svg>
+            <p class="text-sm font-bold text-slate-400">Belum ada data PSAK untuk {{ ucfirst($role) }}</p>
+            <p class="text-xs text-slate-300 mt-1">Silakan input commitment terlebih dahulu</p>
         </div>
         @endif
+
     </div>
 </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Attach live listeners for realtime filtering
     ['masterFilterSegmen', 'masterFilterBulan', 'masterFilterTahun', 'masterFilterText'].forEach(function(id) {
         const el = document.getElementById(id);
         if (el) {
@@ -425,52 +366,40 @@ document.addEventListener('DOMContentLoaded', function() {
             el.addEventListener('keyup', applyMasterFilter);
         }
     });
-
-    // Apply initial filter
-    applyMasterFilter();
 });
 
 function applyMasterFilter() {
-    const segmenVal  = (document.getElementById('masterFilterSegmen')?.value  || '').toLowerCase();
-    const bulanVal   = (document.getElementById('masterFilterBulan')?.value   || '').toLowerCase();
-    const tahunVal   = (document.getElementById('masterFilterTahun')?.value   || '').toLowerCase();
-    const textVal    = (document.getElementById('masterFilterText')?.value    || '').toLowerCase();
+    const segmenVal = (document.getElementById('masterFilterSegmen')?.value || '').toLowerCase();
+    const bulanVal  = (document.getElementById('masterFilterBulan')?.value  || '').toLowerCase();
+    const tahunVal  = (document.getElementById('masterFilterTahun')?.value  || '').toLowerCase();
+    const textVal   = (document.getElementById('masterFilterText')?.value   || '').toLowerCase();
 
     let totalVisible = 0;
 
     ['tableOrder', 'tableRupiah'].forEach(function(tableId) {
         const table = document.getElementById(tableId);
         if (!table) return;
-
         const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
         for (let i = 0; i < rows.length; i++) {
-            const row = rows[i];
-            const cells = row.getElementsByTagName('td');
+            const cells = rows[i].getElementsByTagName('td');
             if (cells.length < 3) continue;
-
-            const periodeText = (cells[0].textContent || cells[0].innerText).trim().toLowerCase();
-            const segmenText  = (cells[1].textContent || cells[1].innerText).trim().toLowerCase();
-            const userText    = (cells[2].textContent || cells[2].innerText).trim().toLowerCase();
-            const rowFull     = periodeText + ' ' + segmenText + ' ' + userText;
-
-            const segmenMatch = !segmenVal || segmenText.includes(segmenVal);
-            const bulanMatch  = !bulanVal  || periodeText.includes(bulanVal);
-            const tahunMatch  = !tahunVal  || periodeText.includes(tahunVal);
-            const textMatch   = !textVal   || rowFull.includes(textVal);
-
-            const show = segmenMatch && bulanMatch && tahunMatch && textMatch;
-            row.style.display = show ? '' : 'none';
+            const periodeText = (cells[0].textContent || '').trim().toLowerCase();
+            const segmenText  = (cells[1].textContent || '').trim().toLowerCase();
+            const rowFull     = (rows[i].textContent  || '').trim().toLowerCase();
+            const show = (!segmenVal || segmenText.includes(segmenVal))
+                      && (!bulanVal  || periodeText.includes(bulanVal))
+                      && (!tahunVal  || periodeText.includes(tahunVal))
+                      && (!textVal   || rowFull.includes(textVal));
+            rows[i].style.display = show ? '' : 'none';
             if (show) totalVisible++;
         }
     });
 
     const countEl = document.getElementById('filterResultCount');
     if (countEl) {
-        if (segmenVal || bulanVal || tahunVal || textVal) {
-            countEl.textContent = 'Menampilkan ' + totalVisible + ' baris yang cocok';
-        } else {
-            countEl.textContent = '';
-        }
+        countEl.textContent = (segmenVal || bulanVal || tahunVal || textVal)
+            ? 'Menampilkan ' + totalVisible + ' baris'
+            : '';
     }
 }
 
@@ -479,10 +408,9 @@ function resetMasterFilter() {
         const el = document.getElementById(id);
         if (el) el.value = '';
     });
-    const textEl = document.getElementById('masterFilterText');
-    if (textEl) textEl.value = '';
+    const t = document.getElementById('masterFilterText');
+    if (t) t.value = '';
     applyMasterFilter();
 }
 </script>
-
 @endsection

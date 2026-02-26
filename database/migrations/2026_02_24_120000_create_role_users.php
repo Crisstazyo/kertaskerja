@@ -16,6 +16,14 @@ return new class extends Migration
         // Create users for each role
         $users = [
             [
+                'name' => 'Admin',
+                'email' => 'admin@gmail.com',
+                'password' => Hash::make('password123'),
+                'role' => 'admin',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
                 'name' => 'Government User',
                 'email' => 'government@gmail.com',
                 'password' => Hash::make('password123'),
@@ -42,6 +50,30 @@ return new class extends Migration
             [
                 'name' => 'SME User',
                 'email' => 'sme@gmail.com',
+                'password' => Hash::make('password123'),
+                'role' => 'sme',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'name' => 'Collection User',
+                'email' => 'collection@gmail.com',
+                'password' => Hash::make('password123'),
+                'role' => 'sme',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'name' => 'CTC User',
+                'email' => 'ctc@gmail.com',
+                'password' => Hash::make('password123'),
+                'role' => 'sme',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'name' => 'Rising Star User',
+                'email' => 'risingstar@gmail.com',
                 'password' => Hash::make('password123'),
                 'role' => 'sme',
                 'created_at' => now(),

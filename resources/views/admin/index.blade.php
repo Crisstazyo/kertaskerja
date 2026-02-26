@@ -3,528 +3,470 @@
 @section('title', 'Admin Dashboard - Management')
 
 @section('content')
-<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 py-8">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <!-- Header -->
-        <div class="mb-10">
-            <div class="flex items-center justify-between mb-6">
-                <div>
-                    <h1 class="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-2">Admin Dashboard</h1>
-                    <p class="text-gray-600 text-lg">Kertas Kerja Management System</p>
+    <div class="min-h-screen" style="background:#f1f5f9;">
+        <div class="max-w-7xl mx-auto px-8 py-10">
+
+            {{-- ══ HEADER ══ --}}
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 px-10 py-7 mb-10 relative overflow-hidden">
+                <div class="absolute top-0 left-0 right-0 h-1.5"
+                    style="background: linear-gradient(90deg, #dc2626, #ef4444, #dc2626);"></div>
+                <div class="absolute -right-10 -top-10 w-56 h-56 rounded-full opacity-[0.04]" style="background: #dc2626;">
                 </div>
-                <form action="{{ route('logout') }}" method="POST">
-                    @csrf
-                    <button type="submit" class="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-6 py-3 rounded-lg font-medium transition-all shadow-lg hover:shadow-xl transform hover:scale-105">
-                        <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
-                        </svg>
-                        Logout
-                    </button>
-                </form>
+                <div class="relative flex items-center justify-between">
+                    <div class="flex items-center space-x-6">
+                        <img src="{{ asset('img/Telkom.png') }}" alt="Telkom" class="h-12 w-auto">
+                        <div class="w-px h-12 bg-slate-200"></div>
+                        <div>
+                            <p class="text-[10px] font-black tracking-[0.3em] text-red-600 uppercase mb-1">Witel Sumut</p>
+                            <h1 class="text-2xl font-black tracking-tight text-slate-900 leading-none uppercase">Admin <span
+                                    class="text-red-600">Dashboard</span></h1>
+                            <p class="text-slate-400 text-xs font-bold mt-1 uppercase tracking-tight">Kertas Kerja
+                                Management System</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <form action="{{ route('logout') }}" method="POST">
+                            @csrf
+                            <button type="submit"
+                                class="flex items-center space-x-2.5 bg-white border-2 border-slate-900 hover:bg-red-600 hover:border-red-600 text-slate-900 hover:text-white px-6 py-3 rounded-xl font-black text-xs transition-all duration-300 shadow-sm group uppercase tracking-wider">
+                                <svg class="w-5 h-5 group-hover:rotate-12 transition-transform" fill="none"
+                                    stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                        d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                <span>View Report</span>
+                            </button>
+                        </form>
+                        <form action="{{ route('logout') }}" method="POST">
+                            @csrf
+                            <button type="submit"
+                                class="group flex items-center space-x-2.5 bg-slate-900 hover:bg-red-600 text-white font-bold text-sm px-5 py-3 rounded-xl transition-all duration-300 shadow-md hover:shadow-lg hover:shadow-red-200">
+                                <svg class="w-4 h-4 transition-transform duration-300 group-hover:rotate-12" fill="none"
+                                    stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                </svg>
+                                <span>Logout</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
             </div>
-            <div class="h-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 rounded-full"></div>
-        </div>
 
-        <!-- Main Content -->
-        <!-- Main Content -->
-        
-        <!-- 1. SCALING SECTION -->
-        <div class="mb-12">
-            <div class="flex items-center mb-6">
-                <div class="bg-gradient-to-r from-orange-500 to-red-500 p-3 rounded-xl shadow-lg mr-4">
-                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
-                    </svg>
+            {{-- ══ 1. SCALING ══ --}}
+            <div class="mb-10">
+                <div class="flex items-center justify-between mb-5">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-1.5 h-8 bg-red-600 rounded-full"></div>
+                        <div>
+                            <h2 class="text-xl font-black text-slate-900 tracking-tight">Scaling Management</h2>
+                        </div>
+                    </div>
+                    <span
+                        class="text-xs font-bold text-slate-500 bg-white border border-slate-200 rounded-full px-4 py-1.5 shadow-sm">Project
+                        by Segment</span>
                 </div>
-                <div>
-                    <h2 class="text-2xl font-bold text-gray-900">Scaling Management</h2>
-                    <p class="text-gray-600">Project Management by Segment</p>
-                </div>
-            </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <!-- Government Scaling -->
-                <a href="{{ route('admin.scalling', 'government') }}" class="group relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-green-300 transform hover:-translate-y-2">
-                    <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-green-400 to-green-600 opacity-10 rounded-bl-full transform group-hover:scale-150 transition-transform duration-500"></div>
-                    <div class="p-6 relative z-10">
-                        <div class="flex items-start justify-between mb-4">
-                            <div class="bg-gradient-to-br from-green-500 to-green-600 p-3 rounded-xl shadow-lg">
-                                <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                    <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
-                                </svg>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+                    @php
+                        $scalingCards = [
+                            [
+                                'label' => 'Government',
+                                'sub' => 'Pemerintah Scaling Project',
+                                'badge' => 'GOV',
+                                'route' => route('admin.scalling', 'government'),
+                                'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 21h18M3 10h18M3 7l9-4 9 4M4 10h1v11H4zm6 0h1v11h-1zm5 0h1v11h-1zm5 0h1v11h-1z"/>'
+                            ],
+                            [
+                                'label' => 'Private',
+                                'sub' => 'Swasta Scaling Project',
+                                'badge' => 'PVT',
+                                'route' => route('admin.scalling', 'private'),
+                                'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>'
+                            ],
+                            [
+                                'label' => 'SOE',
+                                'sub' => 'BUMN Scaling Project',
+                                'badge' => 'SOE',
+                                'route' => route('admin.scalling', 'soe'),
+                                'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>'
+                            ],
+                            [
+                                'label' => 'SME',
+                                'sub' => 'UKM Scaling Project',
+                                'badge' => 'SME',
+                                'route' => route('admin.scalling', 'sme'),
+                                'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>'
+                            ],
+                        ];
+                    @endphp
+                    @foreach($scalingCards as $card)
+                        <a href="{{ $card['route'] }}"
+                            class="group bg-white rounded-2xl border-2 border-slate-100 hover:border-red-200 shadow-sm hover:shadow-xl hover:shadow-red-500/10 transition-all duration-300 hover:-translate-y-1.5 overflow-hidden relative">
+                            {{-- top accent bar --}}
+                            <div
+                                class="h-1 w-full bg-gradient-to-r from-red-600 to-red-400 opacity-0 group-hover:opacity-100 transition-all duration-300">
                             </div>
-                            <span class="bg-green-100 text-green-700 text-xs font-semibold px-3 py-1 rounded-full">GOV</span>
-                        </div>
-                        <h3 class="text-xl font-bold text-gray-900 mb-2">Government</h3>
-                        <p class="text-gray-600 text-sm mb-4">Pemerintah Scaling Project</p>
-                        <div class="flex items-center text-green-600 font-medium">
-                            <span class="text-sm">Manage Data</span>
-                            <svg class="w-4 h-4 ml-2 transform group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                            </svg>
-                        </div>
-                    </div>
-                </a>
-
-                <!-- Private Scaling -->
-                <a href="{{ route('admin.scalling', 'private') }}" class="group relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-blue-300 transform hover:-translate-y-2">
-                    <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-400 to-blue-600 opacity-10 rounded-bl-full transform group-hover:scale-150 transition-transform duration-500"></div>
-                    <div class="p-6 relative z-10">
-                        <div class="flex items-start justify-between mb-4">
-                            <div class="bg-gradient-to-br from-blue-500 to-blue-600 p-3 rounded-xl shadow-lg">
-                                <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H4a1 1 0 110-2V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9z" clip-rule="evenodd"/>
-                                </svg>
-                            </div>
-                            <span class="bg-blue-100 text-blue-700 text-xs font-semibold px-3 py-1 rounded-full">PVT</span>
-                        </div>
-                        <h3 class="text-xl font-bold text-gray-900 mb-2">Private</h3>
-                        <p class="text-gray-600 text-sm mb-4">Swasta Scaling Project</p>
-                        <div class="flex items-center text-blue-600 font-medium">
-                            <span class="text-sm">Manage Data</span>
-                            <svg class="w-4 h-4 ml-2 transform group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                            </svg>
-                        </div>
-                    </div>
-                </a>
-
-                <!-- SOE Scaling -->
-                <a href="{{ route('admin.scalling', 'soe') }}" class="group relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-purple-300 transform hover:-translate-y-2">
-                    <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-purple-400 to-purple-600 opacity-10 rounded-bl-full transform group-hover:scale-150 transition-transform duration-500"></div>
-                    <div class="p-6 relative z-10">
-                        <div class="flex items-start justify-between mb-4">
-                            <div class="bg-gradient-to-br from-purple-500 to-purple-600 p-3 rounded-xl shadow-lg">
-                                <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v3.57A22.952 22.952 0 0110 13a22.95 22.95 0 01-8-1.43V8a2 2 0 012-2h2zm2-1a1 1 0 011-1h2a1 1 0 011 1v1H8V5zm1 5a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clip-rule="evenodd"/>
-                                    <path d="M2 13.692V16a2 2 0 002 2h12a2 2 0 002-2v-2.308A24.974 24.974 0 0110 15c-2.796 0-5.487-.46-8-1.308z"/>
-                                </svg>
-                            </div>
-                            <span class="bg-purple-100 text-purple-700 text-xs font-semibold px-3 py-1 rounded-full">SOE</span>
-                        </div>
-                        <h3 class="text-xl font-bold text-gray-900 mb-2">SOE</h3>
-                        <p class="text-gray-600 text-sm mb-4">BUMN Scaling Project</p>
-                        <div class="flex items-center text-purple-600 font-medium">
-                            <span class="text-sm">Manage Data</span>
-                            <svg class="w-4 h-4 ml-2 transform group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                            </svg>
-                        </div>
-                    </div>
-                </a>
-
-                <!-- SME Scaling -->
-                <div class="group relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-orange-300 transform hover:-translate-y-2">
-                    <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-orange-400 to-orange-600 opacity-10 rounded-bl-full transform group-hover:scale-150 transition-transform duration-500"></div>
-                    <div class="p-6 relative z-10">
-                        <div class="flex items-start justify-between mb-4">
-                            <div class="bg-gradient-to-br from-orange-500 to-orange-600 p-3 rounded-xl shadow-lg">
-                                <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                    <path d="M13 7H7v6h6V7z"/>
-                                    <path fill-rule="evenodd" d="M7 2a1 1 0 012 0v1h2V2a1 1 0 112 0v1h2a2 2 0 012 2v2h1a1 1 0 110 2h-1v2h1a1 1 0 110 2h-1v2a2 2 0 01-2 2h-2v1a1 1 0 11-2 0v-1H9v1a1 1 0 11-2 0v-1H5a2 2 0 01-2-2v-2H2a1 1 0 110-2h1V9H2a1 1 0 010-2h1V5a2 2 0 012-2h2V2zM5 5h10v10H5V5z" clip-rule="evenodd"/>
-                                </svg>
-                            </div>
-                            <span class="bg-orange-100 text-orange-700 text-xs font-semibold px-3 py-1 rounded-full">SME</span>
-                        </div>
-                        <h3 class="text-xl font-bold text-gray-900 mb-2">SME</h3>
-                        <p class="text-gray-600 text-sm mb-4">UKM Scaling Project</p>
-                        <div class="space-y-2 mt-4">
-                            <a href="{{ route('admin.scalling', 'sme') }}" class="block w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white px-4 py-2.5 rounded-lg text-sm font-semibold transition-all shadow-md hover:shadow-lg">
-                                <span class="flex items-center justify-between">
-                                    <span class="flex items-center space-x-2">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            {{-- subtle bg pattern --}}
+                            <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                                style="background: radial-gradient(ellipse at top right, #fff1f2 0%, transparent 60%);"></div>
+                            <div class="p-6 relative">
+                                <div class="flex items-start justify-between mb-5">
+                                    <div class="w-13 h-13 rounded-xl flex items-center justify-center shadow-sm border-2"
+                                        style="background: linear-gradient(135deg, #fff1f2, #ffe4e6); border-color: #fecdd3; width:52px; height:52px;">
+                                        <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            {!! $card['icon'] !!}
                                         </svg>
-                                        <span>Manage General Data</span>
-                                    </span>
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                                    </svg>
-                                </span>
-                            </a>
-                            <a href="{{ route('admin.scalling.hsi-agency') }}" class="block w-full bg-orange-50 hover:bg-orange-100 text-orange-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors">
-                                <span class="flex items-center justify-between">
-                                    HSI Agency
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                                    </svg>
-                                </span>
-                            </a>
-                            <a href="{{ route('admin.scalling.telda') }}" class="block w-full bg-orange-50 hover:bg-orange-100 text-orange-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors">
-                                <span class="flex items-center justify-between">
-                                    Telda
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                                    </svg>
-                                </span>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 2. COLLECTION SECTION -->
-        <div class="mb-12">
-            <div class="flex items-center mb-6">
-                <div class="bg-gradient-to-r from-pink-500 to-rose-500 p-3 rounded-xl shadow-lg mr-4">
-                    <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
-                        <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/>
-                    </svg>
-                </div>
-                <div>
-                    <h2 class="text-2xl font-bold text-gray-900">Collection Management</h2>
-                    <p class="text-gray-600">Monitor Collection Activities</p>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <!-- C3MR -->
-                <a href="{{ route('admin.collection.c3mr') }}" class="group relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-pink-300 transform hover:-translate-y-2">
-                    <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-pink-400 to-pink-600 opacity-10 rounded-bl-full transform group-hover:scale-150 transition-transform duration-500"></div>
-                    <div class="p-6 relative z-10">
-                        <div class="bg-gradient-to-br from-pink-500 to-pink-600 p-3 rounded-xl shadow-lg mb-4 w-fit">
-                            <svg class="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
-                                <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/>
-                            </svg>
-                        </div>
-                        <h3 class="text-lg font-bold text-gray-900 mb-2">C3MR</h3>
-                        <p class="text-gray-600 text-sm mb-3">Collection Management</p>
-                        <div class="flex items-center text-pink-600 font-medium text-sm">
-                            View Data
-                            <svg class="w-4 h-4 ml-2 transform group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                            </svg>
-                        </div>
-                    </div>
-                </a>
-
-                <!-- Billing Perdana -->
-                <a href="{{ route('admin.collection.billing') }}" class="group relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-rose-300 transform hover:-translate-y-2">
-                    <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-rose-400 to-rose-600 opacity-10 rounded-bl-full transform group-hover:scale-150 transition-transform duration-500"></div>
-                    <div class="p-6 relative z-10">
-                        <div class="bg-gradient-to-br from-rose-500 to-rose-600 p-3 rounded-xl shadow-lg mb-4 w-fit">
-                            <svg class="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z"/>
-                                <path fill-rule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clip-rule="evenodd"/>
-                            </svg>
-                        </div>
-                        <h3 class="text-lg font-bold text-gray-900 mb-2">Billing Perdana</h3>
-                        <p class="text-gray-600 text-sm mb-3">Billing Management</p>
-                        <div class="flex items-center text-rose-600 font-medium text-sm">
-                            View Data
-                            <svg class="w-4 h-4 ml-2 transform group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                            </svg>
-                        </div>
-                    </div>
-                </a>
-
-                <!-- Collection Ratio -->
-                <a href="{{ route('admin.collection.collection-ratio') }}" class="group relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-fuchsia-300 transform hover:-translate-y-2">
-                    <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-fuchsia-400 to-fuchsia-600 opacity-10 rounded-bl-full transform group-hover:scale-150 transition-transform duration-500"></div>
-                    <div class="p-6 relative z-10">
-                        <div class="bg-gradient-to-br from-fuchsia-500 to-fuchsia-600 p-3 rounded-xl shadow-lg mb-4 w-fit">
-                            <svg class="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/>
-                            </svg>
-                        </div>
-                        <h3 class="text-lg font-bold text-gray-900 mb-2">Collection Ratio</h3>
-                        <p class="text-gray-600 text-sm mb-3">CR Tracking</p>
-                        <div class="flex items-center text-fuchsia-600 font-medium text-sm">
-                            View Data
-                            <svg class="w-4 h-4 ml-2 transform group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                            </svg>
-                        </div>
-                    </div>
-                </a>
-
-                <!-- UTIP -->
-                <a href="{{ route('admin.collection.utip') }}" class="group relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-pink-300 transform hover:-translate-y-2">
-                    <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-pink-400 to-pink-600 opacity-10 rounded-bl-full transform group-hover:scale-150 transition-transform duration-500"></div>
-                    <div class="p-6 relative z-10">
-                        <div class="bg-gradient-to-br from-pink-600 to-pink-700 p-3 rounded-xl shadow-lg mb-4 w-fit">
-                            <svg class="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
-                            </svg>
-                        </div>
-                        <h3 class="text-lg font-bold text-gray-900 mb-2">UTIP</h3>
-                        <p class="text-gray-600 text-sm mb-3">UTIP Management</p>
-                        <div class="flex items-center text-pink-600 font-medium text-sm">
-                            View Data
-                            <svg class="w-4 h-4 ml-2 transform group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                            </svg>
-                        </div>
-                    </div>
-                </a>
-            </div>
-        </div>
-
-        <!-- 3. COMBAT THE CHURN SECTION -->
-        <div class="mb-12">
-            <div class="flex items-center mb-6">
-                <div class="bg-gradient-to-r from-cyan-500 to-blue-500 p-3 rounded-xl shadow-lg mr-4">
-                    <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11 4a1 1 0 10-2 0v4a1 1 0 102 0V7zm-3 1a1 1 0 10-2 0v3a1 1 0 102 0V8zM8 9a1 1 0 00-2 0v2a1 1 0 102 0V9z" clip-rule="evenodd"/>
-                    </svg>
-                </div>
-                <div>
-                    <h2 class="text-2xl font-bold text-gray-900">Combat The Churn</h2>
-                    <p class="text-gray-600">CTC Management & Monitoring</p>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Paid CT0 -->
-                <a href="{{ route('admin.ctc.paid-ct0') }}" class="group relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-cyan-300 transform hover:-translate-y-2">
-                    <div class="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-cyan-400 to-cyan-600 opacity-10 rounded-bl-full transform group-hover:scale-150 transition-transform duration-500"></div>
-                    <div class="p-8 relative z-10">
-                        <div class="flex items-start justify-between mb-6">
-                            <div class="bg-gradient-to-br from-cyan-500 to-cyan-600 p-4 rounded-xl shadow-lg">
-                                <svg class="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
-                                </svg>
+                                    </div>
+                                    <div class="flex flex-col items-end space-y-1">
+                                        <span
+                                            class="text-[10px] font-black tracking-widest text-red-600 bg-red-50 border border-red-100 rounded-md px-2 py-0.5">{{ $card['badge'] }}</span>
+                                    </div>
+                                </div>
+                                <h3 class="text-lg font-black text-slate-900 tracking-tight mb-1">{{ $card['label'] }}</h3>
+                                <p class="text-sm text-slate-500 font-medium mb-5 leading-relaxed">{{ $card['sub'] }}</p>
+                                <div class="flex items-center justify-between">
+                                    <span
+                                        class="text-xs font-black text-slate-400 group-hover:text-red-600 uppercase tracking-widest transition-colors duration-200">Manage
+                                        Data</span>
+                                    <div
+                                        class="w-7 h-7 rounded-lg bg-slate-100 group-hover:bg-red-600 flex items-center justify-center transition-all duration-200">
+                                        <svg class="w-3.5 h-3.5 text-slate-400 group-hover:text-white transition-colors"
+                                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                                d="M9 5l7 7-7 7" />
+                                        </svg>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                        <h3 class="text-2xl font-bold text-gray-900 mb-3">Paid CT0</h3>
-                        <p class="text-gray-600 mb-4">Payment Tracking & Management</p>
-                        <div class="flex items-center text-cyan-600 font-semibold">
-                            Track Payments
-                            <svg class="w-5 h-5 ml-2 transform group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
-                            </svg>
+                        </a>
+                    @endforeach
+                </div>
+            </div>
+
+            {{-- ══ 2. COLLECTION ══ --}}
+            <div class="mb-10">
+                <div class="flex items-center justify-between mb-5">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-1.5 h-8 bg-red-600 rounded-full"></div>
+                        <div>
+                            <h2 class="text-xl font-black text-slate-900 tracking-tight">Collection Management</h2>
                         </div>
                     </div>
-                </a>
+                    <span
+                        class="text-xs font-bold text-slate-500 bg-white border border-slate-200 rounded-full px-4 py-1.5 shadow-sm">Monitor
+                        Activities</span>
+                </div>
 
-                <!-- Combat The Churn -->
-                <a href="{{ route('admin.ctc.combat-churn') }}" class="group relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-blue-300 transform hover:-translate-y-2">
-                    <div class="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-blue-400 to-blue-600 opacity-10 rounded-bl-full transform group-hover:scale-150 transition-transform duration-500"></div>
-                    <div class="p-8 relative z-10">
-                        <div class="flex items-start justify-between mb-6">
-                            <div class="bg-gradient-to-br from-blue-500 to-blue-600 p-4 rounded-xl shadow-lg">
-                                <svg class="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11 4a1 1 0 10-2 0v4a1 1 0 102 0V7zm-3 1a1 1 0 10-2 0v3a1 1 0 102 0V8zM8 9a1 1 0 00-2 0v2a1 1 0 102 0V9z" clip-rule="evenodd"/>
-                                </svg>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+                    @php
+                        $collectionCards = [
+                            [
+                                'label' => 'C3MR',
+                                'sub' => 'Collection Management',
+                                'badge' => 'C3MR',
+                                'route' => route('admin.collection.c3mr'),
+                                'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>'
+                            ],
+                            [
+                                'label' => 'Billing Perdana',
+                                'sub' => 'Billing Management',
+                                'badge' => 'BILL',
+                                'route' => route('admin.collection.billing'),
+                                'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>'
+                            ],
+                            [
+                                'label' => 'Collection Ratio',
+                                'sub' => 'CR Tracking',
+                                'badge' => 'CR',
+                                'route' => route('admin.collection.collection-ratio'),
+                                'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>'
+                            ],
+                            [
+                                'label' => 'UTIP',
+                                'sub' => 'UTIP Management',
+                                'badge' => 'UTIP',
+                                'route' => route('admin.collection.utip'),
+                                'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>'
+                            ],
+                        ];
+                    @endphp
+                    @foreach($collectionCards as $card)
+                        <a href="{{ $card['route'] }}"
+                            class="group bg-white rounded-2xl border-2 border-slate-100 hover:border-red-200 shadow-sm hover:shadow-xl hover:shadow-red-500/10 transition-all duration-300 hover:-translate-y-1.5 overflow-hidden relative">
+                            <div
+                                class="h-1 w-full bg-gradient-to-r from-red-600 to-red-400 opacity-0 group-hover:opacity-100 transition-all duration-300">
                             </div>
-                        </div>
-                        <h3 class="text-2xl font-bold text-gray-900 mb-3">Combat The Churn</h3>
-                        <p class="text-gray-600 mb-4">Churn Analysis & Reports</p>
-                        <div class="flex items-center text-blue-600 font-semibold">
-                            View Reports
-                            <svg class="w-5 h-5 ml-2 transform group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
-                            </svg>
+                            <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                                style="background: radial-gradient(ellipse at top right, #fff1f2 0%, transparent 60%);"></div>
+                            <div class="p-6 relative">
+                                <div class="flex items-start justify-between mb-5">
+                                    <div class="rounded-xl flex items-center justify-center shadow-sm border-2"
+                                        style="background: linear-gradient(135deg, #fff1f2, #ffe4e6); border-color: #fecdd3; width:52px; height:52px;">
+                                        <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            {!! $card['icon'] !!}
+                                        </svg>
+                                    </div>
+                                    <span
+                                        class="text-[10px] font-black tracking-widest text-red-600 bg-red-50 border border-red-100 rounded-md px-2 py-0.5">{{ $card['badge'] }}</span>
+                                </div>
+                                <h3 class="text-lg font-black text-slate-900 tracking-tight mb-1">{{ $card['label'] }}</h3>
+                                <p class="text-sm text-slate-500 font-medium mb-5">{{ $card['sub'] }}</p>
+                                <div class="flex items-center justify-between">
+                                    <span
+                                        class="text-xs font-black text-slate-400 group-hover:text-red-600 uppercase tracking-widest transition-colors duration-200">View
+                                        Data</span>
+                                    <div
+                                        class="w-7 h-7 rounded-lg bg-slate-100 group-hover:bg-red-600 flex items-center justify-center transition-all duration-200">
+                                        <svg class="w-3.5 h-3.5 text-slate-400 group-hover:text-white transition-colors"
+                                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                                d="M9 5l7 7-7 7" />
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    @endforeach
+                </div>
+            </div>
+
+            {{-- ══ 3. CTC ══ --}}
+            <div class="mb-10">
+                <div class="flex items-center justify-between mb-5">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-1.5 h-8 bg-red-600 rounded-full"></div>
+                        <div>
+                            <h2 class="text-xl font-black text-slate-900 tracking-tight">Combat The Churn</h2>
                         </div>
                     </div>
-                </a>
+                    <span
+                        class="text-xs font-bold text-slate-500 bg-white border border-slate-200 rounded-full px-4 py-1.5 shadow-sm">CTC
+                        Monitoring</span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    @php
+                        $ctcCards = [
+                            [
+                                'label' => 'Paid CT0',
+                                'sub' => 'Payment Tracking & Management',
+                                'badge' => 'CT0',
+                                'route' => route('admin.ctc.paid-ct0'),
+                                'cta' => 'Track Payments',
+                                'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>'
+                            ],
+                            [
+                                'label' => 'Combat The Churn',
+                                'sub' => 'Churn Analysis & Reports',
+                                'badge' => 'CTC',
+                                'route' => route('admin.ctc.combat-churn'),
+                                'cta' => 'View Reports',
+                                'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>'
+                            ],
+                        ];
+                    @endphp
+                    @foreach($ctcCards as $card)
+                        <a href="{{ $card['route'] }}"
+                            class="group bg-white rounded-2xl border-2 border-slate-100 hover:border-red-200 shadow-sm hover:shadow-xl hover:shadow-red-500/10 transition-all duration-300 hover:-translate-y-1.5 overflow-hidden relative">
+                            <div
+                                class="h-1 w-full bg-gradient-to-r from-red-600 to-red-400 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                            </div>
+                            <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                                style="background: radial-gradient(ellipse at top right, #fff1f2 0%, transparent 60%);"></div>
+                            <div class="p-7 flex items-center space-x-6 relative">
+                                <div class="rounded-2xl flex items-center justify-center shadow-sm border-2 flex-shrink-0"
+                                    style="background: linear-gradient(135deg, #fff1f2, #ffe4e6); border-color: #fecdd3; width:64px; height:64px;">
+                                    <svg class="w-7 h-7 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        {!! $card['icon'] !!}
+                                    </svg>
+                                </div>
+                                <div class="flex-1">
+                                    <span
+                                        class="text-[10px] font-black tracking-widest text-red-600 bg-red-50 border border-red-100 rounded-md px-2 py-0.5">{{ $card['badge'] }}</span>
+                                    <h3 class="text-xl font-black text-slate-900 tracking-tight mt-2 mb-1">{{ $card['label'] }}
+                                    </h3>
+                                    <p class="text-sm text-slate-500 font-medium mb-3">{{ $card['sub'] }}</p>
+                                    <div
+                                        class="flex items-center text-xs font-black text-slate-400 group-hover:text-red-600 uppercase tracking-widest transition-colors duration-200">
+                                        {{ $card['cta'] }}
+                                        <svg class="w-3.5 h-3.5 ml-1.5 group-hover:translate-x-1 transition-transform"
+                                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                                d="M9 5l7 7-7 7" />
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div
+                                    class="w-8 h-8 rounded-xl bg-slate-100 group-hover:bg-red-600 flex items-center justify-center transition-all duration-200 flex-shrink-0">
+                                    <svg class="w-4 h-4 text-slate-400 group-hover:text-white transition-colors" fill="none"
+                                        stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                            d="M9 5l7 7-7 7" />
+                                    </svg>
+                                </div>
+                            </div>
+                        </a>
+                    @endforeach
+                </div>
             </div>
+
+            {{-- ══ 4. RISING STAR ══ --}}
+            <div class="mb-10">
+                <div class="flex items-center justify-between mb-5">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-1.5 h-8 bg-red-600 rounded-full"></div>
+                        <div>
+                            <h2 class="text-xl font-black text-slate-900 tracking-tight">Rising Star Program</h2>
+                        </div>
+                    </div>
+                    <span
+                        class="text-xs font-bold text-slate-500 bg-white border border-slate-200 rounded-full px-4 py-1.5 shadow-sm">Performance
+                        by Level</span>
+                </div>
+
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-5">
+                    @for($i = 1; $i <= 4; $i++)
+                        <a href="{{ route('admin.rising-star.dashboard', ['star' => $i]) }}"
+                            class="group bg-white rounded-2xl border-2 border-slate-100 hover:border-red-200 shadow-sm hover:shadow-xl hover:shadow-red-500/10 transition-all duration-300 hover:-translate-y-1.5 overflow-hidden relative">
+                            <div
+                                class="h-1 w-full bg-gradient-to-r from-red-600 to-red-400 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                            </div>
+                            <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                                style="background: radial-gradient(ellipse at top right, #fff1f2 0%, transparent 60%);"></div>
+                            <div class="p-6 relative">
+                                <div class="rounded-xl flex items-center justify-center shadow-sm border-2 mb-4"
+                                    style="background: linear-gradient(135deg, #fff1f2, #ffe4e6); border-color: #fecdd3; width:52px; height:52px;">
+                                    <svg class="w-6 h-6 text-red-600 fill-red-600" viewBox="0 0 20 20">
+                                        <path
+                                            d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                    </svg>
+                                </div>
+                                <div class="flex mb-3">
+                                    @for($s = 0; $s < $i; $s++)
+                                        <svg class="w-4 h-4 fill-red-500" viewBox="0 0 20 20">
+                                            <path
+                                                d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                        </svg>
+                                    @endfor
+                                    @for($s = $i; $s < 4; $s++)
+                                        <svg class="w-4 h-4 fill-slate-200" viewBox="0 0 20 20">
+                                            <path
+                                                d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                        </svg>
+                                    @endfor
+                                </div>
+                                <h3 class="text-lg font-black text-slate-900 tracking-tight mb-1">Bintang {{ $i }}</h3>
+                                @php
+                                $levelLabels = [1 => 'Visiting Management', 2 => 'Profiling Management', 3 => 'Kecukupan LOP', 4 => 'Asodomoro Terpadu'];
+                                @endphp
+                                <p class="text-sm text-slate-500 font-medium mb-5">{{ $levelLabels[$i] }}</p>
+                                <div class="flex items-center justify-between">
+                                    <span
+                                        class="text-xs font-black text-slate-400 group-hover:text-red-600 uppercase tracking-widest transition-colors duration-200">Track
+                                        Progress</span>
+                                    <div
+                                        class="w-7 h-7 rounded-lg bg-slate-100 group-hover:bg-red-600 flex items-center justify-center transition-all duration-200">
+                                        <svg class="w-3.5 h-3.5 text-slate-400 group-hover:text-white transition-colors"
+                                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                                d="M9 5l7 7-7 7" />
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    @endfor
+                </div>
+            </div>
+
+            {{-- ══ 5. PSAK ══ --}}
+            <div class="mb-6">
+                <div class="flex items-center justify-between mb-5">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-1.5 h-8 bg-red-600 rounded-full"></div>
+                        <div>
+                            <h2 class="text-xl font-black text-slate-900 tracking-tight">PSAK Management</h2>
+                        </div>
+                    </div>
+                    <span
+                        class="text-xs font-bold text-slate-500 bg-white border border-slate-200 rounded-full px-4 py-1.5 shadow-sm">Admin
+                        Input Commitment</span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+                    @php
+                        $psakCards = [
+                            [
+                                'label' => 'PSAK Gov',
+                                'sub' => 'Government PSAK Data',
+                                'badge' => 'GOV',
+                                'route' => route('admin.psak', 'government'),
+                                'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>'
+                            ],
+                            [
+                                'label' => 'PSAK Private',
+                                'sub' => 'Private PSAK Data',
+                                'badge' => 'PVT',
+                                'route' => route('admin.psak', 'private'),
+                                'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>'
+                            ],
+                            [
+                                'label' => 'PSAK SOE',
+                                'sub' => 'BUMN PSAK Data',
+                                'badge' => 'SOE',
+                                'route' => route('admin.psak', 'soe'),
+                                'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>'
+                            ],
+                            [
+                                'label' => 'PSAK SME',
+                                'sub' => 'UKM PSAK Data',
+                                'badge' => 'SME',
+                                'route' => route('admin.psak', 'sme'),
+                                'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>'
+                            ],
+                        ];
+                    @endphp
+                    @foreach($psakCards as $card)
+                        <a href="{{ $card['route'] }}"
+                            class="group bg-white rounded-2xl border-2 border-slate-100 hover:border-red-200 shadow-sm hover:shadow-xl hover:shadow-red-500/10 transition-all duration-300 hover:-translate-y-1.5 overflow-hidden relative">
+                            <div
+                                class="h-1 w-full bg-gradient-to-r from-red-600 to-red-400 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                            </div>
+                            <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                                style="background: radial-gradient(ellipse at top right, #fff1f2 0%, transparent 60%);"></div>
+                            <div class="p-6 relative">
+                                <div class="flex items-start justify-between mb-5">
+                                    <div class="rounded-xl flex items-center justify-center shadow-sm border-2"
+                                        style="background: linear-gradient(135deg, #fff1f2, #ffe4e6); border-color: #fecdd3; width:52px; height:52px;">
+                                        <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            {!! $card['icon'] !!}
+                                        </svg>
+                                    </div>
+                                    <span
+                                        class="text-[10px] font-black tracking-widest text-red-600 bg-red-50 border border-red-100 rounded-md px-2 py-0.5">{{ $card['badge'] }}</span>
+                                </div>
+                                <h3 class="text-lg font-black text-slate-900 tracking-tight mb-1">{{ $card['label'] }}</h3>
+                                <p class="text-sm text-slate-500 font-medium mb-5">{{ $card['sub'] }}</p>
+                                <div class="flex items-center justify-between">
+                                    <span
+                                        class="text-xs font-black text-slate-400 group-hover:text-red-600 uppercase tracking-widest transition-colors duration-200">Manage
+                                        Data</span>
+                                    <div
+                                        class="w-7 h-7 rounded-lg bg-slate-100 group-hover:bg-red-600 flex items-center justify-center transition-all duration-200">
+                                        <svg class="w-3.5 h-3.5 text-slate-400 group-hover:text-white transition-colors"
+                                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                                d="M9 5l7 7-7 7" />
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    @endforeach
+                </div>
+            </div>
+
         </div>
-
-        <!-- 4. RISING STAR SECTION -->
-        <div class="mb-12">
-            <div class="flex items-center mb-6">
-                <div class="bg-gradient-to-r from-yellow-500 to-amber-500 p-3 rounded-xl shadow-lg mr-4">
-                    <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                    </svg>
-                </div>
-                <div>
-                    <h2 class="text-2xl font-bold text-gray-900">Rising Star Program</h2>
-                    <p class="text-gray-600">Performance Tracking by Level</p>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <!-- Bintang 1 -->
-                <a href="{{ route('admin.rising-star.dashboard') }}" class="group relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-yellow-300 transform hover:-translate-y-2">
-                    <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-yellow-300 to-yellow-500 opacity-10 rounded-bl-full transform group-hover:scale-150 transition-transform duration-500"></div>
-                    <div class="p-6 relative z-10">
-                        <div class="bg-gradient-to-br from-yellow-400 to-yellow-500 p-3 rounded-xl shadow-lg mb-4 w-fit">
-                            <svg class="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                            </svg>
-                        </div>
-                        <h3 class="text-lg font-bold text-gray-900 mb-2">Bintang 1</h3>
-                        <p class="text-gray-600 text-sm mb-3">Level 1 Program</p>
-                        <div class="flex items-center text-yellow-600 font-medium text-sm">
-                            Track Progress
-                            <svg class="w-4 h-4 ml-2 transform group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                            </svg>
-                        </div>
-                    </div>
-                </a>
-
-                <!-- Bintang 2 -->
-                <a href="{{ route('admin.rising-star.dashboard') }}" class="group relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-yellow-300 transform hover:-translate-y-2">
-                    <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-yellow-400 to-yellow-600 opacity-10 rounded-bl-full transform group-hover:scale-150 transition-transform duration-500"></div>
-                    <div class="p-6 relative z-10">
-                        <div class="bg-gradient-to-br from-yellow-500 to-yellow-600 p-3 rounded-xl shadow-lg mb-4 w-fit">
-                            <svg class="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                            </svg>
-                        </div>
-                        <h3 class="text-lg font-bold text-gray-900 mb-2">Bintang 2</h3>
-                        <p class="text-gray-600 text-sm mb-3">Level 2 Program</p>
-                        <div class="flex items-center text-yellow-600 font-medium text-sm">
-                            Track Progress
-                            <svg class="w-4 h-4 ml-2 transform group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                            </svg>
-                        </div>
-                    </div>
-                </a>
-
-                <!-- Bintang 3 -->
-                <a href="{{ route('admin.rising-star.dashboard') }}" class="group relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-orange-300 transform hover:-translate-y-2">
-                    <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-orange-400 to-orange-600 opacity-10 rounded-bl-full transform group-hover:scale-150 transition-transform duration-500"></div>
-                    <div class="p-6 relative z-10">
-                        <div class="bg-gradient-to-br from-orange-500 to-orange-600 p-3 rounded-xl shadow-lg mb-4 w-fit">
-                            <svg class="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                            </svg>
-                        </div>
-                        <h3 class="text-lg font-bold text-gray-900 mb-2">Bintang 3</h3>
-                        <p class="text-gray-600 text-sm mb-3">Level 3 Program</p>
-                        <div class="flex items-center text-orange-600 font-medium text-sm">
-                            Track Progress
-                            <svg class="w-4 h-4 ml-2 transform group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                            </svg>
-                        </div>
-                    </div>
-                </a>
-
-                <!-- Bintang 4 -->
-                <a href="{{ route('admin.rising-star.dashboard') }}" class="group relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-amber-300 transform hover:-translate-y-2">
-                    <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-amber-400 to-amber-600 opacity-10 rounded-bl-full transform group-hover:scale-150 transition-transform duration-500"></div>
-                    <div class="p-6 relative z-10">
-                        <div class="bg-gradient-to-br from-amber-500 to-amber-600 p-3 rounded-xl shadow-lg mb-4 w-fit">
-                            <svg class="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                            </svg>
-                        </div>
-                        <h3 class="text-lg font-bold text-gray-900 mb-2">Bintang 4</h3>
-                        <p class="text-gray-600 text-sm mb-3">Level 4 Program</p>
-                        <div class="flex items-center text-amber-600 font-medium text-sm">
-                            Track Progress
-                            <svg class="w-4 h-4 ml-2 transform group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                            </svg>
-                        </div>
-                    </div>
-                </a>
-            </div>
-        </div>
-
-        <!-- 5. PSAK SECTION -->
-        <div class="mb-12">
-            <div class="flex items-center mb-6">
-                <div class="bg-gradient-to-r from-indigo-500 to-purple-500 p-3 rounded-xl shadow-lg mr-4">
-                    <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
-                        <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm9.707 5.707a1 1 0 00-1.414-1.414L9 12.586l-1.293-1.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                    </svg>
-                </div>
-                <div>
-                    <h2 class="text-2xl font-bold text-gray-900">PSAK Management</h2>
-                    <p class="text-gray-600">Admin Input Commitment - User Input Real</p>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <!-- PSAK Government -->
-                <a href="{{ route('admin.psak', 'government') }}" class="group relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-green-300 transform hover:-translate-y-2">
-                    <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-green-400 to-green-600 opacity-10 rounded-bl-full transform group-hover:scale-150 transition-transform duration-500"></div>
-                    <div class="p-6 relative z-10">
-                        <div class="bg-gradient-to-br from-green-500 to-green-600 p-3 rounded-xl shadow-lg mb-4 w-fit">
-                            <svg class="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
-                                <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm9.707 5.707a1 1 0 00-1.414-1.414L9 12.586l-1.293-1.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                            </svg>
-                        </div>
-                        <h3 class="text-lg font-bold text-gray-900 mb-2">PSAK Gov</h3>
-                        <p class="text-gray-600 text-sm mb-3">Government PSAK</p>
-                        <div class="flex items-center text-green-600 font-medium text-sm">
-                            Manage Data
-                            <svg class="w-4 h-4 ml-2 transform group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                            </svg>
-                        </div>
-                    </div>
-                </a>
-
-                <!-- PSAK Private -->
-                <a href="{{ route('admin.psak', 'private') }}" class="group relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-blue-300 transform hover:-translate-y-2">
-                    <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-400 to-blue-600 opacity-10 rounded-bl-full transform group-hover:scale-150 transition-transform duration-500"></div>
-                    <div class="p-6 relative z-10">
-                        <div class="bg-gradient-to-br from-blue-500 to-blue-600 p-3 rounded-xl shadow-lg mb-4 w-fit">
-                            <svg class="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
-                                <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm9.707 5.707a1 1 0 00-1.414-1.414L9 12.586l-1.293-1.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                            </svg>
-                        </div>
-                        <h3 class="text-lg font-bold text-gray-900 mb-2">PSAK Private</h3>
-                        <p class="text-gray-600 text-sm mb-3">Private PSAK</p>
-                        <div class="flex items-center text-blue-600 font-medium text-sm">
-                            Manage Data
-                            <svg class="w-4 h-4 ml-2 transform group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                            </svg>
-                        </div>
-                    </div>
-                </a>
-
-                <!-- PSAK SOE -->
-                <a href="{{ route('admin.psak', 'soe') }}" class="group relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-purple-300 transform hover:-translate-y-2">
-                    <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-purple-400 to-purple-600 opacity-10 rounded-bl-full transform group-hover:scale-150 transition-transform duration-500"></div>
-                    <div class="p-6 relative z-10">
-                        <div class="bg-gradient-to-br from-purple-500 to-purple-600 p-3 rounded-xl shadow-lg mb-4 w-fit">
-                            <svg class="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
-                                <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm9.707 5.707a1 1 0 00-1.414-1.414L9 12.586l-1.293-1.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                            </svg>
-                        </div>
-                        <h3 class="text-lg font-bold text-gray-900 mb-2">PSAK SOE</h3>
-                        <p class="text-gray-600 text-sm mb-3">SOE PSAK</p>
-                        <div class="flex items-center text-purple-600 font-medium text-sm">
-                            Manage Data
-                            <svg class="w-4 h-4 ml-2 transform group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                            </svg>
-                        </div>
-                    </div>
-                </a>
-
-                <!-- PSAK SME -->
-                <a href="{{ route('admin.psak', 'sme') }}" class="group relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-orange-300 transform hover:-translate-y-2">
-                    <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-orange-400 to-orange-600 opacity-10 rounded-bl-full transform group-hover:scale-150 transition-transform duration-500"></div>
-                    <div class="p-6 relative z-10">
-                        <div class="bg-gradient-to-br from-orange-500 to-orange-600 p-3 rounded-xl shadow-lg mb-4 w-fit">
-                            <svg class="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
-                                <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm9.707 5.707a1 1 0 00-1.414-1.414L9 12.586l-1.293-1.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                            </svg>
-                        </div>
-                        <h3 class="text-lg font-bold text-gray-900 mb-2">PSAK SME</h3>
-                        <p class="text-gray-600 text-sm mb-3">SME PSAK</p>
-                        <div class="flex items-center text-orange-600 font-medium text-sm">
-                            Manage Data
-                            <svg class="w-4 h-4 ml-2 transform group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                            </svg>
-                        </div>
-                    </div>
-                </a>
-            </div>
-        </div>
-
     </div>
-</div>
-
 @endsection
