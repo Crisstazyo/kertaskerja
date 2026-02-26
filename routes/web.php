@@ -27,7 +27,7 @@ Route::get('/', function() {
     // If user is already authenticated, redirect to their dashboard
     if (auth()->check()) {
         $role = auth()->user()->role;
-        
+
         if ($role === 'admin') {
             return redirect()->route('admin.dashboard');
         }
@@ -56,8 +56,7 @@ Route::get('/', function() {
             return redirect()->route('rising-star.dashboard');
         }
     }
-    
-    return view('welcome');
+return redirect()->route('login.show');
 })->name('home');
 
 // Authentication Routes
@@ -73,11 +72,13 @@ Route::middleware(['auth'])->prefix('gov')->name('gov.')->group(function () {
     Route::get('/lop-on-hand', [GovController::class, 'lopOnHand'])->name('lop-on-hand');
     Route::get('/lop-qualified', [GovController::class, 'lopQualified'])->name('lop-qualified');
     Route::get('/lop-koreksi', [GovController::class, 'lopKoreksi'])->name('lop-koreksi');
-    Route::get('/lop-initiate', [GovController::class, 'lopInitiate'])->name('lop-initiate');
-    
+    //Route::get('/lop-initiate', [GovController::class, 'lopInitiate'])->name('lop-initiate');
+    //Route::post('/lop-initiate', [GovController::class, 'storeLopInitiate'])->name('government.lop-initiate.store');
+    //Route::post('/lop-initiate', [GovController::class, 'storeLopInitiate'])->name('government.lop-initiate.create');
+
     // Funnel Tracking Update (AJAX)
     Route::post('/funnel/update', [GovController::class, 'updateFunnelCheckbox'])->name('funnel.update');
-    
+
     // PSAK AJAX
     Route::post('/psak/save', [GovController::class, 'savePsak'])->name('psak.save');
 });
@@ -90,14 +91,14 @@ Route::middleware(['auth'])->prefix('government')->name('government.')->group(fu
     Route::get('/lop-on-hand', [GovController::class, 'lopOnHand'])->name('lop-on-hand');
     Route::get('/lop-qualified', [GovController::class, 'lopQualified'])->name('lop-qualified');
     Route::get('/lop-koreksi', [GovController::class, 'lopKoreksi'])->name('lop-koreksi');
-    Route::get('/lop-initiate', [GovController::class, 'lopInitiate'])->name('lop-initiate');
-    Route::get('/lop-initiated', [GovController::class, 'lopInitiated'])->name('lop-initiated');
-    Route::get('/lop-initiate/create', [GovController::class, 'createLopInitiate'])->name('lop.initiate.create');
-    Route::post('/lop-initiate/store', [GovController::class, 'storeLopInitiate'])->name('lop.initiate.store');
-    
+    //Route::get('/lop-initiate', [GovController::class, 'lopInitiate'])->name('lop-initiate');
+    //Route::get('/lop-initiated', [GovController::class, 'lopInitiated'])->name('lop-initiated');
+    //Route::get('/lop-initiate/create', [GovController::class, 'createLopInitiate'])->name('government.lop.initiate.create');
+    //Route::post('/lop-initiate/store', [GovController::class, 'storeLopInitiate'])->name('government.lop.initiate.store');
+
     // Funnel Tracking Update (AJAX)
     Route::post('/funnel/update', [GovController::class, 'updateFunnelCheckbox'])->name('funnel.update');
-    
+
     // PSAK AJAX
     Route::post('/psak/save', [GovController::class, 'savePsak'])->name('psak.save');
 });
@@ -110,15 +111,15 @@ Route::middleware(['auth'])->prefix('private')->name('private.')->group(function
     Route::get('/lop-on-hand', [PrivateController::class, 'lopOnHand'])->name('lop-on-hand');
     Route::get('/lop-qualified', [PrivateController::class, 'lopQualified'])->name('lop-qualified');
     Route::get('/lop-koreksi', [PrivateController::class, 'lopKoreksi'])->name('lop-koreksi');
-    Route::get('/lop-initiate', [PrivateController::class, 'lopInitiate'])->name('lop-initiate');
-    Route::get('/lop-initiate/create', [PrivateController::class, 'createLopInitiate'])->name('lop.initiate.create');
-    Route::post('/lop-initiate/store', [PrivateController::class, 'storeLopInitiate'])->name('lop.initiate.store');
-    Route::get('/lop-initiated', [PrivateController::class, 'lopInitiated'])->name('lop-initiated');
+    //Route::get('/lop-initiate', [PrivateController::class, 'lopInitiate'])->name('lop-initiate');
+    //Route::get('/lop-initiate/create', [PrivateController::class, 'createLopInitiate'])->name('lop.initiate.create');
+    //Route::post('/lop-initiate/store', [PrivateController::class, 'storeLopInitiate'])->name('lop.initiate.store');
+    //Route::get('/lop-initiated', [PrivateController::class, 'lopInitiated'])->name('lop-initiated');
     Route::get('/lop-correction', [PrivateController::class, 'lopCorrection'])->name('lop-correction');
-    
+
     // Funnel Tracking Update (AJAX)
     Route::post('/funnel/update', [PrivateController::class, 'updateFunnelCheckbox'])->name('funnel.update');
-    
+
     // PSAK AJAX
     Route::post('/psak/save', [PrivateController::class, 'savePsak'])->name('psak.save');
 });
@@ -131,15 +132,15 @@ Route::middleware(['auth'])->prefix('soe')->name('soe.')->group(function () {
     Route::get('/lop-on-hand', [SoeController::class, 'lopOnHand'])->name('lop-on-hand');
     Route::get('/lop-qualified', [SoeController::class, 'lopQualified'])->name('lop-qualified');
     Route::get('/lop-koreksi', [SoeController::class, 'lopKoreksi'])->name('lop-koreksi');
-    Route::get('/lop-initiate', [SoeController::class, 'lopInitiate'])->name('lop-initiate');
-    Route::get('/lop-initiate/create', [SoeController::class, 'createLopInitiate'])->name('lop.initiate.create');
-    Route::post('/lop-initiate/store', [SoeController::class, 'storeLopInitiate'])->name('lop.initiate.store');
-    Route::get('/lop-initiated', [SoeController::class, 'lopInitiated'])->name('lop-initiated');
+    //Route::get('/lop-initiate', [SoeController::class, 'lopInitiate'])->name('lop-initiate');
+    //Route::get('/lop-initiate/create', [SoeController::class, 'createLopInitiate'])->name('lop.initiate.create');
+    //Route::post('/lop-initiate/store', [SoeController::class, 'storeLopInitiate'])->name('lop.initiate.store');
+    //Route::get('/lop-initiated', [SoeController::class, 'lopInitiated'])->name('lop-initiated');
     Route::get('/lop-correction', [SoeController::class, 'lopCorrection'])->name('lop-correction');
-    
+
     // Funnel Tracking Update (AJAX)
     Route::post('/funnel/update', [SoeController::class, 'updateFunnelCheckbox'])->name('funnel.update');
-    
+
     // PSAK AJAX
     Route::post('/psak/save', [SoeController::class, 'savePsak'])->name('psak.save');
 });
@@ -152,15 +153,15 @@ Route::middleware(['auth'])->prefix('sme')->name('sme.')->group(function () {
     Route::get('/lop-on-hand', [SmeController::class, 'lopOnHand'])->name('lop-on-hand');
     Route::get('/lop-qualified', [SmeController::class, 'lopQualified'])->name('lop-qualified');
     Route::get('/lop-koreksi', [SmeController::class, 'lopKoreksi'])->name('lop-koreksi');
-    Route::get('/lop-initiate', [SmeController::class, 'lopInitiate'])->name('lop-initiate');
-    Route::get('/lop-initiate/create', [SmeController::class, 'createLopInitiate'])->name('lop.initiate.create');
-    Route::post('/lop-initiate/store', [SmeController::class, 'storeLopInitiate'])->name('lop.initiate.store');
-    Route::get('/lop-initiated', [SmeController::class, 'lopInitiated'])->name('lop-initiated');
+    //Route::get('/lop-initiate', [SmeController::class, 'lopInitiate'])->name('lop-initiate');
+    //Route::get('/lop-initiate/create', [SmeController::class, 'createLopInitiate'])->name('lop.initiate.create');
+    //Route::post('/lop-initiate/store', [SmeController::class, 'storeLopInitiate'])->name('lop.initiate.store');
+    //Route::get('/lop-initiated', [SmeController::class, 'lopInitiated'])->name('lop-initiated');
     Route::get('/lop-correction', [SmeController::class, 'lopCorrection'])->name('lop-correction');
-    
+
     // Funnel Tracking Update (AJAX)
     Route::post('/funnel/update', [SmeController::class, 'updateFunnelCheckbox'])->name('funnel.update');
-    
+
     // PSAK AJAX
     Route::post('/psak/save', [SmeController::class, 'savePsak'])->name('psak.save');
 });
@@ -178,7 +179,7 @@ Route::middleware(['auth'])->prefix('collection')->name('collection.')->group(fu
     Route::get('/utip', [CollectionController::class, 'utip'])->name('utip');
     Route::get('/utip-new', [CollectionController::class, 'utipNew'])->name('utip-new');
     Route::get('/utip-corrective', [CollectionController::class, 'utipCorrective'])->name('utip-corrective');
-    
+
     // POST Routes for Data Submission
     Route::post('/utip-new/plan/store', [CollectionController::class, 'storeUtipNewPlan'])->name('utip-new.plan.store');
     Route::post('/utip-new/komitmen/store', [CollectionController::class, 'storeUtipNewKomitmen'])->name('utip-new.komitmen.store');
@@ -213,7 +214,7 @@ Route::middleware(['auth'])->prefix('ctc')->name('ctc.')->group(function () {
     Route::get('/combat-churn-sales-hsi', [CtcController::class, 'combatChurnSalesHsi'])->name('combat-churn-sales-hsi');
     Route::get('/combat-churn-churn', [CtcController::class, 'combatChurnChurn'])->name('combat-churn-churn');
     Route::get('/combat-churn-winback', [CtcController::class, 'combatChurnWinback'])->name('combat-churn-winback');
-    
+
     // POST Routes for Data Submission
     Route::post('/paid-ct0/store', [CtcController::class, 'storePaidCt0'])->name('paid-ct0.store');
     Route::post('/combat-the-churn/store', [CtcController::class, 'storeCombatTheChurn'])->name('combat-the-churn.store');
@@ -234,14 +235,20 @@ Route::middleware(['auth'])->prefix('rising-star')->name('rising-star.')->group(
     Route::get('/kecukupan-lop', [RisingStarController::class, 'kecukupanLop'])->name('kecukupan-lop');
     Route::get('/asodomoro-0-3-bulan', [RisingStarController::class, 'asodomoro03Bulan'])->name('asodomoro-0-3-bulan');
     Route::get('/asodomoro-above-3-bulan', [RisingStarController::class, 'asodomoroAbove3Bulan'])->name('asodomoro-above-3-bulan');
-    
+
     // POST Routes for Data Submission
     Route::post('/visiting-gm/store', [RisingStarController::class, 'storeVisitingGm'])->name('visiting-gm.store');
     Route::post('/visiting-am/store', [RisingStarController::class, 'storeVisitingAm'])->name('visiting-am.store');
     Route::post('/visiting-hotd/store', [RisingStarController::class, 'storeVisitingHotd'])->name('visiting-hotd.store');
+        Route::delete('/visiting-gm/{id}', [RisingStarController::class, 'deleteVisitingGm'])->name('visiting-gm.delete');
+        Route::delete('/visiting-am/{id}', [RisingStarController::class, 'deleteVisitingAm'])->name('visiting-am.delete');
+        Route::delete('/visiting-hotd/{id}', [RisingStarController::class, 'deleteVisitingHotd'])->name('visiting-hotd.delete');
     Route::post('/profiling-maps-am/store', [RisingStarController::class, 'storeProfilingMapsAm'])->name('profiling-maps-am.store');
     Route::post('/profiling-overall-hotd/store', [RisingStarController::class, 'storeProfilingOverallHotd'])->name('profiling-overall-hotd.store');
     Route::post('/kecukupan-lop/store', [RisingStarController::class, 'storeKecukupanLop'])->name('kecukupan-lop.store');
+        Route::delete('/profiling-maps-am/{id}', [RisingStarController::class, 'deleteProfilingMapsAm'])->name('profiling-maps-am.delete');
+        Route::delete('/profiling-overall-hotd/{id}', [RisingStarController::class, 'deleteProfilingOverallHotd'])->name('profiling-overall-hotd.delete');
+        Route::delete('/kecukupan-lop/{id}', [RisingStarController::class, 'deleteKecukupanLop'])->name('kecukupan-lop.delete');
     Route::post('/asodomoro/store', [RisingStarController::class, 'storeAsodomoro'])->name('asodomoro.store');
     Route::post('/asodomoro-0-3-bulan/store', [RisingStarController::class, 'storeAsodomoro03Bulan'])->name('asodomoro-0-3-bulan.store');
     Route::post('/asodomoro-above-3-bulan/store', [RisingStarController::class, 'storeAsodomoroAbove3Bulan'])->name('asodomoro-above-3-bulan.store');
@@ -251,74 +258,122 @@ Route::middleware(['auth'])->prefix('rising-star')->name('rising-star.')->group(
 Route::middleware(['auth', 'admin'])->group(function () {
     // Admin Dashboard
     Route::get('/admin', [AdminController::class, 'index'])->name('admin.dashboard');
-    
+
     // Special Programs Dashboard (Collection, CTC, Rising Star)
     Route::get('/admin/special/{role}', [AdminController::class, 'specialDashboard'])->name('admin.special.dashboard');
-    
+
     // NEW SIMPLIFIED FLOW - Role Selection and Actions
     Route::get('/admin/role/{role}', [AdminController::class, 'roleMenu'])->name('admin.role.menu');
-    
+
     // Category-specific Upload and Progress Routes
     Route::get('/admin/role/{role}/upload/{category}', [AdminController::class, 'uploadCategoryPage'])->name('admin.upload.category');
     Route::get('/admin/role/{role}/progress/{category}', [AdminController::class, 'progressCategoryPage'])->name('admin.progress.category');
     Route::post('/admin/role/{role}/progress/{category}/toggle-visibility', [AdminController::class, 'toggleUploadVisibility'])->name('admin.progress.toggle-visibility');
-    
+
     // OLD Routes (deprecated)
     Route::get('/admin/role/{role}/upload', [AdminController::class, 'uploadPage'])->name('admin.upload.page');
     Route::get('/admin/role/{role}/progress', [AdminController::class, 'progressPage'])->name('admin.progress.page');
     Route::get('/admin/role/{role}/progress/{category}/{month}/{year}', [AdminController::class, 'progressDetail'])->name('admin.progress.detail');
-    
+
     // NEW LOP Management Routes
     // LOP On Hand Routes
     Route::get('/admin/lop-manage/{entity}/on-hand', [AdminController::class, 'lopOnHandManage'])->name('admin.lop.on_hand');
     Route::get('/admin/lop-manage/{entity}/on-hand/history', [AdminController::class, 'lopOnHandHistory'])->name('admin.lop.on_hand.history');
-    
+
     // LOP Qualified Routes
     Route::get('/admin/lop-manage/{entity}/qualified', [AdminController::class, 'lopQualifiedManage'])->name('admin.lop.qualified');
     Route::get('/admin/lop-manage/{entity}/qualified/history', [AdminController::class, 'lopQualifiedHistory'])->name('admin.lop.qualified.history');
-    
+
     // LOP Koreksi Routes
     Route::get('/admin/lop-manage/{entity}/koreksi', [AdminController::class, 'lopKoreksiManage'])->name('admin.lop.koreksi');
     Route::get('/admin/lop-manage/{entity}/koreksi/history', [AdminController::class, 'lopKoreksiHistory'])->name('admin.lop.koreksi.history');
-    
+
     // LOP Initiate Routes
-    Route::get('/admin/lop-manage/{entity}/initiate', [AdminController::class, 'lopInitiateManage'])->name('admin.lop.initiate');
-    Route::get('/admin/lop-manage/{entity}/initiate/history', [AdminController::class, 'lopInitiateHistory'])->name('admin.lop.initiate.history');
-    Route::post('/admin/lop-manage/{entity}/initiate/store', [AdminController::class, 'lopInitiateStore'])->name('admin.lop.initiate.store');
-    Route::delete('/admin/lop-manage/{entity}/initiate/{id}', [AdminController::class, 'lopInitiateDelete'])->name('admin.lop.initiate.delete');
-    
+    //Route::get('/admin/lop-manage/{entity}/initiate', [AdminController::class, 'lopInitiateManage'])->name('admin.lop.initiate');
+    //Route::get('/admin/lop-manage/{entity}/initiate/history', [AdminController::class, 'lopInitiateHistory'])->name('admin.lop.initiate.history');
+    //Route::post('/admin/lop-manage/{entity}/initiate/store', [AdminController::class, 'lopInitiateStore'])->name('admin.lop.initiate.store');
+    //Route::delete('/admin/lop-manage/{entity}/initiate/{id}', [AdminController::class, 'lopInitiateDelete'])->name('admin.lop.initiate.delete');
+
     // Upload Excel (untuk On Hand, Qualified, Koreksi)
     Route::post('/admin/lop-manage/{entity}/{category}/upload', [AdminController::class, 'uploadLopData'])->name('admin.lop.upload');
-    
+
     // Funnel Tracking
     Route::get('/admin/lop/funnel/{dataType}/{dataId}', [AdminController::class, 'showFunnelForm'])->name('admin.lop.funnel.show');
     Route::post('/admin/lop/funnel/{dataType}/{dataId}', [AdminController::class, 'updateFunnel'])->name('admin.lop.funnel.update');
-    
+
     // Task Progress Update (AJAX)
     Route::post('/admin/task-progress/update', [AdminController::class, 'updateTaskProgress'])->name('admin.task-progress.update');
-    
+
     // Admin Notes
     Route::post('/admin/lop/note/save', [AdminController::class, 'saveAdminNote'])->name('admin.lop.note.save');
     Route::get('/admin/lop/note/{entity}/{category}/{month}/{year}', [AdminController::class, 'getAdminNote'])->name('admin.lop.note.get');
-    
+
     // LOP Progress Tracking
     Route::get('/admin/lop/progress-tracking', [AdminController::class, 'lopProgressTracking'])->name('admin.lop.progress-tracking');
-    
+
     // Step 2: Select Type (Scalling/PSAK)
     Route::get('/admin/lop/{entity}', [AdminController::class, 'lopTypeSelect'])->name('admin.lop.type-select');
-    
+
     // Step 3: Select LOP Category (for Scalling)
     Route::get('/admin/lop/{entity}/{type}', [AdminController::class, 'lopCategorySelect'])->name('admin.lop.category-select');
-    
+
     // Scalling Management for Gov (OLD - keeping for backward compatibility)
     Route::get('/admin/{role}/scalling', [AdminController::class, 'scalling'])->name('admin.scalling');
     Route::post('/admin/{role}/scalling/upload', [AdminController::class, 'uploadScalling'])->name('admin.scalling.upload');
     Route::get('/admin/{role}/scalling/data', [AdminController::class, 'scallingData'])->name('admin.scalling.data');
-    
+
+    // Scalling Progress Views
+    Route::get('/admin/{role}/scalling/progress/current', [AdminController::class, 'scallingCurrentProgress'])->name('admin.scalling.progress.current');
+    Route::get('/admin/{role}/scalling/progress/history', [AdminController::class, 'scallingProgressHistory'])->name('admin.scalling.progress.history');
+
+    // LOP Management (New Structure)
+    Route::get('/admin/{role}/scalling/lop/{lopType}', [AdminController::class, 'scallingLop'])->name('admin.scalling.lop');
+    Route::post('/admin/{role}/scalling/lop/{lopType}/upload', [AdminController::class, 'uploadScallingLop'])->name('admin.scalling.lop.upload');
+    Route::get('/admin/{role}/scalling/lop/{lopType}/progress', [AdminController::class, 'scallingLopProgress'])->name('admin.scalling.lop.progress');
+    Route::get('/admin/{role}/scalling/lop/{lopType}/history', [AdminController::class, 'scallingLopHistory'])->name('admin.scalling.lop.history');
+
+    // Scalling SME - HSI Agency and Telda
+    Route::get('/admin/scalling/hsi-agency', [AdminController::class, 'scallingHsiAgency'])->name('admin.scalling.hsi-agency');
+    Route::post('/admin/scalling/hsi-agency/store', [AdminController::class, 'storeHsiAgency'])->name('admin.scalling.hsi-agency.store');
+    Route::get('/admin/scalling/telda', [AdminController::class, 'scallingTelda'])->name('admin.scalling.telda');
+    Route::post('/admin/scalling/telda/store', [AdminController::class, 'storeTelda'])->name('admin.scalling.telda.store');
+
     // Upload History and Progress Tracking for all roles
     Route::get('/admin/{role}/upload-history', [AdminController::class, 'uploadHistory'])->name('admin.upload-history');
     Route::get('/admin/{role}/progress-tracking', [AdminController::class, 'progressTracking'])->name('admin.progress-tracking');
-    
+
     // PSAK Management for Gov (OLD - keeping for backward compatibility)
     Route::get('/admin/{role}/psak', [AdminController::class, 'psak'])->name('admin.psak');
+    Route::post('/admin/{role}/psak/store', [AdminController::class, 'storePsak'])->name('admin.psak.store');
+
+    // =========================================================
+    // Admin CTC Management
+    // =========================================================
+    Route::get('/admin/ctc', [AdminController::class, 'adminCtcDashboard'])->name('admin.ctc.dashboard');
+    Route::get('/admin/ctc/paid-ct0', [AdminController::class, 'adminCtcPaidCt0'])->name('admin.ctc.paid-ct0');
+    Route::post('/admin/ctc/paid-ct0/store', [AdminController::class, 'adminCtcPaidCt0Store'])->name('admin.ctc.paid-ct0.store');
+    Route::get('/admin/ctc/combat-churn', [AdminController::class, 'adminCtcCombatChurn'])->name('admin.ctc.combat-churn');
+    Route::post('/admin/ctc/combat-churn/store', [AdminController::class, 'adminCtcCombatChurnStore'])->name('admin.ctc.combat-churn.store');
+
+    // =========================================================
+    // Admin Rising Star Management
+    // =========================================================
+    Route::get('/admin/rising-star/{star}', [AdminController::class, 'adminRisingStarDashboard'])
+    ->name('admin.rising-star.dashboard')
+    ->where('star', '[1-4]');
+    Route::get('/admin/rising-star/{feature}', [AdminController::class, 'adminRisingStarFeature'])->name('admin.rising-star.feature');
+    Route::post('/admin/rising-star/{feature}/store', [AdminController::class, 'adminRisingStarFeatureStore'])->name('admin.rising-star.feature.store');
+
+    // =========================================================
+    // Admin Collection Management
+    // =========================================================
+    Route::get('/admin/collection', [AdminController::class, 'adminCollectionDashboard'])->name('admin.collection.dashboard');
+    Route::get('/admin/collection/c3mr', [AdminController::class, 'adminCollectionC3mr'])->name('admin.collection.c3mr');
+    Route::post('/admin/collection/c3mr/store', [AdminController::class, 'adminCollectionC3mrStore'])->name('admin.collection.c3mr.store');
+    Route::get('/admin/collection/billing', [AdminController::class, 'adminCollectionBilling'])->name('admin.collection.billing');
+    Route::post('/admin/collection/billing/store', [AdminController::class, 'adminCollectionBillingStore'])->name('admin.collection.billing.store');
+    Route::get('/admin/collection/collection-ratio', [AdminController::class, 'adminCollectionRatio'])->name('admin.collection.collection-ratio');
+    Route::post('/admin/collection/collection-ratio/store', [AdminController::class, 'adminCollectionRatioStore'])->name('admin.collection.collection-ratio.store');
+    Route::get('/admin/collection/utip', [AdminController::class, 'adminCollectionUtip'])->name('admin.collection.utip');
+    Route::post('/admin/collection/utip/store', [AdminController::class, 'adminCollectionUtipStore'])->name('admin.collection.utip.store');
 });

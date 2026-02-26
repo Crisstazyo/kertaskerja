@@ -120,46 +120,8 @@
             </a>
         </div>
 
-        <!-- Statistics Overview -->
-        <div class="mt-12 grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-gray-500 font-medium uppercase tracking-wide">UTIP Corrective</p>
-                        <p class="text-3xl font-bold text-orange-600 mt-2">
-                            @php
-                                $correctiveCount = \App\Models\UtipData::where('user_id', Auth::id())
-                                    ->where('type', 'corrective')
-                                    ->where('month', now()->month)
-                                    ->where('year', now()->year)
-                                    ->count();
-                            @endphp
-                            {{ $correctiveCount }} <span class="text-lg text-gray-500">entries</span>
-                        </p>
-                    </div>
-                    <div class="text-5xl opacity-20">🔧</div>
-                </div>
-            </div>
+        
             
-            <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-gray-500 font-medium uppercase tracking-wide">New UTIP</p>
-                        <p class="text-3xl font-bold text-blue-600 mt-2">
-                            @php
-                                $newCount = \App\Models\UtipData::where('user_id', Auth::id())
-                                    ->where('type', 'new')
-                                    ->where('month', now()->month)
-                                    ->where('year', now()->year)
-                                    ->count();
-                            @endphp
-                            {{ $newCount }} <span class="text-lg text-gray-500">entries</span>
-                        </p>
-                    </div>
-                    <div class="text-5xl opacity-20">✨</div>
-                </div>
-            </div>
-        </div>
     </div>
 </div>
 @endsection

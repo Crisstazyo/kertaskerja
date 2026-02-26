@@ -34,16 +34,16 @@
             <!-- SSL Section -->
             <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200">
                 <div class="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4">
-                    <h2 class="text-xl font-bold text-white">SSL</h2>
+                    <h2 class="text-xl font-bold text-white">Order</h2>
                 </div>
                 <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">Commitment (SSL)</label>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Commitment (Order)</label>
                         <input type="text" name="commitment_ssl" value="{{ $psak->commitment_ssl ?? '' }}" 
                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                     </div>
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">Real (SSL)</label>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Real (Order)</label>
                         <input type="text" name="real_ssl" value="{{ $psak->real_ssl ?? '' }}" 
                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                     </div>

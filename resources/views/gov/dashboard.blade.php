@@ -39,7 +39,7 @@
         <!-- Premium Data Management Cards -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-10 mb-10">
             <!-- Scalling Card -->
-            <a href="{{ route('gov.scalling') }}" class="group">
+            <a href="{{ route('government.scalling') }}" class="group">
                 <div class="relative bg-white/90 backdrop-blur-lg rounded-2xl shadow-xl overflow-hidden border border-gray-200/50 hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3">
                     <div class="absolute inset-0 bg-gradient-to-br from-blue-500 to-indigo-600 opacity-0 group-hover:opacity-5 transition-opacity duration-500"></div>
                     
@@ -72,7 +72,7 @@
             </a>
 
             <!-- PSAK Card -->
-            <a href="{{ route('gov.psak') }}" class="group">
+            <a href="{{ route('government.psak') }}" class="group">
                 <div class="relative bg-white/90 backdrop-blur-lg rounded-2xl shadow-xl overflow-hidden border border-gray-200/50 hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3">
                     <div class="absolute inset-0 bg-gradient-to-br from-purple-500 to-fuchsia-600 opacity-0 group-hover:opacity-5 transition-opacity duration-500"></div>
                     

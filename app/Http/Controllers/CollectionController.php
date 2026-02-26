@@ -143,24 +143,80 @@ class CollectionController extends Controller
         return view('collection.utip');
     }
     
-    public function utipNew()
+    public function utipNew(Request $request)
     {
         $currentMonth = Carbon::now()->month;
         $currentYear = Carbon::now()->year;
         
+        // Get filter parameters or use current month/year
+        $selectedMonth = $request->get('month', $currentMonth);
+        $selectedYear = $request->get('year', $currentYear);
+        
+        // Month options in Indonesian
+        $monthOptions = [
+            1 => 'Januari',
+            2 => 'Februari',
+            3 => 'Maret',
+            4 => 'April',
+            5 => 'Mei',
+            6 => 'Juni',
+            7 => 'Juli',
+            8 => 'Agustus',
+            9 => 'September',
+            10 => 'Oktober',
+            11 => 'November',
+            12 => 'Desember'
+        ];
+        
+        // Year options (current year and previous 2 years)
+        $yearOptions = range($currentYear, $currentYear - 2);
+        
+        // Create period label
+        $periodLabel = $monthOptions[$selectedMonth] . ' ' . $selectedYear;
+        
         $hasMonthlyCommitment = UtipData::where('user_id', Auth::id())
             ->where('category', 'New UTIP')
             ->where('type', 'komitmen')
-            ->where('month', $currentMonth)
-            ->where('year', $currentYear)
+            ->where('month', $selectedMonth)
+            ->where('year', $selectedYear)
             ->exists();
             
         $data = UtipData::where('user_id', Auth::id())
             ->where('category', 'New UTIP')
+            ->where('month', $selectedMonth)
+            ->where('year', $selectedYear)
             ->orderBy('entry_date', 'desc')
             ->get();
             
-        return view('collection.utip-new', compact('hasMonthlyCommitment', 'data'));
+        // Get existing plan (alias value as nominal for view compatibility)
+        $existingPlan = UtipData::where('user_id', Auth::id())
+            ->where('category', 'New UTIP')
+            ->where('type', 'plan')
+            ->where('month', $selectedMonth)
+            ->where('year', $selectedYear)
+            ->selectRaw('*, value as nominal')
+            ->first();
+            
+        // Get existing commitment
+        $existingCommitment = UtipData::where('user_id', Auth::id())
+            ->where('category', 'New UTIP')
+            ->where('type', 'komitmen')
+            ->where('month', $selectedMonth)
+            ->where('year', $selectedYear)
+            ->selectRaw('*, value as nominal')
+            ->first();
+            
+        // Get latest realisasi
+        $latestRealisasi = UtipData::where('user_id', Auth::id())
+            ->where('category', 'New UTIP')
+            ->where('type', 'realisasi')
+            ->where('month', $selectedMonth)
+            ->where('year', $selectedYear)
+            ->selectRaw('*, value as nominal')
+            ->orderBy('entry_date', 'desc')
+            ->first();
+            
+        return view('collection.utip-new', compact('hasMonthlyCommitment', 'data', 'monthOptions', 'yearOptions', 'selectedMonth', 'selectedYear', 'periodLabel', 'existingPlan', 'existingCommitment', 'latestRealisasi'));
     }
     
     public function utipCorrective()
@@ -168,10 +224,16 @@ class CollectionController extends Controller
         $currentMonth = Carbon::now()->month;
         $currentYear = Carbon::now()->year;
         
-        // Definisi currentPeriod
-        $currentPeriod = Carbon::now()->translatedFormat('F Y');
+        // Month names in Indonesian
+        $monthNames = [
+            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+            5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+            9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+        ];
         
-        // Cek apakah user sudah input komitmen bulan ini
+        // Format current period as "Januari 2026"
+        $currentPeriod = $monthNames[$currentMonth] . ' ' . $currentYear;
+        
         $hasMonthlyCommitment = UtipData::where('user_id', Auth::id())
             ->where('category', 'Corrective UTIP')
             ->where('type', 'komitmen')
@@ -210,14 +272,35 @@ class CollectionController extends Controller
             ->orderBy('entry_date', 'desc')
             ->get();
             
-        return view('collection.utip-corrective', compact(
-            'hasMonthlyCommitment', 
-            'data', 
-            'currentPeriod', 
-            'existingPlan', 
-            'existingCommitment', 
-            'latestRealisasi'
-        ));
+        // Get existing plan (alias value as nominal for view compatibility)
+        $existingPlan = UtipData::where('user_id', Auth::id())
+            ->where('category', 'Corrective UTIP')
+            ->where('type', 'plan')
+            ->where('month', $currentMonth)
+            ->where('year', $currentYear)
+            ->selectRaw('*, value as nominal')
+            ->first();
+            
+        // Get existing commitment
+        $existingCommitment = UtipData::where('user_id', Auth::id())
+            ->where('category', 'Corrective UTIP')
+            ->where('type', 'komitmen')
+            ->where('month', $currentMonth)
+            ->where('year', $currentYear)
+            ->selectRaw('*, value as nominal')
+            ->first();
+            
+        // Get latest realisasi
+        $latestRealisasi = UtipData::where('user_id', Auth::id())
+            ->where('category', 'Corrective UTIP')
+            ->where('type', 'realisasi')
+            ->where('month', $currentMonth)
+            ->where('year', $currentYear)
+            ->selectRaw('*, value as nominal')
+            ->orderBy('entry_date', 'desc')
+            ->first();
+            
+        return view('collection.utip-corrective', compact('hasMonthlyCommitment', 'data', 'currentPeriod', 'existingPlan', 'existingCommitment', 'latestRealisasi'));
     }
     
     // Store Methods for Data Submission

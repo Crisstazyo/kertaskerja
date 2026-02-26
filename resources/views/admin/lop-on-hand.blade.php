@@ -103,7 +103,14 @@
                                 <td class="px-6 py-3 text-sm text-gray-700 border-r border-gray-200">{{ $row->am }}</td>
                                 <td class="px-6 py-3 text-sm text-gray-700 border-r border-gray-200 bg-green-50">{{ $row->mitra }}</td>
                                 <td class="px-6 py-3 whitespace-nowrap text-sm text-gray-700 border-r border-gray-200 text-center">{{ $row->plan_bulan_billcom_p_2025 }}</td>
-                                <td class="px-6 py-3 whitespace-nowrap text-sm font-semibold text-gray-900">{{ $row->est_nilai_bc }}</td>
+                                <td class="px-6 py-3 whitespace-nowrap text-sm font-semibold text-gray-900">
+                                    @php
+                                        $estVal = $row->est_nilai_bc ?? '0';
+                                        $cleanVal = preg_replace('/[^0-9]/', '', $estVal);
+                                        $numVal = floatval($cleanVal);
+                                    @endphp
+                                    {{ $numVal > 0 ? 'Rp ' . number_format($numVal, 0, ',', '.') : 'Rp 0' }}
+                                </td>
                             </tr>
                             @endforeach
                             <!-- Total Row -->

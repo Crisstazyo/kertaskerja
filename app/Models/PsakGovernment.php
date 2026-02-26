@@ -13,17 +13,19 @@ class PsakGovernment extends Model
 
     protected $fillable = [
         'user_id',
+        'periode',
+        'segment',
         'tanggal',
-        'commitment_ssl',
-        'real_ssl',
+        'commitment_order',
+        'real_order',
         'commitment_rp',
         'real_rp',
     ];
 
     protected $casts = [
         'tanggal' => 'date',
-        'commitment_ssl' => 'decimal:2',
-        'real_ssl' => 'decimal:2',
+        'commitment_order' => 'decimal:2',
+        'real_order' => 'decimal:2',
         'commitment_rp' => 'decimal:2',
         'real_rp' => 'decimal:2',
     ];

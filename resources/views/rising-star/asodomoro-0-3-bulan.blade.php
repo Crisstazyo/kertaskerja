@@ -150,7 +150,6 @@
                             <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Type</th>
                             <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Ratio (%)</th>
                             <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Tanggal</th>
-                            <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Aksi</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
@@ -170,26 +169,20 @@
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                     {{ \Carbon\Carbon::parse($item->entry_date)->format('d M Y') }}
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                    <form action="{{ route('rising-star.asodomoro-0-3-bulan.delete', $item->id) }}" method="POST" class="inline">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" onclick="return confirm('Yakin ingin menghapus data ini?')" 
-                                                class="text-red-600 hover:text-red-900 font-semibold transition">
-                                            🗑️ Hapus
-                                        </button>
-                                    </form>
-                                </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                                <td colspan="5" class="px-6 py-4 text-center text-gray-500">
                                     Belum ada data untuk bulan ini
                                 </td>
                             </tr>
                         @endforelse
                     </tbody>
                 </table>
+            </div>
+            <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
+                <span class="font-bold text-gray-700">Total Ratio:</span>
+                <span class="font-bold text-indigo-600">{{ number_format($data->sum('nominal'), 2) }}%</span>
             </div>
         </div>
     </div>

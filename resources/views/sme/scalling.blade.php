@@ -129,43 +129,8 @@
                     </div>
                 </div>
             </a>
-
-            <!-- LOP Initiate Card -->
-            <div class="group">
-                <div class="relative bg-white/90 backdrop-blur-lg rounded-2xl shadow-xl overflow-hidden border border-yellow-200/50 hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 mb-6">
-                    <div class="absolute inset-0 bg-gradient-to-br from-yellow-500 to-yellow-600 opacity-0 group-hover:opacity-5 transition-opacity duration-500"></div>
-                    <div class="relative">
-                        <div class="bg-gradient-to-br from-yellow-500 to-yellow-600 p-10 text-white relative overflow-hidden">
-                            <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
-                            <div class="absolute -bottom-6 -left-6 w-40 h-40 bg-white/5 rounded-full"></div>
-                            <div class="relative">
-                                <div class="flex items-start justify-between mb-6">
-                                    <div>
-                                        <h2 class="text-3xl font-bold mb-2">LOP Initiate</h2>
-                                        <p class="text-sm text-white/80">Tambah projek baru LOP Initiate.</p>
-                                    </div>
-                                    <span class="px-4 py-1.5 bg-white/20 backdrop-blur-sm text-xs font-bold rounded-full">ACTIVE</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="p-6">
-                            <form action="{{ route('sme.lop-initiate.store') }}" method="POST" class="space-y-4">
-                                @csrf
-                                <div>
-                                    <label for="project_name" class="block text-sm font-medium text-gray-700 mb-2">Nama Projek</label>
-                                    <input type="text" name="project_name" id="project_name" required class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 p-2.5">
-                                </div>
-                                <div>
-                                    <label for="description" class="block text-sm font-medium text-gray-700 mb-2">Deskripsi</label>
-                                    <textarea name="description" id="description" rows="2" class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 p-2.5"></textarea>
-                                </div>
-                                <button type="submit" class="bg-yellow-600 hover:bg-yellow-700 text-white px-8 py-3 rounded-lg font-semibold transition-all duration-300 shadow-md hover:shadow-lg">Tambah Projek</button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
+        
     </div>
 </div>
 @endsection

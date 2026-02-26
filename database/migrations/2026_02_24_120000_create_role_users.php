@@ -17,6 +17,14 @@ return new class extends Migration
         // NOTE: Hanya gunakan role yang didukung oleh kolom enum di tabel users
         $users = [
             [
+                'name' => 'Admin',
+                'email' => 'admin@gmail.com',
+                'password' => Hash::make('password123'),
+                'role' => 'admin',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
                 'name' => 'Government User',
                 'email' => 'government@gmail.com',
                 'password' => Hash::make('password123'),
@@ -50,9 +58,9 @@ return new class extends Migration
             ],
             [
                 'name' => 'Collection User',
-                'email' => 'collection1@gmail.com',
+                'email' => 'collection@gmail.com',
                 'password' => Hash::make('password123'),
-                'role' => 'collection',
+                'role' => 'sme',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
@@ -60,15 +68,15 @@ return new class extends Migration
                 'name' => 'CTC User',
                 'email' => 'ctc@gmail.com',
                 'password' => Hash::make('password123'),
-                'role' => 'ctc',
+                'role' => 'sme',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
             [
                 'name' => 'Rising Star User',
-                'email' => 'risingstar1@gmail.com',
+                'email' => 'risingstar@gmail.com',
                 'password' => Hash::make('password123'),
-                'role' => 'rising-star',
+                'role' => 'sme',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
