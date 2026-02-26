@@ -168,19 +168,56 @@ class CollectionController extends Controller
         $currentMonth = Carbon::now()->month;
         $currentYear = Carbon::now()->year;
         
+        // Definisi currentPeriod
+        $currentPeriod = Carbon::now()->translatedFormat('F Y');
+        
+        // Cek apakah user sudah input komitmen bulan ini
         $hasMonthlyCommitment = UtipData::where('user_id', Auth::id())
             ->where('category', 'Corrective UTIP')
             ->where('type', 'komitmen')
             ->where('month', $currentMonth)
             ->where('year', $currentYear)
             ->exists();
+        
+        // Ambil data plan yang sudah ada untuk periode ini
+        $existingPlan = UtipData::where('user_id', Auth::id())
+            ->where('category', 'Corrective UTIP')
+            ->where('type', 'plan')
+            ->where('month', $currentMonth)
+            ->where('year', $currentYear)
+            ->first();
+        
+        // Ambil data komitmen yang sudah ada untuk periode ini
+        $existingCommitment = UtipData::where('user_id', Auth::id())
+            ->where('category', 'Corrective UTIP')
+            ->where('type', 'komitmen')
+            ->where('month', $currentMonth)
+            ->where('year', $currentYear)
+            ->first();
+        
+        // Ambil data realisasi terbaru
+        $latestRealisasi = UtipData::where('user_id', Auth::id())
+            ->where('category', 'Corrective UTIP')
+            ->where('type', 'realisasi')
+            ->where('month', $currentMonth)
+            ->where('year', $currentYear)
+            ->latest('created_at')
+            ->first();
             
+        // Ambil semua history data
         $data = UtipData::where('user_id', Auth::id())
             ->where('category', 'Corrective UTIP')
             ->orderBy('entry_date', 'desc')
             ->get();
             
-        return view('collection.utip-corrective', compact('hasMonthlyCommitment', 'data'));
+        return view('collection.utip-corrective', compact(
+            'hasMonthlyCommitment', 
+            'data', 
+            'currentPeriod', 
+            'existingPlan', 
+            'existingCommitment', 
+            'latestRealisasi'
+        ));
     }
     
     // Store Methods for Data Submission
@@ -188,7 +225,20 @@ class CollectionController extends Controller
     // UTIP New
     public function storeUtipNewPlan(Request $request)
     {
-        // Plan is not implemented yet - just redirect
+        // $request->validate([
+        //     'value' => 'required|numeric',
+        // ]);
+        
+        // UtipData::create([
+        //     'user_id' => Auth::id(),
+        //     'entry_date' => Carbon::now(),
+        //     'type' => 'plan',
+        //     'category' => 'New UTIP',
+        //     'value' => $request->value,
+        //     'month' => Carbon::now()->month,
+        //     'year' => Carbon::now()->year,
+        // ]);
+
         return redirect()->back()->with('success', 'UTIP New Plan berhasil disimpan');
     }
     
@@ -235,6 +285,20 @@ class CollectionController extends Controller
     // UTIP Corrective
     public function storeUtipCorrectivePlan(Request $request)
     {
+        $request->validate([
+            'value' => 'required|numeric',
+        ]);
+        
+        UtipData::create([
+            'user_id' => Auth::id(),
+            'entry_date' => Carbon::now(),
+            'type' => 'plan',
+            'category' => 'Corrective UTIP',
+            'value' => $request->value,
+            'month' => Carbon::now()->month,
+            'year' => Carbon::now()->year,
+        ]);
+
         // Plan is not implemented yet - just redirect
         return redirect()->back()->with('success', 'UTIP Corrective Plan berhasil disimpan');
     }

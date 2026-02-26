@@ -14,6 +14,7 @@ return new class extends Migration
     public function up(): void
     {
         // Create users for each role
+        // NOTE: Hanya gunakan role yang didukung oleh kolom enum di tabel users
         $users = [
             [
                 'name' => 'Government User',
@@ -44,6 +45,30 @@ return new class extends Migration
                 'email' => 'sme@gmail.com',
                 'password' => Hash::make('password123'),
                 'role' => 'sme',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'name' => 'Collection User',
+                'email' => 'collection1@gmail.com',
+                'password' => Hash::make('password123'),
+                'role' => 'collection',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'name' => 'CTC User',
+                'email' => 'ctc@gmail.com',
+                'password' => Hash::make('password123'),
+                'role' => 'ctc',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'name' => 'Rising Star User',
+                'email' => 'risingstar1@gmail.com',
+                'password' => Hash::make('password123'),
+                'role' => 'rising-star',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],

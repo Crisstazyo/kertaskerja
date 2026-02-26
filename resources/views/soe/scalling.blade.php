@@ -149,7 +149,8 @@
                             </div>
                         </div>
                         <div class="p-6">
-                            <form action="{{ route('soe.lop-initiate.store') }}" method="POST" class="space-y-4">
+                            {{-- TODO: Route gov.lop-initiate.store belum selesai, uncomment ketika route sudah diimplementasikan
+                            <form action="{{ route('gov.lop-initiate.store') }}" method="POST" class="space-y-4">
                                 @csrf
                                 <div>
                                     <label for="project_name" class="block text-sm font-medium text-gray-700 mb-2">Nama Projek</label>
@@ -161,6 +162,10 @@
                                 </div>
                                 <button type="submit" class="bg-yellow-600 hover:bg-yellow-700 text-white px-8 py-3 rounded-lg font-semibold transition-all duration-300 shadow-md hover:shadow-lg">Tambah Projek</button>
                             </form>
+                            --}}
+                            <div class="text-center py-8">
+                                <p class="text-gray-500 font-medium">Fitur ini sedang dalam pengembangan</p>
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -48,9 +48,9 @@
                     <p class="text-orange-200 text-sm uppercase tracking-wide mb-2">Plan</p>
                     <p class="text-3xl font-bold">
                         @if($existingPlan)
-                            Rp {{ number_format($existingPlan->nominal, 0, ',', '.') }}
+                        Rp {{ number_format($existingPlan->value, 0, ',', '.') }}
                         @else
-                            -
+                        -
                         @endif
                     </p>
                 </div>
@@ -58,7 +58,7 @@
                     <p class="text-orange-200 text-sm uppercase tracking-wide mb-2">Komitmen</p>
                     <p class="text-3xl font-bold">
                         @if($existingCommitment)
-                            Rp {{ number_format($existingCommitment->nominal, 0, ',', '.') }}
+                            Rp {{ number_format($existingCommitment->value, 0, ',', '.') }}
                         @else
                             -
                         @endif
@@ -68,7 +68,7 @@
                     <p class="text-orange-200 text-sm uppercase tracking-wide mb-2">Realisasi Terkini</p>
                     <p class="text-3xl font-bold">
                         @if($latestRealisasi)
-                            Rp {{ number_format($latestRealisasi->nominal, 0, ',', '.') }}
+                            Rp {{ number_format($latestRealisasi->value, 0, ',', '.') }}
                         @else
                             -
                         @endif
@@ -78,7 +78,7 @@
                     <p class="text-orange-200 text-sm uppercase tracking-wide mb-2">Status</p>
                     <p class="text-2xl font-bold">
                         @if($existingCommitment && $latestRealisasi)
-                            @if($latestRealisasi->nominal >= $existingCommitment->nominal)
+                            @if($latestRealisasi->value >= $existingCommitment->value)
                                 ✓ Tercapai
                             @else
                                 ⚠ Belum Tercapai
@@ -118,7 +118,7 @@
                                 <svg class="w-6 h-6 text-orange-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                 </svg>
-                                <p class="text-orange-800 font-semibold">Plan untuk periode ini sudah diinput: Rp {{ number_format($existingPlan->nominal, 0, ',', '.') }}</p>
+                                <p class="text-orange-800 font-semibold">Plan untuk periode ini sudah diinput: Rp {{ number_format($existingPlan->value, 0, ',', '.') }}</p>
                             </div>
                         </div>
                     @else
@@ -126,10 +126,10 @@
                             @csrf
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">💰 Nominal Plan (Rp)</label>
-                                <input type="number" name="nominal_plan" step="1" min="0" 
+                                <input type="number" name="value" step="1" min="0" 
                                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all" 
                                        placeholder="Masukkan nominal plan (contoh: 50000000)" required>
-                                @error('nominal_plan')
+                                @error('value')
                                     <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
                                 <p class="mt-1 text-xs text-gray-500">Nominal dalam Rupiah tanpa tanda titik atau koma</p>
@@ -183,10 +183,10 @@
                         @csrf
                         <div>
                             <label class="block text-sm font-bold text-gray-700 mb-2">💰 Nominal Realisasi (Rp)</label>
-                            <input type="number" name="nominal_realisasi" step="1" min="0" 
+                            <input type="number" name="value" step="1" min="0" 
                                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all" 
                                    placeholder="Masukkan nominal realisasi (contoh: 40000000)" required>
-                            @error('nominal_realisasi')
+                            @error('value')
                                 <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                             @enderror
                             <p class="mt-1 text-xs text-gray-500">Nominal dalam Rupiah tanpa tanda titik atau koma</p>

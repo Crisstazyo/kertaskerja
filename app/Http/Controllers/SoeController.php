@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\LopSoeOnHandImport;
+use App\Models\LopOnHandImport;
+use App\Models\LopOnHandData;
 use App\Models\LopSoeQualifiedImport;
 use App\Models\LopSoeInitiatedImport;
 use App\Models\LopSoeInitiatedData;
@@ -112,9 +114,10 @@ class SoeController extends Controller
         $currentMonth = request()->get('month', date('n'));
         $currentYear = request()->get('year', date('Y'));
         
-        $latestImport = LopSoeOnHandImport::with(['data.funnel.todayProgress'])
+        $latestImport = LopOnHandImport::with(['data.funnel.todayProgress'])
             ->where('month', $currentMonth)
             ->where('year', $currentYear)
+            ->where('entity_type', 'soe')
             ->latest()
             ->first();
         

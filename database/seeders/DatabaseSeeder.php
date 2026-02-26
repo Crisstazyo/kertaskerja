@@ -20,36 +20,36 @@ class DatabaseSeeder extends Seeder
             'role' => 'admin',
         ]);
 
-        // Create government user
-        \App\Models\User::create([
-            'name' => 'Government User',
-            'email' => 'government@gmail.com',
-            'password' => bcrypt('password'),
-            'role' => 'government',
-        ]);
+        // // Create government user
+        // \App\Models\User::create([
+        //     'name' => 'Government User',
+        //     'email' => 'government@gmail.com',
+        //     'password' => bcrypt('password'),
+        //     'role' => 'government',
+        // ]);
 
-        // Create private user
-        \App\Models\User::create([
-            'name' => 'Private User',
-            'email' => 'private@gmail.com',
-            'password' => bcrypt('password'),
-            'role' => 'private',
-        ]);
+        // // Create private user
+        // \App\Models\User::create([
+        //     'name' => 'Private User',
+        //     'email' => 'private@gmail.com',
+        //     'password' => bcrypt('password'),
+        //     'role' => 'private',
+        // ]);
 
-        // Create SOE user
-        \App\Models\User::create([
-            'name' => 'SOE User',
-            'email' => 'soe@gmail.com',
-            'password' => bcrypt('password'),
-            'role' => 'soe',
-        ]);
+        // // Create SOE user
+        // \App\Models\User::create([
+        //     'name' => 'SOE User',
+        //     'email' => 'soe@gmail.com',
+        //     'password' => bcrypt('password'),
+        //     'role' => 'soe',
+        // ]);
 
-        // Create SME user
-        \App\Models\User::create([
-            'name' => 'SME User',
-            'email' => 'sme@gmail.com',
-            'password' => bcrypt('password'),
-            'role' => 'sme',
-        ]);
+        // // Create SME user
+        // \App\Models\User::create([
+        //     'name' => 'SME User',
+        //     'email' => 'sme@gmail.com',
+        //     'password' => bcrypt('password'),
+        //     'role' => 'sme',
+        // ]);
     }
 }

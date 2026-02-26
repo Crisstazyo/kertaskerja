@@ -150,19 +150,17 @@
                                 @endif
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">
-                                {{ number_format($item->nominal, 2) }}%
+                                @if($item->type == 'komitmen')
+                                    {{ number_format($item->target_ratio, 2) }}%
+                                @else
+                                    {{ number_format($item->ratio_aktual, 2) }}%
+                                @endif
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                 {{ \Carbon\Carbon::parse($item->entry_date)->format('d M Y') }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                <form method="POST" action="{{ route('rising-star.visiting-gm.delete', $item->id) }}" class="inline" onsubmit="return confirm('Yakin ingin menghapus data ini?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="text-red-600 hover:text-red-900 font-medium">
-                                        🗑️ Hapus
-                                    </button>
-                                </form>
+                                
                             </td>
                         </tr>
                         @empty

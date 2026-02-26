@@ -129,7 +129,7 @@
                         <p class="text-3xl font-bold text-orange-600 mt-2">
                             @php
                                 $correctiveCount = \App\Models\UtipData::where('user_id', Auth::id())
-                                    ->where('utip_type', 'corrective')
+                                    ->where('type', 'corrective')
                                     ->where('month', now()->month)
                                     ->where('year', now()->year)
                                     ->count();
@@ -148,7 +148,7 @@
                         <p class="text-3xl font-bold text-blue-600 mt-2">
                             @php
                                 $newCount = \App\Models\UtipData::where('user_id', Auth::id())
-                                    ->where('utip_type', 'new')
+                                    ->where('type', 'new')
                                     ->where('month', now()->month)
                                     ->where('year', now()->year)
                                     ->count();

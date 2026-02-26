@@ -14,13 +14,13 @@ return new class extends Migration
     {
         // First alter enum to include all values (existing + new)
         // Include 'gov' and 'admin' which exist in current data
-        DB::statement("ALTER TABLE users MODIFY COLUMN role ENUM('government', 'private', 'soe', 'sme', 'admin', 'gov') NULL");
+        DB::statement("ALTER TABLE users MODIFY COLUMN role ENUM('government', 'private', 'soe', 'sme', 'admin', 'gov', 'collection', 'ctc', 'rising-star') NULL");
         
         // Then migrate 'gov' to 'government' for consistency
         DB::table('users')->where('role', 'gov')->update(['role' => 'government']);
         
         // Finally remove 'gov' from enum
-        DB::statement("ALTER TABLE users MODIFY COLUMN role ENUM('government', 'private', 'soe', 'sme', 'admin') NULL");
+        DB::statement("ALTER TABLE users MODIFY COLUMN role ENUM('government', 'private', 'soe', 'sme', 'admin', 'collection', 'ctc', 'rising-star') NULL");
     }
 
     /**
