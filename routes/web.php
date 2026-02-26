@@ -73,7 +73,9 @@ Route::middleware(['auth'])->prefix('gov')->name('gov.')->group(function () {
     Route::get('/lop-on-hand', [GovController::class, 'lopOnHand'])->name('lop-on-hand');
     Route::get('/lop-qualified', [GovController::class, 'lopQualified'])->name('lop-qualified');
     Route::get('/lop-koreksi', [GovController::class, 'lopKoreksi'])->name('lop-koreksi');
-    Route::get('/lop-initiate', [GovController::class, 'lopInitiate'])->name('lop-initiate');
+    //Route::get('/lop-initiate', [GovController::class, 'lopInitiate'])->name('lop-initiate');
+    //Route::post('/lop-initiate', [GovController::class, 'storeLopInitiate'])->name('government.lop-initiate.store');
+    //Route::post('/lop-initiate', [GovController::class, 'storeLopInitiate'])->name('government.lop-initiate.create');
     
     // Funnel Tracking Update (AJAX)
     Route::post('/funnel/update', [GovController::class, 'updateFunnelCheckbox'])->name('funnel.update');
@@ -90,10 +92,10 @@ Route::middleware(['auth'])->prefix('government')->name('government.')->group(fu
     Route::get('/lop-on-hand', [GovController::class, 'lopOnHand'])->name('lop-on-hand');
     Route::get('/lop-qualified', [GovController::class, 'lopQualified'])->name('lop-qualified');
     Route::get('/lop-koreksi', [GovController::class, 'lopKoreksi'])->name('lop-koreksi');
-    Route::get('/lop-initiate', [GovController::class, 'lopInitiate'])->name('lop-initiate');
-    Route::get('/lop-initiated', [GovController::class, 'lopInitiated'])->name('lop-initiated');
-    Route::get('/lop-initiate/create', [GovController::class, 'createLopInitiate'])->name('lop.initiate.create');
-    Route::post('/lop-initiate/store', [GovController::class, 'storeLopInitiate'])->name('lop.initiate.store');
+    //Route::get('/lop-initiate', [GovController::class, 'lopInitiate'])->name('lop-initiate');
+    //Route::get('/lop-initiated', [GovController::class, 'lopInitiated'])->name('lop-initiated');
+    //Route::get('/lop-initiate/create', [GovController::class, 'createLopInitiate'])->name('government.lop.initiate.create');
+    //Route::post('/lop-initiate/store', [GovController::class, 'storeLopInitiate'])->name('government.lop.initiate.store');
     
     // Funnel Tracking Update (AJAX)
     Route::post('/funnel/update', [GovController::class, 'updateFunnelCheckbox'])->name('funnel.update');
@@ -110,10 +112,10 @@ Route::middleware(['auth'])->prefix('private')->name('private.')->group(function
     Route::get('/lop-on-hand', [PrivateController::class, 'lopOnHand'])->name('lop-on-hand');
     Route::get('/lop-qualified', [PrivateController::class, 'lopQualified'])->name('lop-qualified');
     Route::get('/lop-koreksi', [PrivateController::class, 'lopKoreksi'])->name('lop-koreksi');
-    Route::get('/lop-initiate', [PrivateController::class, 'lopInitiate'])->name('lop-initiate');
-    Route::get('/lop-initiate/create', [PrivateController::class, 'createLopInitiate'])->name('lop.initiate.create');
-    Route::post('/lop-initiate/store', [PrivateController::class, 'storeLopInitiate'])->name('lop.initiate.store');
-    Route::get('/lop-initiated', [PrivateController::class, 'lopInitiated'])->name('lop-initiated');
+    //Route::get('/lop-initiate', [PrivateController::class, 'lopInitiate'])->name('lop-initiate');
+    //Route::get('/lop-initiate/create', [PrivateController::class, 'createLopInitiate'])->name('lop.initiate.create');
+    //Route::post('/lop-initiate/store', [PrivateController::class, 'storeLopInitiate'])->name('lop.initiate.store');
+    //Route::get('/lop-initiated', [PrivateController::class, 'lopInitiated'])->name('lop-initiated');
     Route::get('/lop-correction', [PrivateController::class, 'lopCorrection'])->name('lop-correction');
     
     // Funnel Tracking Update (AJAX)
@@ -131,10 +133,10 @@ Route::middleware(['auth'])->prefix('soe')->name('soe.')->group(function () {
     Route::get('/lop-on-hand', [SoeController::class, 'lopOnHand'])->name('lop-on-hand');
     Route::get('/lop-qualified', [SoeController::class, 'lopQualified'])->name('lop-qualified');
     Route::get('/lop-koreksi', [SoeController::class, 'lopKoreksi'])->name('lop-koreksi');
-    Route::get('/lop-initiate', [SoeController::class, 'lopInitiate'])->name('lop-initiate');
-    Route::get('/lop-initiate/create', [SoeController::class, 'createLopInitiate'])->name('lop.initiate.create');
-    Route::post('/lop-initiate/store', [SoeController::class, 'storeLopInitiate'])->name('lop.initiate.store');
-    Route::get('/lop-initiated', [SoeController::class, 'lopInitiated'])->name('lop-initiated');
+    //Route::get('/lop-initiate', [SoeController::class, 'lopInitiate'])->name('lop-initiate');
+    //Route::get('/lop-initiate/create', [SoeController::class, 'createLopInitiate'])->name('lop.initiate.create');
+    //Route::post('/lop-initiate/store', [SoeController::class, 'storeLopInitiate'])->name('lop.initiate.store');
+    //Route::get('/lop-initiated', [SoeController::class, 'lopInitiated'])->name('lop-initiated');
     Route::get('/lop-correction', [SoeController::class, 'lopCorrection'])->name('lop-correction');
     
     // Funnel Tracking Update (AJAX)
@@ -152,10 +154,10 @@ Route::middleware(['auth'])->prefix('sme')->name('sme.')->group(function () {
     Route::get('/lop-on-hand', [SmeController::class, 'lopOnHand'])->name('lop-on-hand');
     Route::get('/lop-qualified', [SmeController::class, 'lopQualified'])->name('lop-qualified');
     Route::get('/lop-koreksi', [SmeController::class, 'lopKoreksi'])->name('lop-koreksi');
-    Route::get('/lop-initiate', [SmeController::class, 'lopInitiate'])->name('lop-initiate');
-    Route::get('/lop-initiate/create', [SmeController::class, 'createLopInitiate'])->name('lop.initiate.create');
-    Route::post('/lop-initiate/store', [SmeController::class, 'storeLopInitiate'])->name('lop.initiate.store');
-    Route::get('/lop-initiated', [SmeController::class, 'lopInitiated'])->name('lop-initiated');
+    //Route::get('/lop-initiate', [SmeController::class, 'lopInitiate'])->name('lop-initiate');
+    //Route::get('/lop-initiate/create', [SmeController::class, 'createLopInitiate'])->name('lop.initiate.create');
+    //Route::post('/lop-initiate/store', [SmeController::class, 'storeLopInitiate'])->name('lop.initiate.store');
+    //Route::get('/lop-initiated', [SmeController::class, 'lopInitiated'])->name('lop-initiated');
     Route::get('/lop-correction', [SmeController::class, 'lopCorrection'])->name('lop-correction');
     
     // Funnel Tracking Update (AJAX)
@@ -239,9 +241,15 @@ Route::middleware(['auth'])->prefix('rising-star')->name('rising-star.')->group(
     Route::post('/visiting-gm/store', [RisingStarController::class, 'storeVisitingGm'])->name('visiting-gm.store');
     Route::post('/visiting-am/store', [RisingStarController::class, 'storeVisitingAm'])->name('visiting-am.store');
     Route::post('/visiting-hotd/store', [RisingStarController::class, 'storeVisitingHotd'])->name('visiting-hotd.store');
+        Route::delete('/visiting-gm/{id}', [RisingStarController::class, 'deleteVisitingGm'])->name('visiting-gm.delete');
+        Route::delete('/visiting-am/{id}', [RisingStarController::class, 'deleteVisitingAm'])->name('visiting-am.delete');
+        Route::delete('/visiting-hotd/{id}', [RisingStarController::class, 'deleteVisitingHotd'])->name('visiting-hotd.delete');
     Route::post('/profiling-maps-am/store', [RisingStarController::class, 'storeProfilingMapsAm'])->name('profiling-maps-am.store');
     Route::post('/profiling-overall-hotd/store', [RisingStarController::class, 'storeProfilingOverallHotd'])->name('profiling-overall-hotd.store');
     Route::post('/kecukupan-lop/store', [RisingStarController::class, 'storeKecukupanLop'])->name('kecukupan-lop.store');
+        Route::delete('/profiling-maps-am/{id}', [RisingStarController::class, 'deleteProfilingMapsAm'])->name('profiling-maps-am.delete');
+        Route::delete('/profiling-overall-hotd/{id}', [RisingStarController::class, 'deleteProfilingOverallHotd'])->name('profiling-overall-hotd.delete');
+        Route::delete('/kecukupan-lop/{id}', [RisingStarController::class, 'deleteKecukupanLop'])->name('kecukupan-lop.delete');
     Route::post('/asodomoro/store', [RisingStarController::class, 'storeAsodomoro'])->name('asodomoro.store');
     Route::post('/asodomoro-0-3-bulan/store', [RisingStarController::class, 'storeAsodomoro03Bulan'])->name('asodomoro-0-3-bulan.store');
     Route::post('/asodomoro-above-3-bulan/store', [RisingStarController::class, 'storeAsodomoroAbove3Bulan'])->name('asodomoro-above-3-bulan.store');
@@ -282,10 +290,10 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin/lop-manage/{entity}/koreksi/history', [AdminController::class, 'lopKoreksiHistory'])->name('admin.lop.koreksi.history');
     
     // LOP Initiate Routes
-    Route::get('/admin/lop-manage/{entity}/initiate', [AdminController::class, 'lopInitiateManage'])->name('admin.lop.initiate');
-    Route::get('/admin/lop-manage/{entity}/initiate/history', [AdminController::class, 'lopInitiateHistory'])->name('admin.lop.initiate.history');
-    Route::post('/admin/lop-manage/{entity}/initiate/store', [AdminController::class, 'lopInitiateStore'])->name('admin.lop.initiate.store');
-    Route::delete('/admin/lop-manage/{entity}/initiate/{id}', [AdminController::class, 'lopInitiateDelete'])->name('admin.lop.initiate.delete');
+    //Route::get('/admin/lop-manage/{entity}/initiate', [AdminController::class, 'lopInitiateManage'])->name('admin.lop.initiate');
+    //Route::get('/admin/lop-manage/{entity}/initiate/history', [AdminController::class, 'lopInitiateHistory'])->name('admin.lop.initiate.history');
+    //Route::post('/admin/lop-manage/{entity}/initiate/store', [AdminController::class, 'lopInitiateStore'])->name('admin.lop.initiate.store');
+    //Route::delete('/admin/lop-manage/{entity}/initiate/{id}', [AdminController::class, 'lopInitiateDelete'])->name('admin.lop.initiate.delete');
     
     // Upload Excel (untuk On Hand, Qualified, Koreksi)
     Route::post('/admin/lop-manage/{entity}/{category}/upload', [AdminController::class, 'uploadLopData'])->name('admin.lop.upload');

@@ -148,20 +148,6 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="p-6">
-                            <form action="{{ route('private.lop-initiate.store') }}" method="POST" class="space-y-4">
-                                @csrf
-                                <div>
-                                    <label for="project_name" class="block text-sm font-medium text-gray-700 mb-2">Nama Projek</label>
-                                    <input type="text" name="project_name" id="project_name" required class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 p-2.5">
-                                </div>
-                                <div>
-                                    <label for="description" class="block text-sm font-medium text-gray-700 mb-2">Deskripsi</label>
-                                    <textarea name="description" id="description" rows="2" class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 p-2.5"></textarea>
-                                </div>
-                                <button type="submit" class="bg-yellow-600 hover:bg-yellow-700 text-white px-8 py-3 rounded-lg font-semibold transition-all duration-300 shadow-md hover:shadow-lg">Tambah Projek</button>
-                            </form>
-                        </div>
                     </div>
                 </div>
             </div>
