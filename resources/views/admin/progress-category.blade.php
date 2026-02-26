@@ -658,7 +658,16 @@
                                     <td class="px-4 py-2 text-gray-700 border-r">{{ $row->am }}</td>
                                     <td class="px-4 py-2 text-gray-700 border-r bg-emerald-50 font-semibold">{{ $row->mitra }}</td>
                                     <td class="px-4 py-2 whitespace-nowrap text-gray-700 border-r text-center">{{ $row->plan_bulan_billcom_p_2025 }}</td>
-                                    <td class="px-4 py-2 whitespace-nowrap font-semibold text-gray-900 border-r-2 border-gray-400 bg-amber-50 text-right">{{ $row->est_nilai_bc }}</td>
+                                    <td class="px-4 py-2 whitespace-nowrap font-semibold text-gray-900 border-r-2 border-gray-400 bg-amber-50 text-right">
+                                        @php
+                                            // Clean and format est_nilai_bc
+                                            $estNilaiValue = $row->est_nilai_bc ?? '0';
+                                            // Remove any existing formatting
+                                            $cleanedValue = preg_replace('/[^0-9]/', '', $estNilaiValue);
+                                            $numericValue = floatval($cleanedValue);
+                                        @endphp
+                                        {{ $numericValue > 0 ? 'Rp ' . number_format($numericValue, 0, ',', '.') : 'Rp 0' }}
+                                    </td>
                                     
                                     <!-- Progress Checkboxes - Read-only for admin -->
                                     @php

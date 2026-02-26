@@ -129,29 +129,6 @@
                     </div>
                 </div>
             </a>
-
-            <!-- LOP Initiate Card -->
-            <div class="group">
-                <div class="relative bg-white/90 backdrop-blur-lg rounded-2xl shadow-xl overflow-hidden border border-yellow-200/50 hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 mb-6">
-                    <div class="absolute inset-0 bg-gradient-to-br from-yellow-500 to-yellow-600 opacity-0 group-hover:opacity-5 transition-opacity duration-500"></div>
-                    <div class="relative">
-                        <div class="bg-gradient-to-br from-yellow-500 to-yellow-600 p-10 text-white relative overflow-hidden">
-                            <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
-                            <div class="absolute -bottom-6 -left-6 w-40 h-40 bg-white/5 rounded-full"></div>
-                            <div class="relative">
-                                <div class="flex items-start justify-between mb-6">
-                                    <div>
-                                        <h2 class="text-3xl font-bold mb-2">LOP Initiate</h2>
-                                        <p class="text-sm text-white/80">Tambah projek baru LOP Initiate.</p>
-                                    </div>
-                                    <span class="px-4 py-1.5 bg-white/20 backdrop-blur-sm text-xs font-bold rounded-full">ACTIVE</span>
-                                </div>
-                            </div>
-                        </div>
-                    
-                    </div>
-                </div>
-            </div>
         </div>
         
     </div>

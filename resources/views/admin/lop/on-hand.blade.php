@@ -164,7 +164,14 @@
                             <td class="px-4 py-3 text-sm text-gray-900">{{ $item->am }}</td>
                             <td class="px-4 py-3 text-sm text-gray-900">{{ $item->mitra }}</td>
                             <td class="px-4 py-3 text-sm text-gray-900">{{ $item->plan_bulan_billcom_p_2025 }}</td>
-                            <td class="px-4 py-3 text-sm text-gray-900">{{ $item->est_nilai_bc }}</td>
+                            <td class="px-4 py-3 text-sm text-gray-900 font-semibold">
+                                @php
+                                    $estVal = $item->est_nilai_bc ?? '0';
+                                    $cleanVal = preg_replace('/[^0-9]/', '', $estVal);
+                                    $numVal = floatval($cleanVal);
+                                @endphp
+                                {{ $numVal > 0 ? 'Rp ' . number_format($numVal, 0, ',', '.') : 'Rp 0' }}
+                            </td>
                         </tr>
                         @endforeach
                     </tbody>

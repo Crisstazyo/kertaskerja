@@ -323,10 +323,56 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::post('/admin/{role}/scalling/upload', [AdminController::class, 'uploadScalling'])->name('admin.scalling.upload');
     Route::get('/admin/{role}/scalling/data', [AdminController::class, 'scallingData'])->name('admin.scalling.data');
     
+    // Scalling Progress Views
+    Route::get('/admin/{role}/scalling/progress/current', [AdminController::class, 'scallingCurrentProgress'])->name('admin.scalling.progress.current');
+    Route::get('/admin/{role}/scalling/progress/history', [AdminController::class, 'scallingProgressHistory'])->name('admin.scalling.progress.history');
+    
+    // LOP Management (New Structure)
+    Route::get('/admin/{role}/scalling/lop/{lopType}', [AdminController::class, 'scallingLop'])->name('admin.scalling.lop');
+    Route::post('/admin/{role}/scalling/lop/{lopType}/upload', [AdminController::class, 'uploadScallingLop'])->name('admin.scalling.lop.upload');
+    Route::get('/admin/{role}/scalling/lop/{lopType}/progress', [AdminController::class, 'scallingLopProgress'])->name('admin.scalling.lop.progress');
+    Route::get('/admin/{role}/scalling/lop/{lopType}/history', [AdminController::class, 'scallingLopHistory'])->name('admin.scalling.lop.history');
+    
+    // Scalling SME - HSI Agency and Telda
+    Route::get('/admin/scalling/hsi-agency', [AdminController::class, 'scallingHsiAgency'])->name('admin.scalling.hsi-agency');
+    Route::post('/admin/scalling/hsi-agency/store', [AdminController::class, 'storeHsiAgency'])->name('admin.scalling.hsi-agency.store');
+    Route::get('/admin/scalling/telda', [AdminController::class, 'scallingTelda'])->name('admin.scalling.telda');
+    Route::post('/admin/scalling/telda/store', [AdminController::class, 'storeTelda'])->name('admin.scalling.telda.store');
+    
     // Upload History and Progress Tracking for all roles
     Route::get('/admin/{role}/upload-history', [AdminController::class, 'uploadHistory'])->name('admin.upload-history');
     Route::get('/admin/{role}/progress-tracking', [AdminController::class, 'progressTracking'])->name('admin.progress-tracking');
     
     // PSAK Management for Gov (OLD - keeping for backward compatibility)
     Route::get('/admin/{role}/psak', [AdminController::class, 'psak'])->name('admin.psak');
+    Route::post('/admin/{role}/psak/store', [AdminController::class, 'storePsak'])->name('admin.psak.store');
+
+    // =========================================================
+    // Admin CTC Management
+    // =========================================================
+    Route::get('/admin/ctc', [AdminController::class, 'adminCtcDashboard'])->name('admin.ctc.dashboard');
+    Route::get('/admin/ctc/paid-ct0', [AdminController::class, 'adminCtcPaidCt0'])->name('admin.ctc.paid-ct0');
+    Route::post('/admin/ctc/paid-ct0/store', [AdminController::class, 'adminCtcPaidCt0Store'])->name('admin.ctc.paid-ct0.store');
+    Route::get('/admin/ctc/combat-churn', [AdminController::class, 'adminCtcCombatChurn'])->name('admin.ctc.combat-churn');
+    Route::post('/admin/ctc/combat-churn/store', [AdminController::class, 'adminCtcCombatChurnStore'])->name('admin.ctc.combat-churn.store');
+
+    // =========================================================
+    // Admin Rising Star Management
+    // =========================================================
+    Route::get('/admin/rising-star', [AdminController::class, 'adminRisingStarDashboard'])->name('admin.rising-star.dashboard');
+    Route::get('/admin/rising-star/{feature}', [AdminController::class, 'adminRisingStarFeature'])->name('admin.rising-star.feature');
+    Route::post('/admin/rising-star/{feature}/store', [AdminController::class, 'adminRisingStarFeatureStore'])->name('admin.rising-star.feature.store');
+
+    // =========================================================
+    // Admin Collection Management
+    // =========================================================
+    Route::get('/admin/collection', [AdminController::class, 'adminCollectionDashboard'])->name('admin.collection.dashboard');
+    Route::get('/admin/collection/c3mr', [AdminController::class, 'adminCollectionC3mr'])->name('admin.collection.c3mr');
+    Route::post('/admin/collection/c3mr/store', [AdminController::class, 'adminCollectionC3mrStore'])->name('admin.collection.c3mr.store');
+    Route::get('/admin/collection/billing', [AdminController::class, 'adminCollectionBilling'])->name('admin.collection.billing');
+    Route::post('/admin/collection/billing/store', [AdminController::class, 'adminCollectionBillingStore'])->name('admin.collection.billing.store');
+    Route::get('/admin/collection/collection-ratio', [AdminController::class, 'adminCollectionRatio'])->name('admin.collection.collection-ratio');
+    Route::post('/admin/collection/collection-ratio/store', [AdminController::class, 'adminCollectionRatioStore'])->name('admin.collection.collection-ratio.store');
+    Route::get('/admin/collection/utip', [AdminController::class, 'adminCollectionUtip'])->name('admin.collection.utip');
+    Route::post('/admin/collection/utip/store', [AdminController::class, 'adminCollectionUtipStore'])->name('admin.collection.utip.store');
 });

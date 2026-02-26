@@ -5,26 +5,27 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class ScallingData extends Model
+class ScallingHsiAgency extends Model
 {
     use HasFactory;
 
+    protected $table = 'scalling_hsi_agency';
+
     protected $fillable = [
-        'role',
-        'lop_type',
+        'user_id',
         'periode',
-        'uploaded_by',
-        'file_name',
-        'data',
+        'commitment',
+        'real',
     ];
 
     protected $casts = [
         'periode' => 'date',
-        'data' => 'array',
+        'commitment' => 'integer',
+        'real' => 'integer',
     ];
 
-    public function responses()
+    public function user()
     {
-        return $this->hasMany(ScallingGovResponse::class);
+        return $this->belongsTo(User::class);
     }
 }

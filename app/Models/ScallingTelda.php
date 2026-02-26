@@ -5,26 +5,27 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class ScallingData extends Model
+class ScallingTelda extends Model
 {
     use HasFactory;
 
+    protected $table = 'scalling_telda';
+
     protected $fillable = [
-        'role',
-        'lop_type',
+        'user_id',
         'periode',
-        'uploaded_by',
-        'file_name',
-        'data',
+        'commitment',
+        'real',
     ];
 
     protected $casts = [
         'periode' => 'date',
-        'data' => 'array',
+        'commitment' => 'decimal:2',
+        'real' => 'decimal:2',
     ];
 
-    public function responses()
+    public function user()
     {
-        return $this->hasMany(ScallingGovResponse::class);
+        return $this->belongsTo(User::class);
     }
 }

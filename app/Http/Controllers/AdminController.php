@@ -21,6 +21,18 @@ use App\Models\PsakGovernment;
 use App\Models\PsakPrivate;
 use App\Models\PsakSoe;
 use App\Models\PsakSme;
+use App\Models\PaidCt0Data;
+use App\Models\CombatChurnData;
+use App\Models\VisitingData;
+use App\Models\ProfilingData;
+use App\Models\KecukupanLopData;
+use App\Models\Asodomoro03BulanData;
+use App\Models\AsodomoroAbove3BulanData;
+use App\Models\C3mr;
+use App\Models\BillingPerdanan;
+use App\Models\UtipData;
+use App\Models\CollectionRatioData;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -432,9 +444,7 @@ class AdminController extends Controller
         
         // Get upload history with filters
         $uploadHistory = ScallingData::query()
-            ->when(request('role_filter'), function($q, $roleFilter) {
-                return $q->where('role', $roleFilter);
-            })
+            ->where('role', $roleNormalized)
             ->when(request('date_from'), function($q, $dateFrom) {
                 return $q->whereDate('created_at', '>=', $dateFrom);
             })
@@ -514,6 +524,7 @@ class AdminController extends Controller
     {
         $request->validate([
             'file' => 'required|mimes:xlsx,xls,csv|max:10240',
+            'periode' => 'required|date_format:Y-m',
         ]);
         
         $file = $request->file('file');
@@ -524,14 +535,195 @@ class AdminController extends Controller
         $worksheet = $spreadsheet->getActiveSheet();
         $rows = $worksheet->toArray();
         
+        // Normalize role name
+        $roleNormalized = ($role === 'gov') ? 'government' : $role;
+        
+        // Convert periode format to date (first day of month)
+        $periodeDate = $request->periode . '-01';
+        
         // Store in database
         ScallingData::create([
+            'role' => $roleNormalized,
+            'periode' => $periodeDate,
             'uploaded_by' => Auth::user()->email,
             'file_name' => $fileName,
             'data' => $rows,
         ]);
         
         return redirect()->route('admin.scalling', $role)->with('success', 'File berhasil diupload!');
+    }
+
+    // Individual LOP Management Page
+    public function scallingLop($role, $lopType)
+    {
+        if (!in_array($role, ['gov', 'government', 'private', 'soe', 'sme'])) {
+            abort(404);
+        }
+
+        // Validate LOP type
+        $validLopTypes = ['on-hand', 'qualified', 'koreksi', 'initiate'];
+        if (!in_array($lopType, $validLopTypes)) {
+            abort(404);
+        }
+        
+        // Normalize role name
+        $roleNormalized = ($role === 'gov') ? 'government' : $role;
+        
+        // Get upload history for this specific LOP type
+        $uploadHistory = ScallingData::query()
+            ->where('role', $roleNormalized)
+            ->where('lop_type', $lopType)
+            ->latest()
+            ->paginate(20);
+        
+        // Convert lop type to display format
+        $lopTypeDisplay = ucfirst(str_replace('-', ' ', $lopType));
+        
+        return view('admin.scalling-lop', compact('role', 'roleNormalized', 'lopType', 'lopTypeDisplay', 'uploadHistory'));
+    }
+
+    // Upload File for Specific LOP
+    public function uploadScallingLop(Request $request, $role, $lopType)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls,csv|max:10240',
+            'periode' => 'required|date_format:Y-m',
+        ]);
+        
+        $file = $request->file('file');
+        $fileName = $file->getClientOriginalName();
+        
+        // Read Excel file
+        $spreadsheet = IOFactory::load($file->getRealPath());
+        $worksheet = $spreadsheet->getActiveSheet();
+        $rows = $worksheet->toArray();
+        
+        // Normalize role name
+        $roleNormalized = ($role === 'gov') ? 'government' : $role;
+        
+        // Convert periode format to date (first day of month)
+        $periodeDate = $request->periode . '-01';
+        
+        // Store in database with lop_type
+        ScallingData::create([
+            'role' => $roleNormalized,
+            'lop_type' => $lopType,
+            'periode' => $periodeDate,
+            'uploaded_by' => Auth::user()->email,
+            'file_name' => $fileName,
+            'data' => $rows,
+        ]);
+        
+        return redirect()->route('admin.scalling.lop', [$role, $lopType])->with('success', 'File berhasil diupload untuk LOP ' . ucfirst(str_replace('-', ' ', $lopType)) . '!');
+    }
+
+    // Show Progress for Specific LOP (User Updates)
+    public function scallingLopProgress($role, $lopType)
+    {
+        if (!in_array($role, ['gov', 'government', 'private', 'soe', 'sme'])) {
+            abort(404);
+        }
+        
+        // Normalize role name
+        $roleNormalized = ($role === 'gov') ? 'government' : $role;
+        
+        // Map LOP type to data type for TaskProgress
+        $dataTypeMap = [
+            'on-hand' => 'on_hand',
+            'qualified' => 'qualified',
+            'koreksi' => 'koreksi',
+            'initiate' => 'initiate',
+        ];
+        
+        $dataType = $dataTypeMap[$lopType] ?? 'on_hand';
+        
+        // Get current progress from TaskProgress
+        $progressData = TaskProgress::query()
+            ->with(['user', 'task'])
+            ->whereHas('user', function($q) use ($roleNormalized) {
+                $q->where('role', $roleNormalized);
+            })
+            ->whereHas('task', function($q) use ($dataType) {
+                $q->where('data_type', 'LIKE', '%' . $dataType . '%');
+            })
+            ->latest('updated_at')
+            ->paginate(20);
+        
+        // Calculate statistics
+        $totalUpdates = TaskProgress::query()
+            ->whereHas('user', function($q) use ($roleNormalized) {
+                $q->where('role', $roleNormalized);
+            })
+            ->whereHas('task', function($q) use ($dataType) {
+                $q->where('data_type', 'LIKE', '%' . $dataType . '%');
+            })
+            ->count();
+        
+        $lastUpdate = $progressData->total() > 0 && $progressData->items() 
+            ? $progressData->items()[0]->updated_at->diffForHumans() 
+            : 'No updates yet';
+        
+        $lopTypeDisplay = ucfirst(str_replace('-', ' ', $lopType));
+        
+        return view('admin.scalling-lop-progress', compact('role', 'roleNormalized', 'lopType', 'lopTypeDisplay', 'progressData', 'totalUpdates', 'lastUpdate'));
+    }
+
+    // Show History for Specific LOP
+    public function scallingLopHistory($role, $lopType)
+    {
+        if (!in_array($role, ['gov', 'government', 'private', 'soe', 'sme'])) {
+            abort(404);
+        }
+        
+        // Normalize role name
+        $roleNormalized = ($role === 'gov') ? 'government' : $role;
+        
+        // Map LOP type to data type
+        $dataTypeMap = [
+            'on-hand' => 'on_hand',
+            'qualified' => 'qualified',
+            'koreksi' => 'koreksi',
+            'initiate' => 'initiate',
+        ];
+        
+        $dataType = $dataTypeMap[$lopType] ?? 'on_hand';
+        
+        // Get historical progress data
+        $historyData = TaskProgress::query()
+            ->with(['user', 'task'])
+            ->whereHas('user', function($q) use ($roleNormalized) {
+                $q->where('role', $roleNormalized);
+            })
+            ->whereHas('task', function($q) use ($dataType) {
+                $q->where('data_type', 'LIKE', '%' . $dataType . '%');
+            })
+            ->orderBy('updated_at', 'desc')
+            ->paginate(15);
+        
+        // Calculate statistics
+        $uniqueUsers = TaskProgress::query()
+            ->whereHas('user', function($q) use ($roleNormalized) {
+                $q->where('role', $roleNormalized);
+            })
+            ->whereHas('task', function($q) use ($dataType) {
+                $q->where('data_type', 'LIKE', '%' . $dataType . '%');
+            })
+            ->distinct('user_id')
+            ->count('user_id');
+        
+        $completedTasks = TaskProgress::query()
+            ->whereHas('user', function($q) use ($roleNormalized) {
+                $q->where('role', $roleNormalized);
+            })
+            ->whereHas('task', function($q) use ($dataType) {
+                $q->where('data_type', 'LIKE', '%' . $dataType . '%');
+            })
+            ->where('is_completed', true)
+            ->count();
+        
+        $lopTypeDisplay = ucfirst(str_replace('-', ' ', $lopType));
+        
+        return view('admin.scalling-lop-history', compact('role', 'roleNormalized', 'lopType', 'lopTypeDisplay', 'historyData', 'uniqueUsers', 'completedTasks'));
     }
     
     // PSAK Management Page
@@ -563,6 +755,121 @@ class AdminController extends Controller
             ->pluck('tanggal');
         
         return view('admin.psak', compact('role', 'psakData', 'dates'));
+    }
+    
+    // Store PSAK Data
+    public function storePsak(Request $request, $role)
+    {
+        if (!in_array($role, ['government', 'private', 'soe', 'sme'])) {
+            abort(404);
+        }
+        
+        $request->validate([
+            'periode' => 'required|date_format:Y-m',
+            'segment' => 'required|in:nc_step14,nc_step5,nc_konfirmasi,nc_splitbill,nc_crvariable,nc_unidentified',
+            'commitment_order' => 'nullable|numeric',
+            'commitment_rp' => 'nullable|numeric',
+            'real_order' => 'nullable|numeric',
+            'real_rp' => 'nullable|numeric',
+        ]);
+        
+        // Get PSAK model based on role
+        $modelClass = match($role) {
+            'government' => PsakGovernment::class,
+            'private' => PsakPrivate::class,
+            'soe' => PsakSoe::class,
+            'sme' => PsakSme::class,
+        };
+        
+        // Convert periode (Y-m) to date (Y-m-01)
+        $periodeDate = $request->periode . '-01';
+        
+        $modelClass::updateOrCreate(
+            [
+                'periode' => $periodeDate,
+                'segment' => $request->segment,
+                'user_id' => Auth::id(),
+            ],
+            [
+                'tanggal' => now()->toDateString(),
+                'commitment_order' => $request->commitment_order,
+                'commitment_rp' => $request->commitment_rp,
+                'real_order' => $request->real_order,
+                'real_rp' => $request->real_rp,
+            ]
+        );
+        
+        return redirect()->back()->with('success', 'Data PSAK berhasil disimpan!');
+    }
+    
+    // Scaling HSI Agency Management
+    public function scallingHsiAgency()
+    {
+        $data = \App\Models\ScallingHsiAgency::with('user')
+            ->orderBy('periode', 'desc')
+            ->get();
+        
+        return view('admin.scalling-hsi-agency', compact('data'));
+    }
+    
+    public function storeHsiAgency(Request $request)
+    {
+        $request->validate([
+            'periode' => 'required|string',
+            'commitment' => 'nullable|integer',
+            'real' => 'nullable|integer',
+        ]);
+        
+        // Convert YYYY-MM to YYYY-MM-01 for date storage
+        $periode = $request->periode . '-01';
+        
+        \App\Models\ScallingHsiAgency::updateOrCreate(
+            [
+                'periode' => $periode,
+                'user_id' => Auth::id(),
+            ],
+            [
+                'commitment' => $request->commitment,
+                'real' => $request->real,
+            ]
+        );
+        
+        return redirect()->back()->with('success', 'Data HSI Agency berhasil disimpan!');
+    }
+    
+    // Scaling Telda Management
+    public function scallingTelda()
+    {
+        $data = \App\Models\ScallingTelda::with('user')
+            ->orderBy('periode', 'desc')
+            ->get();
+        
+        return view('admin.scalling-telda', compact('data'));
+    }
+    
+    public function storeTelda(Request $request)
+    {
+        $request->validate([
+            'periode' => 'required|string',
+            'commitment' => 'nullable|numeric',
+            'real' => 'nullable|numeric',
+        ]);
+        
+        // Convert YYYY-MM to YYYY-MM-01 for date storage
+        $periode = $request->periode . '-01';
+        
+        \App\Models\ScallingTelda::updateOrCreate(
+            [
+                'periode' => $periode,
+                'user_id' => Auth::id(),
+            ],
+            [
+                'commitment' => $request->commitment,
+                'real' => $request->real,
+            ]
+        );
+        
+        return redirect()->back()->with('success', 'Data Telda berhasil disimpan!');
     }
     
     // Step 2: Type Selection (Scalling/PSAK)
@@ -1518,6 +1825,369 @@ class AdminController extends Controller
         ];
 
         return $modules[$dataType] ?? ucfirst(str_replace('_', ' ', $dataType));
+    }
+
+    /**
+     * Show current month progress for scaling
+     */
+    public function scallingCurrentProgress($role)
+    {
+        $roleNormalized = ($role === 'gov') ? 'government' : $role;
+        
+        // Get current month's data
+        $currentMonth = date('Y-m-01');
+        $currentData = ScallingData::where('role', $roleNormalized)
+            ->whereYear('periode', date('Y'))
+            ->whereMonth('periode', date('m'))
+            ->orderBy('created_at', 'desc')
+            ->get();
+        
+        // Calculate statistics
+        $totalUploads = $currentData->count();
+        $totalRows = $currentData->sum(function($data) {
+            return is_array($data->data) ? count($data->data) - 1 : 0; // -1 for header
+        });
+        
+        return view('admin.scalling-progress-current', compact('role', 'roleNormalized', 'currentData', 'totalUploads', 'totalRows', 'currentMonth'));
+    }
+
+    /**
+     * Show historical progress for scaling
+     */
+    public function scallingProgressHistory($role)
+    {
+        $roleNormalized = ($role === 'gov') ? 'government' : $role;
+        
+        // Get historical data grouped by periode
+        $historyData = ScallingData::where('role', $roleNormalized)
+            ->orderBy('periode', 'desc')
+            ->orderBy('created_at', 'desc')
+            ->paginate(15);
+        
+        // Calculate overall statistics
+        $totalUploads = ScallingData::where('role', $roleNormalized)->count();
+        $uniquePeriods = ScallingData::where('role', $roleNormalized)
+            ->distinct('periode')
+            ->count('periode');
+        
+        return view('admin.scalling-progress-history', compact('role', 'roleNormalized', 'historyData', 'totalUploads', 'uniquePeriods'));
+    }
+
+    // =========================================================
+    // ADMIN CTC MANAGEMENT
+    // =========================================================
+
+    public function adminCtcDashboard()
+    {
+        return view('admin.ctc.dashboard');
+    }
+
+    public function adminCtcPaidCt0()
+    {
+        $users = User::where('role', 'ctc')->orderBy('name')->get();
+        $data  = PaidCt0Data::with('user')->orderBy('entry_date', 'desc')->get();
+        return view('admin.ctc.paid-ct0', compact('users', 'data'));
+    }
+
+    public function adminCtcPaidCt0Store(Request $request)
+    {
+        $validated = $request->validate([
+            'user_id'   => 'required|exists:users,id',
+            'form_type' => 'required|in:komitmen,realisasi',
+            'region'    => 'required|string',
+            'nominal'   => 'required|numeric|min:0',
+        ]);
+
+        PaidCt0Data::create([
+            'user_id'    => $validated['user_id'],
+            'entry_date' => Carbon::now(),
+            'type'       => $validated['form_type'],
+            'region'     => $validated['region'],
+            'nominal'    => $validated['nominal'],
+            'month'      => Carbon::now()->month,
+            'year'       => Carbon::now()->year,
+        ]);
+
+        return redirect()->back()->with('success', 'Data Paid CT0 berhasil disimpan');
+    }
+
+    public function adminCtcCombatChurn()
+    {
+        $users = User::where('role', 'ctc')->orderBy('name')->get();
+        $data  = CombatChurnData::with('user')->orderBy('entry_date', 'desc')->get();
+        return view('admin.ctc.combat-churn', compact('users', 'data'));
+    }
+
+    public function adminCtcCombatChurnStore(Request $request)
+    {
+        $validated = $request->validate([
+            'user_id'   => 'required|exists:users,id',
+            'form_type' => 'required|in:komitmen,realisasi',
+            'category'  => 'required|in:ct0,sales_hsi,churn,winback',
+            'region'    => 'required|string',
+            'quantity'  => 'required|integer|min:0',
+        ]);
+
+        CombatChurnData::create([
+            'user_id'    => $validated['user_id'],
+            'entry_date' => Carbon::now(),
+            'type'       => $validated['form_type'],
+            'category'   => $validated['category'],
+            'region'     => $validated['region'],
+            'quantity'   => $validated['quantity'],
+            'month'      => Carbon::now()->month,
+            'year'       => Carbon::now()->year,
+        ]);
+
+        return redirect()->back()->with('success', 'Data Combat The Churn berhasil disimpan');
+    }
+
+    // =========================================================
+    // ADMIN RISING STAR MANAGEMENT
+    // =========================================================
+
+    public function adminRisingStarDashboard()
+    {
+        return view('admin.rising-star.dashboard');
+    }
+
+    public function adminRisingStarFeature($feature)
+    {
+        $users = User::where('role', 'rising-star')->orderBy('name')->get();
+
+        $featureMap = [
+            'visiting-gm'           => ['model' => VisitingData::class,          'title' => 'Visiting GM',          'category' => 'visiting_gm'],
+            'visiting-am'           => ['model' => VisitingData::class,          'title' => 'Visiting AM',          'category' => 'visiting_am'],
+            'visiting-hotd'         => ['model' => VisitingData::class,          'title' => 'Visiting HOTD',        'category' => 'visiting_hotd'],
+            'profiling-maps-am'     => ['model' => ProfilingData::class,         'title' => 'Profiling Maps AM',    'category' => 'profiling_maps_am'],
+            'profiling-overall-hotd'=> ['model' => ProfilingData::class,         'title' => 'Profiling Overall HOTD','category'=> 'profiling_overall_hotd'],
+            'kecukupan-lop'         => ['model' => KecukupanLopData::class,      'title' => 'Kecukupan LOP',        'category' => null],
+            'asodomoro-0-3-bulan'   => ['model' => Asodomoro03BulanData::class,  'title' => 'Asodomoro 0-3 Bulan', 'category' => null],
+            'asodomoro-above-3-bulan'=>['model' => AsodomoroAbove3BulanData::class,'title'=> 'Asodomoro >3 Bulan', 'category' => null],
+        ];
+
+        if (!array_key_exists($feature, $featureMap)) {
+            abort(404);
+        }
+
+        $config       = $featureMap[$feature];
+        $featureTitle = $config['title'];
+        $modelClass   = $config['model'];
+
+        $query = $modelClass::with('user');
+        if ($config['category']) {
+            $query->where('category', $config['category']);
+        }
+        $data = $query->orderBy('entry_date', 'desc')->get();
+
+        return view('admin.rising-star.feature', compact('feature', 'featureTitle', 'users', 'data'));
+    }
+
+    public function adminRisingStarFeatureStore(Request $request, $feature)
+    {
+        $validated = $request->validate([
+            'user_id'   => 'required|exists:users,id',
+            'form_type' => 'required|in:komitmen,realisasi',
+        ]);
+
+        $now = Carbon::now();
+
+        switch ($feature) {
+            case 'visiting-gm':
+            case 'visiting-am':
+            case 'visiting-hotd':
+                $categoryMap = ['visiting-gm' => 'visiting_gm', 'visiting-am' => 'visiting_am', 'visiting-hotd' => 'visiting_hotd'];
+                VisitingData::create([
+                    'user_id'      => $validated['user_id'],
+                    'entry_date'   => $now,
+                    'type'         => $validated['form_type'],
+                    'category'     => $categoryMap[$feature],
+                    'target_ratio' => $request->target_ratio,
+                    'ratio_aktual' => $request->ratio_aktual,
+                    'month'        => $now->month,
+                    'year'         => $now->year,
+                ]);
+                break;
+            case 'profiling-maps-am':
+            case 'profiling-overall-hotd':
+                $catMap = ['profiling-maps-am' => 'profiling_maps_am', 'profiling-overall-hotd' => 'profiling_overall_hotd'];
+                ProfilingData::create([
+                    'user_id'      => $validated['user_id'],
+                    'entry_date'   => $now,
+                    'type'         => $validated['form_type'],
+                    'category'     => $catMap[$feature],
+                    'target_ratio' => $request->target_ratio,
+                    'ratio_aktual' => $request->ratio_aktual,
+                    'month'        => $now->month,
+                    'year'         => $now->year,
+                ]);
+                break;
+            case 'kecukupan-lop':
+                KecukupanLopData::create([
+                    'user_id'      => $validated['user_id'],
+                    'entry_date'   => $now,
+                    'type'         => $validated['form_type'],
+                    'target_ratio' => $request->target_ratio,
+                    'ratio_aktual' => $request->ratio_aktual,
+                    'month'        => $now->month,
+                    'year'         => $now->year,
+                ]);
+                break;
+            case 'asodomoro-0-3-bulan':
+                Asodomoro03BulanData::create([
+                    'user_id'        => $validated['user_id'],
+                    'entry_date'     => $now,
+                    'type'           => $validated['form_type'],
+                    'jml_asodomoro'  => $request->jml_asodomoro,
+                    'nilai_bc'       => $request->nilai_bc,
+                    'keterangan'     => $request->keterangan,
+                    'description'    => $request->description,
+                    'month'          => $now->month,
+                    'year'           => $now->year,
+                ]);
+                break;
+            case 'asodomoro-above-3-bulan':
+                AsodomoroAbove3BulanData::create([
+                    'user_id'        => $validated['user_id'],
+                    'entry_date'     => $now,
+                    'type'           => $validated['form_type'],
+                    'jml_asodomoro'  => $request->jml_asodomoro,
+                    'nilai_bc'       => $request->nilai_bc,
+                    'keterangan'     => $request->keterangan,
+                    'description'    => $request->description,
+                    'month'          => $now->month,
+                    'year'           => $now->year,
+                ]);
+                break;
+            default:
+                abort(404);
+        }
+
+        return redirect()->back()->with('success', 'Data Rising Star berhasil disimpan');
+    }
+
+    // =========================================================
+    // ADMIN COLLECTION MANAGEMENT
+    // =========================================================
+
+    public function adminCollectionDashboard()
+    {
+        return view('admin.collection.dashboard');
+    }
+
+    public function adminCollectionC3mr()
+    {
+        $users = User::where('role', 'collection')->orderBy('name')->get();
+        $data  = C3mr::with('user')->orderBy('entry_date', 'desc')->get();
+        return view('admin.collection.c3mr', compact('users', 'data'));
+    }
+
+    public function adminCollectionC3mrStore(Request $request)
+    {
+        $request->validate([
+            'user_id'   => 'required|exists:users,id',
+            'form_type' => 'required|in:komitmen,realisasi',
+            'ratio'     => 'required|numeric',
+        ]);
+
+        C3mr::create([
+            'user_id'    => $request->user_id,
+            'entry_date' => Carbon::now(),
+            'type'       => $request->form_type,
+            'ratio'      => $request->ratio,
+            'keterangan' => $request->keterangan,
+            'month'      => Carbon::now()->month,
+            'year'       => Carbon::now()->year,
+        ]);
+
+        return redirect()->back()->with('success', 'Data C3MR berhasil disimpan');
+    }
+
+    public function adminCollectionBilling()
+    {
+        $users = User::where('role', 'collection')->orderBy('name')->get();
+        $data  = BillingPerdanan::with('user')->orderBy('entry_date', 'desc')->get();
+        return view('admin.collection.billing', compact('users', 'data'));
+    }
+
+    public function adminCollectionBillingStore(Request $request)
+    {
+        $request->validate([
+            'user_id'   => 'required|exists:users,id',
+            'form_type' => 'required|in:komitmen,realisasi',
+            'ratio'     => 'required|numeric',
+        ]);
+
+        BillingPerdanan::create([
+            'user_id'    => $request->user_id,
+            'entry_date' => Carbon::now(),
+            'type'       => $request->form_type,
+            'ratio'      => $request->ratio,
+            'keterangan' => $request->keterangan,
+            'month'      => Carbon::now()->month,
+            'year'       => Carbon::now()->year,
+        ]);
+
+        return redirect()->back()->with('success', 'Data Billing Perdanan berhasil disimpan');
+    }
+
+    public function adminCollectionRatio()
+    {
+        $users = User::where('role', 'collection')->orderBy('name')->get();
+        $data  = CollectionRatioData::with('user')->orderBy('entry_date', 'desc')->get();
+        return view('admin.collection.collection-ratio', compact('users', 'data'));
+    }
+
+    public function adminCollectionRatioStore(Request $request)
+    {
+        $request->validate([
+            'user_id'   => 'required|exists:users,id',
+            'form_type' => 'required|in:komitmen,realisasi',
+            'segment'   => 'required|in:GOV,PRIVATE,SME,SOE',
+        ]);
+
+        CollectionRatioData::create([
+            'user_id'      => $request->user_id,
+            'entry_date'   => Carbon::now(),
+            'type'         => $request->form_type,
+            'segment'      => $request->segment,
+            'target_ratio' => $request->target_ratio,
+            'ratio_aktual' => $request->ratio_aktual,
+            'month'        => Carbon::now()->month,
+            'year'         => Carbon::now()->year,
+        ]);
+
+        return redirect()->back()->with('success', 'Data Collection Ratio berhasil disimpan');
+    }
+
+    public function adminCollectionUtip()
+    {
+        $users = User::where('role', 'collection')->orderBy('name')->get();
+        $data  = UtipData::with('user')->orderBy('entry_date', 'desc')->get();
+        return view('admin.collection.utip', compact('users', 'data'));
+    }
+
+    public function adminCollectionUtipStore(Request $request)
+    {
+        $request->validate([
+            'user_id'   => 'required|exists:users,id',
+            'utip_type' => 'required|in:New UTIP,Corrective UTIP',
+            'category'  => 'required|in:plan,komitmen,realisasi',
+            'value'     => 'required|numeric',
+        ]);
+
+        UtipData::create([
+            'user_id'    => $request->user_id,
+            'entry_date' => Carbon::now(),
+            'type'       => $request->utip_type,
+            'category'   => $request->category,
+            'value'      => $request->value,
+            'keterangan' => $request->keterangan,
+            'month'      => Carbon::now()->month,
+            'year'       => Carbon::now()->year,
+        ]);
+
+        return redirect()->back()->with('success', 'Data UTIP berhasil disimpan');
     }
 }
 

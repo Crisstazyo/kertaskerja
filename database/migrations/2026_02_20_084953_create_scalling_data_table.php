@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('scalling_data', function (Blueprint $table) {
             $table->id();
+            $table->string('role'); // government, private, soe, sme
             $table->string('uploaded_by'); // Admin email who uploaded 
             $table->string('file_name'); // Original file name
             $table->json('data'); // JSON data from Excel
