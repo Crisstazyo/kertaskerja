@@ -405,8 +405,6 @@ class CollectionController extends Controller
             'type' => 'realisasi',
             'segment' => 'GOV',
             'ratio_aktual' => $request->ratio_aktual,
-            'keterangan' => $request->keterangan,
-            'description' => $request->description,
             'month' => Carbon::now()->month,
             'year' => Carbon::now()->year,
         ]);
@@ -446,8 +444,6 @@ class CollectionController extends Controller
             'type' => 'realisasi',
             'segment' => 'PRIVATE',
             'ratio_aktual' => $request->ratio_aktual,
-            'keterangan' => $request->keterangan,
-            'description' => $request->description,
             'month' => Carbon::now()->month,
             'year' => Carbon::now()->year,
         ]);
@@ -487,8 +483,6 @@ class CollectionController extends Controller
             'type' => 'realisasi',
             'segment' => 'SME',
             'ratio_aktual' => $request->ratio_aktual,
-            'keterangan' => $request->keterangan,
-            'description' => $request->description,
             'month' => Carbon::now()->month,
             'year' => Carbon::now()->year,
         ]);
@@ -528,8 +522,6 @@ class CollectionController extends Controller
             'type' => 'realisasi',
             'segment' => 'SOE',
             'ratio_aktual' => $request->ratio_aktual,
-            'keterangan' => $request->keterangan,
-            'description' => $request->description,
             'month' => Carbon::now()->month,
             'year' => Carbon::now()->year,
         ]);
@@ -567,8 +559,6 @@ class CollectionController extends Controller
             'entry_date' => Carbon::now(),
             'type' => 'realisasi',
             'ratio' => $request->ratio_aktual,
-            'keterangan' => $request->keterangan,
-            'description' => $request->description,
             'month' => Carbon::now()->month,
             'year' => Carbon::now()->year,
         ]);
@@ -606,8 +596,6 @@ class CollectionController extends Controller
             'entry_date' => Carbon::now(),
             'type' => 'realisasi',
             'ratio' => $request->ratio_aktual,
-            'keterangan' => $request->keterangan,
-            'description' => $request->description,
             'month' => Carbon::now()->month,
             'year' => Carbon::now()->year,
         ]);

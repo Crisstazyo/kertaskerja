@@ -15,20 +15,16 @@ class AsodomoroAbove3BulanData extends Model
         'user_id',
         'entry_date',
         'type',
-        'jml_asodomoro',
-        'nilai_bc',
-        'keterangan',
-        'description',
         'month',
         'year',
+        'realisasi',
     ];
 
     protected $casts = [
         'entry_date' => 'date',
-        'jml_asodomoro' => 'integer',
-        'nilai_bc' => 'decimal:2',
         'month' => 'integer',
         'year' => 'integer',
+        'realisasi' => 'decimal:2',
     ];
 
     public function user()

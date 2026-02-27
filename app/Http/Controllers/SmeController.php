@@ -300,4 +300,60 @@ class SmeController extends Controller
             'total' => number_format($total, 0, ',', '.'),
         ]);
     }
+
+    // Asodomoro 0-3 Bulan
+    public function asodomoro03Bulan()
+    {
+        $user = auth()->user();
+        $history = \App\Models\Asodomoro03BulanData::where('user_id', auth()->id())
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+        return view('sme.asodomoro-0-3-bulan', compact('user', 'history'));
+    }
+
+    public function storeAsodomoro03Bulan(Request $request)
+    {
+        $validated = $request->validate([
+            'realisasi' => 'required|numeric|min:0',
+        ]);
+
+        $validated['user_id'] = auth()->id();
+        $validated['entry_date'] = now()->toDateString();
+        $validated['type'] = 'Realisasi';
+        $validated['month'] = now()->month;
+        $validated['year'] = now()->year;
+
+        \App\Models\Asodomoro03BulanData::create($validated);
+
+        return redirect()->route('sme.asodomoro-0-3-bulan')
+            ->with('success', 'Realisasi Asodomoro 0-3 Bulan berhasil disimpan.');
+    }
+
+    // Asodomoro Above 3 Bulan
+    public function asodomoroAbove3Bulan()
+    {
+        $user = auth()->user();
+        $history = \App\Models\AsodomoroAbove3BulanData::where('user_id', auth()->id())
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+        return view('sme.asodomoro-above-3-bulan', compact('user', 'history'));
+    }
+
+    public function storeAsodomoroAbove3Bulan(Request $request)
+    {
+        $validated = $request->validate([
+            'realisasi' => 'required|numeric|min:0',
+        ]);
+
+        $validated['user_id'] = auth()->id();
+        $validated['entry_date'] = now()->toDateString();
+        $validated['type'] = 'Realisasi';
+        $validated['month'] = now()->month;
+        $validated['year'] = now()->year;
+
+        \App\Models\AsodomoroAbove3BulanData::create($validated);
+
+        return redirect()->route('sme.asodomoro-above-3-bulan')
+            ->with('success', 'Realisasi Asodomoro >3 Bulan berhasil disimpan.');
+    }
 }

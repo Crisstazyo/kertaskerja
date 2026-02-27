@@ -24,6 +24,9 @@ use App\Models\PsakSme;
 use App\Models\PaidCt0Data;
 use App\Models\CombatChurnData;
 use App\Models\VisitingData;
+use App\Models\VisitingGmData;
+use App\Models\VisitingAmData;
+use App\Models\VisitingHotdData;
 use App\Models\ProfilingData;
 use App\Models\KecukupanLopData;
 use App\Models\Asodomoro03BulanData;
@@ -1957,9 +1960,9 @@ class AdminController extends Controller
         $users = User::where('role', 'rising-star')->orderBy('name')->get();
 
         $featureMap = [
-            'visiting-gm'           => ['model' => VisitingData::class,          'title' => 'Visiting GM',          'category' => 'visiting_gm'],
-            'visiting-am'           => ['model' => VisitingData::class,          'title' => 'Visiting AM',          'category' => 'visiting_am'],
-            'visiting-hotd'         => ['model' => VisitingData::class,          'title' => 'Visiting HOTD',        'category' => 'visiting_hotd'],
+            'visiting-gm'           => ['model' => VisitingGmData::class,        'title' => 'Visiting GM',          'category' => null],
+            'visiting-am'           => ['model' => VisitingAmData::class,        'title' => 'Visiting AM',          'category' => null],
+            'visiting-hotd'         => ['model' => VisitingHotdData::class,      'title' => 'Visiting HOTD',        'category' => null],
             'profiling-maps-am'     => ['model' => ProfilingData::class,         'title' => 'Profiling Maps AM',    'category' => 'profiling_maps_am'],
             'profiling-overall-hotd'=> ['model' => ProfilingData::class,         'title' => 'Profiling Overall HOTD','category'=> 'profiling_overall_hotd'],
             'kecukupan-lop'         => ['model' => KecukupanLopData::class,      'title' => 'Kecukupan LOP',        'category' => null],
@@ -1998,24 +2001,50 @@ class AdminController extends Controller
 
     public function adminRisingStarFeatureStore(Request $request, $feature)
     {
-        $validated = $request->validate([
-            'user_id'   => 'required|exists:users,id',
-            'form_type' => 'required|in:komitmen,realisasi',
-        ]);
+        // Bintang 1, 2, 3: Admin input komitmen DAN realisasi
+        // Bintang 4: Admin hanya input komitmen (user yang input realisasi)
+        $isBintang1 = in_array($feature, ['visiting-gm', 'visiting-am', 'visiting-hotd']);
+        $isBintang4 = in_array($feature, ['asodomoro-0-3-bulan', 'asodomoro-above-3-bulan']);
+        
+        $rules = ['user_id' => 'required|exists:users,id'];
+        
+        // Bintang 1: tidak perlu form_type (admin input langsung komitmen dan realisasi)
+        // Bintang 2, 3: perlu form_type untuk pilih komitmen atau realisasi
+        // Bintang 4: form_type otomatis 'komitmen'
+        if (!$isBintang1 && !$isBintang4) {
+            $rules['form_type'] = 'required|in:komitmen,realisasi';
+        }
+        
+        $validated = $request->validate($rules);
 
         $now = Carbon::now();
 
         switch ($feature) {
             case 'visiting-gm':
-            case 'visiting-am':
-            case 'visiting-hotd':
-                $categoryMap = ['visiting-gm' => 'visiting_gm', 'visiting-am' => 'visiting_am', 'visiting-hotd' => 'visiting_hotd'];
-                VisitingData::create([
+                VisitingGmData::create([
                     'user_id'      => $validated['user_id'],
                     'entry_date'   => $now,
-                    'type'         => $validated['form_type'],
-                    'category'     => $categoryMap[$feature],
-                    'target_ratio' => $request->target_ratio,
+                    'target_ratio' => $request->target_ratio ?? 110,
+                    'ratio_aktual' => $request->ratio_aktual,
+                    'month'        => $now->month,
+                    'year'         => $now->year,
+                ]);
+                break;
+            case 'visiting-am':
+                VisitingAmData::create([
+                    'user_id'      => $validated['user_id'],
+                    'entry_date'   => $now,
+                    'target_ratio' => $request->target_ratio ?? 110,
+                    'ratio_aktual' => $request->ratio_aktual,
+                    'month'        => $now->month,
+                    'year'         => $now->year,
+                ]);
+                break;
+            case 'visiting-hotd':
+                VisitingHotdData::create([
+                    'user_id'      => $validated['user_id'],
+                    'entry_date'   => $now,
+                    'target_ratio' => $request->target_ratio ?? 110,
                     'ratio_aktual' => $request->ratio_aktual,
                     'month'        => $now->month,
                     'year'         => $now->year,
@@ -2047,10 +2076,11 @@ class AdminController extends Controller
                 ]);
                 break;
             case 'asodomoro-0-3-bulan':
+                // Bintang 4: Admin hanya input komitmen
                 Asodomoro03BulanData::create([
                     'user_id'        => $validated['user_id'],
                     'entry_date'     => $now,
-                    'type'           => $validated['form_type'],
+                    'type'           => 'komitmen', // Fixed to komitmen
                     'jml_asodomoro'  => $request->jml_asodomoro,
                     'nilai_bc'       => $request->nilai_bc,
                     'keterangan'     => $request->keterangan,
@@ -2060,10 +2090,11 @@ class AdminController extends Controller
                 ]);
                 break;
             case 'asodomoro-above-3-bulan':
+                // Bintang 4: Admin hanya input komitmen
                 AsodomoroAbove3BulanData::create([
                     'user_id'        => $validated['user_id'],
                     'entry_date'     => $now,
-                    'type'           => $validated['form_type'],
+                    'type'           => 'komitmen', // Fixed to komitmen
                     'jml_asodomoro'  => $request->jml_asodomoro,
                     'nilai_bc'       => $request->nilai_bc,
                     'keterangan'     => $request->keterangan,
@@ -2201,6 +2232,103 @@ class AdminController extends Controller
         ]);
 
         return redirect()->back()->with('success', 'Data UTIP berhasil disimpan');
+    }
+
+    // =========================================================
+    // RISING STAR PROGRESS PAGES
+    // =========================================================
+
+    public function visitingGmProgress(Request $request)
+    {
+        $month = $request->get('month', Carbon::now()->month);
+        $year = $request->get('year', Carbon::now()->year);
+        $userId = $request->get('user_id');
+
+        $users = User::where('role', 'rising-star')->orderBy('name')->get();
+
+        // Get data for the selected period
+        $query = VisitingGmData::with('user')
+            ->where('month', $month)
+            ->where('year', $year);
+
+        if ($userId) {
+            $query->where('user_id', $userId);
+        }
+
+        $data = $query->orderBy('entry_date', 'desc')->get();
+
+        // Count users who have submitted and who haven't
+        $userIds = $data->pluck('user_id')->unique();
+        $totalUsers = $users->count();
+        $completedUsers = $userIds->count();
+        $usersNotInput = $users->whereNotIn('id', $userIds);
+
+        return view('admin.rising-star.progress.visiting-gm', compact(
+            'data', 'users', 'month', 'year', 'userId',
+            'totalUsers', 'completedUsers', 'usersNotInput'
+        ));
+    }
+
+    public function visitingAmProgress(Request $request)
+    {
+        $month = $request->get('month', Carbon::now()->month);
+        $year = $request->get('year', Carbon::now()->year);
+        $userId = $request->get('user_id');
+
+        $users = User::where('role', 'rising-star')->orderBy('name')->get();
+
+        // Get data for the selected period
+        $query = VisitingAmData::with('user')
+            ->where('month', $month)
+            ->where('year', $year);
+
+        if ($userId) {
+            $query->where('user_id', $userId);
+        }
+
+        $data = $query->orderBy('entry_date', 'desc')->get();
+
+        // Count users who have submitted and who haven't
+        $userIds = $data->pluck('user_id')->unique();
+        $totalUsers = $users->count();
+        $completedUsers = $userIds->count();
+        $usersNotInput = $users->whereNotIn('id', $userIds);
+
+        return view('admin.rising-star.progress.visiting-am', compact(
+            'data', 'users', 'month', 'year', 'userId',
+            'totalUsers', 'completedUsers', 'usersNotInput'
+        ));
+    }
+
+    public function visitingHotdProgress(Request $request)
+    {
+        $month = $request->get('month', Carbon::now()->month);
+        $year = $request->get('year', Carbon::now()->year);
+        $userId = $request->get('user_id');
+
+        $users = User::where('role', 'rising-star')->orderBy('name')->get();
+
+        // Get data for the selected period
+        $query = VisitingHotdData::with('user')
+            ->where('month', $month)
+            ->where('year', $year);
+
+        if ($userId) {
+            $query->where('user_id', $userId);
+        }
+
+        $data = $query->orderBy('entry_date', 'desc')->get();
+
+        // Count users who have submitted and who haven't
+        $userIds = $data->pluck('user_id')->unique();
+        $totalUsers = $users->count();
+        $completedUsers = $userIds->count();
+        $usersNotInput = $users->whereNotIn('id', $userIds);
+
+        return view('admin.rising-star.progress.visiting-hotd', compact(
+            'data', 'users', 'month', 'year', 'userId',
+            'totalUsers', 'completedUsers', 'usersNotInput'
+        ));
     }
 }
 
