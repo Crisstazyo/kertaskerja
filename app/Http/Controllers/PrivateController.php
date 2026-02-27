@@ -11,6 +11,8 @@ use App\Models\LopPrivateCorrectionImport;
 use App\Models\LopAdminNote;
 use App\Models\FunnelTracking;
 use App\Models\PsakPrivate;
+use App\Models\ScallingData;
+use App\Models\ScallingGovResponse;
 use Illuminate\Support\Facades\Auth;
 
 class PrivateController extends Controller
@@ -298,7 +300,86 @@ class PrivateController extends Controller
         return response()->json([
             'success' => true,
             'nilai_billcomp' => $taskProgress->delivery_nilai_billcomp,
-            'total' => number_format($total, 0, ',', '.'),
+            'total' => number_format((float) $total, 0, ',', '.'),
+        ]);
+    }
+
+    // ── Scalling LOP Table (ScallingData-based) ──────────────────────────────
+
+    public function scallingLopTable($lopType)
+    {
+        $validTypes = ['on-hand', 'qualified', 'koreksi', 'initiate'];
+        if (!in_array($lopType, $validTypes)) abort(404);
+
+        $roleNormalized = 'private';
+        $lopTypeDisplay = ucfirst(str_replace('-', ' ', $lopType));
+        $dataType       = 'scalling_' . $roleNormalized . '_' . $lopType;
+
+        $latestData = ScallingData::where('role', $roleNormalized)
+            ->where('lop_type', $lopType)
+            ->latest()
+            ->first();
+
+        $funnelByRow = collect();
+        if ($latestData) {
+            $funnelByRow = \App\Models\FunnelTracking::where('data_type', $dataType)
+                ->with(['todayProgress' => function ($q) {
+                    $q->where('user_id', auth()->id())->whereDate('tanggal', today());
+                }])
+                ->get()
+                ->keyBy('data_id');
+        }
+
+        return view('user.scalling-lop-table', compact(
+            'latestData', 'funnelByRow', 'lopType', 'lopTypeDisplay', 'roleNormalized', 'dataType'
+        ));
+    }
+
+    public function updateScallingFunnel(Request $request)
+    {
+        $request->validate([
+            'data_type'    => 'required|string',
+            'data_id'      => 'required|integer',
+            'field'        => 'required|string',
+            'value'        => 'required',
+            'est_nilai_bc' => 'nullable',
+        ]);
+
+        $value    = filter_var($request->value, FILTER_VALIDATE_BOOLEAN);
+        $estNilai = $request->est_nilai_bc
+            ? floatval(str_replace([',', '.'], '', $request->est_nilai_bc)) : 0;
+
+        $funnel = \App\Models\FunnelTracking::firstOrCreate([
+            'data_type' => $request->data_type,
+            'data_id'   => $request->data_id,
+        ]);
+
+        $taskProgress = \App\Models\TaskProgress::firstOrCreate([
+            'task_id' => $funnel->id,
+            'user_id' => auth()->id(),
+            'tanggal' => today(),
+        ]);
+
+        $taskProgress->{$request->field} = $value;
+        if ($request->field === 'delivery_billing_complete' && $value) {
+            $taskProgress->delivery_nilai_billcomp = $estNilai;
+        } elseif ($request->field === 'delivery_billing_complete' && !$value) {
+            $taskProgress->delivery_nilai_billcomp = null;
+        }
+        $taskProgress->save();
+
+        $total = (float) \App\Models\TaskProgress::whereHas('task', fn ($q) =>
+                $q->where('data_type', $request->data_type))
+            ->where('user_id', auth()->id())
+            ->whereDate('tanggal', today())
+            ->where('delivery_billing_complete', true)
+            ->whereNotNull('delivery_nilai_billcomp')
+            ->sum('delivery_nilai_billcomp');
+
+        return response()->json([
+            'success'                  => true,
+            'delivery_nilai_billcomp'  => $taskProgress->delivery_nilai_billcomp,
+            'total'                    => number_format((float) $total, 0, ',', '.'),
         ]);
     }
 }

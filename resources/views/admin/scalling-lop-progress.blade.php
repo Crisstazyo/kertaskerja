@@ -92,16 +92,26 @@
                 </div>
             </div>
 
+            {{-- ══ Upload Context ══ --}}
+            @if($latestData)
+            <div class="px-8 py-3 bg-slate-50 border-b border-slate-100 flex items-center gap-6 text-xs text-slate-500 font-semibold">
+                <span>Periode: <strong class="text-slate-700">{{ $latestData->periode ? \Carbon\Carbon::parse($latestData->periode)->format('M Y') : '-' }}</strong></span>
+                <span>File: <strong class="text-slate-700">{{ $latestData->file_name }}</strong></span>
+                <span>Total Baris: <strong class="text-slate-700">{{ $totalRows }}</strong></span>
+                <span>Upload: <strong class="text-slate-700">{{ $latestData->created_at->format('d M Y, H:i') }}</strong></span>
+            </div>
+            @endif
+
             @if($progressData->count() > 0)
             <div class="overflow-x-auto">
                 <table class="min-w-full">
                     <thead>
                         <tr class="bg-slate-50 border-b border-slate-100">
                             <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">User</th>
-                            <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Tanggal</th>
-                            <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Data ID</th>
+                            <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Baris Selesai</th>
+                            <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Baris</th>
                             <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
-                            <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Progress</th>
+                            <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Completion %</th>
                             <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Last Update</th>
                         </tr>
                     </thead>
@@ -121,44 +131,38 @@
                                     </div>
                                 </div>
                             </td>
-                            <td class="px-6 py-4 text-sm font-medium text-slate-600">
-                                {{ \Carbon\Carbon::parse($progress->tanggal)->format('d M Y') }}
+                            <td class="px-6 py-4 text-sm font-black text-slate-700">
+                                {{ $progress->checked }}
+                            </td>
+                            <td class="px-6 py-4 text-sm font-medium text-slate-500">
+                                {{ $progress->total }}
                             </td>
                             <td class="px-6 py-4">
-                                <span class="text-xs font-bold text-slate-500 bg-slate-100 rounded-md px-2.5 py-1 font-mono">
-                                    #{{ $progress->task->data_id ?? 'N/A' }}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4">
-                                @if($progress->is_completed)
+                                @if($progress->pct >= 100)
                                     <span class="text-xs font-bold text-green-700 bg-green-50 border border-green-200 rounded-md px-2.5 py-1">Completed</span>
-                                @else
+                                @elseif($progress->pct > 0)
                                     <span class="text-xs font-bold text-yellow-700 bg-yellow-50 border border-yellow-200 rounded-md px-2.5 py-1">In Progress</span>
+                                @else
+                                    <span class="text-xs font-bold text-slate-500 bg-slate-50 border border-slate-200 rounded-md px-2.5 py-1">Not Started</span>
                                 @endif
                             </td>
                             <td class="px-6 py-4">
                                 <div class="flex items-center space-x-2.5">
-                                    <div class="flex-1 bg-slate-100 rounded-full h-1.5 max-w-[100px]">
-                                        <div class="h-1.5 rounded-full {{ $progress->is_completed ? 'bg-red-500' : 'bg-slate-400' }}"
-                                            style="width: {{ $progress->is_completed ? 100 : 50 }}%"></div>
+                                    <div class="flex-1 bg-slate-100 rounded-full h-1.5 max-w-[120px]">
+                                        <div class="h-1.5 rounded-full {{ $progress->pct >= 100 ? 'bg-green-500' : 'bg-red-500' }}"
+                                             style="width: {{ $progress->pct }}%"></div>
                                     </div>
-                                    <span class="text-xs font-black text-slate-500">{{ $progress->is_completed ? '100' : '50' }}%</span>
+                                    <span class="text-xs font-black text-slate-500">{{ $progress->pct }}%</span>
                                 </div>
                             </td>
                             <td class="px-6 py-4 text-sm text-slate-400">
-                                {{ $progress->updated_at->diffForHumans() }}
+                                {{ $progress->last_update ? $progress->last_update->diffForHumans() : '-' }}
                             </td>
                         </tr>
                         @endforeach
                     </tbody>
                 </table>
             </div>
-
-            @if($progressData->hasPages())
-            <div class="px-6 py-4 border-t border-slate-100">
-                {{ $progressData->links() }}
-            </div>
-            @endif
 
             @else
             <div class="text-center py-16">

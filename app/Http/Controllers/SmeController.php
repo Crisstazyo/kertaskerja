@@ -11,6 +11,11 @@ use App\Models\LopSmeCorrectionImport;
 use App\Models\LopAdminNote;
 use App\Models\FunnelTracking;
 use App\Models\PsakSme;
+use App\Models\ScallingHsiAgency;
+use App\Models\ScallingTelda;
+use App\Models\ScallingData;
+use App\Models\ScallingGovResponse;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 
 class SmeController extends Controller
@@ -297,7 +302,7 @@ class SmeController extends Controller
         return response()->json([
             'success' => true,
             'nilai_billcomp' => $taskProgress->delivery_nilai_billcomp,
-            'total' => number_format($total, 0, ',', '.'),
+            'total' => number_format((float) $total, 0, ',', '.'),
         ]);
     }
 
@@ -355,5 +360,160 @@ class SmeController extends Controller
 
         return redirect()->route('sme.asodomoro-above-3-bulan')
             ->with('success', 'Realisasi Asodomoro >3 Bulan berhasil disimpan.');
+    }
+
+    // HSI Agency — User inputs Real
+    public function hsiAgency()
+    {
+        $currentPeriode = Carbon::now()->format('Y-m') . '-01';
+        $record = ScallingHsiAgency::where('periode', $currentPeriode)->first();
+        $history = ScallingHsiAgency::orderBy('periode', 'desc')->get();
+        return view('sme.scalling-hsi-agency', compact('record', 'history'));
+    }
+
+    public function storeHsiAgency(Request $request)
+    {
+        $request->validate([
+            'periode' => 'required|string',
+            'real'    => 'required|integer|min:0',
+        ]);
+
+        $periode = strlen($request->periode) === 7
+            ? $request->periode . '-01'
+            : $request->periode;
+
+        $record = ScallingHsiAgency::where('periode', $periode)->first();
+
+        if (!$record || is_null($record->commitment)) {
+            return redirect()->back()->with('error', 'Admin belum mengatur commitment untuk periode ini.');
+        }
+
+        ScallingHsiAgency::updateOrCreate(
+            ['periode' => $periode],
+            ['real' => $request->real, 'user_id' => Auth::id()]
+        );
+
+        return redirect()->back()->with('success', 'Realisasi HSI Agency berhasil disimpan!');
+    }
+
+    // Scalling Telda — User inputs Real per Telda
+    public function scallingTelda()
+    {
+        $currentPeriode = Carbon::now()->format('Y-m') . '-01';
+        $record  = ScallingTelda::where('periode', $currentPeriode)->first();
+        $history = ScallingTelda::orderBy('periode', 'desc')->get();
+        $teldas  = ScallingTelda::TELDA_LOCATIONS;
+        return view('sme.scalling-telda', compact('record', 'history', 'teldas'));
+    }
+
+    public function storeTelda(Request $request)
+    {
+        $request->validate(['periode' => 'required|string']);
+
+        $periode = strlen($request->periode) === 7
+            ? $request->periode . '-01'
+            : $request->periode;
+
+        $record    = ScallingTelda::where('periode', $periode)->first();
+        $teldaKeys = array_keys(ScallingTelda::TELDA_LOCATIONS);
+        $fields    = ['user_id' => Auth::id(), 'periode' => $periode];
+
+        foreach ($teldaKeys as $telda) {
+            $commitmentKey = $telda . '_commitment';
+            $realKey       = $telda . '_real';
+            $hasCommitment = $record && !is_null($record->$commitmentKey);
+
+            if ($hasCommitment && $request->has($realKey) && $request->input($realKey) !== null) {
+                $fields[$realKey] = $request->input($realKey);
+            }
+        }
+
+        // Update the same global record so admin can see
+        if ($record) {
+            $record->update($fields);
+        } else {
+            return redirect()->back()->with('error', 'Admin belum mengatur commitment untuk periode ini.');
+        }
+
+        return redirect()->back()->with('success', 'Data Realisasi Telda berhasil disimpan!');
+    }
+
+    // ── Scalling LOP Table (ScallingData-based) ──────────────────────────────
+
+    public function scallingLopTable($lopType)
+    {
+        $validTypes = ['on-hand', 'qualified', 'koreksi', 'initiate'];
+        if (!in_array($lopType, $validTypes)) abort(404);
+
+        $roleNormalized = 'sme';
+        $lopTypeDisplay = ucfirst(str_replace('-', ' ', $lopType));
+        $dataType       = 'scalling_' . $roleNormalized . '_' . $lopType;
+
+        $latestData = ScallingData::where('role', $roleNormalized)
+            ->where('lop_type', $lopType)
+            ->latest()
+            ->first();
+
+        $funnelByRow = collect();
+        if ($latestData) {
+            $funnelByRow = \App\Models\FunnelTracking::where('data_type', $dataType)
+                ->with(['todayProgress' => function ($q) {
+                    $q->where('user_id', auth()->id())->whereDate('tanggal', today());
+                }])
+                ->get()
+                ->keyBy('data_id');
+        }
+
+        return view('user.scalling-lop-table', compact(
+            'latestData', 'funnelByRow', 'lopType', 'lopTypeDisplay', 'roleNormalized', 'dataType'
+        ));
+    }
+
+    public function updateScallingFunnel(Request $request)
+    {
+        $request->validate([
+            'data_type'    => 'required|string',
+            'data_id'      => 'required|integer',
+            'field'        => 'required|string',
+            'value'        => 'required',
+            'est_nilai_bc' => 'nullable',
+        ]);
+
+        $value    = filter_var($request->value, FILTER_VALIDATE_BOOLEAN);
+        $estNilai = $request->est_nilai_bc
+            ? floatval(str_replace([',', '.'], '', $request->est_nilai_bc)) : 0;
+
+        $funnel = \App\Models\FunnelTracking::firstOrCreate([
+            'data_type' => $request->data_type,
+            'data_id'   => $request->data_id,
+        ]);
+
+        $taskProgress = \App\Models\TaskProgress::firstOrCreate([
+            'task_id' => $funnel->id,
+            'user_id' => auth()->id(),
+            'tanggal' => today(),
+        ]);
+
+        $taskProgress->{$request->field} = $value;
+        if ($request->field === 'delivery_billing_complete' && $value) {
+            $taskProgress->delivery_nilai_billcomp = $estNilai;
+        } elseif ($request->field === 'delivery_billing_complete' && !$value) {
+            $taskProgress->delivery_nilai_billcomp = null;
+        }
+        $taskProgress->save();
+
+        $total = (float) \App\Models\TaskProgress::whereHas('task', fn ($q) =>
+                $q->where('data_type', $request->data_type))
+            ->where('user_id', auth()->id())
+            ->whereDate('tanggal', today())
+            ->where('delivery_billing_complete', true)
+            ->whereNotNull('delivery_nilai_billcomp')
+            ->sum('delivery_nilai_billcomp');
+
+        return response()->json([
+            'success'                  => true,
+            'delivery_nilai_billcomp'  => $taskProgress->delivery_nilai_billcomp,
+            'total'                    => number_format((float) $total, 0, ',', '.'),
+        ]);
     }
 }

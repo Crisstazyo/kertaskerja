@@ -19,7 +19,7 @@
                         <h1 class="text-2xl font-black tracking-tight text-slate-900 leading-none uppercase">
                             Scaling <span class="text-red-600">Telda</span>
                         </h1>
-                        <p class="text-slate-400 text-xs font-bold mt-1 uppercase tracking-tight">Admin input Commitment (Rp) · User input Real (Rp)</p>
+                        <p class="text-slate-400 text-xs font-bold mt-1 uppercase tracking-tight">9 Telekomunikasi Daerah · Commitment & Realisasi</p>
                     </div>
                 </div>
                 <div class="flex items-center space-x-4">
@@ -44,7 +44,7 @@
             </div>
         </div>
 
-        {{-- ══ FLASH MESSAGE ══ --}}
+        {{-- ══ FLASH MESSAGES ══ --}}
         @if(session('success'))
         <div class="flex items-center space-x-3 bg-green-50 border border-green-200 text-green-800 px-5 py-3.5 mb-6 rounded-xl text-sm font-semibold">
             <svg class="w-4 h-4 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -53,43 +53,78 @@
             <span>{{ session('success') }}</span>
         </div>
         @endif
+        @if(session('error'))
+        <div class="flex items-center space-x-3 bg-red-50 border border-red-200 text-red-800 px-5 py-3.5 mb-6 rounded-xl text-sm font-semibold">
+            <svg class="w-4 h-4 text-red-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <span>{{ session('error') }}</span>
+        </div>
+        @endif
 
-        {{-- ══ INPUT FORM ══ --}}
+        {{-- ══ INPUT FORM — TELDA CARDS ══ --}}
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-8 mb-8">
-            <div class="flex items-center space-x-3 mb-6">
-                <div class="w-1 h-6 bg-red-600 rounded-full"></div>
-                <h2 class="text-base font-black text-slate-900 uppercase tracking-wide">Input Data</h2>
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center space-x-3">
+                    <div class="w-1 h-6 bg-red-600 rounded-full"></div>
+                    <h2 class="text-base font-black text-slate-900 uppercase tracking-wide">
+                        Input Data — {{ \Carbon\Carbon::now()->format('F Y') }}
+                    </h2>
+                    @if($existing)
+                    <span class="text-xs font-bold text-blue-600 bg-blue-50 border border-blue-200 rounded-md px-2.5 py-1 ml-2">
+                        ✏️ Update data
+                    </span>
+                    @endif
+                </div>
+                <p class="text-xs text-slate-400 font-medium">
+                    ⚠ Realisasi hanya aktif jika Commitment sudah diisi
+                </p>
             </div>
 
-            <form action="{{ route('admin.scalling.telda.store') }}" method="POST">
+            <form action="{{ route('admin.scalling.telda.store') }}" method="POST" id="teldaForm">
                 @csrf
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-6">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Periode</label>
-                        <input type="month" name="periode" required
-                            class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors">
-                        @error('periode')
-                            <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
-                        @enderror
-                    </div>
+                <input type="hidden" name="periode" value="{{ \Carbon\Carbon::now()->format('Y-m') }}">
 
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Commitment (Rp) <span class="normal-case font-medium text-slate-400">— Optional</span></label>
-                        <input type="number" name="commitment" step="0.01" placeholder="Contoh: 50000000"
-                            class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors">
-                        @error('commitment')
-                            <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
-                        @enderror
-                    </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 mb-6">
+                    @foreach($teldas as $key => $label)
+                    @php
+                        $commitmentVal = $existing ? $existing->{$key . '_commitment'} : null;
+                        $realVal       = $existing ? $existing->{$key . '_real'} : null;
+                        $realDisabled  = is_null($commitmentVal);
+                    @endphp
+                    <div class="border border-slate-200 rounded-xl p-5 hover:border-red-200 hover:shadow-sm transition-all duration-200">
+                        <div class="flex items-center space-x-2 mb-4">
+                            <div class="w-2 h-2 rounded-full bg-red-500"></div>
+                            <h3 class="text-sm font-black text-slate-800 uppercase tracking-wide">{{ $label }}</h3>
+                        </div>
 
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Real (Rp) <span class="normal-case font-medium text-slate-400">— Optional</span></label>
-                        <input type="number" name="real" step="0.01" placeholder="Contoh: 48000000"
-                            class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors">
-                        @error('real')
-                            <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
-                        @enderror
+                        {{-- Commitment --}}
+                        <div class="mb-3">
+                            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Commitment</label>
+                            <input type="number"
+                                name="{{ $key }}_commitment"
+                                id="{{ $key }}_commitment"
+                                value="{{ $commitmentVal ?? '' }}"
+                                placeholder="Masukkan target"
+                                min="0"
+                                data-telda="{{ $key }}"
+                                class="telda-commitment w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors">
+                        </div>
+
+                        {{-- Realisasi --}}
+                        <div>
+                            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Realisasi</label>
+                            <input type="number"
+                                name="{{ $key }}_real"
+                                id="{{ $key }}_real"
+                                value="{{ $realVal ?? '' }}"
+                                placeholder="{{ $realDisabled ? 'Isi commitment dulu' : 'Masukkan realisasi' }}"
+                                min="0"
+                                {{ $realDisabled ? 'disabled' : '' }}
+                                class="telda-real w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors disabled:bg-slate-50 disabled:text-slate-300 disabled:cursor-not-allowed">
+                        </div>
                     </div>
+                    @endforeach
                 </div>
 
                 <div class="flex justify-end">
@@ -98,82 +133,94 @@
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                         </svg>
-                        <span>Simpan Data</span>
+                        <span>Simpan Semua Data Telda</span>
                     </button>
                 </div>
             </form>
         </div>
 
-        {{-- ══ DATA TABLE ══ --}}
+        {{-- ══ HISTORY TABLE ══ --}}
+        @if($history->count() > 0)
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
             <div class="px-8 py-5 border-b border-slate-100 flex items-center justify-between">
                 <div class="flex items-center space-x-3">
                     <div class="w-1 h-6 bg-red-600 rounded-full"></div>
-                    <h2 class="text-base font-black text-slate-900 uppercase tracking-wide">Data Scaling Telda</h2>
+                    <h2 class="text-base font-black text-slate-900 uppercase tracking-wide">Riwayat Data Telda</h2>
                 </div>
                 <span class="text-xs font-bold text-slate-400 bg-slate-50 border border-slate-200 rounded-full px-3 py-1">
-                    {{ count($data) }} records
+                    {{ $history->count() }} records
                 </span>
             </div>
 
             <div class="overflow-x-auto">
-                <table class="min-w-full">
+                <table class="min-w-full text-sm">
                     <thead>
                         <tr class="bg-slate-50 border-b border-slate-100">
-                            <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">No</th>
-                            <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Periode</th>
-                            <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">User</th>
-                            <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Commitment</th>
-                            <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Real</th>
-                            <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Achievement</th>
-                            <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Tanggal Input</th>
+                            <th class="px-4 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Periode</th>
+                            @foreach($teldas as $key => $label)
+                            <th class="px-4 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap" colspan="2">{{ $label }}</th>
+                            @endforeach
+                        </tr>
+                        <tr class="bg-slate-50 border-b border-slate-200">
+                            <th class="px-4 py-2"></th>
+                            @foreach($teldas as $key => $label)
+                            <th class="px-3 py-2 text-center text-[9px] font-black text-blue-400 uppercase tracking-widest">COM</th>
+                            <th class="px-3 py-2 text-center text-[9px] font-black text-green-400 uppercase tracking-widest">REAL</th>
+                            @endforeach
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
-                        @forelse($data as $index => $item)
+                        @foreach($history as $row)
                         <tr class="hover:bg-slate-50 transition-colors">
-                            <td class="px-6 py-4 text-sm font-bold text-slate-400">{{ $index + 1 }}</td>
-                            <td class="px-6 py-4">
-                                <span class="text-xs font-bold text-red-600 bg-red-50 border border-red-100 rounded-md px-2.5 py-1">
-                                    {{ \Carbon\Carbon::parse($item->periode)->format('M Y') }}
+                            <td class="px-4 py-3 whitespace-nowrap">
+                                <span class="text-xs font-bold text-red-600 bg-red-50 border border-red-100 rounded-md px-2 py-0.5">
+                                    {{ \Carbon\Carbon::parse($row->periode)->format('M Y') }}
                                 </span>
                             </td>
-                            <td class="px-6 py-4 text-sm font-semibold text-slate-700">{{ $item->user->name ?? '-' }}</td>
-                            <td class="px-6 py-4 text-sm font-bold text-slate-800">
-                                Rp {{ number_format($item->commitment, 0, ',', '.') }}
+                            @foreach($teldas as $key => $label)
+                            @php
+                                $com  = $row->{$key . '_commitment'};
+                                $real = $row->{$key . '_real'};
+                            @endphp
+                            <td class="px-3 py-3 text-center font-bold text-slate-700 whitespace-nowrap">
+                                {{ !is_null($com) ? number_format($com, 0, ',', '.') : '<span class="text-slate-300">—</span>' }}
                             </td>
-                            <td class="px-6 py-4 text-sm font-bold text-slate-800">
-                                {{ $item->real ? 'Rp ' . number_format($item->real, 0, ',', '.') : '<span class="text-slate-300 font-medium">—</span>' }}
-                            </td>
-                            <td class="px-6 py-4">
-                                @if($item->real && $item->commitment > 0)
-                                    @php $achievement = ($item->real / $item->commitment) * 100; @endphp
-                                    <span class="text-xs font-bold rounded-md px-2.5 py-1
-                                        {{ $achievement >= 100 ? 'text-green-700 bg-green-50 border border-green-200' : ($achievement >= 80 ? 'text-yellow-700 bg-yellow-50 border border-yellow-200' : 'text-red-700 bg-red-50 border border-red-200') }}">
-                                        {{ number_format($achievement, 1) }}%
+                            <td class="px-3 py-3 text-center whitespace-nowrap">
+                                @if(!is_null($real) && !is_null($com) && $com > 0)
+                                    @php $pct = ($real / $com) * 100; @endphp
+                                    <span class="text-xs font-bold rounded px-1.5 py-0.5
+                                        {{ $pct >= 100 ? 'text-green-700 bg-green-50' : ($pct >= 80 ? 'text-yellow-700 bg-yellow-50' : 'text-red-700 bg-red-50') }}">
+                                        {{ number_format($real, 0, ',', '.') }}
                                     </span>
+                                @elseif(!is_null($real))
+                                    <span class="text-slate-600 font-bold text-xs">{{ number_format($real, 0, ',', '.') }}</span>
                                 @else
-                                    <span class="text-slate-300 text-sm">—</span>
+                                    <span class="text-slate-300 text-xs">—</span>
                                 @endif
                             </td>
-                            <td class="px-6 py-4 text-sm text-slate-400">{{ $item->created_at->format('d M Y, H:i') }}</td>
+                            @endforeach
                         </tr>
-                        @empty
-                        <tr>
-                            <td colspan="7" class="py-16 text-center">
-                                <svg class="mx-auto w-10 h-10 text-slate-200 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                                </svg>
-                                <p class="text-sm font-bold text-slate-400">Belum ada data</p>
-                                <p class="text-xs text-slate-300 mt-1">Silakan input data terlebih dahulu</p>
-                            </td>
-                        </tr>
-                        @endforelse
+                        @endforeach
                     </tbody>
                 </table>
             </div>
         </div>
+        @endif
 
     </div>
 </div>
+
+<script>
+    // Enable/disable real inputs based on commitment value
+    document.querySelectorAll('.telda-commitment').forEach(function(input) {
+        input.addEventListener('input', function() {
+            const telda   = this.getAttribute('data-telda');
+            const realEl  = document.getElementById(telda + '_real');
+            const hasVal  = this.value.trim() !== '';
+            realEl.disabled = !hasVal;
+            realEl.placeholder = hasVal ? 'Masukkan realisasi' : 'Isi commitment dulu';
+            if (!hasVal) realEl.value = '';
+        });
+    });
+</script>
 @endsection

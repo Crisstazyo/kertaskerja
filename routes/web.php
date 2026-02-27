@@ -73,6 +73,16 @@ Route::middleware(['auth'])->prefix('gov')->name('gov.')->group(function () {
 
     // PSAK AJAX
     Route::post('/psak/save', [GovController::class, 'savePsak'])->name('psak.save');
+
+    // Asodomoro Routes
+    Route::get('/asodomoro-0-3-bulan', [GovController::class, 'asodomoro03Bulan'])->name('asodomoro-0-3-bulan');
+    Route::post('/asodomoro-0-3-bulan/store', [GovController::class, 'storeAsodomoro03Bulan'])->name('asodomoro-0-3-bulan.store');
+    Route::get('/asodomoro-above-3-bulan', [GovController::class, 'asodomoroAbove3Bulan'])->name('asodomoro-above-3-bulan');
+    Route::post('/asodomoro-above-3-bulan/store', [GovController::class, 'storeAsodomoroAbove3Bulan'])->name('asodomoro-above-3-bulan.store');
+
+    // Scalling LOP Table (ScallingData-based, with funnel checkboxes)
+    Route::get('/scalling/lop/{lopType}', [GovController::class, 'scallingLopTable'])->name('scalling-lop-table');
+    Route::post('/scalling/funnel-update', [GovController::class, 'updateScallingFunnel'])->name('scalling.funnel.update');
 });
 
 // Government Routes (Protected) - using 'government' prefix (alternative)
@@ -93,6 +103,10 @@ Route::middleware(['auth'])->prefix('government')->name('government.')->group(fu
 
     // PSAK AJAX
     Route::post('/psak/save', [GovController::class, 'savePsak'])->name('psak.save');
+
+    // Scalling LOP Table (ScallingData-based, with funnel checkboxes)
+    Route::get('/scalling/lop/{lopType}', [GovController::class, 'scallingLopTable'])->name('scalling-lop-table');
+    Route::post('/scalling/funnel-update', [GovController::class, 'updateScallingFunnel'])->name('scalling.funnel.update');
 });
 
 // Private Routes (Protected)
@@ -114,6 +128,10 @@ Route::middleware(['auth'])->prefix('private')->name('private.')->group(function
 
     // PSAK AJAX
     Route::post('/psak/save', [PrivateController::class, 'savePsak'])->name('psak.save');
+
+    // Scalling LOP Table (ScallingData-based, with funnel checkboxes)
+    Route::get('/scalling/lop/{lopType}', [PrivateController::class, 'scallingLopTable'])->name('scalling-lop-table');
+    Route::post('/scalling/funnel-update', [PrivateController::class, 'updateScallingFunnel'])->name('scalling.funnel.update');
 });
 
 // SOE Routes (Protected)
@@ -135,6 +153,10 @@ Route::middleware(['auth'])->prefix('soe')->name('soe.')->group(function () {
 
     // PSAK AJAX
     Route::post('/psak/save', [SoeController::class, 'savePsak'])->name('psak.save');
+
+    // Scalling LOP Table (ScallingData-based, with funnel checkboxes)
+    Route::get('/scalling/lop/{lopType}', [SoeController::class, 'scallingLopTable'])->name('scalling-lop-table');
+    Route::post('/scalling/funnel-update', [SoeController::class, 'updateScallingFunnel'])->name('scalling.funnel.update');
 });
 
 // SME Routes (Protected)
@@ -164,6 +186,16 @@ Route::middleware(['auth'])->prefix('sme')->name('sme.')->group(function () {
     // Asodomoro Above 3 Bulan Routes
     Route::get('/asodomoro-above-3-bulan', [SmeController::class, 'asodomoroAbove3Bulan'])->name('asodomoro-above-3-bulan');
     Route::post('/asodomoro-above-3-bulan/store', [SmeController::class, 'storeAsodomoroAbove3Bulan'])->name('asodomoro-above-3-bulan.store');
+
+    // HSI Agency & Scalling Telda
+    Route::get('/scalling/hsi-agency', [SmeController::class, 'hsiAgency'])->name('scalling.hsi-agency');
+    Route::post('/scalling/hsi-agency/store', [SmeController::class, 'storeHsiAgency'])->name('scalling.hsi-agency.store');
+    Route::get('/scalling/telda', [SmeController::class, 'scallingTelda'])->name('scalling.telda');
+    Route::post('/scalling/telda/store', [SmeController::class, 'storeTelda'])->name('scalling.telda.store');
+
+    // Scalling LOP Table (ScallingData-based, with funnel checkboxes)
+    Route::get('/scalling/lop/{lopType}', [SmeController::class, 'scallingLopTable'])->name('scalling-lop-table');
+    Route::post('/scalling/funnel-update', [SmeController::class, 'updateScallingFunnel'])->name('scalling.funnel.update');
 });
 
 // Collection Routes (Protected)
@@ -302,9 +334,15 @@ Route::middleware(['auth', 'admin'])->group(function () {
     // =========================================================
     Route::get('/admin/ctc', [AdminController::class, 'adminCtcDashboard'])->name('admin.ctc.dashboard');
     Route::get('/admin/ctc/paid-ct0', [AdminController::class, 'adminCtcPaidCt0'])->name('admin.ctc.paid-ct0');
-    Route::post('/admin/ctc/paid-ct0/store', [AdminController::class, 'adminCtcPaidCt0Store'])->name('admin.ctc.paid-ct0.store');
+    Route::post('/admin/ctc/paid-ct0/komitmen', [AdminController::class, 'adminCtcPaidCt0StoreKomitmen'])->name('admin.ctc.paid-ct0.storeKomitmen');
+    Route::post('/admin/ctc/paid-ct0/realisasi', [AdminController::class, 'adminCtcPaidCt0StoreRealisasi'])->name('admin.ctc.paid-ct0.storeRealisasi');
+    Route::put('/admin/ctc/paid-ct0/{id}', [AdminController::class, 'adminCtcPaidCt0Update'])->name('admin.ctc.paid-ct0.update');
+    Route::delete('/admin/ctc/paid-ct0/{id}', [AdminController::class, 'adminCtcPaidCt0Delete'])->name('admin.ctc.paid-ct0.delete');
     Route::get('/admin/ctc/combat-churn', [AdminController::class, 'adminCtcCombatChurn'])->name('admin.ctc.combat-churn');
-    Route::post('/admin/ctc/combat-churn/store', [AdminController::class, 'adminCtcCombatChurnStore'])->name('admin.ctc.combat-churn.store');
+    Route::post('/admin/ctc/combat-churn/komitmen', [AdminController::class, 'adminCtcCombatChurnStoreKomitmen'])->name('admin.ctc.combat-churn.storeKomitmen');
+    Route::post('/admin/ctc/combat-churn/realisasi', [AdminController::class, 'adminCtcCombatChurnStoreRealisasi'])->name('admin.ctc.combat-churn.storeRealisasi');
+    Route::put('/admin/ctc/combat-churn/{id}', [AdminController::class, 'adminCtcCombatChurnUpdate'])->name('admin.ctc.combat-churn.update');
+    Route::delete('/admin/ctc/combat-churn/{id}', [AdminController::class, 'adminCtcCombatChurnDelete'])->name('admin.ctc.combat-churn.delete');
 
     // =========================================================
     // Admin Rising Star Management
