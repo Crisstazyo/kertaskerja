@@ -19,7 +19,7 @@
                         <h1 class="text-2xl font-black tracking-tight text-slate-900 leading-none uppercase">
                             Scaling <span class="text-red-600">HSI Agency</span>
                         </h1>
-                        <p class="text-slate-400 text-xs font-bold mt-1 uppercase tracking-tight">Admin input Commitment (SSL) · User input Real (SSL)</p>
+                        <p class="text-slate-400 text-xs font-bold mt-1 uppercase tracking-tight">Admin input Commitment · Real (SSL)</p>
                     </div>
                 </div>
                 <div class="flex items-center space-x-4">
@@ -44,7 +44,7 @@
             </div>
         </div>
 
-        {{-- ══ FLASH MESSAGE ══ --}}
+        {{-- ══ FLASH MESSAGES ══ --}}
         @if(session('success'))
         <div class="flex items-center space-x-3 bg-green-50 border border-green-200 text-green-800 px-5 py-3.5 mb-6 rounded-xl text-sm font-semibold">
             <svg class="w-4 h-4 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -53,42 +53,65 @@
             <span>{{ session('success') }}</span>
         </div>
         @endif
+        @if(session('error'))
+        <div class="flex items-center space-x-3 bg-red-50 border border-red-200 text-red-800 px-5 py-3.5 mb-6 rounded-xl text-sm font-semibold">
+            <svg class="w-4 h-4 text-red-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <span>{{ session('error') }}</span>
+        </div>
+        @endif
 
         {{-- ══ INPUT FORM ══ --}}
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-8 mb-8">
             <div class="flex items-center space-x-3 mb-6">
                 <div class="w-1 h-6 bg-red-600 rounded-full"></div>
-                <h2 class="text-base font-black text-slate-900 uppercase tracking-wide">Input Data</h2>
+                <h2 class="text-base font-black text-slate-900 uppercase tracking-wide">Input Data — Bulan Ini</h2>
+                @if($existing)
+                <span class="text-xs font-bold text-blue-600 bg-blue-50 border border-blue-200 rounded-md px-2.5 py-1 ml-2">
+                    ✏️ Update {{ \Carbon\Carbon::parse($existing->periode)->format('M Y') }}
+                </span>
+                @endif
             </div>
 
             <form action="{{ route('admin.scalling.hsi-agency.store') }}" method="POST">
                 @csrf
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-6">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Periode</label>
-                        <input type="month" name="periode" required
-                            class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors">
-                        @error('periode')
-                            <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
-                        @enderror
-                    </div>
+                <input type="hidden" name="periode" value="{{ \Carbon\Carbon::now()->format('Y-m') }}">
 
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
+                    {{-- Commitment --}}
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Commitment (SSL) <span class="normal-case font-medium text-slate-400">— Optional</span></label>
-                        <input type="number" name="commitment" placeholder="Contoh: 150"
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">
+                            Commitment (SSL)
+                        </label>
+                        <input type="number" name="commitment" id="hsi_commitment"
+                            value="{{ $existing->commitment ?? '' }}"
+                            placeholder="Contoh: 150"
+                            min="0"
                             class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors">
                         @error('commitment')
                             <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
                         @enderror
                     </div>
 
+                    {{-- Real — disabled if commitment empty --}}
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Real (SSL) <span class="normal-case font-medium text-slate-400">— Optional</span></label>
-                        <input type="number" name="real" placeholder="Contoh: 145"
-                            class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors">
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">
+                            Real (SSL)
+                            <span class="normal-case font-medium text-slate-400 ml-1">— diisi setelah commitment</span>
+                        </label>
+                        <input type="number" name="real" id="hsi_real"
+                            value="{{ $existing->real ?? '' }}"
+                            placeholder="Contoh: 145"
+                            min="0"
+                            {{ (!$existing || is_null($existing->commitment)) ? 'disabled' : '' }}
+                            class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors disabled:bg-slate-50 disabled:text-slate-300 disabled:cursor-not-allowed">
                         @error('real')
                             <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
                         @enderror
+                        <p id="hsi_real_hint" class="mt-1 text-xs text-amber-500 font-medium {{ ($existing && !is_null($existing->commitment)) ? 'hidden' : '' }}">
+                            ⚠ Input Commitment terlebih dahulu
+                        </p>
                     </div>
                 </div>
 
@@ -109,7 +132,7 @@
             <div class="px-8 py-5 border-b border-slate-100 flex items-center justify-between">
                 <div class="flex items-center space-x-3">
                     <div class="w-1 h-6 bg-red-600 rounded-full"></div>
-                    <h2 class="text-base font-black text-slate-900 uppercase tracking-wide">Data Scaling HSI Agency</h2>
+                    <h2 class="text-base font-black text-slate-900 uppercase tracking-wide">Riwayat Data HSI Agency</h2>
                 </div>
                 <span class="text-xs font-bold text-slate-400 bg-slate-50 border border-slate-200 rounded-full px-3 py-1">
                     {{ count($data) }} records
@@ -140,13 +163,21 @@
                             </td>
                             <td class="px-6 py-4 text-sm font-semibold text-slate-700">{{ $item->user->name ?? '-' }}</td>
                             <td class="px-6 py-4 text-sm font-bold text-slate-800">
-                                {{ number_format($item->commitment, 0, ',', '.') }} <span class="text-slate-400 font-medium">SSL</span>
+                                @if(!is_null($item->commitment))
+                                    {{ number_format($item->commitment, 0, ',', '.') }} <span class="text-slate-400 font-medium">SSL</span>
+                                @else
+                                    <span class="text-slate-300">—</span>
+                                @endif
                             </td>
                             <td class="px-6 py-4 text-sm font-bold text-slate-800">
-                                {{ $item->real ? number_format($item->real, 0, ',', '.') . ' SSL' : '<span class="text-slate-300">—</span>' }}
+                                @if(!is_null($item->real))
+                                    {{ number_format($item->real, 0, ',', '.') }} <span class="text-slate-400 font-medium">SSL</span>
+                                @else
+                                    <span class="text-slate-300">—</span>
+                                @endif
                             </td>
                             <td class="px-6 py-4">
-                                @if($item->real && $item->commitment > 0)
+                                @if(!is_null($item->real) && $item->commitment > 0)
                                     @php $achievement = ($item->real / $item->commitment) * 100; @endphp
                                     <span class="text-xs font-bold rounded-md px-2.5 py-1
                                         {{ $achievement >= 100 ? 'text-green-700 bg-green-50 border border-green-200' : ($achievement >= 80 ? 'text-yellow-700 bg-yellow-50 border border-yellow-200' : 'text-red-700 bg-red-50 border border-red-200') }}">
@@ -176,4 +207,19 @@
 
     </div>
 </div>
+
+<script>
+    const commitmentInput = document.getElementById('hsi_commitment');
+    const realInput       = document.getElementById('hsi_real');
+    const realHint        = document.getElementById('hsi_real_hint');
+
+    function toggleReal() {
+        const hasValue = commitmentInput.value.trim() !== '';
+        realInput.disabled = !hasValue;
+        realHint.classList.toggle('hidden', hasValue);
+        if (!hasValue) realInput.value = '';
+    }
+
+    commitmentInput.addEventListener('input', toggleReal);
+</script>
 @endsection

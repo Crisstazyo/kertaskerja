@@ -221,37 +221,17 @@
                                         <table class="min-w-full text-xs">
                                             <thead class="bg-slate-50 border-b border-slate-100">
                                                 <tr>
-                                                    @if($lopType == 'koreksi')
-                                                        <th class="px-4 py-2.5 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Nama Pelanggan</th>
-                                                        <th class="px-4 py-2.5 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Nominal</th>
-                                                        <th class="px-4 py-2.5 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
-                                                    @else
-                                                        @if(isset($data->data[0]) && is_array($data->data[0]))
-                                                            @foreach($data->data[0] as $index => $header)
-                                                            <th class="px-4 py-2.5 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">{{ $header ?? 'Col ' . ($index + 1) }}</th>
-                                                            @endforeach
-                                                        @endif
+                                                    @if(isset($data->data[0]) && is_array($data->data[0]))
+                                                        @foreach($data->data[0] as $index => $header)
+                                                        <th class="px-4 py-2.5 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">{{ $header ?? 'Col ' . ($index + 1) }}</th>
+                                                        @endforeach
                                                     @endif
                                                 </tr>
                                             </thead>
                                             <tbody class="divide-y divide-slate-100">
                                                 @foreach(array_slice($data->data, 1, 5) as $row)
                                                 <tr class="hover:bg-slate-50">
-                                                    @if($lopType == 'koreksi' && is_array($row))
-                                                        <td class="px-4 py-2.5 font-medium text-slate-700">{{ $row[0] ?? '-' }}</td>
-                                                        <td class="px-4 py-2.5 font-medium text-slate-700">{{ isset($row[1]) ? 'Rp ' . number_format($row[1], 0, ',', '.') : '-' }}</td>
-                                                        <td class="px-4 py-2.5">
-                                                            @if(isset($row[2]))
-                                                                <span class="text-[10px] font-black rounded px-2 py-0.5
-                                                                    {{ strtolower($row[2]) == 'aktif' ? 'text-green-700 bg-green-50 border border-green-200' :
-                                                                       (strtolower($row[2]) == 'pending' ? 'text-yellow-700 bg-yellow-50 border border-yellow-200' :
-                                                                       'text-slate-600 bg-slate-100') }}">
-                                                                    {{ $row[2] }}
-                                                                </span>
-                                                            @else -
-                                                            @endif
-                                                        </td>
-                                                    @elseif(is_array($row))
+                                                    @if(is_array($row))
                                                         @foreach($row as $cell)
                                                         <td class="px-4 py-2.5 text-slate-700">{{ $cell }}</td>
                                                         @endforeach

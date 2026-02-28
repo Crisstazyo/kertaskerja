@@ -32,7 +32,7 @@
         <div class="mb-8">
             <div class="flex items-center justify-between mb-4">
                 <div>
-                    <h1 class="text-4xl font-bold text-gray-900 mb-2">📄 Billing Perdanan</h1>
+                    <h1 class="text-4xl font-bold text-gray-900 mb-2">📄 Billing Perdana</h1>
                     <p class="text-gray-600 text-lg">Invoice Management & Processing System</p>
                 </div>
                 <a href="{{ route('collection.dashboard') }}" class="bg-pink-500 hover:bg-pink-600 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300 shadow-md hover:shadow-lg">
@@ -47,7 +47,7 @@
                 <button onclick="switchTab('komitmen')" id="tab-komitmen" class="flex-1 py-4 text-center font-bold text-pink-600 border-b-4 border-pink-500 transition-all">
                     📝 Form Komitmen (Bulanan)
                 </button>
-                <button onclick="switchTab('realisasi')" id="tab-realisasi" class="flex-1 py-4 text-center font-bold text-gray-500 hover:text-pink-500 border-b-4 border-transparent transition-all">
+                <button onclick="switchTab('realisasi')" id="tab-realisasi" class="flex-1 py-4 text-center font-bold {{ $hasMonthlyCommitment ? 'text-gray-500 hover:text-pink-500' : 'text-gray-300 cursor-not-allowed' }} border-b-4 border-transparent transition-all" {{ !$hasMonthlyCommitment ? 'disabled' : '' }}>
                     ✅ Form Realisasi (Harian)
                 </button>
             </div>
@@ -77,16 +77,15 @@
                     @else
                         <form action="{{ route('billing.storeKomitmen') }}" method="POST" class="max-w-md mx-auto bg-gray-50 p-6 rounded-xl border border-gray-200 shadow-sm">
                             @csrf
-                            <input type="hidden" name="target_ratio" value="100">
                             <div class="mb-6">
-                                <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide text-center">Target Ratio Billing Perdanan</label>
+                                <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide text-center">Target Ratio Billing Perdanan (%)</label>
                                 <div class="relative mt-1">
-                                    <input type="text" value="100" readonly class="block w-full p-4 text-4xl font-bold text-pink-700 border-2 border-pink-300 rounded-lg bg-pink-50 text-center" placeholder="100">
+                                    <input type="number" name="target_ratio" min="0" max="100" step="0.01" value="100" required class="block w-full p-4 text-4xl font-bold text-pink-700 border-2 border-pink-300 rounded-lg bg-white text-center focus:ring-2 focus:ring-pink-500 focus:border-pink-500" placeholder="100">
                                     <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
                                         <span class="text-pink-500 font-bold text-2xl">%</span>
                                     </div>
                                 </div>
-                                <p class="text-xs text-center text-gray-500 mt-2 italic">Target tetap untuk periode ini</p>
+                                <p class="text-xs text-center text-gray-500 mt-2 italic">Masukkan target ratio untuk periode ini (default: 100%)</p>
                             </div>
                             <button type="submit" class="w-full bg-pink-600 hover:bg-pink-700 text-white px-6 py-4 rounded-lg font-bold shadow-lg transition-all transform hover:-translate-y-1">
                                 Simpan Target Bulanan
@@ -96,29 +95,43 @@
                 </div>
 
                 <div id="content-realisasi" class="hidden space-y-6">
-                    <div class="flex items-center justify-between border-b pb-4">
-                        <div>
-                            <h2 class="text-2xl font-bold text-gray-800">Input Realisasi Billing</h2>
-                            <p class="text-sm text-gray-500 italic">Catat realisasi ratio harian.</p>
-                        </div>
-                        <span class="bg-green-100 text-green-700 text-xs font-semibold px-3 py-1 rounded-full uppercase">Harian</span>
-                    </div>
-
-                    <form action="{{ route('billing.storeRealisasi') }}" method="POST" class="max-w-lg mx-auto space-y-6">
-                        @csrf
-                        <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-2">Realisasi Billing (%)</label>
-                            <div class="relative">
-                                <input type="number" step="0.01" name="ratio_aktual" required class="w-full p-4 text-2xl font-bold text-green-600 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none" placeholder="0.00">
-                                <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
-                                    <span class="text-gray-500 font-bold text-xl">%</span>
+                    @if(!$hasMonthlyCommitment)
+                        <div class="bg-red-50 border-l-4 border-red-400 p-6 rounded-r-lg">
+                            <div class="flex items-center">
+                                <div class="text-2xl mr-4">🔒</div>
+                                <div>
+                                    <p class="text-red-800 font-bold">Input Realisasi Belum Tersedia</p>
+                                    <p class="text-sm text-red-700">
+                                        Anda harus menginput <strong>Komitmen Bulanan</strong> terlebih dahulu sebelum dapat mencatat realisasi.
+                                    </p>
                                 </div>
                             </div>
                         </div>
-                        <div class="flex justify-end">
-                            <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-bold shadow-md transition-all">Simpan Realisasi</button>
+                    @else
+                        <div class="flex items-center justify-between border-b pb-4">
+                            <div>
+                                <h2 class="text-2xl font-bold text-gray-800">Input Realisasi Billing</h2>
+                                <p class="text-sm text-gray-500 italic">Catat realisasi ratio harian.</p>
+                            </div>
+                            <span class="bg-green-100 text-green-700 text-xs font-semibold px-3 py-1 rounded-full uppercase">Harian</span>
                         </div>
-                    </form>
+
+                        <form action="{{ route('billing.storeRealisasi') }}" method="POST" class="max-w-lg mx-auto space-y-6">
+                            @csrf
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Realisasi Billing (%)</label>
+                                <div class="relative">
+                                    <input type="number" step="0.01" name="ratio_aktual" required class="w-full p-4 text-2xl font-bold text-green-600 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none" placeholder="0.00">
+                                    <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                                        <span class="text-gray-500 font-bold text-xl">%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex justify-end">
+                                <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-bold shadow-md transition-all">Simpan Realisasi</button>
+                            </div>
+                        </form>
+                    @endif
                 </div>
             </div>
         </div>
@@ -137,7 +150,6 @@
                             <th class="p-4 font-bold text-xs uppercase text-gray-600">Tanggal Input</th>
                             <th class="p-4 font-bold text-xs uppercase text-gray-600">Tipe</th>
                             <th class="p-4 font-bold text-xs uppercase text-gray-600 text-right">Ratio (%)</th>
-                            <th class="p-4 font-bold text-xs uppercase text-gray-600">Keterangan</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
@@ -154,13 +166,10 @@
                                 <td class="p-4 text-right font-bold {{ $activity->type == 'komitmen' ? 'text-pink-700' : 'text-green-600' }}">
                                     {{ number_format($activity->ratio ?? 0, 2) }}%
                                 </td>
-                                <td class="p-4 text-sm text-gray-600">
-                                    {{ $activity->keterangan ?? $activity->description ?? '-' }}
-                                </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="4" class="p-8 text-center text-gray-400 italic">
+                                <td colspan="3" class="p-8 text-center text-gray-400 italic">
                                     Belum ada data aktivitas
                                 </td>
                             </tr>
@@ -181,6 +190,11 @@
         const rTab = document.getElementById('tab-realisasi');
         const kContent = document.getElementById('content-komitmen');
         const rContent = document.getElementById('content-realisasi');
+
+        // Check if realisasi tab is disabled
+        if (tab === 'realisasi' && rTab.hasAttribute('disabled')) {
+            return; // Don't switch if disabled
+        }
 
         if (tab === 'komitmen') {
             kTab.classList.add('text-pink-600', 'border-pink-500');

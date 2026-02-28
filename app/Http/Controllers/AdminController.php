@@ -25,6 +25,9 @@ use App\Models\PsakSme;
 use App\Models\PaidCt0Data;
 use App\Models\CombatChurnData;
 use App\Models\VisitingData;
+use App\Models\VisitingGmData;
+use App\Models\VisitingAmData;
+use App\Models\VisitingHotdData;
 use App\Models\ProfilingData;
 use App\Models\KecukupanLopData;
 use App\Models\Asodomoro03BulanData;
@@ -33,6 +36,8 @@ use App\Models\C3mr;
 use App\Models\BillingPerdanan;
 use App\Models\UtipData;
 use App\Models\CollectionRatioData;
+use App\Models\ScallingHsiAgency;
+use App\Models\ScallingTelda;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -599,6 +604,26 @@ class AdminController extends Controller
         $worksheet = $spreadsheet->getActiveSheet();
         $rows = $worksheet->toArray();
 
+        // Trim to exactly 9 columns (NO through EST NILAI BC) and normalize
+        $fixedHeaders = ['NO', 'PROJECT', 'ID LOP', 'CC', 'NIPNAS', 'AM', 'MITRA', 'PLAN BULAN BILLCOMP', 'EST NILAI BC'];
+        $trimmedRows  = [];
+        foreach ($rows as $row) {
+            $trimmed = array_slice(array_values($row), 0, 9);
+            while (count($trimmed) < 9) {
+                $trimmed[] = null;
+            }
+            $trimmedRows[] = $trimmed;
+        }
+        // Force header row to fixed names
+        if (!empty($trimmedRows)) {
+            $trimmedRows[0] = $fixedHeaders;
+        }
+        // Remove completely empty data rows (keep header at index 0)
+        $trimmedRows = array_values(array_filter($trimmedRows, function ($row, $i) {
+            if ($i === 0) return true;
+            return count(array_filter($row, fn ($v) => $v !== null && $v !== '' && $v !== false)) > 0;
+        }, ARRAY_FILTER_USE_BOTH));
+
         // Normalize role name
         $roleNormalized = ($role === 'gov') ? 'government' : $role;
 
@@ -607,66 +632,74 @@ class AdminController extends Controller
 
         // Store in database with lop_type
         ScallingData::create([
-            'role' => $roleNormalized,
-            'lop_type' => $lopType,
-            'periode' => $periodeDate,
+            'role'        => $roleNormalized,
+            'lop_type'    => $lopType,
+            'periode'     => $periodeDate,
             'uploaded_by' => Auth::user()->email,
-            'file_name' => $fileName,
-            'data' => $rows,
+            'file_name'   => $fileName,
+            'data'        => $trimmedRows,
         ]);
 
         return redirect()->route('admin.scalling.lop', [$role, $lopType])->with('success', 'File berhasil diupload untuk LOP ' . ucfirst(str_replace('-', ' ', $lopType)) . '!');
     }
 
-    // Show Progress for Specific LOP (User Updates)
+    // Show Progress for Specific LOP (User Checkboxes via ScallingGovResponse)
     public function scallingLopProgress($role, $lopType)
     {
         if (!in_array($role, ['gov', 'government', 'private', 'soe', 'sme'])) {
             abort(404);
         }
 
-        // Normalize role name
-        $roleNormalized = ($role === 'gov') ? 'government' : $role;
+        $roleNormalized  = ($role === 'gov') ? 'government' : $role;
+        $lopTypeDisplay  = ucfirst(str_replace('-', ' ', $lopType));
 
-        // Map LOP type to data type for TaskProgress
-        $dataTypeMap = [
-            'on-hand' => 'on_hand',
-            'qualified' => 'qualified',
-            'koreksi' => 'koreksi',
-            'initiate' => 'initiate',
-        ];
+        // Get the latest uploaded ScallingData for this role / LOP type
+        $latestData = ScallingData::where('role', $roleNormalized)
+            ->where('lop_type', $lopType)
+            ->latest()
+            ->first();
 
-        $dataType = $dataTypeMap[$lopType] ?? 'on_hand';
+        // Count total data rows (exclude header row)
+        $totalRows = 0;
+        $headers   = [];
+        if ($latestData && is_array($latestData->data) && count($latestData->data) > 0) {
+            $headers   = $latestData->data[0];
+            $totalRows = max(0, count($latestData->data) - 1);
+        }
 
-        // Get current progress from TaskProgress
-        $progressData = TaskProgress::query()
-            ->with(['user', 'task'])
-            ->whereHas('user', function($q) use ($roleNormalized) {
-                $q->where('role', $roleNormalized);
-            })
-            ->whereHas('task', function($q) use ($dataType) {
-                $q->where('data_type', 'LIKE', '%' . $dataType . '%');
-            })
-            ->latest('updated_at')
-            ->paginate(20);
+        // Get all responses for this data, grouped by user
+        $progressData = collect();
+        if ($latestData) {
+            $progressData = ScallingGovResponse::where('scalling_data_id', $latestData->id)
+                ->with('user')
+                ->get()
+                ->groupBy('user_id')
+                ->map(function ($responses, $userId) use ($totalRows) {
+                    $user         = $responses->first()->user;
+                    $checkedCount = $responses->where('status', 'submitted')->count();
+                    $pct          = $totalRows > 0 ? round(($checkedCount / $totalRows) * 100) : 0;
+                    return (object) [
+                        'user'         => $user,
+                        'checked'      => $checkedCount,
+                        'total'        => $totalRows,
+                        'pct'          => $pct,
+                        'last_update'  => $responses->max('updated_at'),
+                        'row_statuses' => $responses->keyBy('row_index'),
+                    ];
+                })
+                ->values();
+        }
 
-        // Calculate statistics
-        $totalUpdates = TaskProgress::query()
-            ->whereHas('user', function($q) use ($roleNormalized) {
-                $q->where('role', $roleNormalized);
-            })
-            ->whereHas('task', function($q) use ($dataType) {
-                $q->where('data_type', 'LIKE', '%' . $dataType . '%');
-            })
-            ->count();
-
-        $lastUpdate = $progressData->total() > 0 && $progressData->items()
-            ? $progressData->items()[0]->updated_at->diffForHumans()
+        $totalUpdates = $progressData->sum('checked');
+        $lastUpdate   = $progressData->count() > 0
+            ? $progressData->sortByDesc('last_update')->first()->last_update->diffForHumans()
             : 'No updates yet';
 
-        $lopTypeDisplay = ucfirst(str_replace('-', ' ', $lopType));
-
-        return view('admin.scalling-lop-progress', compact('role', 'roleNormalized', 'lopType', 'lopTypeDisplay', 'progressData', 'totalUpdates', 'lastUpdate'));
+        return view('admin.scalling-lop-progress', compact(
+            'role', 'roleNormalized', 'lopType', 'lopTypeDisplay',
+            'progressData', 'totalUpdates', 'lastUpdate',
+            'latestData', 'totalRows', 'headers'
+        ));
     }
 
     // Show History for Specific LOP
@@ -676,55 +709,34 @@ class AdminController extends Controller
             abort(404);
         }
 
-        // Normalize role name
         $roleNormalized = ($role === 'gov') ? 'government' : $role;
+        $lopTypeDisplay = ucfirst(str_replace('-', ' ', $lopType));
 
-        // Map LOP type to data type
-        $dataTypeMap = [
-            'on-hand' => 'on_hand',
-            'qualified' => 'qualified',
-            'koreksi' => 'koreksi',
-            'initiate' => 'initiate',
-        ];
-
-        $dataType = $dataTypeMap[$lopType] ?? 'on_hand';
-
-        // Get historical progress data
-        $historyData = TaskProgress::query()
-            ->with(['user', 'task'])
-            ->whereHas('user', function($q) use ($roleNormalized) {
-                $q->where('role', $roleNormalized);
-            })
-            ->whereHas('task', function($q) use ($dataType) {
-                $q->where('data_type', 'LIKE', '%' . $dataType . '%');
-            })
-            ->orderBy('updated_at', 'desc')
+        // Get all uploads for this role / LOP type (paginated)
+        $historyData = ScallingData::where('role', $roleNormalized)
+            ->where('lop_type', $lopType)
+            ->withCount('responses')
+            ->orderBy('periode', 'desc')
+            ->orderBy('created_at', 'desc')
             ->paginate(15);
 
-        // Calculate statistics
-        $uniqueUsers = TaskProgress::query()
-            ->whereHas('user', function($q) use ($roleNormalized) {
-                $q->where('role', $roleNormalized);
-            })
-            ->whereHas('task', function($q) use ($dataType) {
-                $q->where('data_type', 'LIKE', '%' . $dataType . '%');
+        // Stats
+        $uniqueUsers = ScallingGovResponse::whereHas('scallingData', function ($q) use ($roleNormalized, $lopType) {
+                $q->where('role', $roleNormalized)->where('lop_type', $lopType);
             })
             ->distinct('user_id')
             ->count('user_id');
 
-        $completedTasks = TaskProgress::query()
-            ->whereHas('user', function($q) use ($roleNormalized) {
-                $q->where('role', $roleNormalized);
+        $completedTasks = ScallingGovResponse::whereHas('scallingData', function ($q) use ($roleNormalized, $lopType) {
+                $q->where('role', $roleNormalized)->where('lop_type', $lopType);
             })
-            ->whereHas('task', function($q) use ($dataType) {
-                $q->where('data_type', 'LIKE', '%' . $dataType . '%');
-            })
-            ->where('is_completed', true)
+            ->where('status', 'submitted')
             ->count();
 
-        $lopTypeDisplay = ucfirst(str_replace('-', ' ', $lopType));
-
-        return view('admin.scalling-lop-history', compact('role', 'roleNormalized', 'lopType', 'lopTypeDisplay', 'historyData', 'uniqueUsers', 'completedTasks'));
+        return view('admin.scalling-lop-history', compact(
+            'role', 'roleNormalized', 'lopType', 'lopTypeDisplay',
+            'historyData', 'uniqueUsers', 'completedTasks'
+        ));
     }
 
     // PSAK Management Page
@@ -806,34 +818,37 @@ class AdminController extends Controller
     // Scaling HSI Agency Management
     public function scallingHsiAgency()
     {
-        $data = \App\Models\ScallingHsiAgency::with('user')
-            ->orderBy('periode', 'desc')
-            ->get();
+        $currentPeriode = Carbon::now()->format('Y-m') . '-01';
+        $existing = ScallingHsiAgency::where('periode', $currentPeriode)->first();
+        $data = ScallingHsiAgency::with('user')->orderBy('periode', 'desc')->get();
+        $isAdmin = true;
 
-        return view('admin.scalling-hsi-agency', compact('data'));
+        return view('admin.scalling-hsi-agency', compact('data', 'existing', 'isAdmin'));
     }
 
     public function storeHsiAgency(Request $request)
     {
         $request->validate([
-            'periode' => 'required|string',
-            'commitment' => 'nullable|integer',
-            'real' => 'nullable|integer',
+            'periode'    => 'required|string',
+            'commitment' => 'nullable|integer|min:0',
+            'real'       => 'nullable|integer|min:0',
         ]);
 
-        // Convert YYYY-MM to YYYY-MM-01 for date storage
-        $periode = $request->periode . '-01';
+        $periode = strlen($request->periode) === 7
+            ? $request->periode . '-01'
+            : $request->periode;
 
-        \App\Models\ScallingHsiAgency::updateOrCreate(
-            [
-                'periode' => $periode,
-                'user_id' => Auth::id(),
-            ],
-            [
-                'commitment' => $request->commitment,
-                'real' => $request->real,
-            ]
-        );
+        // Prevent saving realisasi without commitment
+        $existingCommitment = ScallingHsiAgency::where('periode', $periode)->value('commitment');
+        if (is_null($request->commitment) && is_null($existingCommitment) && !is_null($request->real)) {
+            return redirect()->back()->with('error', 'Input Commitment terlebih dahulu sebelum mengisi Real.');
+        }
+
+        $fields = ['user_id' => Auth::id()];
+        if (!is_null($request->commitment)) $fields['commitment'] = $request->commitment;
+        if (!is_null($request->real))       $fields['real']       = $request->real;
+
+        ScallingHsiAgency::updateOrCreate(['periode' => $periode], $fields);
 
         return redirect()->back()->with('success', 'Data HSI Agency berhasil disimpan!');
     }
@@ -841,34 +856,46 @@ class AdminController extends Controller
     // Scaling Telda Management
     public function scallingTelda()
     {
-        $data = \App\Models\ScallingTelda::with('user')
-            ->orderBy('periode', 'desc')
-            ->get();
+        $currentPeriode = Carbon::now()->format('Y-m') . '-01';
+        $existing = ScallingTelda::where('periode', $currentPeriode)->first();
+        $history  = ScallingTelda::with('user')->orderBy('periode', 'desc')->get();
+        $teldas   = ScallingTelda::TELDA_LOCATIONS;
+        $isAdmin  = true;
 
-        return view('admin.scalling-telda', compact('data'));
+        return view('admin.scalling-telda', compact('existing', 'history', 'teldas', 'isAdmin'));
     }
 
     public function storeTelda(Request $request)
     {
-        $request->validate([
-            'periode' => 'required|string',
-            'commitment' => 'nullable|numeric',
-            'real' => 'nullable|numeric',
-        ]);
+        $request->validate(['periode' => 'required|string']);
 
-        // Convert YYYY-MM to YYYY-MM-01 for date storage
-        $periode = $request->periode . '-01';
+        $periode = strlen($request->periode) === 7
+            ? $request->periode . '-01'
+            : $request->periode;
 
-        \App\Models\ScallingTelda::updateOrCreate(
-            [
-                'periode' => $periode,
-                'user_id' => Auth::id(),
-            ],
-            [
-                'commitment' => $request->commitment,
-                'real' => $request->real,
-            ]
-        );
+        $fields = ['user_id' => Auth::id(), 'periode' => $periode];
+        $teldaKeys = array_keys(ScallingTelda::TELDA_LOCATIONS);
+
+        // Fetch existing record for this periode to check existing commitments
+        $existingRecord = ScallingTelda::where('periode', $periode)->first();
+
+        foreach ($teldaKeys as $telda) {
+            $commitmentKey = $telda . '_commitment';
+            $realKey       = $telda . '_real';
+
+            if ($request->has($commitmentKey) && $request->input($commitmentKey) !== null) {
+                $fields[$commitmentKey] = $request->input($commitmentKey);
+            }
+
+            $existingCommitment = $existingRecord ? $existingRecord->$commitmentKey : null;
+            $hasCommitment = !is_null($request->input($commitmentKey)) || !is_null($existingCommitment);
+
+            if ($hasCommitment && $request->has($realKey) && $request->input($realKey) !== null) {
+                $fields[$realKey] = $request->input($realKey);
+            }
+        }
+
+        ScallingTelda::updateOrCreate(['periode' => $periode], $fields);
 
         return redirect()->back()->with('success', 'Data Telda berhasil disimpan!');
     }
@@ -1885,62 +1912,229 @@ class AdminController extends Controller
 
     public function adminCtcPaidCt0()
     {
-        $users = User::where('role', 'ctc')->orderBy('name')->get();
-        $data  = PaidCt0Data::with('user')->orderBy('entry_date', 'desc')->get();
-        return view('admin.ctc.paid-ct0', compact('users', 'data'));
+        // Define 10 regions
+        $regions = [
+            'Inner Sumut',
+            'Lubuk Pakam',
+            'Binjai',
+            'Siantar',
+            'Kisaran',
+            'Kabanjahe',
+            'Rantau Prapat',
+            'Toba',
+            'Sibolga',
+            'Padang Sidempuan'
+        ];
+
+        // Get commitments for ALL regions this month (keyed by region)
+        $commitmentRegions = PaidCt0Data::where('user_id', auth()->id())
+            ->where('type', 'komitmen')
+            ->whereMonth('entry_date', Carbon::now()->month)
+            ->whereYear('entry_date', Carbon::now()->year)
+            ->get()
+            ->keyBy('region');
+
+        // Get all data for display
+        $data = PaidCt0Data::where('user_id', auth()->id())
+            ->orderBy('entry_date', 'desc')
+            ->get();
+
+        return view('admin.ctc.paid-ct0', compact('regions', 'commitmentRegions', 'data'));
     }
 
-    public function adminCtcPaidCt0Store(Request $request)
+    public function adminCtcPaidCt0StoreKomitmen(Request $request)
     {
         $validated = $request->validate([
-            'user_id'   => 'required|exists:users,id',
-            'form_type' => 'required|in:komitmen,realisasi',
             'region'    => 'required|string',
             'nominal'   => 'required|numeric|min:0',
         ]);
 
+        // Check if already has commitment for THIS REGION this month
+        $exists = PaidCt0Data::where('user_id', auth()->id())
+            ->where('type', 'komitmen')
+            ->where('region', $validated['region'])
+            ->whereMonth('entry_date', Carbon::now()->month)
+            ->whereYear('entry_date', Carbon::now()->year)
+            ->exists();
+
+        if ($exists) {
+            return redirect()->back()->with('error', 'Region ' . $validated['region'] . ' sudah memiliki komitmen bulan ini');
+        }
+
         PaidCt0Data::create([
-            'user_id'    => $validated['user_id'],
+            'user_id'    => auth()->id(),
             'entry_date' => Carbon::now(),
-            'type'       => $validated['form_type'],
+            'type'       => 'komitmen',
             'region'     => $validated['region'],
             'nominal'    => $validated['nominal'],
             'month'      => Carbon::now()->month,
             'year'       => Carbon::now()->year,
         ]);
 
-        return redirect()->back()->with('success', 'Data Paid CT0 berhasil disimpan');
+        return redirect()->back()->with('success', 'Komitmen Paid CT0 untuk region ' . $validated['region'] . ' berhasil disimpan');
+    }
+
+    public function adminCtcPaidCt0StoreRealisasi(Request $request)
+    {
+        $validated = $request->validate([
+            'region'    => 'required|string',
+            'nominal'   => 'required|numeric|min:0',
+        ]);
+
+        PaidCt0Data::create([
+            'user_id'    => auth()->id(),
+            'entry_date' => Carbon::now(),
+            'type'       => 'realisasi',
+            'region'     => $validated['region'],
+            'nominal'    => $validated['nominal'],
+            'month'      => Carbon::now()->month,
+            'year'       => Carbon::now()->year,
+        ]);
+
+        return redirect()->back()->with('success', 'Realisasi Paid CT0 berhasil disimpan');
+    }
+
+    public function adminCtcPaidCt0Update(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'nominal'   => 'required|numeric|min:0',
+        ]);
+
+        $data = PaidCt0Data::where('id', $id)
+            ->where('user_id', auth()->id())
+            ->firstOrFail();
+
+        // Update nominal only, keep entry_date unchanged
+        // updated_at will be automatically updated by Laravel
+        $data->update([
+            'nominal' => $validated['nominal']
+        ]);
+
+        return redirect()->back()->with('success', 'Data berhasil diupdate');
+    }
+
+    public function adminCtcPaidCt0Delete($id)
+    {
+        $data = PaidCt0Data::where('id', $id)
+            ->where('user_id', auth()->id())
+            ->firstOrFail();
+
+        $data->delete();
+
+        return redirect()->back()->with('success', 'Data berhasil dihapus');
     }
 
     public function adminCtcCombatChurn()
     {
-        $users = User::where('role', 'ctc')->orderBy('name')->get();
-        $data  = CombatChurnData::with('user')->orderBy('entry_date', 'desc')->get();
-        return view('admin.ctc.combat-churn', compact('users', 'data'));
+        // Get commitments globally (any user) for current month
+        // Once anyone commits, the form is locked for all users
+        $commitments = CombatChurnData::where('type', 'komitmen')
+            ->whereMonth('entry_date', Carbon::now()->month)
+            ->whereYear('entry_date', Carbon::now()->year)
+            ->get()
+            ->keyBy('category');
+
+        $data = CombatChurnData::orderBy('entry_date', 'desc')->get();
+
+        $isAdmin = true;
+
+        return view('admin.ctc.combat-churn', compact('commitments', 'data', 'isAdmin'));
     }
 
-    public function adminCtcCombatChurnStore(Request $request)
+    public function adminCtcCombatChurnStoreKomitmen(Request $request)
     {
         $validated = $request->validate([
-            'user_id'   => 'required|exists:users,id',
-            'form_type' => 'required|in:komitmen,realisasi',
-            'category'  => 'required|in:ct0,sales_hsi,churn,winback',
-            'region'    => 'required|string',
+            'category'  => 'required|in:sales_hsi,churn,winback',
             'quantity'  => 'required|integer|min:0',
         ]);
 
+        // Check globally if commitment already exists for THIS CATEGORY this month (any user)
+        $existing = CombatChurnData::where('type', 'komitmen')
+            ->where('category', $validated['category'])
+            ->whereMonth('entry_date', Carbon::now()->month)
+            ->whereYear('entry_date', Carbon::now()->year)
+            ->first();
+
+        if ($existing) {
+            // Admin can update existing commitment directly
+            $existing->update(['quantity' => $validated['quantity']]);
+            return redirect()->back()->with('success', 'Komitmen SSL untuk ' . strtoupper(str_replace('_', ' ', $validated['category'])) . ' berhasil diperbarui');
+        }
+
         CombatChurnData::create([
-            'user_id'    => $validated['user_id'],
+            'user_id'    => auth()->id(),
             'entry_date' => Carbon::now(),
-            'type'       => $validated['form_type'],
+            'type'       => 'komitmen',
             'category'   => $validated['category'],
-            'region'     => $validated['region'],
+            'region'     => 'N/A',
             'quantity'   => $validated['quantity'],
             'month'      => Carbon::now()->month,
             'year'       => Carbon::now()->year,
         ]);
 
-        return redirect()->back()->with('success', 'Data Combat The Churn berhasil disimpan');
+        return redirect()->back()->with('success', 'Komitmen SSL untuk ' . strtoupper(str_replace('_', ' ', $validated['category'])) . ' berhasil disimpan');
+    }
+
+    public function adminCtcCombatChurnStoreRealisasi(Request $request)
+    {
+        $validated = $request->validate([
+            'category'  => 'required|in:ct0,sales_hsi,churn,winback',
+            'quantity'  => 'required|integer|min:0',
+        ]);
+
+        // For categories other than ct0, check globally if commitment exists (any user)
+        if (in_array($validated['category'], ['sales_hsi', 'churn', 'winback'])) {
+            $hasCommitment = CombatChurnData::where('type', 'komitmen')
+                ->where('category', $validated['category'])
+                ->whereMonth('entry_date', Carbon::now()->month)
+                ->whereYear('entry_date', Carbon::now()->year)
+                ->exists();
+
+            if (!$hasCommitment) {
+                return redirect()->back()->with('error', 'Silakan input Commitment SSL terlebih dahulu untuk kategori ' . strtoupper(str_replace('_', ' ', $validated['category'])));
+            }
+        }
+
+        CombatChurnData::create([
+            'user_id'    => auth()->id(),
+            'entry_date' => Carbon::now(),
+            'type'       => 'realisasi',
+            'category'   => $validated['category'],
+            'region'     => 'N/A',
+            'quantity'   => $validated['quantity'],
+            'month'      => Carbon::now()->month,
+            'year'       => Carbon::now()->year,
+        ]);
+
+        return redirect()->back()->with('success', 'Realisasi untuk ' . strtoupper(str_replace('_', ' ', $validated['category'])) . ' berhasil disimpan');
+    }
+
+    public function adminCtcCombatChurnUpdate(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'quantity'  => 'required|integer|min:0',
+        ]);
+
+        // Admin can update any record (no user_id restriction)
+        $data = CombatChurnData::findOrFail($id);
+
+        // Update quantity only, keep entry_date unchanged
+        // updated_at will be automatically updated by Laravel
+        $data->update([
+            'quantity' => $validated['quantity']
+        ]);
+
+        return redirect()->back()->with('success', 'Data berhasil diupdate');
+    }
+
+    public function adminCtcCombatChurnDelete($id)
+    {
+        // Admin can delete any record
+        $data = CombatChurnData::findOrFail($id);
+
+        $data->delete();
+
+        return redirect()->back()->with('success', 'Data berhasil dihapus');
     }
 
     // =========================================================
@@ -1958,9 +2152,9 @@ class AdminController extends Controller
         $users = User::where('role', 'rising-star')->orderBy('name')->get();
 
         $featureMap = [
-            'visiting-gm'           => ['model' => VisitingData::class,          'title' => 'Visiting GM',          'category' => 'visiting_gm'],
-            'visiting-am'           => ['model' => VisitingData::class,          'title' => 'Visiting AM',          'category' => 'visiting_am'],
-            'visiting-hotd'         => ['model' => VisitingData::class,          'title' => 'Visiting HOTD',        'category' => 'visiting_hotd'],
+            'visiting-gm'           => ['model' => VisitingGmData::class,        'title' => 'Visiting GM',          'category' => null],
+            'visiting-am'           => ['model' => VisitingAmData::class,        'title' => 'Visiting AM',          'category' => null],
+            'visiting-hotd'         => ['model' => VisitingHotdData::class,      'title' => 'Visiting HOTD',        'category' => null],
             'profiling-maps-am'     => ['model' => ProfilingData::class,         'title' => 'Profiling Maps AM',    'category' => 'profiling_maps_am'],
             'profiling-overall-hotd'=> ['model' => ProfilingData::class,         'title' => 'Profiling Overall HOTD','category'=> 'profiling_overall_hotd'],
             'kecukupan-lop'         => ['model' => KecukupanLopData::class,      'title' => 'Kecukupan LOP',        'category' => null],
@@ -1999,24 +2193,50 @@ class AdminController extends Controller
 
     public function adminRisingStarFeatureStore(Request $request, $feature)
     {
-        $validated = $request->validate([
-            'user_id'   => 'required|exists:users,id',
-            'form_type' => 'required|in:komitmen,realisasi',
-        ]);
+        // Bintang 1, 2, 3: Admin input komitmen DAN realisasi
+        // Bintang 4: Admin hanya input komitmen (user yang input realisasi)
+        $isBintang1 = in_array($feature, ['visiting-gm', 'visiting-am', 'visiting-hotd']);
+        $isBintang4 = in_array($feature, ['asodomoro-0-3-bulan', 'asodomoro-above-3-bulan']);
+        
+        $rules = ['user_id' => 'required|exists:users,id'];
+        
+        // Bintang 1: tidak perlu form_type (admin input langsung komitmen dan realisasi)
+        // Bintang 2, 3: perlu form_type untuk pilih komitmen atau realisasi
+        // Bintang 4: form_type otomatis 'komitmen'
+        if (!$isBintang1 && !$isBintang4) {
+            $rules['form_type'] = 'required|in:komitmen,realisasi';
+        }
+        
+        $validated = $request->validate($rules);
 
         $now = Carbon::now();
 
         switch ($feature) {
             case 'visiting-gm':
-            case 'visiting-am':
-            case 'visiting-hotd':
-                $categoryMap = ['visiting-gm' => 'visiting_gm', 'visiting-am' => 'visiting_am', 'visiting-hotd' => 'visiting_hotd'];
-                VisitingData::create([
+                VisitingGmData::create([
                     'user_id'      => $validated['user_id'],
                     'entry_date'   => $now,
-                    'type'         => $validated['form_type'],
-                    'category'     => $categoryMap[$feature],
-                    'target_ratio' => $request->target_ratio,
+                    'target_ratio' => $request->target_ratio ?? 110,
+                    'ratio_aktual' => $request->ratio_aktual,
+                    'month'        => $now->month,
+                    'year'         => $now->year,
+                ]);
+                break;
+            case 'visiting-am':
+                VisitingAmData::create([
+                    'user_id'      => $validated['user_id'],
+                    'entry_date'   => $now,
+                    'target_ratio' => $request->target_ratio ?? 110,
+                    'ratio_aktual' => $request->ratio_aktual,
+                    'month'        => $now->month,
+                    'year'         => $now->year,
+                ]);
+                break;
+            case 'visiting-hotd':
+                VisitingHotdData::create([
+                    'user_id'      => $validated['user_id'],
+                    'entry_date'   => $now,
+                    'target_ratio' => $request->target_ratio ?? 110,
                     'ratio_aktual' => $request->ratio_aktual,
                     'month'        => $now->month,
                     'year'         => $now->year,
@@ -2048,10 +2268,11 @@ class AdminController extends Controller
                 ]);
                 break;
             case 'asodomoro-0-3-bulan':
+                // Bintang 4: Admin hanya input komitmen
                 Asodomoro03BulanData::create([
                     'user_id'        => $validated['user_id'],
                     'entry_date'     => $now,
-                    'type'           => $validated['form_type'],
+                    'type'           => 'komitmen', // Fixed to komitmen
                     'jml_asodomoro'  => $request->jml_asodomoro,
                     'nilai_bc'       => $request->nilai_bc,
                     'keterangan'     => $request->keterangan,
@@ -2061,10 +2282,11 @@ class AdminController extends Controller
                 ]);
                 break;
             case 'asodomoro-above-3-bulan':
+                // Bintang 4: Admin hanya input komitmen
                 AsodomoroAbove3BulanData::create([
                     'user_id'        => $validated['user_id'],
                     'entry_date'     => $now,
-                    'type'           => $validated['form_type'],
+                    'type'           => 'komitmen', // Fixed to komitmen
                     'jml_asodomoro'  => $request->jml_asodomoro,
                     'nilai_bc'       => $request->nilai_bc,
                     'keterangan'     => $request->keterangan,
@@ -2091,27 +2313,60 @@ class AdminController extends Controller
 
     public function adminCollectionC3mr()
     {
-        $users = User::where('role', 'collection')->orderBy('name')->get();
-        $data  = C3mr::with('user')->orderBy('entry_date', 'desc')->get();
-        return view('admin.collection.c3mr', compact('users', 'data'));
+        $currentMonth = Carbon::now()->month;
+        $currentYear = Carbon::now()->year;
+        $userId = auth()->id();
+
+        // Check if admin has monthly commitment for current month
+        $hasMonthlyCommitment = C3mr::where('user_id', $userId)
+            ->where('type', 'komitmen')
+            ->where('month', $currentMonth)
+            ->where('year', $currentYear)
+            ->exists();
+
+        // Get all data for progress modal
+        $allData = C3mr::with('user')->orderBy('entry_date', 'desc')->get();
+        
+        // Get current user's data only for display
+        $data = C3mr::where('user_id', $userId)
+            ->orderBy('entry_date', 'desc')
+            ->get();
+
+        return view('admin.collection.c3mr', compact('hasMonthlyCommitment', 'data', 'allData'));
     }
 
     public function adminCollectionC3mrStore(Request $request)
     {
         $request->validate([
-            'user_id'   => 'required|exists:users,id',
             'form_type' => 'required|in:komitmen,realisasi',
             'ratio'     => 'required|numeric',
         ]);
 
+        $userId = auth()->id();
+        $currentMonth = Carbon::now()->month;
+        $currentYear = Carbon::now()->year;
+
+        // If komitmen, check if already exists for this month
+        if ($request->form_type === 'komitmen') {
+            $existing = C3mr::where('user_id', $userId)
+                ->where('type', 'komitmen')
+                ->where('month', $currentMonth)
+                ->where('year', $currentYear)
+                ->exists();
+
+            if ($existing) {
+                return redirect()->back()->with('error', 'Komitmen untuk bulan ini sudah ada!');
+            }
+        }
+
         C3mr::create([
-            'user_id'    => $request->user_id,
+            'user_id'    => $userId,
             'entry_date' => Carbon::now(),
             'type'       => $request->form_type,
             'ratio'      => $request->ratio,
             'keterangan' => $request->keterangan,
-            'month'      => Carbon::now()->month,
-            'year'       => Carbon::now()->year,
+            'month'      => $currentMonth,
+            'year'       => $currentYear,
         ]);
 
         return redirect()->back()->with('success', 'Data C3MR berhasil disimpan');
@@ -2119,27 +2374,59 @@ class AdminController extends Controller
 
     public function adminCollectionBilling()
     {
-        $users = User::where('role', 'collection')->orderBy('name')->get();
-        $data  = BillingPerdanan::with('user')->orderBy('entry_date', 'desc')->get();
-        return view('admin.collection.billing', compact('users', 'data'));
+        $userId = auth()->id();
+        $currentMonth = Carbon::now()->month;
+        $currentYear = Carbon::now()->year;
+        
+        $hasMonthlyCommitment = BillingPerdanan::where('user_id', $userId)
+            ->where('type', 'komitmen')
+            ->where('month', $currentMonth)
+            ->where('year', $currentYear)
+            ->exists();
+        
+        $data = BillingPerdanan::where('user_id', $userId)
+            ->orderBy('entry_date', 'desc')
+            ->get();
+        
+        $allData = BillingPerdanan::with('user')
+            ->orderBy('entry_date', 'desc')
+            ->get();
+        
+        return view('admin.collection.billing', compact('data', 'allData', 'hasMonthlyCommitment'));
     }
 
     public function adminCollectionBillingStore(Request $request)
     {
         $request->validate([
-            'user_id'   => 'required|exists:users,id',
             'form_type' => 'required|in:komitmen,realisasi',
             'ratio'     => 'required|numeric',
         ]);
 
+        $userId = auth()->id();
+        $currentMonth = Carbon::now()->month;
+        $currentYear = Carbon::now()->year;
+
+        // Check if monthly commitment already exists
+        if ($request->form_type === 'komitmen') {
+            $exists = BillingPerdanan::where('user_id', $userId)
+                ->where('type', 'komitmen')
+                ->where('month', $currentMonth)
+                ->where('year', $currentYear)
+                ->exists();
+
+            if ($exists) {
+                return redirect()->back()->with('error', 'Anda sudah menginput komitmen untuk bulan ini');
+            }
+        }
+
         BillingPerdanan::create([
-            'user_id'    => $request->user_id,
+            'user_id'    => $userId,
             'entry_date' => Carbon::now(),
             'type'       => $request->form_type,
             'ratio'      => $request->ratio,
             'keterangan' => $request->keterangan,
-            'month'      => Carbon::now()->month,
-            'year'       => Carbon::now()->year,
+            'month'      => $currentMonth,
+            'year'       => $currentYear,
         ]);
 
         return redirect()->back()->with('success', 'Data Billing Perdanan berhasil disimpan');
@@ -2147,28 +2434,61 @@ class AdminController extends Controller
 
     public function adminCollectionRatio()
     {
-        $users = User::where('role', 'collection')->orderBy('name')->get();
-        $data  = CollectionRatioData::with('user')->orderBy('entry_date', 'desc')->get();
-        return view('admin.collection.collection-ratio', compact('users', 'data'));
+        $userId = auth()->id();
+        $currentMonth = Carbon::now()->month;
+        $currentYear = Carbon::now()->year;
+        
+        $hasMonthlyCommitment = CollectionRatioData::where('user_id', $userId)
+            ->where('type', 'komitmen')
+            ->where('month', $currentMonth)
+            ->where('year', $currentYear)
+            ->exists();
+        
+        $data = CollectionRatioData::where('user_id', $userId)
+            ->orderBy('entry_date', 'desc')
+            ->get();
+        
+        $allData = CollectionRatioData::with('user')
+            ->orderBy('entry_date', 'desc')
+            ->get();
+        
+        return view('admin.collection.collection-ratio', compact('data', 'allData', 'hasMonthlyCommitment'));
     }
 
     public function adminCollectionRatioStore(Request $request)
     {
         $request->validate([
-            'user_id'   => 'required|exists:users,id',
             'form_type' => 'required|in:komitmen,realisasi',
             'segment'   => 'required|in:GOV,PRIVATE,SME,SOE',
         ]);
 
+        $userId = auth()->id();
+        $currentMonth = Carbon::now()->month;
+        $currentYear = Carbon::now()->year;
+
+        // Check if monthly commitment already exists for this segment
+        if ($request->form_type === 'komitmen') {
+            $exists = CollectionRatioData::where('user_id', $userId)
+                ->where('type', 'komitmen')
+                ->where('segment', $request->segment)
+                ->where('month', $currentMonth)
+                ->where('year', $currentYear)
+                ->exists();
+
+            if ($exists) {
+                return redirect()->back()->with('error', 'Anda sudah menginput komitmen untuk segment ' . $request->segment . ' di bulan ini');
+            }
+        }
+
         CollectionRatioData::create([
-            'user_id'      => $request->user_id,
+            'user_id'      => $userId,
             'entry_date'   => Carbon::now(),
             'type'         => $request->form_type,
             'segment'      => $request->segment,
             'target_ratio' => $request->target_ratio,
             'ratio_aktual' => $request->ratio_aktual,
-            'month'        => Carbon::now()->month,
-            'year'         => Carbon::now()->year,
+            'month'        => $currentMonth,
+            'year'         => $currentYear,
         ]);
 
         return redirect()->back()->with('success', 'Data Collection Ratio berhasil disimpan');
@@ -2176,32 +2496,163 @@ class AdminController extends Controller
 
     public function adminCollectionUtip()
     {
-        $users = User::where('role', 'collection')->orderBy('name')->get();
-        $data  = UtipData::with('user')->orderBy('entry_date', 'desc')->get();
-        return view('admin.collection.utip', compact('users', 'data'));
+        $userId = auth()->id();
+        $currentMonth = Carbon::now()->month;
+        $currentYear = Carbon::now()->year;
+        
+        // For UTIP, check if monthly plan exists (not commitment)
+        $hasMonthlyCommitment = UtipData::where('user_id', $userId)
+            ->where('category', 'plan')
+            ->where('month', $currentMonth)
+            ->where('year', $currentYear)
+            ->exists();
+        
+        $data = UtipData::where('user_id', $userId)
+            ->orderBy('entry_date', 'desc')
+            ->get();
+        
+        $allData = UtipData::with('user')
+            ->orderBy('entry_date', 'desc')
+            ->get();
+        
+        return view('admin.collection.utip', compact('data', 'allData', 'hasMonthlyCommitment'));
     }
 
     public function adminCollectionUtipStore(Request $request)
     {
         $request->validate([
-            'user_id'   => 'required|exists:users,id',
             'utip_type' => 'required|in:New UTIP,Corrective UTIP',
             'category'  => 'required|in:plan,komitmen,realisasi',
             'value'     => 'required|numeric',
         ]);
 
+        $userId = auth()->id();
+        $currentMonth = Carbon::now()->month;
+        $currentYear = Carbon::now()->year;
+
+        // Check if monthly plan already exists for this type
+        if ($request->category === 'plan') {
+            $exists = UtipData::where('user_id', $userId)
+                ->where('type', $request->utip_type)
+                ->where('category', 'plan')
+                ->where('month', $currentMonth)
+                ->where('year', $currentYear)
+                ->exists();
+
+            if ($exists) {
+                return redirect()->back()->with('error', 'Anda sudah menginput plan untuk ' . $request->utip_type . ' di bulan ini');
+            }
+        }
+
         UtipData::create([
-            'user_id'    => $request->user_id,
+            'user_id'    => $userId,
             'entry_date' => Carbon::now(),
             'type'       => $request->utip_type,
             'category'   => $request->category,
             'value'      => $request->value,
             'keterangan' => $request->keterangan,
-            'month'      => Carbon::now()->month,
-            'year'       => Carbon::now()->year,
+            'month'      => $currentMonth,
+            'year'       => $currentYear,
         ]);
 
         return redirect()->back()->with('success', 'Data UTIP berhasil disimpan');
+    }
+
+    // =========================================================
+    // RISING STAR PROGRESS PAGES
+    // =========================================================
+
+    public function visitingGmProgress(Request $request)
+    {
+        $month = $request->get('month', Carbon::now()->month);
+        $year = $request->get('year', Carbon::now()->year);
+        $userId = $request->get('user_id');
+
+        $users = User::where('role', 'rising-star')->orderBy('name')->get();
+
+        // Get data for the selected period
+        $query = VisitingGmData::with('user')
+            ->where('month', $month)
+            ->where('year', $year);
+
+        if ($userId) {
+            $query->where('user_id', $userId);
+        }
+
+        $data = $query->orderBy('entry_date', 'desc')->get();
+
+        // Count users who have submitted and who haven't
+        $userIds = $data->pluck('user_id')->unique();
+        $totalUsers = $users->count();
+        $completedUsers = $userIds->count();
+        $usersNotInput = $users->whereNotIn('id', $userIds);
+
+        return view('admin.rising-star.progress.visiting-gm', compact(
+            'data', 'users', 'month', 'year', 'userId',
+            'totalUsers', 'completedUsers', 'usersNotInput'
+        ));
+    }
+
+    public function visitingAmProgress(Request $request)
+    {
+        $month = $request->get('month', Carbon::now()->month);
+        $year = $request->get('year', Carbon::now()->year);
+        $userId = $request->get('user_id');
+
+        $users = User::where('role', 'rising-star')->orderBy('name')->get();
+
+        // Get data for the selected period
+        $query = VisitingAmData::with('user')
+            ->where('month', $month)
+            ->where('year', $year);
+
+        if ($userId) {
+            $query->where('user_id', $userId);
+        }
+
+        $data = $query->orderBy('entry_date', 'desc')->get();
+
+        // Count users who have submitted and who haven't
+        $userIds = $data->pluck('user_id')->unique();
+        $totalUsers = $users->count();
+        $completedUsers = $userIds->count();
+        $usersNotInput = $users->whereNotIn('id', $userIds);
+
+        return view('admin.rising-star.progress.visiting-am', compact(
+            'data', 'users', 'month', 'year', 'userId',
+            'totalUsers', 'completedUsers', 'usersNotInput'
+        ));
+    }
+
+    public function visitingHotdProgress(Request $request)
+    {
+        $month = $request->get('month', Carbon::now()->month);
+        $year = $request->get('year', Carbon::now()->year);
+        $userId = $request->get('user_id');
+
+        $users = User::where('role', 'rising-star')->orderBy('name')->get();
+
+        // Get data for the selected period
+        $query = VisitingHotdData::with('user')
+            ->where('month', $month)
+            ->where('year', $year);
+
+        if ($userId) {
+            $query->where('user_id', $userId);
+        }
+
+        $data = $query->orderBy('entry_date', 'desc')->get();
+
+        // Count users who have submitted and who haven't
+        $userIds = $data->pluck('user_id')->unique();
+        $totalUsers = $users->count();
+        $completedUsers = $userIds->count();
+        $usersNotInput = $users->whereNotIn('id', $userIds);
+
+        return view('admin.rising-star.progress.visiting-hotd', compact(
+            'data', 'users', 'month', 'year', 'userId',
+            'totalUsers', 'completedUsers', 'usersNotInput'
+        ));
     }
 }
 

@@ -23,7 +23,7 @@
                 <button onclick="switchTab('komitmen')" id="tab-komitmen" class="flex-1 py-4 text-center font-bold text-green-600 border-b-4 border-green-500 transition-all">
                     📝 Form Komitmen (Bulanan)
                 </button>
-                <button onclick="switchTab('realisasi')" id="tab-realisasi" class="flex-1 py-4 text-center font-bold text-gray-500 hover:text-green-500 border-b-4 border-transparent transition-all">
+                <button onclick="switchTab('realisasi')" id="tab-realisasi" class="flex-1 py-4 text-center font-bold {{ $hasMonthlyCommitment ? 'text-gray-500 hover:text-green-500' : 'text-gray-300 cursor-not-allowed' }} border-b-4 border-transparent transition-all" {{ !$hasMonthlyCommitment ? 'disabled' : '' }}>
                     ✅ Form Realisasi (Harian)
                 </button>
             </div>
@@ -70,29 +70,43 @@
                 </div>
 
                 <div id="content-realisasi" class="hidden space-y-6">
-                    <div class="flex items-center justify-between border-b pb-4">
-                        <div>
-                            <h2 class="text-2xl font-bold text-gray-800">Input Realisasi CR Government</h2>
-                            <p class="text-sm text-gray-500 italic">Catat realisasi collection ratio harian.</p>
-                        </div>
-                        <span class="bg-green-100 text-green-700 text-xs font-semibold px-3 py-1 rounded-full uppercase">Harian</span>
-                    </div>
-
-                    <form action="{{ route('cr-gov.storeRealisasi') }}" method="POST" class="max-w-lg mx-auto space-y-6">
-                        @csrf
-                        <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-2">Realisasi CR (%)</label>
-                            <div class="relative">
-                                <input type="number" step="0.01" name="ratio_aktual" required class="w-full p-4 text-2xl font-bold text-green-600 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none" placeholder="0.00">
-                                <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
-                                    <span class="text-gray-500 font-bold text-xl">%</span>
+                    @if(!$hasMonthlyCommitment)
+                        <div class="bg-red-50 border-l-4 border-red-400 p-6 rounded-r-lg">
+                            <div class="flex items-center">
+                                <div class="text-2xl mr-4">🔒</div>
+                                <div>
+                                    <p class="text-red-800 font-bold">Input Realisasi Belum Tersedia</p>
+                                    <p class="text-sm text-red-700">
+                                        Anda harus menginput <strong>Komitmen Bulanan</strong> terlebih dahulu sebelum dapat mencatat realisasi.
+                                    </p>
                                 </div>
                             </div>
                         </div>
-                        <div class="flex justify-end">
-                            <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-bold shadow-md transition-all">Simpan Realisasi</button>
+                    @else
+                        <div class="flex items-center justify-between border-b pb-4">
+                            <div>
+                                <h2 class="text-2xl font-bold text-gray-800">Input Realisasi CR Government</h2>
+                                <p class="text-sm text-gray-500 italic">Catat realisasi collection ratio harian.</p>
+                            </div>
+                            <span class="bg-green-100 text-green-700 text-xs font-semibold px-3 py-1 rounded-full uppercase">Harian</span>
                         </div>
-                    </form>
+
+                        <form action="{{ route('cr-gov.storeRealisasi') }}" method="POST" class="max-w-lg mx-auto space-y-6">
+                            @csrf
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Realisasi CR (%)</label>
+                                <div class="relative">
+                                    <input type="number" step="0.01" name="ratio_aktual" required class="w-full p-4 text-2xl font-bold text-green-600 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none" placeholder="0.00">
+                                    <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                                        <span class="text-gray-500 font-bold text-xl">%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex justify-end">
+                                <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-bold shadow-md transition-all">Simpan Realisasi</button>
+                            </div>
+                        </form>
+                    @endif
                 </div>
             </div>
         </div>
@@ -110,7 +124,6 @@
                             <th class="p-4 font-bold text-xs uppercase text-gray-600">Tanggal</th>
                             <th class="p-4 font-bold text-xs uppercase text-gray-600">Tipe</th>
                             <th class="p-4 font-bold text-xs uppercase text-gray-600 text-right">Ratio (%)</th>
-                            <th class="p-4 font-bold text-xs uppercase text-gray-600">Keterangan</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
@@ -129,11 +142,10 @@
                                         {{ number_format($item->type == 'komitmen' ? $item->target_ratio : $item->ratio_aktual, 2) }}%
                                     </span>
                                 </td>
-                                <td class="p-4 text-sm text-gray-600">{{ $item->keterangan ?? '-' }}</td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="4" class="p-8 text-center text-gray-400 italic">
+                                <td colspan="3" class="p-8 text-center text-gray-400 italic">
                                     Belum ada data aktivitas
                                 </td>
                             </tr>
@@ -151,6 +163,10 @@
         const rTab = document.getElementById('tab-realisasi');
         const kContent = document.getElementById('content-komitmen');
         const rContent = document.getElementById('content-realisasi');
+
+        if (tab === 'realisasi' && rTab.hasAttribute('disabled')) {
+            return;
+        }
 
         if (tab === 'komitmen') {
             kTab.classList.add('text-green-600', 'border-green-500');

@@ -19,7 +19,7 @@
                         <h1 class="text-2xl font-black tracking-tight text-slate-900 leading-none uppercase">
                             Collection <span class="text-red-600">C3MR</span>
                         </h1>
-                        <p class="text-slate-400 text-xs font-bold mt-1 uppercase tracking-tight">Kelola data C3MR semua user collection</p>
+                        <p class="text-slate-400 text-xs font-bold mt-1 uppercase tracking-tight">Input komitmen dan realisasi C3MR</p>
                     </div>
                 </div>
                 <div class="flex items-center space-x-4">
@@ -30,16 +30,13 @@
                         </svg>
                         <span>Back to Dashboard</span>
                     </a>
-                    <form action="{{ route('logout') }}" method="POST">
-                        @csrf
-                        <button type="submit"
-                            class="group flex items-center space-x-2.5 bg-slate-900 hover:bg-red-600 text-white font-bold text-sm px-5 py-3 rounded-xl transition-all duration-300 shadow-md hover:shadow-lg hover:shadow-red-200">
-                            <svg class="w-4 h-4 transition-transform duration-300 group-hover:rotate-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
-                            </svg>
-                            <span>Logout</span>
-                        </button>
-                    </form>
+                    <button onclick="openProgressModal()"
+                        class="group flex items-center space-x-2.5 bg-slate-900 hover:bg-red-600 text-white font-bold text-sm px-5 py-3 rounded-xl transition-all duration-300 shadow-md hover:shadow-lg hover:shadow-red-200">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                        </svg>
+                        <span>Lihat Progress</span>
+                    </button>
                 </div>
             </div>
         </div>
@@ -54,214 +51,341 @@
         </div>
         @endif
 
-        {{-- ══ INPUT FORM ══ --}}
-        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-8 mb-8">
-            <div class="flex items-center space-x-3 mb-6">
-                <div class="w-1 h-6 bg-red-600 rounded-full"></div>
-                <h2 class="text-base font-black text-slate-900 uppercase tracking-wide">Input Data C3MR</h2>
+        @if(session('error'))
+        <div class="flex items-center space-x-3 bg-red-50 border border-red-200 text-red-800 px-5 py-3.5 mb-6 rounded-xl text-sm font-semibold">
+            <svg class="w-4 h-4 text-red-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+            <span>{{ session('error') }}</span>
+        </div>
+        @endif
+
+        {{-- ══ TAB NAVIGATION ══ --}}
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-8">
+            <div class="flex border-b border-slate-100 bg-slate-50">
+                <button onclick="switchTab('komitmen')" id="tab-komitmen" 
+                    class="flex-1 py-4 text-center font-bold text-red-600 border-b-4 border-red-500 transition-all">
+                    📝 Form Komitmen (Bulanan)
+                </button>
+                <button onclick="switchTab('realisasi')" id="tab-realisasi"
+                    class="flex-1 py-4 text-center font-bold {{ $hasMonthlyCommitment ? 'text-slate-500 hover:text-red-500' : 'text-slate-300 cursor-not-allowed' }} border-b-4 border-transparent transition-all"
+                    {{ !$hasMonthlyCommitment ? 'disabled' : '' }}>
+                    ✅ Form Realisasi (Harian)
+                </button>
             </div>
 
-            <form action="{{ route('admin.collection.c3mr.store') }}" method="POST">
-                @csrf
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-6">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">User</label>
-                        <select name="user_id" required
-                            class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors bg-white">
-                            <option value="">— Pilih User —</option>
-                            @foreach($users as $user)
-                                <option value="{{ $user->id }}">{{ $user->name }}</option>
-                            @endforeach
-                        </select>
+            <div class="p-8">
+                {{-- KOMITMEN TAB --}}
+                <div id="content-komitmen" class="space-y-6">
+                    <div class="flex items-center justify-between border-b pb-4 mb-6">
+                        <div>
+                            <h2 class="text-2xl font-bold text-slate-800">Input Komitmen Bulanan</h2>
+                            <p class="text-sm text-slate-500 italic">Tentukan target ratio C3MR untuk bulan ini</p>
+                        </div>
+                        <span class="bg-red-100 text-red-700 text-xs font-semibold px-3 py-1 rounded-full uppercase">
+                            Periode: {{ now()->translatedFormat('F Y') }}
+                        </span>
                     </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Tipe</label>
-                        <select name="form_type" required
-                            class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors bg-white">
-                            <option value="komitmen">Komitmen</option>
-                            <option value="realisasi">Realisasi</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Ratio (%)</label>
-                        <input type="number" name="ratio" required step="0.01" placeholder="cth: 95.50"
-                            class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Keterangan <span class="normal-case font-medium text-slate-400">— Opsional</span></label>
-                        <input type="text" name="keterangan" placeholder="Opsional"
-                            class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors">
-                    </div>
+
+                    @if($hasMonthlyCommitment)
+                        <div class="bg-amber-50 border-l-4 border-amber-400 p-6 rounded-r-lg">
+                            <div class="flex items-center">
+                                <div class="text-2xl mr-4">ℹ️</div>
+                                <div>
+                                    <p class="text-amber-800 font-bold">Target Sudah Terkunci</p>
+                                    <p class="text-sm text-amber-700">
+                                        Anda telah menginput target ratio untuk periode <strong>{{ now()->translatedFormat('F Y') }}</strong>. Input baru hanya tersedia di bulan depan.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    @else
+                        <form action="{{ route('admin.collection.c3mr.store') }}" method="POST" class="max-w-md mx-auto bg-gray-50 p-6 rounded-xl border border-gray-200 shadow-sm">
+                            @csrf
+                            <input type="hidden" name="form_type" value="komitmen">
+                            <div class="mb-6">
+                                <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide text-center">Target Ratio C3MR (%)</label>
+                                <div class="relative mt-1">
+                                    <input type="number" name="ratio" min="0" max="100" step="0.01" value="98" required 
+                                        class="block w-full p-4 text-4xl font-bold text-red-700 border-2 border-red-300 rounded-lg bg-white text-center focus:ring-2 focus:ring-red-500 focus:border-red-500" 
+                                        placeholder="98">
+                                    <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                                        <span class="text-red-500 font-bold text-2xl">%</span>
+                                    </div>
+                                </div>
+                                <p class="text-xs text-center text-gray-500 mt-2 italic">Masukkan target ratio untuk periode ini (default: 98%)</p>
+                            </div>
+                            <div class="mb-6">
+                                <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Keterangan (Opsional)</label>
+                                <input type="text" name="keterangan" 
+                                    class="block w-full p-3 text-sm border-2 border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-red-500 focus:border-red-500" 
+                                    placeholder="Catatan tambahan...">
+                            </div>
+                            <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white px-6 py-4 rounded-lg font-bold shadow-lg transition-all transform hover:-translate-y-1">
+                                💾 Simpan Target Bulanan
+                            </button>
+                        </form>
+                    @endif
                 </div>
 
-                <div class="flex justify-end space-x-3">
-                    <button type="reset"
-                        class="flex items-center space-x-2 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-xs px-5 py-2.5 rounded-lg transition-all duration-200 uppercase tracking-wider">
-                        <span>Reset</span>
-                    </button>
-                    <button type="submit"
-                        class="flex items-center space-x-2 bg-slate-900 hover:bg-red-600 text-white font-bold text-xs px-6 py-2.5 rounded-lg transition-all duration-200 uppercase tracking-wider">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                        </svg>
-                        <span>Simpan Data</span>
-                    </button>
+                {{-- REALISASI TAB --}}
+                <div id="content-realisasi" class="hidden space-y-6">
+                    @if(!$hasMonthlyCommitment)
+                        <div class="bg-red-50 border-l-4 border-red-400 p-6 rounded-r-lg">
+                            <div class="flex items-center">
+                                <div class="text-2xl mr-4">🔒</div>
+                                <div>
+                                    <p class="text-red-800 font-bold text-lg">Input Realisasi Belum Tersedia</p>
+                                    <p class="text-sm text-red-700 mt-1">
+                                        Anda harus menginput <strong>Komitmen Bulanan</strong> terlebih dahulu sebelum dapat menginput realisasi harian.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    @else
+                        <div class="flex items-center justify-between border-b pb-4 mb-6">
+                            <div>
+                                <h2 class="text-2xl font-bold text-slate-800">Input Realisasi Harian</h2>
+                                <p class="text-sm text-slate-500 italic">Input pencapaian ratio C3MR hari ini</p>
+                            </div>
+                            <span class="bg-green-100 text-green-700 text-xs font-semibold px-3 py-1 rounded-full uppercase">Harian</span>
+                        </div>
+
+                        <form action="{{ route('admin.collection.c3mr.store') }}" method="POST" class="max-w-md mx-auto bg-gray-50 p-6 rounded-xl border border-gray-200 shadow-sm">
+                            @csrf
+                            <input type="hidden" name="form_type" value="realisasi">
+                            <div class="mb-6">
+                                <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide text-center">Realisasi Ratio C3MR (%)</label>
+                                <div class="relative mt-1">
+                                    <input type="number" name="ratio" min="0" max="100" step="0.01" required 
+                                        class="block w-full p-4 text-4xl font-bold text-green-700 border-2 border-green-300 rounded-lg bg-white text-center focus:ring-2 focus:ring-green-500 focus:border-green-500" 
+                                        placeholder="95.50">
+                                    <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                                        <span class="text-green-500 font-bold text-2xl">%</span>
+                                    </div>
+                                </div>
+                                <p class="text-xs text-center text-gray-500 mt-2 italic">Masukkan realisasi ratio hari ini</p>
+                            </div>
+                            <div class="mb-6">
+                                <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Keterangan (Opsional)</label>
+                                <input type="text" name="keterangan" 
+                                    class="block w-full p-3 text-sm border-2 border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-green-500 focus:border-green-500" 
+                                    placeholder="Catatan tambahan...">
+                            </div>
+                            <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white px-6 py-4 rounded-lg font-bold shadow-lg transition-all transform hover:-translate-y-1">
+                                ✅ Simpan Realisasi Harian
+                            </button>
+                        </form>
+                    @endif
                 </div>
-            </form>
+            </div>
         </div>
 
-        {{-- ══ FILTER & TABLE ══ --}}
+        {{-- ══ DATA TABLE - MY DATA ══ --}}
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-
-            {{-- Filter Bar --}}
-            <div class="px-8 py-5 border-b border-slate-100">
-                <div class="flex items-center space-x-3 mb-4">
+            <div class="px-8 py-6 border-b border-slate-100 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
                     <div class="w-1 h-6 bg-red-600 rounded-full"></div>
-                    <h2 class="text-base font-black text-slate-900 uppercase tracking-wide">Data C3MR</h2>
+                    <h3 class="text-base font-black text-slate-900 uppercase tracking-wide">📊 Data C3MR Saya</h3>
                 </div>
-                <div class="grid grid-cols-6 gap-3">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Filter User</label>
-                        <select id="filterUser" onchange="filterTable()"
-                            class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-semibold text-slate-700 focus:outline-none focus:border-red-400 bg-white">
-                            <option value="">Semua User</option>
-                            @foreach($users as $user)
-                                <option value="{{ $user->name }}">{{ $user->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Tipe</label>
-                        <select id="filterTipe" onchange="filterTable()"
-                            class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-semibold text-slate-700 focus:outline-none focus:border-red-400 bg-white">
-                            <option value="">Semua Tipe</option>
-                            <option value="komitmen">Komitmen</option>
-                            <option value="realisasi">Realisasi</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Bulan</label>
-                        <select id="filterBulan" onchange="filterTable()"
-                            class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-semibold text-slate-700 focus:outline-none focus:border-red-400 bg-white">
-                            <option value="">Semua Bulan</option>
-                            @for($m = 1; $m <= 12; $m++)
-                                <option value="{{ $m }}">{{ date('F', mktime(0,0,0,$m,1)) }}</option>
-                            @endfor
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Tahun</label>
-                        <select id="filterTahun" onchange="filterTable()"
-                            class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-semibold text-slate-700 focus:outline-none focus:border-red-400 bg-white">
-                            <option value="">Semua Tahun</option>
-                            @for($y = date('Y'); $y >= date('Y') - 3; $y--)
-                                <option value="{{ $y }}">{{ $y }}</option>
-                            @endfor
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Cari</label>
-                        <input type="text" id="filterSearch" placeholder="Cari..." oninput="filterTable()"
-                            class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-semibold text-slate-700 focus:outline-none focus:border-red-400">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5 invisible">Reset</label>
-                        <button onclick="resetFilters()"
-                            class="w-full px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-xs rounded-lg transition-colors uppercase tracking-wider">
-                            Reset Filter
-                        </button>
-                    </div>
-                </div>
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Total: {{ $data->count() }} data</span>
             </div>
 
-            {{-- Table --}}
+            @if($data->count() > 0)
             <div class="overflow-x-auto">
-                <table class="min-w-full" id="dataTable">
-                    <thead>
-                        <tr class="bg-slate-50 border-b border-slate-100">
-                            <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">No</th>
-                            <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">User</th>
-                            <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Tipe</th>
-                            <th class="px-6 py-3 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">Ratio (%)</th>
-                            <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Keterangan</th>
-                            <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Bulan</th>
-                            <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Tahun</th>
-                            <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Tanggal Input</th>
+                <table class="w-full">
+                    <thead class="bg-slate-50 border-b border-slate-100">
+                        <tr>
+                            <th class="text-left px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-[0.15em]">No</th>
+                            <th class="text-left px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-[0.15em]">Tipe</th>
+                            <th class="text-right px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-[0.15em]">Ratio (%)</th>
+                            <th class="text-left px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-[0.15em]">Keterangan</th>
+                            <th class="text-center px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-[0.15em]">Periode</th>
+                            <th class="text-center px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-[0.15em]">Tanggal Input</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100">
-                        @forelse($data as $index => $item)
+                    <tbody class="divide-y divide-slate-50">
+                        @foreach($data as $index => $item)
                         <tr class="hover:bg-slate-50 transition-colors">
-                            <td class="px-6 py-4 text-sm font-bold text-slate-400">{{ $index + 1 }}</td>
+                            <td class="px-6 py-4 text-xs font-bold text-slate-600">{{ $index + 1 }}</td>
                             <td class="px-6 py-4">
-                                <div class="flex items-center space-x-2.5">
-                                    <div class="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center flex-shrink-0">
-                                        <svg class="w-3.5 h-3.5 text-slate-400" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
-                                        </svg>
-                                    </div>
-                                    <span class="text-sm font-semibold text-slate-700">{{ $item->user->name ?? 'Unknown' }}</span>
-                                </div>
+                                @if($item->type === 'komitmen')
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-blue-100 text-blue-700">Komitmen</span>
+                                @else
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-green-100 text-green-700">Realisasi</span>
+                                @endif
                             </td>
-                            <td class="px-6 py-4">
-                                <span class="text-xs font-bold rounded-md px-2.5 py-1
-                                    {{ $item->type === 'komitmen' ? 'text-red-700 bg-red-50 border border-red-200' : 'text-green-700 bg-green-50 border border-green-200' }}">
-                                    {{ ucfirst($item->type) }}
-                                </span>
+                            <td class="px-6 py-4 text-right text-sm font-black text-slate-800">{{ number_format($item->ratio, 2) }}%</td>
+                            <td class="px-6 py-4 text-xs text-slate-500">{{ $item->keterangan ?? '—' }}</td>
+                            <td class="px-6 py-4 text-center text-xs font-semibold text-slate-600">
+                                {{ \Carbon\Carbon::create()->month($item->month)->format('F') }} {{ $item->year }}
                             </td>
-                            <td class="px-6 py-4 text-right text-sm font-black text-slate-800">{{ number_format($item->ratio ?? 0, 2) }}%</td>
-                            <td class="px-6 py-4 text-sm text-slate-500">{{ $item->keterangan ?? '—' }}</td>
-                            <td class="px-6 py-4 text-center text-sm text-slate-600">{{ date('F', mktime(0,0,0,$item->month,1)) }}</td>
-                            <td class="px-6 py-4 text-center text-sm text-slate-600">{{ $item->year }}</td>
-                            <td class="px-6 py-4 text-center text-sm text-slate-400">
-                                {{ $item->entry_date ? \Carbon\Carbon::parse($item->entry_date)->format('d M Y') : '—' }}
+                            <td class="px-6 py-4 text-center text-xs text-slate-500">
+                                {{ \Carbon\Carbon::parse($item->entry_date)->format('d M Y H:i') }}
                             </td>
                         </tr>
-                        @empty
-                        <tr>
-                            <td colspan="8" class="py-16 text-center">
-                                <svg class="mx-auto w-10 h-10 text-slate-200 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-                                </svg>
-                                <p class="text-sm font-bold text-slate-400">Belum ada data C3MR</p>
-                            </td>
-                        </tr>
-                        @endforelse
+                        @endforeach
                     </tbody>
                 </table>
             </div>
+            @else
+            <div class="flex flex-col items-center justify-center py-16 px-8">
+                <svg class="w-16 h-16 text-slate-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                <p class="text-sm font-bold text-slate-400 uppercase tracking-wider">Belum ada data C3MR</p>
+                <p class="text-xs text-slate-400 mt-1">Mulai dengan menginput komitmen bulanan</p>
+            </div>
+            @endif
         </div>
 
     </div>
 </div>
 
+{{-- ══ PROGRESS MODAL ══ --}}
+<div id="progressModal" class="hidden fixed inset-0 z-50 overflow-y-auto" style="background-color: rgba(0,0,0,0.7);">
+    <div class="flex items-center justify-center min-h-screen px-4 py-8">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-7xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+            {{-- Modal Header --}}
+            <div class="px-8 py-6 border-b border-slate-200 bg-gradient-to-r from-red-50 to-white flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <div class="w-12 h-12 bg-red-600 rounded-xl flex items-center justify-center">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-black text-slate-900 tracking-tight">Progress Data C3MR - Semua User</h2>
+                        <p class="text-sm text-slate-500 mt-1">Total: <strong>{{ $allData->count() }}</strong> data submission dari semua collection user</p>
+                    </div>
+                </div>
+                <button onclick="closeProgressModal()" class="text-slate-400 hover:text-red-600 transition-colors">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+
+            {{-- Modal Body --}}
+            <div class="flex-1 overflow-y-auto p-8">
+                @if($allData->count() > 0)
+                <div class="overflow-x-auto">
+                    <table class="w-full border border-slate-200 rounded-lg">
+                        <thead class="bg-slate-800 text-white">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-xs font-black uppercase tracking-wider">No</th>
+                                <th class="px-4 py-3 text-left text-xs font-black uppercase tracking-wider">User</th>
+                                <th class="px-4 py-3 text-left text-xs font-black uppercase tracking-wider">Tipe</th>
+                                <th class="px-4 py-3 text-right text-xs font-black uppercase tracking-wider">Ratio (%)</th>
+                                <th class="px-4 py-3 text-left text-xs font-black uppercase tracking-wider">Keterangan</th>
+                                <th class="px-4 py-3 text-center text-xs font-black uppercase tracking-wider">Periode</th>
+                                <th class="px-4 py-3 text-center text-xs font-black uppercase tracking-wider">Tanggal Input</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 bg-white">
+                            @foreach($allData as $index => $item)
+                            <tr class="hover:bg-slate-50 transition-colors">
+                                <td class="px-4 py-3 text-xs font-bold text-slate-600">{{ $index + 1 }}</td>
+                                <td class="px-4 py-3">
+                                    <div class="flex items-center space-x-2">
+                                        <div class="w-6 h-6 rounded-full bg-red-100 flex items-center justify-center">
+                                            <span class="text-[10px] font-black text-red-600">{{ substr($item->user->name ?? 'U', 0, 1) }}</span>
+                                        </div>
+                                        <span class="text-xs font-semibold text-slate-700">{{ $item->user->name ?? 'Unknown' }}</span>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-3">
+                                    @if($item->type === 'komitmen')
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-black uppercase bg-blue-100 text-blue-700">K</span>
+                                    @else
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-black uppercase bg-green-100 text-green-700">R</span>
+                                    @endif
+                                </td>
+                                <td class="px-4 py-3 text-right text-sm font-black text-slate-800">{{ number_format($item->ratio, 2) }}%</td>
+                                <td class="px-4 py-3 text-xs text-slate-500">{{ $item->keterangan ?? '—' }}</td>
+                                <td class="px-4 py-3 text-center text-xs font-semibold text-slate-600">
+                                    {{ \Carbon\Carbon::create()->month($item->month)->format('M') }} {{ $item->year }}
+                                </td>
+                                <td class="px-4 py-3 text-center text-xs text-slate-500">
+                                    {{ \Carbon\Carbon::parse($item->entry_date)->format('d/m/Y H:i') }}
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+                @else
+                <div class="flex flex-col items-center justify-center py-16">
+                    <svg class="w-20 h-20 text-slate-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
+                    </svg>
+                    <p class="text-lg font-bold text-slate-400">Belum ada data progress</p>
+                    <p class="text-sm text-slate-400 mt-1">Menunggu user mulai menginput data C3MR</p>
+                </div>
+                @endif
+            </div>
+
+            {{-- Modal Footer --}}
+            <div class="px-8 py-4 border-t border-slate-200 bg-slate-50 flex justify-end">
+                <button onclick="closeProgressModal()" class="px-6 py-2.5 bg-slate-900 hover:bg-red-600 text-white text-sm font-bold rounded-lg transition-all">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
-function filterTable() {
-    const u = (document.getElementById('filterUser')?.value || '').toLowerCase();
-    const t = (document.getElementById('filterTipe')?.value || '').toLowerCase();
-    const b = (document.getElementById('filterBulan')?.value || '').toLowerCase();
-    const y = (document.getElementById('filterTahun')?.value || '').toLowerCase();
-    const s = (document.getElementById('filterSearch')?.value || '').toLowerCase();
-    document.querySelectorAll('#dataTable tbody tr').forEach(r => {
-        const c = r.getElementsByTagName('td');
-        if (c.length < 7) return;
-        r.style.display = (
-            (!u || (c[1].textContent || '').toLowerCase().includes(u)) &&
-            (!t || (c[2].textContent || '').toLowerCase().includes(t)) &&
-            (!b || (c[5].textContent || '').toLowerCase().includes(b)) &&
-            (!y || (c[6].textContent || '').toLowerCase().includes(y)) &&
-            (!s || (r.textContent || '').toLowerCase().includes(s))
-        ) ? '' : 'none';
-    });
+// Tab Switching
+function switchTab(tabName) {
+    // Hide all content
+    document.getElementById('content-komitmen').classList.add('hidden');
+    document.getElementById('content-realisasi').classList.add('hidden');
+    
+    // Reset all tabs
+    document.getElementById('tab-komitmen').classList.remove('text-red-600', 'border-red-500');
+    document.getElementById('tab-komitmen').classList.add('text-slate-500', 'border-transparent');
+    document.getElementById('tab-realisasi').classList.remove('text-red-600', 'border-red-500');
+    document.getElementById('tab-realisasi').classList.add('text-slate-500', 'border-transparent');
+    
+    // Show selected content and highlight tab
+    if (tabName === 'komitmen') {
+        document.getElementById('content-komitmen').classList.remove('hidden');
+        document.getElementById('tab-komitmen').classList.remove('text-slate-500', 'border-transparent');
+        document.getElementById('tab-komitmen').classList.add('text-red-600', 'border-red-500');
+    } else if (tabName === 'realisasi') {
+        const hasCommitment = {{ $hasMonthlyCommitment ? 'true' : 'false' }};
+        if (hasCommitment) {
+            document.getElementById('content-realisasi').classList.remove('hidden');
+            document.getElementById('tab-realisasi').classList.remove('text-slate-500', 'border-transparent');
+            document.getElementById('tab-realisasi').classList.add('text-red-600', 'border-red-500');
+        }
+    }
 }
-function resetFilters() {
-    ['filterUser', 'filterTipe', 'filterBulan', 'filterTahun'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.value = '';
-    });
-    const s = document.getElementById('filterSearch');
-    if (s) s.value = '';
-    filterTable();
+
+// Progress Modal
+function openProgressModal() {
+    document.getElementById('progressModal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
 }
+
+function closeProgressModal() {
+    document.getElementById('progressModal').classList.add('hidden');
+    document.body.style.overflow = 'auto';
+}
+
+// Close modal when clicking outside
+document.getElementById('progressModal')?.addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeProgressModal();
+    }
+});
+
+// ESC key to close modal
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeProgressModal();
+    }
+});
 </script>
 @endsection

@@ -131,6 +131,118 @@
             </a>
         </div>
         
+        <!-- HSI Agency & Telda Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-10 mt-10">
+            <!-- HSI Agency Card -->
+            <a href="{{ route('sme.scalling.hsi-agency') }}" class="group">
+                <div class="relative bg-white/90 backdrop-blur-lg rounded-2xl shadow-xl overflow-hidden border border-gray-200/50 hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3">
+                    <div class="absolute inset-0 bg-gradient-to-br from-orange-500 to-red-600 opacity-0 group-hover:opacity-5 transition-opacity duration-500"></div>
+                    <div class="relative">
+                        <div class="bg-gradient-to-br from-orange-500 to-red-600 p-10 text-white relative overflow-hidden">
+                            <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+                            <div class="absolute -bottom-6 -left-6 w-40 h-40 bg-white/5 rounded-full"></div>
+                            <div class="relative">
+                                <div class="flex items-start justify-between mb-6">
+                                    <div>
+                                        <h2 class="text-3xl font-bold mb-2">HSI Agency</h2>
+                                        <p class="text-orange-100 text-sm">Input Realisasi Commitment</p>
+                                    </div>
+                                    <span class="px-4 py-1.5 bg-white/20 backdrop-blur-sm text-xs font-bold rounded-full">ACTIVE</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center text-orange-600 font-bold group-hover:text-orange-700 transition-colors">
+                                    <span>Open Data</span>
+                                    <svg class="w-5 h-5 ml-2 group-hover:translate-x-2 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Scalling Telda Card -->
+            <a href="{{ route('sme.scalling.telda') }}" class="group">
+                <div class="relative bg-white/90 backdrop-blur-lg rounded-2xl shadow-xl overflow-hidden border border-gray-200/50 hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3">
+                    <div class="absolute inset-0 bg-gradient-to-br from-cyan-500 to-blue-600 opacity-0 group-hover:opacity-5 transition-opacity duration-500"></div>
+                    <div class="relative">
+                        <div class="bg-gradient-to-br from-cyan-500 to-blue-600 p-10 text-white relative overflow-hidden">
+                            <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+                            <div class="absolute -bottom-6 -left-6 w-40 h-40 bg-white/5 rounded-full"></div>
+                            <div class="relative">
+                                <div class="flex items-start justify-between mb-6">
+                                    <div>
+                                        <h2 class="text-3xl font-bold mb-2">Scalling Telda</h2>
+                                        <p class="text-cyan-100 text-sm">9 Telekomunikasi Daerah</p>
+                                    </div>
+                                    <span class="px-4 py-1.5 bg-white/20 backdrop-blur-sm text-xs font-bold rounded-full">ACTIVE</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center text-cyan-600 font-bold group-hover:text-cyan-700 transition-colors">
+                                    <span>Open Data</span>
+                                    <svg class="w-5 h-5 ml-2 group-hover:translate-x-2 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Scalling Table Section -->
+        <div class="mt-14">
+            <div class="mb-6 flex items-center gap-3">
+                <div class="w-1 h-8 bg-gradient-to-b from-blue-500 to-indigo-600 rounded-full"></div>
+                <h2 class="text-2xl font-bold text-gray-800">Scalling Table</h2>
+                <span class="text-xs font-bold text-blue-600 bg-blue-50 border border-blue-200 rounded-full px-3 py-1 uppercase tracking-wider">Interactive Checklist</span>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                @php
+                $scallingCards = [
+                    ['key' => 'on-hand',  'label' => 'LOP On Hand',  'from' => 'from-emerald-500', 'to' => 'to-teal-600',    'text' => 'text-emerald-600'],
+                    ['key' => 'qualified','label' => 'LOP Qualified','from' => 'from-purple-500',  'to' => 'to-fuchsia-600', 'text' => 'text-purple-600'],
+                    ['key' => 'koreksi',  'label' => 'LOP Koreksi',  'from' => 'from-orange-500',  'to' => 'to-red-600',     'text' => 'text-orange-600'],
+                    ['key' => 'initiate', 'label' => 'LOP Initiate', 'from' => 'from-blue-500',    'to' => 'to-indigo-600',  'text' => 'text-blue-600'],
+                ];
+                @endphp
+                @foreach($scallingCards as $card)
+                <a href="{{ route('sme.scalling-lop-table', $card['key']) }}" class="group">
+                    <div class="bg-white/90 backdrop-blur-lg rounded-2xl shadow-lg overflow-hidden border border-gray-200/50 hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2">
+                        <div class="bg-gradient-to-br {{ $card['from'] }} {{ $card['to'] }} p-8 text-white relative overflow-hidden">
+                            <div class="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+                            <div class="relative">
+                                <div class="flex items-center justify-between mb-3">
+                                    <h3 class="text-xl font-bold">{{ $card['label'] }}</h3>
+                                    <svg class="w-6 h-6 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+                                    </svg>
+                                </div>
+                                <span class="text-xs font-bold bg-white/20 backdrop-blur-sm rounded-full px-3 py-1">CHECKLIST</span>
+                            </div>
+                        </div>
+                        <div class="p-5">
+                            <div class="flex items-center {{ $card['text'] }} font-bold group-hover:opacity-80 transition-opacity">
+                                <span class="text-sm">Buka Tabel</span>
+                                <svg class="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+                @endforeach
+            </div>
+        </div>
+        
     </div>
 </div>
 @endsection
