@@ -23,7 +23,15 @@ return new class extends Migration
             
             // Drop old unique constraint if exists
             $indexName = $tableName . '_user_id_periode_unique';
-            \DB::statement("ALTER TABLE `{$tableName}` DROP INDEX IF EXISTS `{$indexName}`");
+
+            $indexExists = \DB::select("
+                SHOW INDEX FROM `{$tableName}` 
+                WHERE Key_name = '{$indexName}'
+            ");
+
+            if (!empty($indexExists)) {
+                \DB::statement("ALTER TABLE `{$tableName}` DROP INDEX `{$indexName}`");
+            }
             
             // Add new unique constraint with segment if it doesn't exist
             $newIndexName = $tableName . '_user_id_periode_segment_unique';
