@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->string('type')->nullable();
             $table->enum('status', ['active', 'inactive'])->default('active');
+            $table->date('periode')->nullable();
             $table->string('segment')->nullable();
             $table->string('comm_ssl')->nullable();
             $table->string('comm_rp')->nullable();

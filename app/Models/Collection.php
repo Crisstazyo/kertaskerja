@@ -16,6 +16,7 @@ class Collection extends Model
         'type',
         'status',
         'segment',
+        'periode',
         'plan',
         'commitment',
         'real_ratio',

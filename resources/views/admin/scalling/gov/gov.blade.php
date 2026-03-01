@@ -87,13 +87,7 @@
                         'type'    => 'on-hand',
                         'icon'    => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>',
                     ],
-                    [
-                        'label'   => 'LOP Qualified',
-                        'sub'     => 'Manage LOP Qualified data, upload files, dan lihat progress',
-                        'badge'   => 'QUALIFIED',
-                        'type'    => 'qualified',
-                        'icon'    => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>',
-                    ],
+                    
                     [
                         'label'   => 'Koreksi',
                         'sub'     => 'Manage Koreksi data, upload files, dan lihat progress',
@@ -101,19 +95,13 @@
                         'type'    => 'koreksi',
                         'icon'    => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>',
                     ],
-                    [
-                        'label'   => 'LOP Initiate',
-                        'sub'     => 'Manage LOP Initiate data, upload files, dan lihat progress',
-                        'badge'   => 'INITIATE',
-                        'type'    => 'initiate',
-                        'icon'    => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"/>',
-                    ],
+                    
                 ];
             @endphp
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                 @foreach($lopCards as $card)
-                <a href="{{ route('admin.scalling.gov.on-hand') }}"
+                <a href="{{ route('admin.scalling.gov.' . $card['type']) }}"
                     class="group bg-white rounded-2xl border-2 border-slate-100 hover:border-red-200 shadow-sm hover:shadow-xl hover:shadow-red-500/10 transition-all duration-300 hover:-translate-y-1.5 overflow-hidden relative">
                     <div class="h-1 w-full bg-gradient-to-r from-red-600 to-red-400 opacity-0 group-hover:opacity-100 transition-all duration-300"></div>
                     <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"

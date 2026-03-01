@@ -13,9 +13,9 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 class ScallingController extends Controller
 {
     // ── LAYOUT EXCEL ─────────────────────────────────────────────────────────
-    private const HEADER_ROW     = 3;  // Baris ke-5: header kolom (NO, PROJECT, dst.)
-    private const DATA_START_ROW = 7;  // Baris ke-7: data pertama
-    private const MAX_COL        = 9;  // Kolom A(1) s/d I(9)
+    private const HEADER_ROW     = 5;
+    private const DATA_START_ROW = 7;
+    private const MAX_COL        = 9;
 
     // ── MAPPING HEADER EXCEL → KOLOM DATABASE ────────────────────────────────
     private array $columnMap = [
@@ -54,15 +54,7 @@ class ScallingController extends Controller
 
     public function onHandGov()
     {
-        $logs= ScallingImport::where('type', 'on-hand')->latest()->paginate(10);
-        $projects = ScallingData::with('scallingImport')->latest()->paginate(20);
-        return view('admin.scalling.gov.onHand', compact('logs', 'projects'));
-    }
-    public function koreksiGov()
-    {
-        $logs= ScallingImport::where('type', 'koreksi')->latest()->paginate(10);
-        $projects = ScallingData::with('scallingImport')->latest()->paginate(20);
-        return view('admin.scalling.gov.koreksi', compact('logs', 'projects'));
+        return view('admin.scalling.gov.onHand', $this->sharedViewData());
     }
 
     public function onHandSme()
@@ -91,12 +83,6 @@ class ScallingController extends Controller
             'excel_file.mimes'    => 'File harus berformat .xlsx, .xls, atau .csv.',
             'excel_file.max'      => 'Ukuran file maksimal 10 MB.',
         ]);
-        $request->validate([
-            'periode'     => 'required|date_format:Y-m',
-            'type'       => 'required|nullable',
-            'segment'    => 'required|nullable',
-        ]);
-        $periodeDate = $request->periode . '-01';
 
         $file             = $request->file('excel_file');
         $originalFilename = $file->getClientOriginalName();
@@ -130,41 +116,21 @@ class ScallingController extends Controller
             }
 
             // ── 2. Semua parsing berhasil — baru simpan ke database ──
-            DB::transaction(function () use ($rows, $originalFilename, $request, $periodeDate) {
-                // cek apakah sudah ada log dengan periode yang sama
-                $log = ScallingImport::where('periode', $periodeDate)->where('type', $request->type)->where('segment', $request->segment)->first();
-
-                if ($log) {
-                    // gunakan kembali log yang ada dan hapus data lama
-                    $log->update([
-                        'original_filename'   => $originalFilename,
-                        'status'              => 'active',
-                        'type'                => $request->type,
-                        'segment'             => $request->segment,
-                        'total_rows_imported' => count($rows),
-                        'uploaded_by'         => auth()->user()->name ?? $request->ip(),
-                    ]);
-
-                    ScallingData::where('imports_log_id', $log->id)->delete();
-                } else {
-                    // buat log baru
-                    $log = ScallingImport::create([
-                        'original_filename'   => $originalFilename,
-                        'status'              => 'active',
-                        'type'                => $request->type,
-                        'segment'             => $request->segment,
-                        'periode'             => $periodeDate,
-                        'total_rows_imported' => count($rows),
-                        'uploaded_by'         => auth()->user()->name ?? $request->ip(),
-                    ]);
-                }
+            DB::transaction(function () use ($rows, $originalFilename, $request) {
+                // Buat log hanya jika tidak ada error
+                $log = ScallingImport::create([
+                    'original_filename'   => $originalFilename,
+                    'status'              => 'success',
+                    'total_rows_imported' => count($rows),
+                    'uploaded_by'         => auth()->user()->name ?? $request->ip(),
+                ]);
 
                 // Sisipkan foreign key ke setiap baris
                 $timestamp  = now();
                 $insertRows = array_map(fn($row) => array_merge($row, [
-                    'imports_log_id' => $log->id,
-                    'created_at'     => $timestamp,
-                    'updated_at'     => $timestamp,
+                    'imports_log_id' => $log->id,   // ← sesuaikan nama FK dengan migration
+                    'created_at'         => $timestamp,
+                    'updated_at'         => $timestamp,
                 ]), $rows);
 
                 foreach (array_chunk($insertRows, 500) as $chunk) {
@@ -217,18 +183,14 @@ class ScallingController extends Controller
         ];
     }
 
-    /**
-     * Baca header dari baris HEADER_ROW.
-     * Salin konstanta ke variable lokal dulu sebelum digunakan sebagai string.
-     */
     private function readAndValidateHeaders(Worksheet $sheet): array
     {
         $headerMap    = [];
         $foundHeaders = [];
-        $headerRow    = self::HEADER_ROW; // wajib disalin ke variable
+        $headerRow    = self::HEADER_ROW;
 
         for ($col = 1; $col <= self::MAX_COL; $col++) {
-            $coordinate = Coordinate::stringFromColumnIndex($col) . $headerRow; // "A5", "B5", dst.
+            $coordinate = Coordinate::stringFromColumnIndex($col) . $headerRow;
             $rawValue   = $sheet->getCell($coordinate)->getValue();
             $normalized = preg_replace('/\s+/', ' ', strtoupper(trim((string) $rawValue)));
 
@@ -242,21 +204,16 @@ class ScallingController extends Controller
             $found = implode(', ', $foundHeaders) ?: '(tidak ada)';
             throw new \Exception(
                 "Header tidak ditemukan di baris ke-" . self::HEADER_ROW . ". " .
-                "Kolom terbaca: {$found}. Pastikan header NO dan PROJECT ada di baris " . self::HEADER_ROW . "."
+                "Kolom terbaca: {$found}."
             );
         }
 
         return $headerMap;
     }
 
-    /**
-     * Cek apakah baris $rowIndex adalah baris TOTAL.
-     * Menerima Worksheet + nomor baris — bukan array rowData.
-     * Loop di-break saat ini ditemukan, sehingga baris TOTAL tidak pernah masuk DB.
-     */
     private function isTotalRow(Worksheet $sheet, int $rowIndex): bool
     {
-        $rowNum = $rowIndex; // salin ke variable biasa
+        $rowNum = $rowIndex;
 
         for ($col = 1; $col <= self::MAX_COL; $col++) {
             $coordinate = Coordinate::stringFromColumnIndex($col) . $rowNum;
@@ -270,19 +227,16 @@ class ScallingController extends Controller
         return false;
     }
 
-    /**
-     * Baca satu baris. Gunakan getValue() agar nilai numerik tidak berubah format.
-     */
     private function readRow(Worksheet $sheet, int $rowIndex, array $headerMap): array
     {
         $rowData = [];
-        $rowNum  = $rowIndex; // salin ke variable biasa
+        $rowNum  = $rowIndex;
 
         for ($col = 1; $col <= self::MAX_COL; $col++) {
             if (!isset($headerMap[$col])) continue;
 
             $dbColumn   = $headerMap[$col];
-            $coordinate = Coordinate::stringFromColumnIndex($col) . $rowNum; // "A7", dst.
+            $coordinate = Coordinate::stringFromColumnIndex($col) . $rowNum;
             $raw        = $sheet->getCell($coordinate)->getValue();
             $cellValue  = trim((string) $raw);
 
@@ -290,11 +244,9 @@ class ScallingController extends Controller
                 $cellValue = is_numeric($cellValue) ? (int) $cellValue : null;
 
             } elseif ($dbColumn === 'est_nilai_bc') {
-                // Nilai sudah float dari Excel? langsung pakai
                 if (is_numeric($raw)) {
                     $cellValue = (float) $raw;
                 } else {
-                    // Fallback: parse format Indonesia 457.854.960
                     $clean = preg_replace('/[^\d,.]/', '', $cellValue);
                     $clean = str_replace('.', '', $clean);
                     $clean = str_replace(',', '.', $clean);
@@ -311,7 +263,6 @@ class ScallingController extends Controller
         return $rowData;
     }
 
-    /** True jika semua nilai di baris kosong/null. */
     private function isRowEmpty(array $rowData): bool
     {
         foreach ($rowData as $value) {

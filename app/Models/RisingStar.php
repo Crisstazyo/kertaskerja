@@ -10,6 +10,7 @@ class RisingStar extends Model
         'user_id',
         'type_id',
         'status',
+        'periode',
         'commitment',
         'real_ratio',
     ];

@@ -11,9 +11,11 @@ class ScallingImport extends Model
 
     protected $fillable = [
         'original_filename',
-        'status',
+        'status',        
+        'periode',        
+        'type',
+        'segment',
         'total_rows_imported',
-        'notes',
         'uploaded_by',
         'uploaded_at',
     ];
@@ -22,8 +24,17 @@ class ScallingImport extends Model
         'uploaded_at' => 'datetime',
     ];
 
-    public function scallingdata()
+    public function scallingData()
     {
-        return $this->hasMany(ScallingData::class, 'import_log_id');
+        // table column is "imports_log_id" (plural) according to the migration
+        return $this->hasMany(ScallingData::class, 'imports_log_id');
+    }
+
+    /**
+     * Alias for `scallingData` so templates can use `$import->data` like before.
+     */
+    public function data()
+    {
+        return $this->scallingData();
     }
 }

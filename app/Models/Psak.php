@@ -15,6 +15,7 @@ class Psak extends Model
         'user_id',
         'type', // gov, soe, sme, private
         'status',
+        'periode',
         'segment', // Not Cose
         'comm_ssl',
         'comm_rp',

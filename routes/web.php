@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Admin2Controller;
 use App\Http\Controllers\ScallingController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\GovController;
 use App\Http\Controllers\CollectionController;
 
 Route::get('/', function () {
@@ -74,14 +75,21 @@ Route::middleware('auth')->group(function () {
 
         // Scalling routes
         Route::get('/scalling/gov', [ScallingController::class, 'indexGov'])->name('admin.scalling.gov');
+        Route::get('/scalling/soe', [ScallingController::class, 'indexSoe'])->name('admin.scalling.soe');
+        Route::get('/scalling/sme', [ScallingController::class, 'indexSme'])->name('admin.scalling.sme');
+        Route::get('/scalling/private', [ScallingController::class, 'indexPrivate'])->name('admin.scalling.private');
         // on-hand upload listing and actions
         Route::get('/scalling/gov/on-hand', [ScallingController::class, 'onHandGov'])->name('admin.scalling.gov.on-hand');
         Route::post('/scalling/gov/on-hand', [ScallingController::class, 'import'])->name('admin.scalling.gov.on-hand.store');
         Route::get('/scalling/gov/on-hand/{scallingImport}', [ScallingController::class, 'show'])->name('admin.scalling.gov.on-hand.show');
         Route::delete('/scalling/gov/on-hand/{scallingImport}', [ScallingController::class, 'destroy'])->name('admin.scalling.gov.on-hand.destroy');
-        Route::get('/scalling/soe', [ScallingController::class, 'indexSoe'])->name('admin.scalling.soe');
-        Route::get('/scalling/sme', [ScallingController::class, 'indexSme'])->name('admin.scalling.sme');
-        Route::get('/scalling/private', [ScallingController::class, 'indexPrivate'])->name('admin.scalling.private');
+
+        // koreksi upload listing and actions
+        Route::get('/scalling/gov/koreksi', [ScallingController::class, 'koreksiGov'])->name('admin.scalling.gov.koreksi');
+        Route::post('/scalling/gov/koreksi', [ScallingController::class, 'import'])->name('admin.scalling.gov.koreksi.store');
+        Route::get('/scalling/gov/koreksi/{scallingImport}', [ScallingController::class, 'show'])->name('admin.scalling.gov.koreksi.show');
+        Route::delete('/scalling/gov/koreksi/{scallingImport}', [ScallingController::class, 'destroy'])->name('admin.scalling.gov.koreksi.destroy');
+        
     });
 
     // Government dashboard (role: gov)
@@ -89,6 +97,11 @@ Route::middleware('auth')->group(function () {
         Route::get('/', function () {
             return view('dashboard.gov.index');
         })->name('dashboard.gov');
+
+        Route::get('/scalling', [GovController::class, 'scalling'])->name('dashboard.gov.scalling');
+        Route::get('/scalling/on-hand', [GovController::class, 'lopOnHand'])->name('dashboard.gov.lop-on-hand');
+        Route::get('/scalling/koreksi', [GovController::class, 'lopKoreksi'])->name('dashboard.gov.lop-koreksi');
+        Route::post('/funnel/update', [GovController::class, 'updateFunnelCheckbox'])->name('funnel.update');
     });
 
     // SOE dashboard (role: soe)

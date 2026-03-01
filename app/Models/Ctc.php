@@ -10,6 +10,7 @@ class Ctc extends Model
         'user_id',
         'type',
         'status',
+        'periode',
         'segment',
         'commitment',
         'real_ratio',

@@ -9,6 +9,7 @@ class Telda extends Model
     protected $fillable = [
         'user_id',
         'status',
+        'periode',
         'region',
         'commitment',
         'real_ratio',

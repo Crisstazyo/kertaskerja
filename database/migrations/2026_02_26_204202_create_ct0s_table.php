@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->enum('status', ['active', 'inactive'])->default('active');
+            $table->date('periode')->nullable();
             $table->string('region')->nullable();
             $table->string('commitment')->nullable();
             $table->string('real_ratio')->nullable();

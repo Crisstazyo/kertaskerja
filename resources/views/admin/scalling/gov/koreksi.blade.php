@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Government')
+@section('title', 'Government - LOP Koreksi')
 
 @section('content')
 <div class="min-h-screen" style="background:#f1f5f9;">
@@ -17,7 +17,7 @@
                     <div>
                         <p class="text-[10px] font-black tracking-[0.3em] text-red-600 uppercase mb-1">Witel Sumut</p>
                         <h1 class="text-2xl font-black tracking-tight text-slate-900 leading-none uppercase">
-                            LOP On Hand
+                            LOP Koreksi
                             <span class="text-red-600">— Government</span>
                         </h1>
                         <p class="text-slate-400 text-xs font-bold mt-1 uppercase tracking-tight">Scaling Management System</p>
@@ -112,7 +112,7 @@
             <form action="{{ route('admin.scalling.gov.on-hand') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
-                    <input type="hidden" name="type" value="on-hand">
+                    <input type="hidden" name="type" value="koreksi">
                     <input type="hidden" name="segment" value="government">
                     <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Periode</label>

@@ -19,7 +19,7 @@ class ScallingData extends Model
         'mitra',
         'plan_bulan_billcomp_2025',
         'est_nilai_bc',
-        'import_log_id',
+        'imports_log_id',
     ];
 
     protected $casts = [
@@ -28,8 +28,19 @@ class ScallingData extends Model
         'no' => 'integer',
     ];
 
+
     public function scallingImport()
     {
-        return $this->belongsTo(ScallingImport::class, 'import_log_id');
+        // column name from migration: imports_log_id
+        return $this->belongsTo(ScallingImport::class, 'imports_log_id');
+    }
+
+    /**
+     * Relation to funnel tracking master record for this row.
+     * data_id in funnel_tracking refers to this scalling_data id.
+     */
+    public function funnel()
+    {
+        return $this->hasOne(\App\Models\FunnelTracking::class, 'data_id');
     }
 }

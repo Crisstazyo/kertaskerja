@@ -9,6 +9,7 @@ class Hsi extends Model
     protected $fillable = [
         'user_id',
         'status',
+        'periode',
         'commitment',
         'real_ratio',
     ];

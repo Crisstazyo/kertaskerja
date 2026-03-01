@@ -15,8 +15,10 @@ return new class extends Migration
             $table->id();
             $table->string('original_filename');
             $table->string('status')->default('active'); // active atau inactive
+            $table->string('type')->nullable(); // 
+            $table->string('segment')->nullable(); // 
             $table->integer('total_rows_imported')->default(0);
-            $table->text('notes')->nullable();
+            $table->date('periode')->nullable();
             $table->string('uploaded_by')->nullable();
             $table->timestamp('uploaded_at')->useCurrent();
             $table->timestamps();

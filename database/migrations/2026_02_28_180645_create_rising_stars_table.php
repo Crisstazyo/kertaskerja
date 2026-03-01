@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('type_id')->constrained('rising_star_types')->onDelete('cascade');
             $table->enum('status', ['active', 'inactive'])->default('active');
+            $table->date('periode')->nullable();
             $table->string('commitment')->nullable();
             $table->string('real_ratio')->nullable();
             $table->timestamps();
