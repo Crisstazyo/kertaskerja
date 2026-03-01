@@ -74,44 +74,38 @@
                                 'label' => 'Government',
                                 'sub' => 'Pemerintah Scaling Project',
                                 'badge' => 'GOV',
-                                'route' => route('admin.scalling', 'government'),
+                                'route' => route('admin.scalling.gov'),
                                 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 21h18M3 10h18M3 7l9-4 9 4M4 10h1v11H4zm6 0h1v11h-1zm5 0h1v11h-1zm5 0h1v11h-1z"/>'
                             ],
                             [
                                 'label' => 'Private',
                                 'sub' => 'Swasta Scaling Project',
                                 'badge' => 'PVT',
-                                'route' => route('admin.scalling', 'private'),
+                                'route' => route('admin.scalling.private'),
                                 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>'
                             ],
                             [
                                 'label' => 'SOE',
                                 'sub' => 'BUMN Scaling Project',
                                 'badge' => 'SOE',
-                                'route' => route('admin.scalling', 'soe'),
+                                'route' => route('admin.scalling.soe'),
                                 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>'
                             ],
                             [
                                 'label' => 'SME',
                                 'sub' => 'UKM Scaling Project',
                                 'badge' => 'SME',
-                                'route' => route('admin.scalling', 'sme'),
+                                'route' => route('admin.scalling.sme'),
                                 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>'
                             ],
                             [
                                 'label' => 'HSI Agency',
                                 'sub' => 'Scalling HSI Agency',
                                 'badge' => 'HSI',
-                                'route' => route('admin.scalling.hsi-agency'),
+                                'route' => route('admin.hsi-agency'),
                                 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>'
                             ],
-                            [
-                                'label' => 'Telda',
-                                'sub' => 'Scalling Telda (9 Wilayah)',
-                                'badge' => 'TELDA',
-                                'route' => route('admin.scalling.telda'),
-                                'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>'
-                            ],
+                            
                         ];
                     @endphp
                     @foreach($scalingCards as $card)
@@ -179,28 +173,28 @@
                                 'label' => 'C3MR',
                                 'sub' => 'Collection Management',
                                 'badge' => 'C3MR',
-                                'route' => route('admin.collection.c3mr'),
+                                'route' => route('admin.c3mr'),
                                 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>'
                             ],
                             [
                                 'label' => 'Billing Perdana',
                                 'sub' => 'Billing Management',
                                 'badge' => 'BILL',
-                                'route' => route('admin.collection.billing'),
+                                'route' => route('admin.billing'),
                                 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>'
                             ],
                             [
                                 'label' => 'Collection Ratio',
                                 'sub' => 'CR Tracking',
                                 'badge' => 'CR',
-                                'route' => route('admin.collection.collection-ratio'),
+                                'route' => route('admin.collection-ratio'),
                                 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>'
                             ],
                             [
                                 'label' => 'UTIP',
                                 'sub' => 'UTIP Management',
                                 'badge' => 'UTIP',
-                                'route' => route('admin.collection.utip'),
+                                'route' => route('admin.utip'),
                                 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>'
                             ],
                         ];
@@ -266,7 +260,7 @@
                                 'label' => 'Paid CT0',
                                 'sub' => 'Payment Tracking & Management',
                                 'badge' => 'CT0',
-                                'route' => route('admin.ctc.paid-ct0'),
+                                'route' => route('admin.ct0'),
                                 'cta' => 'Track Payments',
                                 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>'
                             ],
@@ -274,7 +268,7 @@
                                 'label' => 'Combat The Churn',
                                 'sub' => 'Churn Analysis & Reports',
                                 'badge' => 'CTC',
-                                'route' => route('admin.ctc.combat-churn'),
+                                'route' => route('admin.ctc'),
                                 'cta' => 'View Reports',
                                 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>'
                             ],
@@ -341,7 +335,7 @@
 
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-5">
                     @for($i = 1; $i <= 4; $i++)
-                        <a href="{{ route('admin.rising-star.dashboard', ['star' => $i]) }}"
+                        <a href="{{ route('admin.rising-star'.$i) }}"
                             class="group bg-white rounded-2xl border-2 border-slate-100 hover:border-red-200 shadow-sm hover:shadow-xl hover:shadow-red-500/10 transition-all duration-300 hover:-translate-y-1.5 overflow-hidden relative">
                             <div
                                 class="h-1 w-full bg-gradient-to-r from-red-600 to-red-400 opacity-0 group-hover:opacity-100 transition-all duration-300">
@@ -415,28 +409,28 @@
                                 'label' => 'PSAK Gov',
                                 'sub' => 'Government PSAK Data',
                                 'badge' => 'GOV',
-                                'route' => route('admin.psak', 'government'),
+                                'route' => route('admin.psak.gov'),
                                 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>'
                             ],
                             [
                                 'label' => 'PSAK Private',
                                 'sub' => 'Private PSAK Data',
                                 'badge' => 'PVT',
-                                'route' => route('admin.psak', 'private'),
+                                'route' => route('admin.psak.private'),
                                 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>'
                             ],
                             [
                                 'label' => 'PSAK SOE',
                                 'sub' => 'BUMN PSAK Data',
                                 'badge' => 'SOE',
-                                'route' => route('admin.psak', 'soe'),
+                                'route' => route('admin.psak.soe'),
                                 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>'
                             ],
                             [
                                 'label' => 'PSAK SME',
                                 'sub' => 'UKM PSAK Data',
                                 'badge' => 'SME',
-                                'route' => route('admin.psak', 'sme'),
+                                'route' => route('admin.psak.sme'),
                                 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>'
                             ],
                         ];

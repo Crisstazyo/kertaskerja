@@ -1,0 +1,289 @@
+@extends('layouts.app')
+
+@section('title', 'Government')
+
+@section('content')
+<div class="min-h-screen" style="background:#f1f5f9;">
+    <div class="max-w-7xl mx-auto px-8 py-10">
+
+        {{-- ══ HEADER ══ --}}
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 px-10 py-7 mb-8 relative overflow-hidden">
+            <div class="absolute top-0 left-0 right-0 h-1.5" style="background: linear-gradient(90deg, #dc2626, #ef4444, #dc2626);"></div>
+            <div class="absolute -right-10 -top-10 w-56 h-56 rounded-full opacity-[0.04]" style="background: #dc2626;"></div>
+            <div class="relative flex items-center justify-between">
+                <div class="flex items-center space-x-6">
+                    <img src="{{ asset('img/Telkom.png') }}" alt="Telkom" class="h-12 w-auto">
+                    <div class="w-px h-12 bg-slate-200"></div>
+                    <div>
+                        <p class="text-[10px] font-black tracking-[0.3em] text-red-600 uppercase mb-1">Witel Sumut</p>
+                        <h1 class="text-2xl font-black tracking-tight text-slate-900 leading-none uppercase">
+                            LOP On Hand
+                            <span class="text-red-600">— Government</span>
+                        </h1>
+                        <p class="text-slate-400 text-xs font-bold mt-1 uppercase tracking-tight">Scaling Management System</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="{{ route('admin.scalling.gov') }}"
+                        class="flex items-center space-x-2.5 bg-white border-2 border-slate-900 hover:bg-slate-900 text-slate-900 hover:text-white px-6 py-3 rounded-xl font-black text-xs transition-all duration-300 shadow-sm uppercase tracking-wider">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/>
+                        </svg>
+                        <span>Back</span>
+                    </a>
+                    <form action="{{ route('logout') }}" method="POST">
+                        @csrf
+                        <button type="submit"
+                            class="group flex items-center space-x-2.5 bg-slate-900 hover:bg-red-600 text-white font-bold text-sm px-5 py-3 rounded-xl transition-all duration-300 shadow-md hover:shadow-lg hover:shadow-red-200">
+                            <svg class="w-4 h-4 transition-transform duration-300 group-hover:rotate-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                            </svg>
+                            <span>Logout</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        {{-- ══ FLASH MESSAGES ══ --}}
+        @if(session('success'))
+        <div class="flex items-center space-x-3 bg-green-50 border border-green-200 text-green-800 px-5 py-3.5 mb-6 rounded-xl text-sm font-semibold">
+            <svg class="w-4 h-4 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <span>{{ session('success') }}</span>
+        </div>
+        @endif
+        @if(session('error'))
+        <div class="flex items-center space-x-3 bg-red-50 border border-red-200 text-red-800 px-5 py-3.5 mb-6 rounded-xl text-sm font-semibold">
+            <svg class="w-4 h-4 text-red-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <span>{{ session('error') }}</span>
+        </div>
+        @endif
+
+        {{-- ══ ACTION BUTTONS ══ --}}
+        <div class="grid grid-cols-2 gap-4 mb-8">
+            <a href=""
+                class="group bg-white rounded-xl border border-slate-200 hover:border-red-300 hover:shadow-md transition-all duration-200 px-6 py-5 flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <div class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0" style="background:#fff1f2; border:1.5px solid #fecdd3;">
+                        <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="font-black text-slate-900 text-sm">Lihat Progress</p>
+                        <p class="text-xs text-slate-400 font-medium mt-0.5">Progress yang diupdate user</p>
+                    </div>
+                </div>
+                <svg class="w-4 h-4 text-slate-300 group-hover:text-red-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
+                </svg>
+            </a>
+
+            <a href=""
+                class="group bg-white rounded-xl border border-slate-200 hover:border-red-300 hover:shadow-md transition-all duration-200 px-6 py-5 flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <div class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0" style="background:#fff1f2; border:1.5px solid #fecdd3;">
+                        <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="font-black text-slate-900 text-sm">Lihat Riwayat</p>
+                        <p class="text-xs text-slate-400 font-medium mt-0.5">Historical progress data</p>
+                    </div>
+                </div>
+                <svg class="w-4 h-4 text-slate-300 group-hover:text-red-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
+                </svg>
+            </a>
+        </div>
+
+        {{-- ══ UPLOAD FILE ══ --}}
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-8 mb-8">
+            <div class="flex items-center space-x-3 mb-6">
+                <div class="w-1 h-6 bg-red-600 rounded-full"></div>
+                <h2 class="text-base font-black text-slate-900 uppercase tracking-wide">Upload File</h2>
+            </div>
+
+            <form action="{{ route('admin.scalling.gov.on-hand') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Periode</label>
+                        <input type="month" name="periode" required
+                            value="{{ date('Y-m') }}"
+                            class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors">
+                        @error('periode')
+                            <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">File Excel</label>
+                        <label class="flex items-center space-x-3 w-full px-4 py-2.5 border border-dashed border-slate-300 hover:border-red-400 rounded-lg cursor-pointer transition-colors">
+                            <svg class="w-4 h-4 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/>
+                            </svg>
+                            <span id="file-name-text" class="text-sm font-semibold text-slate-400">Pilih file (.xlsx, .xls, .csv)</span>
+                            <input type="file" name="file" accept=".xlsx,.xls,.csv" required class="sr-only" onchange="displayFileName(this)">
+                        </label>
+                        @error('file')
+                            <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                        @enderror
+                    </div>
+                </div>
+
+                <div class="flex justify-end">
+                    <button type="submit"
+                        class="flex items-center space-x-2 bg-slate-900 hover:bg-red-600 text-white font-bold text-xs px-6 py-2.5 rounded-lg transition-all duration-200 uppercase tracking-wider">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                        </svg>
+                        <span>Upload</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        {{-- ══ TABEL RIWAYAT ══ --}}
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="px-8 py-5 border-b border-slate-100 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-1 h-6 bg-red-600 rounded-full"></div>
+                    <h2 class="text-base font-black text-slate-900 uppercase tracking-wide">Riwayat Upload</h2>
+                </div>
+                <span class="text-xs font-bold text-slate-400 bg-slate-50 border border-slate-200 rounded-full px-3 py-1">
+                    {{ $projects->total() }} uploads
+                </span>
+            </div>
+
+            @if($projects->count() > 0)
+            <div class="overflow-x-auto">
+                <table class="min-w-full">
+                    <thead>
+                        <tr class="bg-slate-50 border-b border-slate-100">
+                            <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Periode</th>
+                            <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">File Name</th>
+                            <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Admin</th>
+                            <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Tanggal</th>
+                            <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Rows</th>
+                            <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        @foreach($projects as $data)
+                        <tr class="hover:bg-slate-50 transition-colors">
+                            <td class="px-6 py-4">
+                                <span class="text-xs font-bold text-red-600 bg-red-50 border border-red-100 rounded-md px-2.5 py-1">
+                                    {{ $data->periode ? \Carbon\Carbon::parse($data->periode)->format('M Y') : '-' }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex items-center space-x-2">
+                                    <svg class="w-4 h-4 text-slate-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                    </svg>
+                                    <span class="text-sm font-semibold text-slate-700">{{ $data->file_name }}</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 text-sm font-semibold text-slate-600">{{ $data->uploaded_by }}</td>
+                            <td class="px-6 py-4 text-sm text-slate-400">{{ $data->created_at->format('d M Y, H:i') }}</td>
+                            <td class="px-6 py-4">
+                                <span class="text-xs font-bold text-slate-500 bg-slate-100 rounded-md px-2.5 py-1">
+                                    {{ is_array($data->data) ? count($data->data) - 1 : 0 }} rows
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 text-center">
+                                <button onclick="toggleFilePreview({{ $data->id }})"
+                                    class="inline-flex items-center space-x-1.5 text-xs font-bold text-slate-600 hover:text-red-600 border border-slate-200 hover:border-red-300 bg-white hover:bg-red-50 px-3 py-1.5 rounded-lg transition-all duration-200">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                    </svg>
+                                    <span>Preview</span>
+                                </button>
+                            </td>
+                        </tr>
+                        {{-- Preview Row --}}
+                        <tr id="preview-{{ $data->id }}" class="hidden">
+                            <td colspan="6" class="px-6 py-4 bg-slate-50">
+                                <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
+                                    <div class="px-5 py-3 border-b border-slate-100 flex items-center space-x-2">
+                                        <div class="w-1 h-4 bg-red-500 rounded-full"></div>
+                                        <span class="text-xs font-black text-slate-600 uppercase tracking-widest">File Preview</span>
+                                    </div>
+                                    @if(is_array($data->data) && count($data->data) > 0)
+                                    <div class="overflow-x-auto">
+                                        <table class="min-w-full text-xs">
+                                            <thead class="bg-slate-50 border-b border-slate-100">
+                                                <tr>
+                                                    @if(isset($data->data[0]) && is_array($data->data[0]))
+                                                        @foreach($data->data[0] as $index => $header)
+                                                        <th class="px-4 py-2.5 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">{{ $header ?? 'Col ' . ($index + 1) }}</th>
+                                                        @endforeach
+                                                    @endif
+                                                </tr>
+                                            </thead>
+                                            <tbody class="divide-y divide-slate-100">
+                                                @foreach(array_slice($data->data, 1, 5) as $row)
+                                                <tr class="hover:bg-slate-50">
+                                                    @if(is_array($row))
+                                                        @foreach($row as $cell)
+                                                        <td class="px-4 py-2.5 text-slate-700">{{ $cell }}</td>
+                                                        @endforeach
+                                                    @endif
+                                                </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    @if(count($data->data) > 6)
+                                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center py-3 border-t border-slate-100">
+                                        Menampilkan 5 dari {{ count($data->data) - 1 }} baris
+                                    </p>
+                                    @endif
+                                    @else
+                                    <p class="text-sm text-slate-400 text-center py-6">No data available</p>
+                                    @endif
+                                </div>
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+
+            @if($projects->hasPages())
+            <div class="px-6 py-4 border-t border-slate-100">
+                {{ $projects->links() }}
+            </div>
+            @endif
+
+            @else
+            <div class="text-center py-16">
+                <svg class="mx-auto w-10 h-10 text-slate-200 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                <p class="text-sm font-bold text-slate-400">Belum ada upload</p>
+                <p class="text-xs text-slate-300 mt-1">Upload file Excel untuk memulai</p>
+            </div>
+            @endif
+        </div>
+
+    </div>
+</div>
+
+    <script>
+    function displayFileName(input) {
+        const fileName = input.files[0]?.name;
+        if (fileName) document.getElementById('file-name-text').textContent = fileName;
+    }
+    function toggleFilePreview(id) {
+        document.getElementById(`preview-${id}`).classList.toggle('hidden');
+    }
+    </script>
+@endsection
