@@ -24,8 +24,8 @@
                 </div>
                 <div class="flex items-center space-x-4">
                     <a href="{{ route('admin.dashboard') }}"
-                        class="flex items-center space-x-2.5 bg-white border-2 border-slate-900 hover:bg-slate-900 text-slate-900 hover:text-white px-6 py-3 rounded-xl font-black text-xs transition-all duration-300 shadow-sm uppercase tracking-wider">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        class="flex items-center space-x-2.5 bg-white border-2 border-slate-900 hover:bg-red-600 hover:border-red-600 text-slate-900 hover:text-white px-6 py-3 rounded-xl font-black text-xs transition-all duration-300 shadow-sm group uppercase tracking-wider">
+                        <svg class="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/>
                         </svg>
                         <span>Back to Dashboard</span>
@@ -50,7 +50,6 @@
             <span>{{ session('success') }}</span>
         </div>
         @endif
-
         @if(session('error'))
         <div class="flex items-center space-x-3 bg-red-50 border border-red-200 text-red-800 px-5 py-3.5 mb-6 rounded-xl text-sm font-semibold">
             <svg class="w-4 h-4 text-red-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -62,157 +61,183 @@
 
         {{-- ══ TAB NAVIGATION ══ --}}
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-8">
-            <div class="flex border-b border-slate-100 bg-slate-50">
-                <button onclick="switchTab('komitmen')" id="tab-komitmen" 
-                    class="flex-1 py-4 text-center font-bold text-red-600 border-b-4 border-red-500 transition-all">
-                    📝 Form Komitmen (Bulanan)
+            <div class="flex border-b border-slate-100">
+                <button onclick="switchTab('komitmen')" id="tab-komitmen"
+                    class="flex-1 flex items-center justify-center space-x-2 py-4 text-sm font-black uppercase tracking-wider text-red-600 border-b-2 border-red-600 transition-all">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                    </svg>
+                    <span>Form Komitmen (Bulanan)</span>
                 </button>
                 <button onclick="switchTab('realisasi')" id="tab-realisasi"
-                    class="flex-1 py-4 text-center font-bold {{ $hasMonthlyCommitment ? 'text-slate-500 hover:text-red-500' : 'text-slate-300 cursor-not-allowed' }} border-b-4 border-transparent transition-all"
+                    class="flex-1 flex items-center justify-center space-x-2 py-4 text-sm font-black uppercase tracking-wider {{ $hasMonthlyCommitment ? 'text-slate-400 hover:text-slate-600' : 'text-slate-300 cursor-not-allowed' }} border-b-2 border-transparent transition-all"
                     {{ !$hasMonthlyCommitment ? 'disabled' : '' }}>
-                    ✅ Form Realisasi (Harian)
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <span>Form Realisasi (Harian)</span>
                 </button>
             </div>
 
             <div class="p-8">
-                {{-- KOMITMEN TAB --}}
+
+                {{-- ── Komitmen ── --}}
                 <div id="content-komitmen" class="space-y-6">
-                    <div class="flex items-center justify-between border-b pb-4 mb-6">
-                        <div>
-                            <h2 class="text-2xl font-bold text-slate-800">Input Komitmen Bulanan</h2>
-                            <p class="text-sm text-slate-500 italic">Tentukan target ratio C3MR untuk bulan ini</p>
+                    <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-1.5 h-8 bg-red-600 rounded-full"></div>
+                            <div>
+                                <h2 class="text-base font-black text-slate-900 uppercase tracking-wide">Input Komitmen Bulanan</h2>
+                                <p class="text-xs text-slate-400 font-semibold mt-0.5">Tentukan target ratio C3MR untuk bulan ini.</p>
+                            </div>
                         </div>
-                        <span class="bg-red-100 text-red-700 text-xs font-semibold px-3 py-1 rounded-full uppercase">
+                        <span class="text-[10px] font-black tracking-widest text-red-600 bg-red-50 border border-red-100 rounded-md px-3 py-1 uppercase">
                             Periode: {{ now()->translatedFormat('F Y') }}
                         </span>
                     </div>
 
                     @if($hasMonthlyCommitment)
-                        <div class="bg-amber-50 border-l-4 border-amber-400 p-6 rounded-r-lg">
-                            <div class="flex items-center">
-                                <div class="text-2xl mr-4">ℹ️</div>
-                                <div>
-                                    <p class="text-amber-800 font-bold">Target Sudah Terkunci</p>
-                                    <p class="text-sm text-amber-700">
-                                        Anda telah menginput target ratio untuk periode <strong>{{ now()->translatedFormat('F Y') }}</strong>. Input baru hanya tersedia di bulan depan.
-                                    </p>
-                                </div>
+                        <div class="flex items-start space-x-4 bg-amber-50 border border-amber-200 rounded-xl px-5 py-4">
+                            <svg class="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <div>
+                                <p class="text-sm font-black text-amber-800">Target Sudah Terkunci</p>
+                                <p class="text-xs text-amber-700 mt-0.5">
+                                    Anda telah menginput target ratio untuk periode <strong>{{ now()->translatedFormat('F Y') }}</strong>. Input baru hanya tersedia di bulan depan.
+                                </p>
                             </div>
                         </div>
                     @else
-                        <form action="{{ route('admin.collection.c3mr.store') }}" method="POST" class="max-w-md mx-auto bg-gray-50 p-6 rounded-xl border border-gray-200 shadow-sm">
+                        <form action="{{ route('admin.collection.c3mr.store') }}" method="POST" class="max-w-md mx-auto space-y-5">
                             @csrf
                             <input type="hidden" name="form_type" value="komitmen">
-                            <div class="mb-6">
-                                <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide text-center">Target Ratio C3MR (%)</label>
-                                <div class="relative mt-1">
-                                    <input type="number" name="ratio" min="0" max="100" step="0.01" value="98" required 
-                                        class="block w-full p-4 text-4xl font-bold text-red-700 border-2 border-red-300 rounded-lg bg-white text-center focus:ring-2 focus:ring-red-500 focus:border-red-500" 
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 text-center">Target Ratio C3MR (%)</label>
+                                <div class="relative">
+                                    <input type="number" name="ratio" min="0" max="100" step="0.01" value="98" required
+                                        class="w-full px-6 py-5 text-4xl font-black text-red-600 border-2 border-slate-200 rounded-xl bg-slate-50 text-center focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors"
                                         placeholder="98">
-                                    <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
-                                        <span class="text-red-500 font-bold text-2xl">%</span>
+                                    <div class="absolute inset-y-0 right-0 pr-5 flex items-center pointer-events-none">
+                                        <span class="text-slate-400 font-black text-2xl">%</span>
                                     </div>
                                 </div>
-                                <p class="text-xs text-center text-gray-500 mt-2 italic">Masukkan target ratio untuk periode ini (default: 98%)</p>
+                                <p class="text-xs text-center text-slate-400 font-semibold mt-2">Masukkan target ratio untuk periode ini (default: 98%)</p>
                             </div>
-                            <div class="mb-6">
-                                <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Keterangan (Opsional)</label>
-                                <input type="text" name="keterangan" 
-                                    class="block w-full p-3 text-sm border-2 border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-red-500 focus:border-red-500" 
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Keterangan (Opsional)</label>
+                                <input type="text" name="keterangan"
+                                    class="w-full px-4 py-3 text-sm border-2 border-slate-200 rounded-xl focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors"
                                     placeholder="Catatan tambahan...">
                             </div>
-                            <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white px-6 py-4 rounded-lg font-bold shadow-lg transition-all transform hover:-translate-y-1">
-                                💾 Simpan Target Bulanan
-                            </button>
+                            <div class="flex justify-center">
+                                <button type="submit"
+                                    class="flex items-center space-x-2 bg-slate-900 hover:bg-red-600 text-white font-bold text-xs px-6 py-3 rounded-xl transition-all duration-200 uppercase tracking-wider shadow-md hover:shadow-lg hover:shadow-red-200">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                    </svg>
+                                    <span>Simpan Target Bulanan</span>
+                                </button>
+                            </div>
                         </form>
                     @endif
                 </div>
 
-                {{-- REALISASI TAB --}}
+                {{-- ── Realisasi ── --}}
                 <div id="content-realisasi" class="hidden space-y-6">
                     @if(!$hasMonthlyCommitment)
-                        <div class="bg-red-50 border-l-4 border-red-400 p-6 rounded-r-lg">
-                            <div class="flex items-center">
-                                <div class="text-2xl mr-4">🔒</div>
-                                <div>
-                                    <p class="text-red-800 font-bold text-lg">Input Realisasi Belum Tersedia</p>
-                                    <p class="text-sm text-red-700 mt-1">
-                                        Anda harus menginput <strong>Komitmen Bulanan</strong> terlebih dahulu sebelum dapat menginput realisasi harian.
-                                    </p>
-                                </div>
+                        <div class="flex items-start space-x-4 bg-red-50 border border-red-200 rounded-xl px-5 py-4">
+                            <svg class="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m0 0v2m0-2h2m-2 0H9m3-10a3 3 0 00-3 3v1H6a2 2 0 00-2 2v6a2 2 0 002 2h12a2 2 0 002-2v-6a2 2 0 00-2-2h-3V8a3 3 0 00-3-3z"/>
+                            </svg>
+                            <div>
+                                <p class="text-sm font-black text-red-800">Input Realisasi Belum Tersedia</p>
+                                <p class="text-xs text-red-700 mt-0.5">
+                                    Anda harus menginput <strong>Komitmen Bulanan</strong> terlebih dahulu sebelum dapat menginput realisasi harian.
+                                </p>
                             </div>
                         </div>
                     @else
-                        <div class="flex items-center justify-between border-b pb-4 mb-6">
-                            <div>
-                                <h2 class="text-2xl font-bold text-slate-800">Input Realisasi Harian</h2>
-                                <p class="text-sm text-slate-500 italic">Input pencapaian ratio C3MR hari ini</p>
+                        <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-1.5 h-8 bg-red-600 rounded-full"></div>
+                                <div>
+                                    <h2 class="text-base font-black text-slate-900 uppercase tracking-wide">Input Realisasi Harian</h2>
+                                    <p class="text-xs text-slate-400 font-semibold mt-0.5">Input pencapaian ratio C3MR hari ini.</p>
+                                </div>
                             </div>
-                            <span class="bg-green-100 text-green-700 text-xs font-semibold px-3 py-1 rounded-full uppercase">Harian</span>
+                            <span class="text-[10px] font-black tracking-widest text-green-700 bg-green-50 border border-green-200 rounded-md px-3 py-1 uppercase">Harian</span>
                         </div>
 
-                        <form action="{{ route('admin.collection.c3mr.store') }}" method="POST" class="max-w-md mx-auto bg-gray-50 p-6 rounded-xl border border-gray-200 shadow-sm">
+                        <form action="{{ route('admin.collection.c3mr.store') }}" method="POST" class="max-w-md mx-auto space-y-5">
                             @csrf
                             <input type="hidden" name="form_type" value="realisasi">
-                            <div class="mb-6">
-                                <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide text-center">Realisasi Ratio C3MR (%)</label>
-                                <div class="relative mt-1">
-                                    <input type="number" name="ratio" min="0" max="100" step="0.01" required 
-                                        class="block w-full p-4 text-4xl font-bold text-green-700 border-2 border-green-300 rounded-lg bg-white text-center focus:ring-2 focus:ring-green-500 focus:border-green-500" 
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 text-center">Realisasi Ratio C3MR (%)</label>
+                                <div class="relative">
+                                    <input type="number" name="ratio" min="0" max="100" step="0.01" required
+                                        class="w-full px-6 py-5 text-4xl font-black text-slate-800 border-2 border-slate-200 rounded-xl bg-slate-50 text-center focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors"
                                         placeholder="95.50">
-                                    <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
-                                        <span class="text-green-500 font-bold text-2xl">%</span>
+                                    <div class="absolute inset-y-0 right-0 pr-5 flex items-center pointer-events-none">
+                                        <span class="text-slate-400 font-black text-2xl">%</span>
                                     </div>
                                 </div>
-                                <p class="text-xs text-center text-gray-500 mt-2 italic">Masukkan realisasi ratio hari ini</p>
+                                <p class="text-xs text-center text-slate-400 font-semibold mt-2">Masukkan realisasi ratio hari ini</p>
                             </div>
-                            <div class="mb-6">
-                                <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Keterangan (Opsional)</label>
-                                <input type="text" name="keterangan" 
-                                    class="block w-full p-3 text-sm border-2 border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-green-500 focus:border-green-500" 
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Keterangan (Opsional)</label>
+                                <input type="text" name="keterangan"
+                                    class="w-full px-4 py-3 text-sm border-2 border-slate-200 rounded-xl focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors"
                                     placeholder="Catatan tambahan...">
                             </div>
-                            <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white px-6 py-4 rounded-lg font-bold shadow-lg transition-all transform hover:-translate-y-1">
-                                ✅ Simpan Realisasi Harian
-                            </button>
+                            <div class="flex justify-center">
+                                <button type="submit"
+                                    class="flex items-center space-x-2 bg-slate-900 hover:bg-red-600 text-white font-bold text-xs px-6 py-3 rounded-xl transition-all duration-200 uppercase tracking-wider shadow-md hover:shadow-lg hover:shadow-red-200">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                    </svg>
+                                    <span>Simpan Realisasi Harian</span>
+                                </button>
+                            </div>
                         </form>
                     @endif
                 </div>
+
             </div>
         </div>
 
-        {{-- ══ DATA TABLE - MY DATA ══ --}}
+        {{-- ══ DATA TABLE ══ --}}
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-            <div class="px-8 py-6 border-b border-slate-100 flex items-center justify-between">
+            <div class="px-8 py-5 border-b border-slate-100 flex items-center justify-between">
                 <div class="flex items-center space-x-3">
-                    <div class="w-1 h-6 bg-red-600 rounded-full"></div>
-                    <h3 class="text-base font-black text-slate-900 uppercase tracking-wide">📊 Data C3MR Saya</h3>
+                    <div class="w-1.5 h-8 bg-red-600 rounded-full"></div>
+                    <h3 class="text-base font-black text-slate-900 uppercase tracking-wide">Data C3MR Saya</h3>
                 </div>
-                <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Total: {{ $data->count() }} data</span>
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Total: {{ $data->count() }} data</span>
             </div>
 
             @if($data->count() > 0)
             <div class="overflow-x-auto">
-                <table class="w-full">
-                    <thead class="bg-slate-50 border-b border-slate-100">
-                        <tr>
-                            <th class="text-left px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-[0.15em]">No</th>
-                            <th class="text-left px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-[0.15em]">Tipe</th>
-                            <th class="text-right px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-[0.15em]">Ratio (%)</th>
-                            <th class="text-left px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-[0.15em]">Keterangan</th>
-                            <th class="text-center px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-[0.15em]">Periode</th>
-                            <th class="text-center px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-[0.15em]">Tanggal Input</th>
+                <table class="min-w-full">
+                    <thead>
+                        <tr class="bg-slate-50 border-b border-slate-100">
+                            <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">No</th>
+                            <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Tipe</th>
+                            <th class="px-6 py-3 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">Ratio (%)</th>
+                            <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Keterangan</th>
+                            <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Periode</th>
+                            <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Tanggal Input</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-50">
+                    <tbody class="divide-y divide-slate-100">
                         @foreach($data as $index => $item)
                         <tr class="hover:bg-slate-50 transition-colors">
                             <td class="px-6 py-4 text-xs font-bold text-slate-600">{{ $index + 1 }}</td>
                             <td class="px-6 py-4">
                                 @if($item->type === 'komitmen')
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-blue-100 text-blue-700">Komitmen</span>
+                                    <span class="text-xs font-bold rounded-md px-2.5 py-1 text-red-700 bg-red-50 border border-red-200">Komitmen</span>
                                 @else
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-green-100 text-green-700">Realisasi</span>
+                                    <span class="text-xs font-bold rounded-md px-2.5 py-1 text-green-700 bg-green-50 border border-green-200">Realisasi</span>
                                 @endif
                             </td>
                             <td class="px-6 py-4 text-right text-sm font-black text-slate-800">{{ number_format($item->ratio, 2) }}%</td>
@@ -229,12 +254,12 @@
                 </table>
             </div>
             @else
-            <div class="flex flex-col items-center justify-center py-16 px-8">
-                <svg class="w-16 h-16 text-slate-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="py-16 text-center">
+                <svg class="mx-auto w-10 h-10 text-slate-200 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                 </svg>
-                <p class="text-sm font-bold text-slate-400 uppercase tracking-wider">Belum ada data C3MR</p>
-                <p class="text-xs text-slate-400 mt-1">Mulai dengan menginput komitmen bulanan</p>
+                <p class="text-sm font-bold text-slate-400">Belum ada data C3MR</p>
+                <p class="text-xs text-slate-300 mt-1">Mulai dengan menginput komitmen bulanan</p>
             </div>
             @endif
         </div>
@@ -243,25 +268,28 @@
 </div>
 
 {{-- ══ PROGRESS MODAL ══ --}}
-<div id="progressModal" class="hidden fixed inset-0 z-50 overflow-y-auto" style="background-color: rgba(0,0,0,0.7);">
+<div id="progressModal" class="hidden fixed inset-0 z-50 overflow-y-auto" style="background-color: rgba(0,0,0,0.6);">
     <div class="flex items-center justify-center min-h-screen px-4 py-8">
-        <div class="bg-white rounded-2xl shadow-2xl max-w-7xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-7xl w-full max-h-[90vh] overflow-hidden flex flex-col border border-slate-200">
+
             {{-- Modal Header --}}
-            <div class="px-8 py-6 border-b border-slate-200 bg-gradient-to-r from-red-50 to-white flex items-center justify-between">
+            <div class="px-8 py-6 border-b border-slate-100 relative overflow-hidden flex items-center justify-between">
+                <div class="absolute top-0 left-0 right-0 h-1" style="background: linear-gradient(90deg, #dc2626, #ef4444, #dc2626);"></div>
                 <div class="flex items-center space-x-4">
-                    <div class="w-12 h-12 bg-red-600 rounded-xl flex items-center justify-center">
-                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="rounded-xl flex items-center justify-center border-2 flex-shrink-0"
+                        style="background: linear-gradient(135deg, #fff1f2, #ffe4e6); border-color: #fecdd3; width:48px; height:48px;">
+                        <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
                         </svg>
                     </div>
                     <div>
-                        <h2 class="text-2xl font-black text-slate-900 tracking-tight">Progress Data C3MR - Semua User</h2>
-                        <p class="text-sm text-slate-500 mt-1">Total: <strong>{{ $allData->count() }}</strong> data submission dari semua collection user</p>
+                        <h2 class="text-lg font-black text-slate-900 uppercase tracking-tight">Progress Data C3MR — Semua User</h2>
+                        <p class="text-xs text-slate-400 font-semibold mt-0.5 uppercase tracking-wide">Total: <strong class="text-slate-600">{{ $allData->count() }}</strong> data submission</p>
                     </div>
                 </div>
-                <button onclick="closeProgressModal()" class="text-slate-400 hover:text-red-600 transition-colors">
-                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                <button onclick="closeProgressModal()" class="text-slate-300 hover:text-red-600 transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
                     </svg>
                 </button>
             </div>
@@ -270,25 +298,26 @@
             <div class="flex-1 overflow-y-auto p-8">
                 @if($allData->count() > 0)
                 <div class="overflow-x-auto">
-                    <table class="w-full border border-slate-200 rounded-lg">
-                        <thead class="bg-slate-800 text-white">
-                            <tr>
-                                <th class="px-4 py-3 text-left text-xs font-black uppercase tracking-wider">No</th>
-                                <th class="px-4 py-3 text-left text-xs font-black uppercase tracking-wider">User</th>
-                                <th class="px-4 py-3 text-left text-xs font-black uppercase tracking-wider">Tipe</th>
-                                <th class="px-4 py-3 text-right text-xs font-black uppercase tracking-wider">Ratio (%)</th>
-                                <th class="px-4 py-3 text-left text-xs font-black uppercase tracking-wider">Keterangan</th>
-                                <th class="px-4 py-3 text-center text-xs font-black uppercase tracking-wider">Periode</th>
-                                <th class="px-4 py-3 text-center text-xs font-black uppercase tracking-wider">Tanggal Input</th>
+                    <table class="min-w-full">
+                        <thead>
+                            <tr class="bg-slate-50 border-b border-slate-100">
+                                <th class="px-4 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">No</th>
+                                <th class="px-4 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">User</th>
+                                <th class="px-4 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Tipe</th>
+                                <th class="px-4 py-3 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">Ratio (%)</th>
+                                <th class="px-4 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Keterangan</th>
+                                <th class="px-4 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Periode</th>
+                                <th class="px-4 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Tanggal Input</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-slate-100 bg-white">
+                        <tbody class="divide-y divide-slate-100">
                             @foreach($allData as $index => $item)
                             <tr class="hover:bg-slate-50 transition-colors">
                                 <td class="px-4 py-3 text-xs font-bold text-slate-600">{{ $index + 1 }}</td>
                                 <td class="px-4 py-3">
                                     <div class="flex items-center space-x-2">
-                                        <div class="w-6 h-6 rounded-full bg-red-100 flex items-center justify-center">
+                                        <div class="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0"
+                                            style="background:#fff1f2; border:1px solid #fecdd3;">
                                             <span class="text-[10px] font-black text-red-600">{{ substr($item->user->name ?? 'U', 0, 1) }}</span>
                                         </div>
                                         <span class="text-xs font-semibold text-slate-700">{{ $item->user->name ?? 'Unknown' }}</span>
@@ -296,9 +325,9 @@
                                 </td>
                                 <td class="px-4 py-3">
                                     @if($item->type === 'komitmen')
-                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-black uppercase bg-blue-100 text-blue-700">K</span>
+                                        <span class="text-xs font-bold rounded-md px-2 py-0.5 text-red-700 bg-red-50 border border-red-200">K</span>
                                     @else
-                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-black uppercase bg-green-100 text-green-700">R</span>
+                                        <span class="text-xs font-bold rounded-md px-2 py-0.5 text-green-700 bg-green-50 border border-green-200">R</span>
                                     @endif
                                 </td>
                                 <td class="px-4 py-3 text-right text-sm font-black text-slate-800">{{ number_format($item->ratio, 2) }}%</td>
@@ -315,20 +344,24 @@
                     </table>
                 </div>
                 @else
-                <div class="flex flex-col items-center justify-center py-16">
-                    <svg class="w-20 h-20 text-slate-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="py-16 text-center">
+                    <svg class="mx-auto w-10 h-10 text-slate-200 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
                     </svg>
-                    <p class="text-lg font-bold text-slate-400">Belum ada data progress</p>
-                    <p class="text-sm text-slate-400 mt-1">Menunggu user mulai menginput data C3MR</p>
+                    <p class="text-sm font-bold text-slate-400">Belum ada data progress</p>
+                    <p class="text-xs text-slate-300 mt-1">Menunggu user mulai menginput data C3MR</p>
                 </div>
                 @endif
             </div>
 
             {{-- Modal Footer --}}
-            <div class="px-8 py-4 border-t border-slate-200 bg-slate-50 flex justify-end">
-                <button onclick="closeProgressModal()" class="px-6 py-2.5 bg-slate-900 hover:bg-red-600 text-white text-sm font-bold rounded-lg transition-all">
-                    Tutup
+            <div class="px-8 py-4 border-t border-slate-100 bg-slate-50 flex justify-end">
+                <button onclick="closeProgressModal()"
+                    class="flex items-center space-x-2 bg-slate-900 hover:bg-red-600 text-white font-bold text-xs px-6 py-3 rounded-xl transition-all duration-200 uppercase tracking-wider shadow-md hover:shadow-lg hover:shadow-red-200">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                    <span>Tutup</span>
                 </button>
             </div>
         </div>
@@ -336,34 +369,29 @@
 </div>
 
 <script>
-// Tab Switching
 function switchTab(tabName) {
-    // Hide all content
     document.getElementById('content-komitmen').classList.add('hidden');
     document.getElementById('content-realisasi').classList.add('hidden');
-    
-    // Reset all tabs
-    document.getElementById('tab-komitmen').classList.remove('text-red-600', 'border-red-500');
-    document.getElementById('tab-komitmen').classList.add('text-slate-500', 'border-transparent');
-    document.getElementById('tab-realisasi').classList.remove('text-red-600', 'border-red-500');
-    document.getElementById('tab-realisasi').classList.add('text-slate-500', 'border-transparent');
-    
-    // Show selected content and highlight tab
+
+    document.getElementById('tab-komitmen').classList.remove('text-red-600', 'border-red-600');
+    document.getElementById('tab-komitmen').classList.add('text-slate-400', 'border-transparent');
+    document.getElementById('tab-realisasi').classList.remove('text-red-600', 'border-red-600');
+    document.getElementById('tab-realisasi').classList.add('text-slate-400', 'border-transparent');
+
     if (tabName === 'komitmen') {
         document.getElementById('content-komitmen').classList.remove('hidden');
-        document.getElementById('tab-komitmen').classList.remove('text-slate-500', 'border-transparent');
-        document.getElementById('tab-komitmen').classList.add('text-red-600', 'border-red-500');
+        document.getElementById('tab-komitmen').classList.remove('text-slate-400', 'border-transparent');
+        document.getElementById('tab-komitmen').classList.add('text-red-600', 'border-red-600');
     } else if (tabName === 'realisasi') {
         const hasCommitment = {{ $hasMonthlyCommitment ? 'true' : 'false' }};
         if (hasCommitment) {
             document.getElementById('content-realisasi').classList.remove('hidden');
-            document.getElementById('tab-realisasi').classList.remove('text-slate-500', 'border-transparent');
-            document.getElementById('tab-realisasi').classList.add('text-red-600', 'border-red-500');
+            document.getElementById('tab-realisasi').classList.remove('text-slate-400', 'border-transparent');
+            document.getElementById('tab-realisasi').classList.add('text-red-600', 'border-red-600');
         }
     }
 }
 
-// Progress Modal
 function openProgressModal() {
     document.getElementById('progressModal').classList.remove('hidden');
     document.body.style.overflow = 'hidden';
@@ -374,18 +402,12 @@ function closeProgressModal() {
     document.body.style.overflow = 'auto';
 }
 
-// Close modal when clicking outside
 document.getElementById('progressModal')?.addEventListener('click', function(e) {
-    if (e.target === this) {
-        closeProgressModal();
-    }
+    if (e.target === this) closeProgressModal();
 });
 
-// ESC key to close modal
 document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-        closeProgressModal();
-    }
+    if (e.key === 'Escape') closeProgressModal();
 });
 </script>
 @endsection

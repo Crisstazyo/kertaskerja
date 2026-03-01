@@ -40,7 +40,7 @@
                     </div>
                     <p class="text-gray-600 text-sm">Kelola data C3MR komitmen & realisasi semua user collection</p>
                     <div class="mt-4 flex items-center text-pink-600 font-semibold text-sm group-hover:text-pink-700">
-                        Kelola Data <svg class="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                        Manage Data <svg class="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                     </div>
                 </div>
             </a>
@@ -62,7 +62,7 @@
                     </div>
                     <p class="text-gray-600 text-sm">Kelola data Billing Perdanan komitmen & realisasi semua user collection</p>
                     <div class="mt-4 flex items-center text-rose-600 font-semibold text-sm group-hover:text-rose-700">
-                        Kelola Data <svg class="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                        Manage Data <svg class="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                     </div>
                 </div>
             </a>
@@ -91,7 +91,7 @@
                         <span class="px-2 py-0.5 bg-purple-100 text-purple-700 text-xs rounded-full font-semibold">SOE</span>
                     </div>
                     <div class="mt-3 flex items-center text-fuchsia-600 font-semibold text-sm group-hover:text-fuchsia-700">
-                        Kelola Data <svg class="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                        Manage Data <svg class="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                     </div>
                 </div>
             </a>
@@ -117,7 +117,7 @@
                         <span class="px-2 py-0.5 bg-fuchsia-100 text-fuchsia-700 text-xs rounded-full font-semibold">Corrective UTIP</span>
                     </div>
                     <div class="mt-3 flex items-center text-pink-700 font-semibold text-sm group-hover:text-pink-800">
-                        Kelola Data <svg class="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                        Manage Data <svg class="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                     </div>
                 </div>
             </a>

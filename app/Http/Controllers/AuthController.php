@@ -15,47 +15,42 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        $credentials = $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
+        $request->validate([
+        'email'    => 'required|email',
+        'password' => 'required',
+        ], [
+            'email.required'    => 'Email wajib diisi.',
+            'email.email'       => 'Format email tidak valid.',
+            'password.required' => 'Password wajib diisi.',
         ]);
 
-        if (Auth::attempt($credentials)) {
-            $request->session()->regenerate();
-            
-            // Redirect based on role
-            $role = Auth::user()->role;
-            
-            if ($role === 'admin') {
-                return redirect()->route('admin.dashboard');
-            }
-            
-            if ($role === 'government') {
-                return redirect()->route('government.dashboard');
-            }
-            
-            if ($role === 'gov') {
-                return redirect()->route('gov.dashboard');
-            }
-            
-            if ($role === 'private') {
-                return redirect()->route('private.dashboard');
-            }
-            
-            if ($role === 'soe') {
-                return redirect()->route('soe.dashboard');
-            }
-            
-            if ($role === 'sme') {
-                return redirect()->route('sme.dashboard');
-            }
-            
-            return redirect('/');
+        $user = \App\Models\User::where('email', $request->email)->first();
+
+        if (!$user) {
+            return back()->withErrors([
+            'email' => 'Akun dengan email ini tidak ditemukan.',
+            ])->onlyInput('email');
         }
 
-        return back()->withErrors([
-            'email' => 'Email atau password salah.',
-        ])->onlyInput('email');
+        if (!\Illuminate\Support\Facades\Hash::check($request->password, $user->password)) {
+         return back()->withErrors([
+             'password' => 'Password yang kamu masukkan salah.',
+         ])->onlyInput('email');
+         }
+
+        Auth::login($user);
+        $request->session()->regenerate();
+
+        $role = $user->role;
+
+        if ($role === 'admin')      return redirect()->route('admin.dashboard');
+        if ($role === 'government') return redirect()->route('government.dashboard');
+        if ($role === 'gov')        return redirect()->route('gov.dashboard');
+        if ($role === 'private')    return redirect()->route('private.dashboard');
+        if ($role === 'soe')        return redirect()->route('soe.dashboard');
+        if ($role === 'sme')        return redirect()->route('sme.dashboard');
+
+        return redirect('/');
     }
 
     public function logout(Request $request)

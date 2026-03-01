@@ -7,7 +7,7 @@
     <!-- Decorative Background Elements -->
     <div class="absolute top-0 left-0 w-96 h-96 bg-gradient-to-br from-blue-100 to-blue-50 rounded-full filter blur-3xl opacity-40 -translate-x-1/2 -translate-y-1/2"></div>
     <div class="absolute bottom-0 right-0 w-96 h-96 bg-gradient-to-tl from-indigo-100 to-indigo-50 rounded-full filter blur-3xl opacity-40 translate-x-1/2 translate-y-1/2"></div>
-    
+
     <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <!-- Header -->
         <div class="mb-12">
@@ -35,7 +35,7 @@
             <a href="{{ route('soe.lop-on-hand') }}" class="group">
                 <div class="relative bg-white/90 backdrop-blur-lg rounded-2xl shadow-xl overflow-hidden border border-gray-200/50 hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3">
                     <div class="absolute inset-0 bg-gradient-to-br from-emerald-500 to-teal-600 opacity-0 group-hover:opacity-5 transition-opacity duration-500"></div>
-                    
+
                     <div class="relative">
                         <div class="bg-gradient-to-br from-emerald-500 to-teal-600 p-10 text-white relative overflow-hidden">
                             <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
@@ -49,7 +49,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="p-6">
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center text-emerald-600 font-bold group-hover:text-emerald-700 transition-colors">
@@ -68,7 +68,7 @@
             <a href="{{ route('soe.lop-qualified') }}" class="group">
                 <div class="relative bg-white/90 backdrop-blur-lg rounded-2xl shadow-xl overflow-hidden border border-gray-200/50 hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3">
                     <div class="absolute inset-0 bg-gradient-to-br from-purple-500 to-fuchsia-600 opacity-0 group-hover:opacity-5 transition-opacity duration-500"></div>
-                    
+
                     <div class="relative">
                         <div class="bg-gradient-to-br from-purple-500 to-fuchsia-600 p-10 text-white relative overflow-hidden">
                             <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
@@ -82,7 +82,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="p-6">
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center text-purple-600 font-bold group-hover:text-purple-700 transition-colors">
@@ -101,7 +101,7 @@
             <a href="{{ route('soe.lop-koreksi') }}" class="group">
                 <div class="relative bg-white/90 backdrop-blur-lg rounded-2xl shadow-xl overflow-hidden border border-gray-200/50 hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3">
                     <div class="absolute inset-0 bg-gradient-to-br from-pink-500 to-rose-600 opacity-0 group-hover:opacity-5 transition-opacity duration-500"></div>
-                    
+
                     <div class="relative">
                         <div class="bg-gradient-to-br from-pink-500 to-rose-600 p-10 text-white relative overflow-hidden">
                             <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
@@ -115,7 +115,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="p-6">
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center text-pink-600 font-bold group-hover:text-pink-700 transition-colors">

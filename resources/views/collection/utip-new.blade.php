@@ -3,330 +3,398 @@
 @section('title', 'New UTIP')
 
 @section('content')
-<div class="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100 py-8">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <!-- Header -->
-        <div class="mb-8">
-            <div class="flex items-center justify-between mb-4">
-                <div>
-                    <h1 class="text-4xl font-bold text-gray-900 mb-2">✨ New UTIP</h1>
-                    <p class="text-gray-600 text-lg">Kelola Data UTIP dengan Filter Periode</p>
+<div class="min-h-screen" style="background:#f1f5f9;">
+    <div class="max-w-7xl mx-auto px-8 py-10">
+
+        {{-- ══ HEADER ══ --}}
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 px-10 py-7 mb-10 relative overflow-hidden">
+            <div class="absolute top-0 left-0 right-0 h-1.5"
+                style="background: linear-gradient(90deg, #dc2626, #ef4444, #dc2626);"></div>
+            <div class="absolute -right-10 -top-10 w-56 h-56 rounded-full opacity-[0.04]" style="background: #dc2626;"></div>
+            <div class="relative flex items-center justify-between">
+                <div class="flex items-center space-x-6">
+                    <img src="{{ asset('img/Telkom.png') }}" alt="Telkom" class="h-12 w-auto">
+                    <div class="w-px h-12 bg-slate-200"></div>
+                    <div>
+                        <p class="text-[10px] font-black tracking-[0.3em] text-red-600 uppercase mb-1">Witel Sumut</p>
+                        <h1 class="text-2xl font-black tracking-tight text-slate-900 leading-none uppercase">New <span class="text-red-600">UTIP</span></h1>
+                        <p class="text-slate-400 text-xs font-bold mt-1 uppercase tracking-tight">Kelola Data UTIP dengan Filter Periode</p>
+                    </div>
                 </div>
-                <a href="{{ route('collection.utip') }}" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300 shadow-md hover:shadow-lg">
-                    ← Kembali
-                </a>
-            </div>
-            <div class="h-1 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full"></div>
-        </div>
-
-        <!-- Filter Section -->
-        <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
-            <form method="GET" action="{{ route('collection.utip-new') }}" class="flex flex-wrap items-end gap-4">
-                <div class="flex-1 min-w-[200px]">
-                    <label class="block text-sm font-bold text-gray-700 mb-2">🗓️ Pilih Bulan</label>
-                    <select name="month" class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
-                        @foreach($monthOptions as $value => $label)
-                            <option value="{{ $value }}" {{ $selectedMonth == $value ? 'selected' : '' }}>
-                                {{ $label }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="flex-1 min-w-[200px]">
-                    <label class="block text-sm font-bold text-gray-700 mb-2">📅 Pilih Tahun</label>
-                    <select name="year" class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
-                        @foreach($yearOptions as $yearOption)
-                            <option value="{{ $yearOption }}" {{ $selectedYear == $yearOption ? 'selected' : '' }}>
-                                {{ $yearOption }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div>
-                    <button type="submit" class="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-8 py-3 rounded-lg font-bold hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 shadow-md hover:shadow-lg">
-                        🔍 Filter
-                    </button>
-                </div>
-            </form>
-        </div>
-
-        @if(session('success'))
-            <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded-lg mb-6 shadow-md">
-                <div class="flex items-center">
-                    <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                    <p class="font-semibold">{{ session('success') }}</p>
-                </div>
-            </div>
-        @endif
-
-        @if(session('error'))
-            <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-lg mb-6 shadow-md">
-                <div class="flex items-center">
-                    <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                    <p class="font-semibold">{{ session('error') }}</p>
-                </div>
-            </div>
-        @endif
-
-        <!-- Status Card -->
-        <div class="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl shadow-xl p-8 mb-8 text-white">
-            <div class="text-center mb-6">
-                <p class="text-blue-200 text-sm uppercase tracking-wide mb-2">Periode Dipilih</p>
-                <p class="text-3xl font-bold">{{ $periodLabel }}</p>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <div class="text-center">
-                    <p class="text-blue-200 text-sm uppercase tracking-wide mb-2">Plan</p>
-                    <p class="text-3xl font-bold">
-                        @if($existingPlan)
-                            Rp {{ number_format($existingPlan->nominal, 0, ',', '.') }}
-                        @else
-                            -
-                        @endif
-                    </p>
-                </div>
-                <div class="text-center">
-                    <p class="text-blue-200 text-sm uppercase tracking-wide mb-2">Komitmen</p>
-                    <p class="text-3xl font-bold">
-                        @if($existingCommitment)
-                            Rp {{ number_format($existingCommitment->nominal, 0, ',', '.') }}
-                        @else
-                            -
-                        @endif
-                    </p>
-                </div>
-                <div class="text-center">
-                    <p class="text-blue-200 text-sm uppercase tracking-wide mb-2">Realisasi Terkini</p>
-                    <p class="text-3xl font-bold">
-                        @if($latestRealisasi)
-                            Rp {{ number_format($latestRealisasi->nominal, 0, ',', '.') }}
-                        @else
-                            -
-                        @endif
-                    </p>
-                </div>
-                <div class="text-center">
-                    <p class="text-blue-200 text-sm uppercase tracking-wide mb-2">Status</p>
-                    <p class="text-2xl font-bold">
-                        @if($existingCommitment && $latestRealisasi)
-                            @if($latestRealisasi->nominal >= $existingCommitment->nominal)
-                                ✓ Tercapai
-                            @else
-                                ⚠ Belum Tercapai
-                            @endif
-                        @else
-                            - Belum Ada Data
-                        @endif
-                    </p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Forms -->
-        <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-8">
-            <!-- Tab Navigation -->
-            <div class="border-b border-gray-200">
-                <nav class="flex -mb-px">
-                    <button onclick="showTab('plan')" id="tab-plan" class="tab-button group relative min-w-0 flex-1 overflow-hidden bg-blue-50 py-4 px-4 text-center text-sm font-medium hover:bg-blue-100 focus:z-10 border-b-2 border-blue-500 text-blue-600">
-                        <span>📝 Form Plan</span>
-                    </button>
-                    <button onclick="showTab('komitmen')" id="tab-komitmen" class="tab-button group relative min-w-0 flex-1 overflow-hidden bg-white py-4 px-4 text-center text-sm font-medium text-gray-500 hover:bg-gray-50 focus:z-10 border-b-2 border-transparent">
-                        <span>📋 Form Komitmen</span>
-                    </button>
-                    <button onclick="showTab('realisasi')" id="tab-realisasi" class="tab-button group relative min-w-0 flex-1 overflow-hidden bg-white py-4 px-4 text-center text-sm font-medium text-gray-500 hover:bg-gray-50 focus:z-10 border-b-2 border-transparent">
-                        <span>✅ Form Realisasi</span>
-                    </button>
-                </nav>
-            </div>
-
-            <!-- Tab Content -->
-            <div class="p-8">
-                <!-- Form Plan -->
-                <div id="content-plan" class="tab-content">
-                    @if($existingPlan)
-                        <div class="bg-blue-50 border-l-4 border-blue-500 p-6 rounded-r-lg">
-                            <div class="flex items-center">
-                                <svg class="w-6 h-6 text-blue-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
-                                <p class="text-blue-800 font-semibold">Plan untuk periode ini sudah diinput: Rp {{ number_format($existingPlan->nominal, 0, ',', '.') }}</p>
-                            </div>
-                        </div>
-                    @else
-                        <form method="POST" action="{{ route('collection.utip-new.plan.store') }}" class="space-y-6">
-                            @csrf
-                            <input type="hidden" name="selected_month" value="{{ $selectedMonth }}">
-                            <input type="hidden" name="selected_year" value="{{ $selectedYear }}">
-
-                            <div>
-                                <label class="block text-sm font-bold text-gray-700 mb-2">💰 Nominal Plan (Rp)</label>
-                                <input type="number" name="nominal_plan" step="1" min="0" 
-                                       class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" 
-                                       placeholder="Masukkan nominal plan (contoh: 50000000)" required>
-                                @error('nominal_plan')
-                                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
-                                <p class="mt-1 text-xs text-gray-500">Nominal dalam Rupiah tanpa tanda titik atau koma</p>
-                            </div>
-
-                            <button type="submit" class="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-4 px-6 rounded-lg font-bold text-lg hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
-                                💾 Simpan Plan
-                            </button>
-                        </form>
-                    @endif
-                </div>
-
-                <!-- Form Komitmen -->
-                <div id="content-komitmen" class="tab-content hidden">
-                    @if($hasMonthlyCommitment)
-                        <div class="bg-amber-50 border-l-4 border-amber-400 p-6 rounded-r-lg">
-                            <div class="flex items-center">
-                                <div class="text-2xl mr-4">ℹ️</div>
-                                <div>
-                                    <p class="text-amber-800 font-bold">Target Sudah Terkunci</p>
-                                    <p class="text-sm text-amber-700">
-                                        Anda telah menginput komitmen UTIP New untuk periode <strong>{{ now()->translatedFormat('F Y') }}</strong>. Input baru hanya tersedia di bulan depan.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    @else
-                        <form method="POST" action="{{ route('collection.utip-new.komitmen.store') }}" class="space-y-6">
-                            @csrf
-
-                            <div>
-                                <label class="block text-sm font-bold text-gray-700 mb-2">💰 Nominal Komitmen (Rp)</label>
-                                <input type="number" name="value" step="1" min="0" 
-                                       class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" 
-                                       placeholder="Masukkan nominal komitmen (contoh: 45000000)" required>
-                                @error('value')
-                                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
-                                <p class="mt-1 text-xs text-gray-500">Nominal dalam Rupiah tanpa tanda titik atau koma</p>
-                            </div>
-
-                            <button type="submit" class="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-4 px-6 rounded-lg font-bold text-lg hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
-                                💾 Simpan Komitmen
-                            </button>
-                        </form>
-                    @endif
-                </div>
-
-                <!-- Form Realisasi -->
-                <div id="content-realisasi" class="tab-content hidden">
-                    <form method="POST" action="{{ route('collection.utip-new.realisasi.store') }}" class="space-y-6">
+                <div class="flex items-center space-x-4">
+                    <a href="{{ route('collection.utip') }}"
+                        class="flex items-center space-x-2.5 bg-white border-2 border-slate-900 hover:bg-red-600 hover:border-red-600 text-slate-900 hover:text-white px-6 py-3 rounded-xl font-black text-xs transition-all duration-300 shadow-sm group uppercase tracking-wider">
+                        <svg class="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/>
+                        </svg>
+                        <span>Back</span>
+                    </a>
+                    <form action="{{ route('logout') }}" method="POST">
                         @csrf
-                        <input type="hidden" name="selected_month" value="{{ $selectedMonth }}">
-                        <input type="hidden" name="selected_year" value="{{ $selectedYear }}">
-
-                        <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-2">💰 Nominal Realisasi (Rp)</label>
-                            <input type="number" name="nominal_realisasi" step="1" min="0" 
-                                   class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" 
-                                   placeholder="Masukkan nominal realisasi (contoh: 40000000)" required>
-                            @error('nominal_realisasi')
-                                <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
-                            <p class="mt-1 text-xs text-gray-500">Nominal dalam Rupiah tanpa tanda titik atau koma</p>
-                        </div>
-
-
-                        <button type="submit" class="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-4 px-6 rounded-lg font-bold text-lg hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
-                            ✅ Simpan Realisasi
+                        <button type="submit"
+                            class="group flex items-center space-x-2.5 bg-slate-900 hover:bg-red-600 text-white font-bold text-sm px-5 py-3 rounded-xl transition-all duration-300 shadow-md hover:shadow-lg hover:shadow-red-200">
+                            <svg class="w-4 h-4 transition-transform duration-300 group-hover:rotate-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                            </svg>
+                            <span>Logout</span>
                         </button>
                     </form>
                 </div>
             </div>
         </div>
 
-        <!-- History Table -->
-        <div class="bg-white rounded-xl shadow-lg overflow-hidden">
-            <div class="bg-gradient-to-r from-blue-500 to-indigo-600 px-8 py-6">
-                <h2 class="text-2xl font-bold text-white">📊 History Data - {{ $periodLabel }}</h2>
+        {{-- ══ FLASH MESSAGES ══ --}}
+        @if(session('success'))
+            <div class="flex items-start space-x-4 bg-green-50 border border-green-200 rounded-xl px-5 py-4 mb-6">
+                <svg class="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <p class="text-sm font-black text-green-800">{{ session('success') }}</p>
             </div>
+        @endif
+
+        @if(session('error'))
+            <div class="flex items-start space-x-4 bg-red-50 border border-red-200 rounded-xl px-5 py-4 mb-6">
+                <svg class="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <p class="text-sm font-black text-red-800">{{ session('error') }}</p>
+            </div>
+        @endif
+
+        {{-- ══ FILTER SECTION ══ --}}
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm px-8 py-6 mb-8">
+            <div class="flex items-center space-x-3 mb-5 pb-4 border-b border-slate-100">
+                <div class="w-1.5 h-8 bg-red-600 rounded-full"></div>
+                <h2 class="text-base font-black text-slate-900 uppercase tracking-wide">Filter Periode</h2>
+            </div>
+            <form method="GET" action="{{ route('collection.utip-new') }}" class="flex flex-wrap items-end gap-4">
+                <div class="flex-1 min-w-[200px]">
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Pilih Bulan</label>
+                    <select name="month"
+                        class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl text-sm font-semibold text-slate-700 bg-slate-50 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors">
+                        @foreach($monthOptions as $value => $label)
+                            <option value="{{ $value }}" {{ $selectedMonth == $value ? 'selected' : '' }}>{{ $label }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="flex-1 min-w-[200px]">
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Pilih Tahun</label>
+                    <select name="year"
+                        class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl text-sm font-semibold text-slate-700 bg-slate-50 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors">
+                        @foreach($yearOptions as $yearOption)
+                            <option value="{{ $yearOption }}" {{ $selectedYear == $yearOption ? 'selected' : '' }}>{{ $yearOption }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <button type="submit"
+                        class="flex items-center space-x-2 bg-slate-900 hover:bg-red-600 text-white font-bold text-xs px-6 py-3 rounded-xl transition-all duration-200 uppercase tracking-wider shadow-md hover:shadow-lg hover:shadow-red-200">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
+                        </svg>
+                        <span>Filter</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        {{-- ══ STATUS CARD ══ --}}
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm px-8 py-6 mb-8">
+            <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-6">
+                <div class="flex items-center space-x-3">
+                    <div class="w-1.5 h-8 bg-red-600 rounded-full"></div>
+                    <div>
+                        <h2 class="text-base font-black text-slate-900 uppercase tracking-wide">Ringkasan Periode</h2>
+                        <p class="text-xs text-slate-400 font-semibold mt-0.5">{{ $periodLabel }}</p>
+                    </div>
+                </div>
+                <span class="text-[10px] font-black tracking-widest text-red-600 bg-red-50 border border-red-100 rounded-md px-3 py-1 uppercase">{{ $periodLabel }}</span>
+            </div>
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-5">
+                <div class="bg-slate-50 rounded-xl px-5 py-4 border border-slate-100">
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Plan</p>
+                    <p class="text-lg font-black text-slate-900">
+                        @if($existingPlan) Rp {{ number_format($existingPlan->nominal, 0, ',', '.') }} @else <span class="text-slate-300">—</span> @endif
+                    </p>
+                </div>
+                <div class="bg-slate-50 rounded-xl px-5 py-4 border border-slate-100">
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Komitmen</p>
+                    <p class="text-lg font-black text-slate-900">
+                        @if($existingCommitment) Rp {{ number_format($existingCommitment->nominal, 0, ',', '.') }} @else <span class="text-slate-300">—</span> @endif
+                    </p>
+                </div>
+                <div class="bg-slate-50 rounded-xl px-5 py-4 border border-slate-100">
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Realisasi Terkini</p>
+                    <p class="text-lg font-black text-slate-900">
+                        @if($latestRealisasi) Rp {{ number_format($latestRealisasi->nominal, 0, ',', '.') }} @else <span class="text-slate-300">—</span> @endif
+                    </p>
+                </div>
+                <div class="bg-slate-50 rounded-xl px-5 py-4 border border-slate-100">
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Status</p>
+                    @if($existingCommitment && $latestRealisasi)
+                        @if($latestRealisasi->nominal >= $existingCommitment->nominal)
+                            <span class="text-xs font-bold rounded-md px-2.5 py-1 text-green-700 bg-green-50 border border-green-200">Tercapai</span>
+                        @else
+                            <span class="text-xs font-bold rounded-md px-2.5 py-1 text-red-700 bg-red-50 border border-red-200">Belum Tercapai</span>
+                        @endif
+                    @else
+                        <span class="text-xs font-bold rounded-md px-2.5 py-1 text-slate-500 bg-slate-100 border border-slate-200">Belum Ada Data</span>
+                    @endif
+                </div>
+            </div>
+        </div>
+
+        {{-- ══ TAB FORM ══ --}}
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-8">
+
+            <div class="flex border-b border-slate-100">
+                <button onclick="showTab('plan')" id="tab-plan"
+                    class="flex-1 flex items-center justify-center space-x-2 py-4 text-sm font-black uppercase tracking-wider text-red-600 border-b-2 border-red-600 transition-all">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                    </svg>
+                    <span>Form Plan</span>
+                </button>
+                <button onclick="showTab('komitmen')" id="tab-komitmen"
+                    class="flex-1 flex items-center justify-center space-x-2 py-4 text-sm font-black uppercase tracking-wider text-slate-400 border-b-2 border-transparent transition-all hover:text-slate-600">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    <span>Form Komitmen</span>
+                </button>
+                <button onclick="showTab('realisasi')" id="tab-realisasi"
+                    class="flex-1 flex items-center justify-center space-x-2 py-4 text-sm font-black uppercase tracking-wider text-slate-400 border-b-2 border-transparent transition-all hover:text-slate-600">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <span>Form Realisasi</span>
+                </button>
+            </div>
+
+            <div class="p-8">
+
+                {{-- ── Form Plan ── --}}
+                <div id="content-plan" class="tab-content space-y-6">
+                    <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-1.5 h-8 bg-red-600 rounded-full"></div>
+                            <div>
+                                <h2 class="text-base font-black text-slate-900 uppercase tracking-wide">Input Plan</h2>
+                                <p class="text-xs text-slate-400 font-semibold mt-0.5">Tentukan nominal plan UTIP untuk periode ini.</p>
+                            </div>
+                        </div>
+                        <span class="text-[10px] font-black tracking-widest text-red-600 bg-red-50 border border-red-100 rounded-md px-3 py-1 uppercase">{{ $periodLabel }}</span>
+                    </div>
+
+                    @if($existingPlan)
+                        <div class="flex items-start space-x-4 bg-amber-50 border border-amber-200 rounded-xl px-5 py-4">
+                            <svg class="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <div>
+                                <p class="text-sm font-black text-amber-800">Plan Sudah Diinput</p>
+                                <p class="text-xs text-amber-700 mt-0.5">Plan untuk periode ini sudah diinput: <strong>Rp {{ number_format($existingPlan->nominal, 0, ',', '.') }}</strong></p>
+                            </div>
+                        </div>
+                    @else
+                        <form method="POST" action="{{ route('collection.utip-new.plan.store') }}" class="max-w-md mx-auto space-y-5">
+                            @csrf
+                            <input type="hidden" name="selected_month" value="{{ $selectedMonth }}">
+                            <input type="hidden" name="selected_year" value="{{ $selectedYear }}">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Nominal Plan (Rp)</label>
+                                <input type="number" name="nominal_plan" step="1" min="0" required
+                                    class="w-full px-6 py-4 text-xl font-black text-slate-800 border-2 border-slate-200 rounded-xl bg-slate-50 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors"
+                                    placeholder="0">
+                                @error('nominal_plan')
+                                    <p class="mt-1.5 text-xs font-semibold text-red-600">{{ $message }}</p>
+                                @enderror
+                                <p class="mt-1.5 text-xs text-slate-400 font-medium">Nominal dalam Rupiah tanpa tanda titik atau koma</p>
+                            </div>
+                            <div class="flex justify-center">
+                                <button type="submit"
+                                    class="flex items-center space-x-2 bg-slate-900 hover:bg-red-600 text-white font-bold text-xs px-6 py-3 rounded-xl transition-all duration-200 uppercase tracking-wider shadow-md hover:shadow-lg hover:shadow-red-200">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                    </svg>
+                                    <span>Simpan Plan</span>
+                                </button>
+                            </div>
+                        </form>
+                    @endif
+                </div>
+
+                {{-- ── Form Komitmen ── --}}
+                <div id="content-komitmen" class="tab-content hidden space-y-6">
+                    <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-1.5 h-8 bg-red-600 rounded-full"></div>
+                            <div>
+                                <h2 class="text-base font-black text-slate-900 uppercase tracking-wide">Input Komitmen</h2>
+                                <p class="text-xs text-slate-400 font-semibold mt-0.5">Tentukan nominal komitmen UTIP untuk periode ini.</p>
+                            </div>
+                        </div>
+                        <span class="text-[10px] font-black tracking-widest text-red-600 bg-red-50 border border-red-100 rounded-md px-3 py-1 uppercase">{{ $periodLabel }}</span>
+                    </div>
+
+                    @if($hasMonthlyCommitment)
+                        <div class="flex items-start space-x-4 bg-amber-50 border border-amber-200 rounded-xl px-5 py-4">
+                            <svg class="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <div>
+                                <p class="text-sm font-black text-amber-800">Target Sudah Terkunci</p>
+                                <p class="text-xs text-amber-700 mt-0.5">
+                                    Anda telah menginput komitmen UTIP New untuk periode <strong>{{ now()->translatedFormat('F Y') }}</strong>. Input baru hanya tersedia di bulan depan.
+                                </p>
+                            </div>
+                        </div>
+                    @else
+                        <form method="POST" action="{{ route('collection.utip-new.komitmen.store') }}" class="max-w-md mx-auto space-y-5">
+                            @csrf
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Nominal Komitmen (Rp)</label>
+                                <input type="number" name="value" step="1" min="0" required
+                                    class="w-full px-6 py-4 text-xl font-black text-slate-800 border-2 border-slate-200 rounded-xl bg-slate-50 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors"
+                                    placeholder="0">
+                                @error('value')
+                                    <p class="mt-1.5 text-xs font-semibold text-red-600">{{ $message }}</p>
+                                @enderror
+                                <p class="mt-1.5 text-xs text-slate-400 font-medium">Nominal dalam Rupiah tanpa tanda titik atau koma</p>
+                            </div>
+                            <div class="flex justify-center">
+                                <button type="submit"
+                                    class="flex items-center space-x-2 bg-slate-900 hover:bg-red-600 text-white font-bold text-xs px-6 py-3 rounded-xl transition-all duration-200 uppercase tracking-wider shadow-md hover:shadow-lg hover:shadow-red-200">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                    </svg>
+                                    <span>Simpan Komitmen</span>
+                                </button>
+                            </div>
+                        </form>
+                    @endif
+                </div>
+
+                {{-- ── Form Realisasi ── --}}
+                <div id="content-realisasi" class="tab-content hidden space-y-6">
+                    <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-1.5 h-8 bg-red-600 rounded-full"></div>
+                            <div>
+                                <h2 class="text-base font-black text-slate-900 uppercase tracking-wide">Input Realisasi</h2>
+                                <p class="text-xs text-slate-400 font-semibold mt-0.5">Catat realisasi UTIP harian.</p>
+                            </div>
+                        </div>
+                        <span class="text-[10px] font-black tracking-widest text-green-700 bg-green-50 border border-green-200 rounded-md px-3 py-1 uppercase">Harian</span>
+                    </div>
+
+                    <form method="POST" action="{{ route('collection.utip-new.realisasi.store') }}" class="max-w-md mx-auto space-y-5">
+                        @csrf
+                        <input type="hidden" name="selected_month" value="{{ $selectedMonth }}">
+                        <input type="hidden" name="selected_year" value="{{ $selectedYear }}">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Nominal Realisasi (Rp)</label>
+                            <input type="number" name="nominal_realisasi" step="1" min="0" required
+                                class="w-full px-6 py-4 text-xl font-black text-slate-800 border-2 border-slate-200 rounded-xl bg-slate-50 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors"
+                                placeholder="0">
+                            @error('nominal_realisasi')
+                                <p class="mt-1.5 text-xs font-semibold text-red-600">{{ $message }}</p>
+                            @enderror
+                            <p class="mt-1.5 text-xs text-slate-400 font-medium">Nominal dalam Rupiah tanpa tanda titik atau koma</p>
+                        </div>
+                        <div class="flex justify-center">
+                            <button type="submit"
+                                class="flex items-center space-x-2 bg-slate-900 hover:bg-red-600 text-white font-bold text-xs px-6 py-3 rounded-xl transition-all duration-200 uppercase tracking-wider shadow-md hover:shadow-lg hover:shadow-red-200">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                </svg>
+                                <span>Simpan Realisasi</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+
+        {{-- ══ HISTORY TABLE ══ --}}
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="px-8 py-5 border-b border-slate-100 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-1.5 h-8 bg-red-600 rounded-full"></div>
+                    <h2 class="text-base font-black text-slate-900 uppercase tracking-wide">History Data — {{ $periodLabel }}</h2>
+                </div>
+            </div>
+
             <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Tanggal Input</th>
-                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Tipe</th>
-                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Nominal (Rp)</th>
-                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Keterangan</th>
+                <table class="min-w-full">
+                    <thead>
+                        <tr class="bg-slate-50 border-b border-slate-100">
+                            <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Tanggal Input</th>
+                            <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Tipe</th>
+                            <th class="px-6 py-3 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">Nominal (Rp)</th>
+                            <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Keterangan</th>
                         </tr>
                     </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
+                    <tbody class="divide-y divide-slate-100">
                         @forelse($data as $item)
-                            <tr class="hover:bg-blue-50 transition-colors">
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    {{ \Carbon\Carbon::parse($item->entry_date)->format('d M Y, H:i') }}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    @if($item->type == 'plan')
-                                        <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">
-                                            📝 Plan
-                                        </span>
-                                    @elseif($item->type == 'komitmen')
-                                        <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                                            📋 Komitmen
-                                        </span>
-                                    @else
-                                        <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                            ✅ Realisasi
-                                        </span>
-                                    @endif
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-blue-600">
-                                    Rp {{ number_format($item->value ?? 0, 0, ',', '.') }}
-                                </td>
-                                <td class="px-6 py-4 text-sm text-gray-600">
-                                    {{ $item->keterangan ?? '-' }}
-                                </td>
-                            </tr>
+                        <tr class="hover:bg-slate-50 transition-colors">
+                            <td class="px-6 py-4 text-sm font-semibold text-slate-600">
+                                {{ \Carbon\Carbon::parse($item->entry_date)->format('d M Y, H:i') }}
+                            </td>
+                            <td class="px-6 py-4 text-center">
+                                @if($item->type == 'plan')
+                                    <span class="text-xs font-bold rounded-md px-2.5 py-1 text-red-700 bg-red-50 border border-red-200">Plan</span>
+                                @elseif($item->type == 'komitmen')
+                                    <span class="text-xs font-bold rounded-md px-2.5 py-1 text-slate-700 bg-slate-100 border border-slate-200">Komitmen</span>
+                                @else
+                                    <span class="text-xs font-bold rounded-md px-2.5 py-1 text-green-700 bg-green-50 border border-green-200">Realisasi</span>
+                                @endif
+                            </td>
+                            <td class="px-6 py-4 text-right font-black text-slate-900">
+                                Rp {{ number_format($item->value ?? 0, 0, ',', '.') }}
+                            </td>
+                            <td class="px-6 py-4 text-sm text-slate-500 font-medium">
+                                {{ $item->keterangan ?? '—' }}
+                            </td>
+                        </tr>
                         @empty
-                            <tr>
-                                <td colspan="4" class="px-6 py-8 text-center text-gray-500">
-                                    <div class="flex flex-col items-center">
-                                        <svg class="w-12 h-12 text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
-                                        </svg>
-                                        <p class="font-semibold">Belum ada data untuk periode ini</p>
-                                    </div>
-                                </td>
-                            </tr>
+                        <tr>
+                            <td colspan="4" class="py-16 text-center">
+                                <svg class="mx-auto w-10 h-10 text-slate-200 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
+                                </svg>
+                                <p class="text-sm font-bold text-slate-400">Belum ada data untuk periode ini</p>
+                            </td>
+                        </tr>
                         @endforelse
                     </tbody>
                 </table>
             </div>
         </div>
+
     </div>
 </div>
 
 <script>
     function showTab(tabName) {
-        // Hide all tab contents
         document.querySelectorAll('.tab-content').forEach(content => {
             content.classList.add('hidden');
         });
-        
-        // Remove active state from all tabs
-        document.querySelectorAll('.tab-button').forEach(button => {
-            button.classList.remove('bg-blue-50', 'border-blue-500', 'text-blue-600');
-            button.classList.add('bg-white', 'border-transparent', 'text-gray-500');
+
+        ['plan', 'komitmen', 'realisasi'].forEach(name => {
+            const tab = document.getElementById('tab-' + name);
+            tab.classList.remove('text-red-600', 'border-red-600');
+            tab.classList.add('text-slate-400', 'border-transparent');
         });
-        
-        // Show selected tab content
+
         document.getElementById('content-' + tabName).classList.remove('hidden');
-        
-        // Add active state to selected tab
+
         const activeTab = document.getElementById('tab-' + tabName);
-        activeTab.classList.remove('bg-white', 'border-transparent', 'text-gray-500');
-        activeTab.classList.add('bg-blue-50', 'border-blue-500', 'text-blue-600');
+        activeTab.classList.remove('text-slate-400', 'border-transparent');
+        activeTab.classList.add('text-red-600', 'border-red-600');
     }
 </script>
 @endsection

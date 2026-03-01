@@ -3,125 +3,170 @@
 @section('title', 'Government - Asodomoro >3 Bulan')
 
 @section('content')
-<div class="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-rose-50 py-8">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <!-- Header -->
-        <div class="mb-8">
-            <div class="flex items-center justify-between mb-4">
-                <div>
-                    <a href="{{ route('gov.dashboard') }}" class="text-purple-600 hover:text-purple-800 mb-2 inline-block flex items-center gap-2">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+<div class="min-h-screen" style="background:#f1f5f9;">
+    <div class="max-w-7xl mx-auto px-8 py-10">
+
+        {{-- ══ HEADER ══ --}}
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 px-10 py-7 mb-10 relative overflow-hidden">
+            <div class="absolute top-0 left-0 right-0 h-1.5"
+                style="background: linear-gradient(90deg, #dc2626, #ef4444, #dc2626);"></div>
+            <div class="absolute -right-10 -top-10 w-56 h-56 rounded-full opacity-[0.04]" style="background: #dc2626;"></div>
+            <div class="relative flex items-center justify-between">
+                <div class="flex items-center space-x-6">
+                    <img src="{{ asset('img/Telkom.png') }}" alt="Telkom" class="h-12 w-auto">
+                    <div class="w-px h-12 bg-slate-200"></div>
+                    <div>
+                        <p class="text-[10px] font-black tracking-[0.3em] text-red-600 uppercase mb-1">Witel Sumut</p>
+                        <h1 class="text-2xl font-black tracking-tight text-slate-900 leading-none uppercase">Aosodomoro <span class="text-red-600">&gt;3 Bulan</span></h1>
+                        <p class="text-slate-400 text-xs font-bold mt-1 uppercase tracking-tight">Input Realisasi Data Aosodomoro Periode Lebih dari 3 Bulan</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="{{ route('gov.dashboard') }}"
+                        class="flex items-center space-x-2.5 bg-white border-2 border-slate-900 hover:bg-red-600 hover:border-red-600 text-slate-900 hover:text-white px-6 py-3 rounded-xl font-black text-xs transition-all duration-300 shadow-sm group uppercase tracking-wider">
+                        <svg class="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/>
                         </svg>
-                        Kembali ke Dashboard
+                        <span>Back to Dashboard</span>
                     </a>
-                    <h1 class="text-4xl font-bold text-gray-900 mb-2"> Asodomoro >3 Bulan</h1>
-                    <p class="text-gray-600 text-lg">Input realisasi data Asodomoro untuk periode lebih dari 3 bulan</p>
+                    <form action="{{ route('logout') }}" method="POST">
+                        @csrf
+                        <button type="submit"
+                            class="group flex items-center space-x-2.5 bg-slate-900 hover:bg-red-600 text-white font-bold text-sm px-5 py-3 rounded-xl transition-all duration-300 shadow-md hover:shadow-lg hover:shadow-red-200">
+                            <svg class="w-4 h-4 transition-transform duration-300 group-hover:rotate-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                            </svg>
+                            <span>Logout</span>
+                        </button>
+                    </form>
                 </div>
             </div>
-            <div class="h-1 bg-gradient-to-r from-purple-500 via-pink-500 to-rose-500 rounded-full"></div>
         </div>
 
-        <!-- Success Message -->
+        {{-- ══ FLASH MESSAGES ══ --}}
         @if(session('success'))
-        <div class="mb-6 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
-            <span class="block sm:inline">✓ {{ session('success') }}</span>
+        <div class="flex items-center space-x-3 bg-green-50 border border-green-200 text-green-800 px-5 py-3.5 mb-6 rounded-xl text-sm font-semibold">
+            <svg class="w-4 h-4 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <span>{{ session('success') }}</span>
         </div>
         @endif
 
-        <!-- Info Banner -->
-        <div class="bg-purple-100 border-l-4 border-purple-500 rounded-lg p-4 mb-6">
-            <div class="flex items-start space-x-3">
-                <svg class="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
-                </svg>
-                <div>
-                    <p class="text-sm font-bold text-purple-900 mb-1">Informasi</p>
-                    <p class="text-xs text-purple-800 leading-relaxed">
-                        Silakan input data realisasi Asodomoro untuk periode lebih dari 3 bulan. Target komitmen adalah <strong>70%</strong>.
-                    </p>
-                </div>
+        {{-- ══ INFO BANNER ══ --}}
+        <div class="flex items-start space-x-4 bg-amber-50 border border-amber-200 rounded-xl px-5 py-4 mb-8">
+            <svg class="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <div>
+                <p class="text-sm font-black text-amber-800">Informasi</p>
+                <p class="text-xs text-amber-700 mt-0.5">
+                    Silakan input data realisasi Aosodomoro untuk periode lebih dari 3 bulan. Target komitmen adalah <strong>70%</strong>.
+                </p>
             </div>
         </div>
 
-        <!-- Asodomoro Form -->
-        <form method="POST" action="{{ route('gov.asodomoro-above-3-bulan.store') }}" class="space-y-6">
-            @csrf
-            
-            <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200">
-                <div class="bg-gradient-to-r from-purple-500 to-pink-500 px-6 py-4">
-                    <h2 class="text-xl font-bold text-white">Input Realisasi</h2>
-                </div>
-                <div class="p-8">
-                    <!-- Realisasi Percentage -->
-                    <div class="max-w-md mx-auto">
-                        <label class="block text-sm font-semibold text-gray-700 mb-3">Realisasi (%) <span class="text-red-500">*</span></label>
-                        <div class="relative">
-                            <input type="number" name="realisasi" value="{{ old('realisasi') }}" placeholder="100" min="0" step="0.01" required
-                                   class="w-full px-4 py-3 text-lg border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent @error('realisasi') border-red-500 @enderror">
-                            <span class="absolute right-4 top-3 text-gray-500 text-lg font-semibold">%</span>
-                        </div>
-                        @error('realisasi')
-                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                        @enderror
-                        <p class="text-xs text-gray-500 mt-2">Masukkan nilai realisasi dalam persen</p>
+        {{-- ══ FORM ══ --}}
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-8">
+            <div class="px-8 py-5 border-b border-slate-100">
+                <div class="flex items-center space-x-3">
+                    <div class="w-1.5 h-8 bg-red-600 rounded-full"></div>
+                    <div>
+                        <h2 class="text-base font-black text-slate-900 uppercase tracking-wide">Input Realisasi</h2>
+                        <p class="text-xs text-slate-400 font-semibold mt-0.5">Catat realisasi Aosodomoro periode lebih dari 3 bulan.</p>
                     </div>
                 </div>
             </div>
 
-            <!-- Submit Button -->
-            <div class="flex justify-end space-x-4">
-                <a href="{{ route('gov.dashboard') }}" class="bg-gray-300 text-gray-700 px-8 py-3 rounded-lg font-semibold hover:bg-gray-400 transition-all duration-200">
-                    Batal
-                </a>
-                <button type="submit" class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-3 rounded-lg font-semibold hover:from-purple-600 hover:to-pink-600 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-all duration-200">
-                    💾 Simpan Realisasi
-                </button>
-            </div>
-        </form>
+            <div class="p-8">
+                <form method="POST" action="{{ route('gov.asodomoro-above-3-bulan.store') }}">
+                    @csrf
+                    <div class="max-w-md mx-auto space-y-5">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 text-center">Realisasi (%)</label>
+                            <div class="relative">
+                                <input type="number" name="realisasi" value="{{ old('realisasi') }}"
+                                    placeholder="0.00" min="0" step="0.01" required
+                                    class="w-full px-6 py-5 text-4xl font-black text-red-600 border-2 border-slate-200 rounded-xl bg-slate-50 text-center focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors @error('realisasi') border-red-400 @enderror">
+                                <div class="absolute inset-y-0 right-0 pr-5 flex items-center pointer-events-none">
+                                    <span class="text-slate-400 font-black text-2xl">%</span>
+                                </div>
+                            </div>
+                            @error('realisasi')
+                            <p class="text-xs text-red-600 font-semibold mt-1.5 text-center">{{ $message }}</p>
+                            @enderror
+                        </div>
 
-        <!-- History Table -->
-        <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200 mt-8">
-            <div class="bg-gradient-to-r from-purple-500 to-pink-500 px-6 py-4">
-                <h2 class="text-xl font-bold text-white">📋 History Input Realisasi</h2>
-            </div>
-            <div class="p-6">
-                @if($history->count() > 0)
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">No</th>
-                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Realisasi</th>
-                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Periode</th>
-                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Tanggal Input</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            @foreach($history as $index => $item)
-                            <tr class="hover:bg-gray-50">
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $history->firstItem() + $index }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-purple-600">{{ number_format($item->realisasi ?? 0, 2) }}%</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ \Carbon\Carbon::create()->month($item->month)->format('F') }} {{ $item->year }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $item->created_at->format('d M Y H:i') }}</td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-                <div class="mt-4">
-                    {{ $history->links() }}
-                </div>
-                @else
-                <div class="text-center py-8">
-                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                    </svg>
-                    <p class="mt-2 text-sm text-gray-500">Belum ada data realisasi yang diinput</p>
-                </div>
-                @endif
+                        <div class="flex items-center justify-center space-x-3 pt-2">
+                            <button type="submit"
+                                class="flex items-center space-x-2 bg-slate-900 hover:bg-red-600 text-white font-bold text-xs px-6 py-3 rounded-xl transition-all duration-200 uppercase tracking-wider shadow-md hover:shadow-lg hover:shadow-red-200">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                </svg>
+                                <span>Simpan Realisasi</span>
+                            </button>
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
+
+        {{-- ══ HISTORY TABLE ══ --}}
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="px-8 py-5 border-b border-slate-100 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-1.5 h-8 bg-red-600 rounded-full"></div>
+                    <h2 class="text-base font-black text-slate-900 uppercase tracking-wide">History Input Realisasi</h2>
+                </div>
+                <span class="text-xs font-bold text-slate-500 bg-white border border-slate-200 rounded-full px-4 py-1.5 shadow-sm">&gt;3 Bulan</span>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="min-w-full">
+                    <thead>
+                        <tr class="bg-slate-50 border-b border-slate-100">
+                            <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">No</th>
+                            <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Realisasi</th>
+                            <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Periode</th>
+                            <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Tanggal Input</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        @forelse($history as $index => $item)
+                        <tr class="hover:bg-slate-50 transition-colors">
+                            <td class="px-6 py-4 text-sm font-bold text-slate-400">{{ $history->firstItem() + $index }}</td>
+                            <td class="px-6 py-4">
+                                <span class="text-sm font-black text-red-600">{{ number_format($item->realisasi ?? 0, 2) }}%</span>
+                            </td>
+                            <td class="px-6 py-4 text-sm font-semibold text-slate-600">
+                                {{ \Carbon\Carbon::create()->month($item->month)->format('F') }} {{ $item->year }}
+                            </td>
+                            <td class="px-6 py-4 text-sm text-slate-400 font-medium">
+                                {{ $item->created_at->format('d M Y H:i') }}
+                            </td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="4" class="py-16 text-center">
+                                <svg class="mx-auto w-10 h-10 text-slate-200 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                                </svg>
+                                <p class="text-sm font-bold text-slate-400">Belum ada data realisasi yang diinput</p>
+                            </td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+
+            @if($history->count() > 0)
+            <div class="px-8 py-4 border-t border-slate-100">
+                {{ $history->links() }}
+            </div>
+            @endif
+        </div>
+
     </div>
 </div>
 @endsection

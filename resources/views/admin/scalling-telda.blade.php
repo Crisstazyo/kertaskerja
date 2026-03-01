@@ -28,7 +28,7 @@
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/>
                         </svg>
-                        <span>Back</span>
+                        <span>Back to Dashboard</span>
                     </button>
                     <form action="{{ route('logout') }}" method="POST">
                         @csrf
@@ -76,7 +76,7 @@
                     </span>
                     @endif
                 </div>
-                <p class="text-xs text-slate-400 font-medium">
+                <p class="mt-1 text-xs text-amber-500 font-medium">
                     ⚠ Realisasi hanya aktif jika Commitment sudah diisi
                 </p>
             </div>

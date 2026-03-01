@@ -24,8 +24,8 @@
                 </div>
                 <div class="flex items-center space-x-4">
                     <a href="{{ route('admin.scalling.lop', [$role, $lopType]) }}"
-                        class="flex items-center space-x-2.5 bg-white border-2 border-slate-900 hover:bg-slate-900 text-slate-900 hover:text-white px-6 py-3 rounded-xl font-black text-xs transition-all duration-300 shadow-sm uppercase tracking-wider">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        class="flex items-center space-x-2.5 bg-white border-2 border-slate-900 hover:bg-red-600 hover:border-red-600 text-slate-900 hover:text-white px-6 py-3 rounded-xl font-black text-xs transition-all duration-300 shadow-sm group uppercase tracking-wider">
+                        <svg class="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/>
                         </svg>
                         <span>Back</span>
@@ -45,41 +45,53 @@
         </div>
 
         {{-- ══ STATS CARDS ══ --}}
-        <div class="grid grid-cols-3 gap-5 mb-8">
-            <div class="bg-white rounded-xl border border-slate-200 shadow-sm px-6 py-5 flex items-center justify-between">
-                <div>
-                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Users Active</p>
-                    <p class="text-3xl font-black text-slate-900">{{ $progressData->count() }}</p>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
+            {{-- Total Users Active --}}
+            <div class="bg-white rounded-2xl border-2 border-slate-100 shadow-sm p-6 relative overflow-hidden">
+                <div class="absolute -right-4 -top-4 w-24 h-24 rounded-full opacity-[0.06]" style="background:#dc2626;"></div>
+                <div class="flex items-start justify-between mb-4">
+                    <div class="rounded-xl flex items-center justify-center shadow-sm border-2"
+                        style="background: linear-gradient(135deg, #fff1f2, #ffe4e6); border-color: #fecdd3; width:52px; height:52px;">
+                        <svg class="w-6 h-6 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/>
+                        </svg>
+                    </div>
+                    <span class="text-[10px] font-black tracking-widest text-red-600 bg-red-50 border border-red-100 rounded-md px-2 py-0.5 uppercase">Users</span>
                 </div>
-                <div class="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style="background:#fff1f2; border:1.5px solid #fecdd3;">
-                    <svg class="w-5 h-5 text-red-600" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/>
-                    </svg>
-                </div>
+                <p class="text-3xl font-black text-slate-900 mb-1">{{ $progressData->count() }}</p>
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Total Users Active</p>
             </div>
 
-            <div class="bg-white rounded-xl border border-slate-200 shadow-sm px-6 py-5 flex items-center justify-between">
-                <div>
-                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Progress Updates</p>
-                    <p class="text-3xl font-black text-slate-900">{{ $totalUpdates }}</p>
+            {{-- Total Progress Updates --}}
+            <div class="bg-white rounded-2xl border-2 border-slate-100 shadow-sm p-6 relative overflow-hidden">
+                <div class="absolute -right-4 -top-4 w-24 h-24 rounded-full opacity-[0.06]" style="background:#dc2626;"></div>
+                <div class="flex items-start justify-between mb-4">
+                    <div class="rounded-xl flex items-center justify-center shadow-sm border-2"
+                        style="background: linear-gradient(135deg, #fff1f2, #ffe4e6); border-color: #fecdd3; width:52px; height:52px;">
+                        <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <span class="text-[10px] font-black tracking-widest text-red-600 bg-red-50 border border-red-100 rounded-md px-2 py-0.5 uppercase">Updates</span>
                 </div>
-                <div class="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style="background:#fff1f2; border:1.5px solid #fecdd3;">
-                    <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                </div>
+                <p class="text-3xl font-black text-slate-900 mb-1">{{ $totalUpdates }}</p>
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Total Progress Updates</p>
             </div>
 
-            <div class="bg-white rounded-xl border border-slate-200 shadow-sm px-6 py-5 flex items-center justify-between">
-                <div>
-                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Last Update</p>
-                    <p class="text-lg font-black text-slate-900">{{ $lastUpdate }}</p>
+            {{-- Last Update --}}
+            <div class="bg-white rounded-2xl border-2 border-slate-100 shadow-sm p-6 relative overflow-hidden">
+                <div class="absolute -right-4 -top-4 w-24 h-24 rounded-full opacity-[0.06]" style="background:#dc2626;"></div>
+                <div class="flex items-start justify-between mb-4">
+                    <div class="rounded-xl flex items-center justify-center shadow-sm border-2"
+                        style="background: linear-gradient(135deg, #fff1f2, #ffe4e6); border-color: #fecdd3; width:52px; height:52px;">
+                        <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <span class="text-[10px] font-black tracking-widest text-red-600 bg-red-50 border border-red-100 rounded-md px-2 py-0.5 uppercase">Terbaru</span>
                 </div>
-                <div class="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style="background:#fff1f2; border:1.5px solid #fecdd3;">
-                    <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                </div>
+                <p class="text-lg font-black text-slate-900 mb-1">{{ $lastUpdate }}</p>
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Last Update</p>
             </div>
         </div>
 
@@ -87,9 +99,10 @@
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
             <div class="px-8 py-5 border-b border-slate-100 flex items-center justify-between">
                 <div class="flex items-center space-x-3">
-                    <div class="w-1 h-6 bg-red-600 rounded-full"></div>
-                    <h2 class="text-base font-black text-slate-900 uppercase tracking-wide">Tabel Progress User</h2>
+                    <div class="w-1.5 h-8 bg-red-600 rounded-full"></div>
+                    <h2 class="text-base font-black text-slate-900 uppercase tracking-wide">Tabel Progres User</h2>
                 </div>
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">LOP {{ ucfirst($lopTypeDisplay) }} · {{ ucfirst($roleNormalized) }}</span>
             </div>
 
             {{-- ══ Upload Context ══ --}}
@@ -141,7 +154,7 @@
                                 @if($progress->pct >= 100)
                                     <span class="text-xs font-bold text-green-700 bg-green-50 border border-green-200 rounded-md px-2.5 py-1">Completed</span>
                                 @elseif($progress->pct > 0)
-                                    <span class="text-xs font-bold text-yellow-700 bg-yellow-50 border border-yellow-200 rounded-md px-2.5 py-1">In Progress</span>
+                                    <span class="text-xs font-bold text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-2.5 py-1">In Progress</span>
                                 @else
                                     <span class="text-xs font-bold text-slate-500 bg-slate-50 border border-slate-200 rounded-md px-2.5 py-1">Not Started</span>
                                 @endif

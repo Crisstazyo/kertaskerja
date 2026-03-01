@@ -8,6 +8,7 @@ use App\Http\Controllers\PrivateController;
 use App\Http\Controllers\SoeController;
 use App\Http\Controllers\SmeController;
 use App\Http\Controllers\CollectionController;
+use App\Http\Controllers\ReportController;
 
 /*
 |--------------------------------------------------------------------------
@@ -235,6 +236,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/cr-sme/realisasi/store', [CollectionController::class, 'storeCrSmeRealisasi'])->name('cr-sme.storeRealisasi');
     Route::post('/cr-soe/komitmen/store', [CollectionController::class, 'storeCrSoeKomitmen'])->name('cr-soe.storeKomitmen');
     Route::post('/cr-soe/realisasi/store', [CollectionController::class, 'storeCrSoeRealisasi'])->name('cr-soe.storeRealisasi');
+    Route::get('/report/collection', [ReportController::class, 'index'])->name('report.collection');
 });
 
 // Admin Routes (Protected)
@@ -352,7 +354,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     ->where('star', '[1-4]');
     Route::get('/admin/rising-star/{feature}', [AdminController::class, 'adminRisingStarFeature'])->name('admin.rising-star.feature');
     Route::post('/admin/rising-star/{feature}/store', [AdminController::class, 'adminRisingStarFeatureStore'])->name('admin.rising-star.feature.store');
-    
+
     // Rising Star Progress Pages
     Route::get('/admin/rising-star/progress/visiting-gm', [AdminController::class, 'visitingGmProgress'])->name('admin.rising-star.progress.visiting-gm');
     Route::get('/admin/rising-star/progress/visiting-am', [AdminController::class, 'visitingAmProgress'])->name('admin.rising-star.progress.visiting-am');

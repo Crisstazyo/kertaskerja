@@ -66,7 +66,7 @@
                 @csrf
                 <input type="hidden" name="user_id" value="{{ Auth::id() }}">
                 <input type="hidden" name="form_type" value="komitmen">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-6">
                     <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">User</label>
                         <input type="text" class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 bg-gray-100" value="{{ Auth::user()->name ?? '-' }}" disabled>
@@ -95,7 +95,7 @@
                     </button>
                 </div>
             </form>
-                        
+
             {{-- Filter Bar --}}
             <div class="px-8 py-5 border-b border-slate-100">
                 <div class="flex items-center space-x-3 mb-4">
