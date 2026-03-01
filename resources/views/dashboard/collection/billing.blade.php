@@ -3,191 +3,265 @@
 @section('title', 'Billing Perdana Management')
 
 @section('content')
-<div class="min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-100 py-8">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <!-- Success/Error Messages -->
-        @if(session('success'))
-            <div class="mb-6 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded-r-lg" role="alert">
-                <p class="font-bold">Sukses!</p>
-                <p>{{ session('success') }}</p>
-            </div>
-        @endif
-        @if(session('error'))
-            <div class="mb-6 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-r-lg" role="alert">
-                <p class="font-bold">Error!</p>
-                <p>{{ session('error') }}</p>
-            </div>
-        @endif
-        @if($errors->any())
-            <div class="mb-6 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-r-lg" role="alert">
-                <p class="font-bold">Terdapat kesalahan:</p>
-                <ul class="list-disc list-inside">
-                    @foreach($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
-        
-        <div class="mb-8">
-            <div class="flex items-center justify-between mb-4">
-                <div>
-                    <h1 class="text-4xl font-bold text-gray-900 mb-2">📄Billing Perdana</h1>
-                    <p class="text-gray-600 text-lg">Billing Perdana</p>
+<div class="min-h-screen" style="background:#f1f5f9;">
+    <div class="max-w-7xl mx-auto px-8 py-10">
+
+        {{-- ══ HEADER ══ --}}
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 px-10 py-7 mb-10 relative overflow-hidden">
+            <div class="absolute top-0 left-0 right-0 h-1.5"
+                style="background: linear-gradient(90deg, #dc2626, #ef4444, #dc2626);"></div>
+            <div class="absolute -right-10 -top-10 w-56 h-56 rounded-full opacity-[0.04]" style="background: #dc2626;"></div>
+            <div class="relative flex items-center justify-between">
+                <div class="flex items-center space-x-6">
+                    <img src="{{ asset('img/Telkom.png') }}" alt="Telkom" class="h-12 w-auto">
+                    <div class="w-px h-12 bg-slate-200"></div>
+                    <div>
+                        <p class="text-[10px] font-black tracking-[0.3em] text-red-600 uppercase mb-1">Witel Sumut</p>
+                        <h1 class="text-2xl font-black tracking-tight text-slate-900 leading-none uppercase">Billing Perdana <span class="text-red-600">Management</span></h1>
+                        <p class="text-slate-400 text-xs font-bold mt-1 uppercase tracking-tight">Billing Perdana Management</p>
+                    </div>
                 </div>
-                <a href="{{ route('dashboard.collection') }}" class="bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300 shadow-md hover:shadow-lg">
-                    ← Kembali ke Dashboard
-                </a>
+                <div class="flex items-center space-x-4">
+                    <a href="{{ route('dashboard.collection') }}"
+                        class="flex items-center space-x-2.5 bg-white border-2 border-slate-900 hover:bg-red-600 hover:border-red-600 text-slate-900 hover:text-white px-6 py-3 rounded-xl font-black text-xs transition-all duration-300 shadow-sm group uppercase tracking-wider">
+                        <svg class="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/>
+                        </svg>
+                        <span>Back to Dashboard</span>
+                    </a>
+                    <form action="{{ route('logout') }}" method="POST">
+                        @csrf
+                        <button type="submit"
+                            class="group flex items-center space-x-2.5 bg-slate-900 hover:bg-red-600 text-white font-bold text-sm px-5 py-3 rounded-xl transition-all duration-300 shadow-md hover:shadow-lg hover:shadow-red-200">
+                            <svg class="w-4 h-4 transition-transform duration-300 group-hover:rotate-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                            </svg>
+                            <span>Logout</span>
+                        </button>
+                    </form>
+                </div>
             </div>
-            <div class="h-1 bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full"></div>
         </div>
 
-        <div class="bg-white rounded-2xl shadow-xl overflow-hidden mb-8">
-            <div class="flex border-b border-gray-100 bg-gray-50/50">
-                <button onclick="switchTab('komitmen')" id="tab-komitmen" class="flex-1 py-4 text-center font-bold text-purple-600 border-b-4 border-purple-500 transition-all">
-                    📝 Form Komitmen (Bulanan)
+        {{-- ══ FLASH MESSAGES ══ --}}
+        @if(session('success'))
+        <div class="flex items-center space-x-3 bg-green-50 border border-green-200 text-green-800 px-5 py-3.5 mb-6 rounded-xl text-sm font-semibold">
+            <svg class="w-4 h-4 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <span>{{ session('success') }}</span>
+        </div>
+        @endif
+        @if(session('error'))
+        <div class="flex items-center space-x-3 bg-red-50 border border-red-200 text-red-800 px-5 py-3.5 mb-6 rounded-xl text-sm font-semibold">
+            <svg class="w-4 h-4 text-red-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <span>{{ session('error') }}</span>
+        </div>
+        @endif
+        @if($errors->any())
+        <div class="bg-red-50 border border-red-200 text-red-800 px-5 py-3.5 mb-6 rounded-xl text-sm font-semibold">
+            <p class="font-bold mb-1">Terdapat kesalahan:</p>
+            <ul class="list-disc list-inside space-y-0.5">
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+        @endif
+
+        {{-- ══ TAB FORM ══ --}}
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-8">
+
+            {{-- Tab Headers --}}
+            <div class="flex border-b border-slate-100">
+                <button onclick="switchTab('komitmen')" id="tab-komitmen"
+                    class="flex-1 flex items-center justify-center space-x-2 py-4 text-sm font-black uppercase tracking-wider text-red-600 border-b-2 border-red-600 transition-all">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                    </svg>
+                    <span>Form Komitmen (Bulanan)</span>
                 </button>
-                <button onclick="switchTab('realisasi')" id="tab-realisasi" class="flex-1 py-4 text-center font-bold text-gray-500 hover:text-purple-500 border-b-4 border-transparent transition-all">
-                    ✅ Form Realisasi (Harian)
+                <button onclick="switchTab('realisasi')" id="tab-realisasi"
+                    class="flex-1 flex items-center justify-center space-x-2 py-4 text-sm font-black uppercase tracking-wider text-slate-400 border-b-2 border-transparent hover:text-slate-600 transition-all">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <span>Form Realisasi (Harian)</span>
                 </button>
             </div>
 
             <div class="p-8">
+
+                {{-- ── Komitmen ── --}}
                 <div id="content-komitmen" class="space-y-6">
-                    <div class="flex items-center justify-between border-b pb-4">
-                        <div>
-                            <h2 class="text-2xl font-bold text-gray-800">Komitmen Bulanan</h2>
-                            <p class="text-sm text-gray-500 italic">Target penagihan Anda untuk bulan ini.</p>
-                        </div>
-                        <span class="bg-purple-100 text-purple-700 text-xs font-semibold px-3 py-1 rounded-full uppercase">Periode: {{ now()->translatedFormat('F Y') }}</span>
-                    </div>
-                    
-                        <div class="bg-amber-50 border-l-4 border-amber-400 p-6 rounded-r-lg">
-                            <div class="flex items-center">
-                                <div class="text-2xl mr-4">ℹ️</div>
-                                <div>
-                                    <p class="text-amber-800 font-bold">Target Sudah Terkunci</p>
-                                    <p class="text-sm text-amber-700">
-                                        Target ratio untuk periode <strong>{{ now()->translatedFormat('F Y') }}</strong> telah ditambahkan. Input baru hanya tersedia di bulan depan.
-                                    </p>
-                                </div>
+                    <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-1.5 h-8 bg-red-600 rounded-full"></div>
+                            <div>
+                                <h2 class="text-base font-black text-slate-900 uppercase tracking-wide">Komitmen Bulanan</h2>
+                                <p class="text-xs text-slate-400 font-semibold mt-0.5">Target penagihan Anda untuk bulan ini.</p>
                             </div>
                         </div>
-                            <!-- <input type="hidden" name="commitment" value="98"> -->
-                            <div class="mb-6">
-                                <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide text-center">Target Ratio Billing Perdana</label>
-                                <div class="relative mt-1">
-                                    <input type="text" value="{{ $bill->first()->commitment ?? 0 }}" readonly class="block w-full p-4 text-4xl font-bold text-purple-700 border-2 border-purple-300 rounded-lg bg-purple-50 text-center" placeholder="0.00">
-                                    <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
-                                        <span class="text-purple-500 font-bold text-2xl">%</span>
-                                    </div>
-                                </div>
-                                <p class="text-xs text-center text-gray-500 mt-2 italic">Target tetap untuk periode ini</p>
-                            </div>
+                        <span class="text-[10px] font-black tracking-widest text-red-600 bg-red-50 border border-red-100 rounded-md px-3 py-1 uppercase">
+                            Periode: {{ now()->translatedFormat('F Y') }}
+                        </span>
                     </div>
 
+                    {{-- Locked notice --}}
+                    <div class="flex items-start space-x-4 bg-amber-50 border border-amber-200 rounded-xl px-5 py-4">
+                        <svg class="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <div>
+                            <p class="text-sm font-black text-amber-800">Target Sudah Terkunci</p>
+                            <p class="text-xs text-amber-700 mt-0.5">
+                                Target ratio untuk periode <strong>{{ now()->translatedFormat('F Y') }}</strong> telah ditambahkan. Input baru hanya tersedia di bulan depan.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 text-center">Target Ratio Billing Perdana</label>
+                        <div class="relative max-w-sm mx-auto">
+                            <input type="text" value="{{ $bill->first()->commitment ?? 0 }}" readonly
+                                class="w-full px-6 py-5 text-4xl font-black text-red-600 border-2 border-slate-200 rounded-xl bg-slate-50 text-center focus:outline-none">
+                            <div class="absolute inset-y-0 right-0 pr-5 flex items-center pointer-events-none">
+                                <span class="text-slate-400 font-black text-2xl">%</span>
+                            </div>
+                        </div>
+                        <p class="text-xs text-center text-slate-400 font-semibold mt-2">Target tetap untuk periode ini</p>
+                    </div>
+                </div>
+
+                {{-- ── Realisasi ── --}}
                 <div id="content-realisasi" class="hidden space-y-6">
-                    <div class="flex items-center justify-between border-b pb-4">
-                        <div>
-                            <h2 class="text-2xl font-bold text-gray-800">Input Realisasi C3MR</h2>
-                            <p class="text-sm text-gray-500 italic">Catat realisasi ratio harian.</p>
+                    <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-1.5 h-8 bg-red-600 rounded-full"></div>
+                            <div>
+                                <h2 class="text-base font-black text-slate-900 uppercase tracking-wide">Input Realisasi Billing Perdana</h2>
+                                <p class="text-xs text-slate-400 font-semibold mt-0.5">Catat realisasi ratio harian.</p>
+                            </div>
                         </div>
-                        <span class="bg-green-100 text-green-700 text-xs font-semibold px-3 py-1 rounded-full uppercase">Harian</span>
+                        <span class="text-[10px] font-black tracking-widest text-green-700 bg-green-50 border border-green-200 rounded-md px-3 py-1 uppercase">Harian</span>
                     </div>
 
-                    <form action="{{ route('collection.billing.storeRealisasi') }}" method="POST" class="max-w-lg mx-auto space-y-6">
+                    <form action="{{ route('collection.billing.storeRealisasi') }}" method="POST" class="max-w-lg mx-auto space-y-5">
                         @csrf
                         <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-2">Realisasi C3MR (%)</label>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Realisasi Billing Perdana (%)</label>
                             <div class="relative">
-                                <input type="number" step="0.01" name="ratio_aktual" required class="w-full p-4 text-2xl font-bold text-green-600 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none" placeholder="0.00">
-                                <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
-                                    <span class="text-gray-500 font-bold text-xl">%</span>
+                                <input type="number" step="0.01" name="ratio_aktual" required
+                                    class="w-full px-6 py-4 text-2xl font-black text-slate-800 border-2 border-slate-200 rounded-xl focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors"
+                                    placeholder="0.00">
+                                <div class="absolute inset-y-0 right-0 pr-5 flex items-center pointer-events-none">
+                                    <span class="text-slate-400 font-black text-xl">%</span>
                                 </div>
                             </div>
                         </div>
-                        <div class="flex justify-end">
-                            <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-bold shadow-md transition-all">Simpan Realisasi</button>
+                        <div class="flex justify-center">
+                             <button type="submit"
+                                    class="flex items-center space-x-2 bg-slate-900 hover:bg-red-600 text-white font-bold text-xs px-6 py-3 rounded-xl transition-all duration-200 uppercase tracking-wider shadow-md hover:shadow-lg hover:shadow-red-200">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                    </svg>
+                                    <span>Simpan Realisasi</span>
+                                </button>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
 
-        <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200">
-            <div class="bg-gray-800 px-6 py-4 flex justify-between items-center">
-                <h3 class="text-lg font-bold text-white uppercase tracking-wider">
-                    📜 Riwayat Aktivitas C3MR
-                </h3>
-                <span class="text-xs text-gray-400 italic">Hanya Baca (Data Permanen)</span>
+        {{-- ══ HISTORY TABLE ══ --}}
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="px-8 py-5 border-b border-slate-100 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-1.5 h-8 bg-red-600 rounded-full"></div>
+                    <h2 class="text-base font-black text-slate-900 uppercase tracking-wide">Riwayat Aktivitas Billing Perdana</h2>
+                </div>
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Hanya Baca · Data Permanen</span>
             </div>
+
             <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
+                <table class="min-w-full">
                     <thead>
-                        <tr class="bg-gray-100 border-b border-gray-200">
-                            <th class="p-4 font-bold text-xs uppercase text-gray-600 text-center">Tanggal Input</th>
-                            <th class="p-4 font-bold text-xs uppercase text-gray-600 text-center">Tipe</th>
-                            <th class="p-4 font-bold text-xs uppercase text-gray-600 text-center">Ratio (%)</th>
-                            <th class="p-4 font-bold text-xs uppercase text-gray-600 text-center">Komitmen (%)</th>
+                        <tr class="bg-slate-50 border-b border-slate-100">
+                            <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Tanggal Input</th>
+                            <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Tipe</th>
+                            <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Ratio (%)</th>
+                            <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Komitmen (%)</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-100">
+                    <tbody class="divide-y divide-slate-100">
                         @forelse($activities as $activity)
-                            <tr class="{{ $activity->type == 'C3MR' ? 'bg-purple-50/30' : '' }}">
-                                <td class="p-4 text-sm text-center text-gray-600 font-medium">{{ $activity->updated_at->translatedFormat('d M Y') }}</td>
-                                <td class="p-4 text-center">
-                                    @if($activity->type == 'Billing Perdana')
-                                        <span class="bg-purple-600 text-white px-2 py-1 rounded text-[10px] font-bold uppercase">Target Bulanan</span>
-                                    @else
-                                        <span class="bg-green-100 text-green-700 border border-green-200 px-2 py-1 rounded text-[10px] font-bold uppercase">Realisasi</span>
-                                    @endif
-                                </td>
-                                <td class="p-4 text-center font-bold {{ $activity->type == 'C3MR' ? 'text-purple-700' : 'text-green-600' }}">
-                                    {{ number_format($activity->real_ratio ?? 0, 2) }}%
-                                </td>
-                                <td class="p-4 text-center font-bold {{ $activity->type == 'C3MR' ? 'text-purple-700' : 'text-green-600' }}">
-                                    {{$bill->first()->commitment ?? 0}}%
-                                </td>
-                            </tr>
+                        <tr class="hover:bg-slate-50 transition-colors">
+                            <td class="px-6 py-4 text-sm text-center font-semibold text-slate-600">
+                                {{ $activity->updated_at->translatedFormat('d M Y') }}
+                            </td>
+                            <td class="px-6 py-4 text-center">
+                                @if($activity->type == 'Billing Perdana')
+                                    <span class="text-xs font-bold rounded-md px-2.5 py-1 text-red-700 bg-red-50 border border-red-200">Target Bulanan</span>
+                                @else
+                                    <span class="text-xs font-bold rounded-md px-2.5 py-1 text-green-700 bg-green-50 border border-green-200">Realisasi</span>
+                                @endif
+                            </td>
+                            <td class="px-6 py-4 text-center font-black {{ $activity->type == 'Billing Perdana' ? 'text-red-600' : 'text-green-600' }}">
+                                {{ number_format($activity->real_ratio ?? 0, 2) }}%
+                            </td>
+                            <td class="px-6 py-4 text-center font-black text-slate-700">
+                                {{ $bill->first()->commitment ?? 0 }}%
+                            </td>
+                        </tr>
                         @empty
-                            <tr>
-                                <td colspan="4" class="p-8 text-center text-gray-400 italic">
-                                    Belum ada data aktivitas
-                                </td>
-                            </tr>
+                        <tr>
+                            <td colspan="4" class="py-16 text-center">
+                                <svg class="mx-auto w-10 h-10 text-slate-200 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                                </svg>
+                                <p class="text-sm font-bold text-slate-400">Belum ada data aktivitas</p>
+                            </td>
+                        </tr>
                         @endforelse
                     </tbody>
                 </table>
             </div>
-            <div class="bg-gray-50 p-4 border-t border-gray-100 text-center">
-                <p class="text-xs text-gray-400 font-medium tracking-widest uppercase">*** Seluruh data telah tervalidasi dan tidak dapat diubah kembali ***</p>
+
+            <div class="px-8 py-3 border-t border-slate-100 bg-slate-50 text-center">
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                    *** Seluruh data telah tervalidasi dan tidak dapat diubah kembali ***
+                </p>
             </div>
         </div>
+
     </div>
 </div>
 
 <script>
-    function switchTab(tab) {
-        const kTab = document.getElementById('tab-komitmen');
-        const rTab = document.getElementById('tab-realisasi');
-        const kContent = document.getElementById('content-komitmen');
-        const rContent = document.getElementById('content-realisasi');
+function switchTab(tab) {
+    const kTab     = document.getElementById('tab-komitmen');
+    const rTab     = document.getElementById('tab-realisasi');
+    const kContent = document.getElementById('content-komitmen');
+    const rContent = document.getElementById('content-realisasi');
 
-        if (tab === 'komitmen') {
-            kTab.classList.add('text-purple-600', 'border-purple-500');
-            kTab.classList.remove('text-gray-500', 'border-transparent');
-            rTab.classList.add('text-gray-500', 'border-transparent');
-            rTab.classList.remove('text-purple-600', 'border-purple-500');
-            kContent.classList.remove('hidden');
-            rContent.classList.add('hidden');
-        } else {
-            rTab.classList.add('text-purple-600', 'border-purple-500');
-            rTab.classList.remove('text-gray-500', 'border-transparent');
-            kTab.classList.add('text-gray-500', 'border-transparent');
-            kTab.classList.remove('text-purple-600', 'border-purple-500');
-            rContent.classList.remove('hidden');
-            kContent.classList.add('hidden');
-        }
+    if (tab === 'komitmen') {
+        kTab.classList.add('text-red-600', 'border-red-600');
+        kTab.classList.remove('text-slate-400', 'border-transparent');
+        rTab.classList.add('text-slate-400', 'border-transparent');
+        rTab.classList.remove('text-red-600', 'border-red-600');
+        kContent.classList.remove('hidden');
+        rContent.classList.add('hidden');
+    } else {
+        rTab.classList.add('text-red-600', 'border-red-600');
+        rTab.classList.remove('text-slate-400', 'border-transparent');
+        kTab.classList.add('text-slate-400', 'border-transparent');
+        kTab.classList.remove('text-red-600', 'border-red-600');
+        rContent.classList.remove('hidden');
+        kContent.classList.add('hidden');
     }
+}
 </script>
 @endsection

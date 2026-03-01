@@ -91,5 +91,10 @@ class DatabaseSeeder extends Seeder
                 'role' => 'rising-star',
             ]
         );
+
+        $this->call([
+        CollectionCtcRisingStarUsersSeeder::class,
+        ProjectItemsSeeder::class,
+    ]);
     }
 }

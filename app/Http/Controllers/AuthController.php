@@ -37,7 +37,7 @@ class AuthController extends Controller
             $request->remember_me
         )) {
             $request->session()->regenerate();
-            
+
             // Redirect berdasarkan role
             $user = Auth::user();
             return $this->redirectByRole($user->role);
@@ -71,7 +71,7 @@ class AuthController extends Controller
             'soe'         => '/dashboard/soe',
             'sme'         => '/dashboard/sme',
             'private'     => '/dashboard/private',
-            'collection'  => '/dashboard/collection',
+            'collection'  => '/dashboard',
             'ctc'         => '/dashboard/ctc',
             'risingStar'  => '/dashboard/rising-star',
         ];
