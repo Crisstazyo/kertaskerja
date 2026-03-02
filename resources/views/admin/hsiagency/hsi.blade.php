@@ -76,9 +76,17 @@
 
             <form action="{{ route('admin.hsi-agency.store') }}" method="POST">
                 @csrf
-                <input type="hidden" name="periode" value="{{ \Carbon\Carbon::now()->format('Y-m') }}">
+                <input type="hidden" name="type" value="Sales HSI Non AM Non Telda">
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
+                    {{-- Periode --}}
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Periode</label>
+                        <input type="month" name="periode" required value="{{ old('periode', date('Y-m')) }}"
+                            class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors">
+                        @error('periode')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
+                    </div>
+
                     {{-- Commitment --}}
                     <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">

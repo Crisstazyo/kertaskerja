@@ -8,6 +8,8 @@ use App\Http\Controllers\ScallingController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\GovController;
 use App\Http\Controllers\PrivateController;
+use App\Http\Controllers\SmeController;
+use App\Http\Controllers\SoeController;
 use App\Http\Controllers\CollectionController;
 
 Route::get('/', function () {
@@ -190,15 +192,32 @@ Route::middleware('auth')->group(function () {
     // SOE dashboard (role: soe)
     Route::middleware('role:soe')->prefix('dashboard/soe')->group(function () {
         Route::get('/', function () {
-            return view('dashboard.soe.index');
+            return view('dashboard.soe.scalling');
         })->name('dashboard.soe');
+        Route::get('/scalling/on-hand', [SoeController::class, 'lopOnHand'])->name('dashboard.soe.lop-on-hand');
+        Route::get('/scalling/koreksi', [SoeController::class, 'lopKoreksi'])->name('dashboard.soe.lop-koreksi');
+        Route::get('/scalling/qualified', [SoeController::class, 'lopQualified'])->name('dashboard.soe.lop-qualified');
+        Route::post('/funnel/update', [SoeController::class, 'updateFunnelCheckbox'])->name('funnel.update');
     });
 
     // SME dashboard (role: sme)
     Route::middleware('role:sme')->prefix('dashboard/sme')->group(function () {
         Route::get('/', function () {
-            return view('dashboard.sme.index');
+            return view('dashboard.sme.scalling');
         })->name('dashboard.sme');
+        Route::get('/scalling/on-hand', [SmeController::class, 'lopOnHand'])->name('dashboard.sme.lop-on-hand');
+        Route::get('/scalling/koreksi', [SmeController::class, 'lopKoreksi'])->name('dashboard.sme.lop-koreksi');
+        Route::get('/scalling/qualified', [SmeController::class, 'lopQualified'])->name('dashboard.sme.lop-qualified');
+        Route::post('/funnel/update', [SmeController::class, 'updateFunnelCheckbox'])->name('funnel.update');
+
+        Route::get('/aosodomoro/above-3-bulan', [SmeController::class, 'aosodomoroAbove3Bulan'])->name('dashboard.sme.aosodomoro-above-3-bulan');
+        Route::post('/aosodomoro/above-3-bulan', [SmeController::class, 'storeAosodomoroAbove3Bulan'])->name('dashboard.sme.aosodomoro-above-3-bulan.store');
+
+        Route::get('/aosodomoro/0-3-bulan', [SmeController::class, 'aosodomoro03Bulan'])->name('dashboard.sme.aosodomoro-0-3-bulan');
+        Route::post('/aosodomoro/0-3-bulan', [SmeController::class, 'storeAosodomoro03Bulan'])->name('dashboard.sme.aosodomoro-0-3-bulan.store');
+
+        Route::get('/upselling', [SmeController::class, 'upselling'])->name('dashboard.sme.upselling');
+        Route::post('/upselling', [SmeController::class, 'storeUpselling'])->name('dashboard.sme.upselling.store');
     });
 
     // Private dashboard (role: private)

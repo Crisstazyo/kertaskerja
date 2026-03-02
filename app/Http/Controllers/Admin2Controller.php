@@ -22,8 +22,8 @@ class Admin2Controller extends Controller
     // Helper: upsert RisingStar per (user_id, type_id, periode)
     // Kolom yang tidak dikirim tidak ditimpa.
     // ══════════════════════════════════════════════════════
-    private function upsertRisingStar(int $typeId, int $userId, array $values, string $periode = null): RisingStar
-    {
+    private function upsertRisingStar(int $typeId, int $userId, array $values, string $periode = null): RisingStar {
+
         $periode = $periode ?? Carbon::now()->format('Y-m-01');
 
         $record = RisingStar::firstOrNew([
@@ -32,10 +32,17 @@ class Admin2Controller extends Controller
             'periode' => $periode,
         ]);
 
+        // Selalu update user_id
+        $record->user_id = $userId;
+
+        // Hanya update kolom yang dikirim
         foreach ($values as $col => $val) {
-            $record->{$col} = $val;
+            if ($val !== null) {   // ⬅️ KUNCI UTAMA DI SINI
+                $record->{$col} = $val;
+            }
         }
 
+        // Jika record baru dan belum ada status
         if (! $record->exists) {
             $record->status = $values['status'] ?? 'active';
         }
@@ -109,45 +116,51 @@ class Admin2Controller extends Controller
             'periode'    => 'nullable|string',
             'commitment' => 'nullable|numeric|min:0',
             'real_ratio' => 'nullable|numeric|min:0',
-            // segment hanya wajib untuk type 4
             'segment'    => 'nullable|in:gov,sme',
             'user_id'    => 'nullable|exists:users,id',
         ]);
 
-        // Tentukan user_id:
-        // - Jika ada segment (type 4), mapping ke user fixed
-        // - Jika ada user_id di request (type 1/2/3 pakai auth user), pakai itu
+        // Tentukan user
         if ($request->filled('segment')) {
             $segmentUserMap = [
                 'gov' => 2,
                 'sme' => 4,
             ];
-            $userId = $segmentUserMap[$request->segment];
+            $userId = $segmentUserMap[$request->segment] ?? Auth::id();
         } else {
-            $userId = $request->filled('user_id') ? (int) $request->user_id : Auth::id();
+            $userId = $request->filled('user_id')
+                ? (int) $request->user_id
+                : Auth::id();
         }
 
         $periode = $request->filled('periode')
             ? Carbon::parse($request->periode . '-01')->format('Y-m-d')
             : Carbon::now()->format('Y-m-01');
 
+        // Bangun values secara dinamis
+        $values = [
+            'status'     => $request->status,
+            'commitment' => $request->commitment,
+        ];
+
+        // Hanya masukkan real_ratio jika diinput
+        if ($request->filled('real_ratio')) {
+            $values['real_ratio'] = $request->real_ratio;
+        }
+
         $this->upsertRisingStar(
             typeId:  (int) $request->type_id,
             userId:  $userId,
-            values:  [
-                'status'     => $request->status,
-                'commitment' => $request->commitment,
-                'real_ratio' => $request->real_ratio,
-            ],
+            values:  $values,
             periode: $periode,
         );
 
-        if ($request->filled('segment')) {
-            $segmentLabel = $request->segment === 'gov' ? 'Government' : 'SME';
-            return back()->with('success', "Data untuk segment {$segmentLabel} periode " . Carbon::parse($periode)->format('F Y') . " berhasil disimpan / diperbarui.");
-        }
-
-        return back()->with('success', "Data Rising Star periode " . Carbon::parse($periode)->format('F Y') . " berhasil disimpan / diperbarui.");
+        return back()->with(
+            'success',
+            "Data Rising Star periode " .
+            Carbon::parse($periode)->format('F Y') .
+            " berhasil disimpan / diperbarui."
+        );
     }
 
     // ══ HSI ══
@@ -168,12 +181,30 @@ class Admin2Controller extends Controller
     public function hsiStore(Request $request)
     {
         $request->validate([
-            'commitment' => 'nullable|string',
-            'real_ratio' => 'nullable|string',
+            'type' => 'required|string',
+            'periode' => 'required|string',
+            'commitment' => 'nullable|numeric|min:0',
+            'real_ratio' => 'nullable|numeric|min:0',
         ]);
+        $periodeDate = $request->periode . '-01';
+
+        $log = Hsi::where('type', $request->type)
+            ->where('periode', $periodeDate)
+            ->first();
+
+        if($log) {
+            $log->update([
+                'commitment' => $request->commitment,
+                'real_ratio' => $request->real_ratio,
+            ]);
+
+            return back()->with('success', "Data HSI periode " . Carbon::parse($periodeDate)->format('F Y') . " berhasil diperbarui.");
+        }
 
         Hsi::create([
             'user_id'    => Auth::id(),
+            'type'       => $request->type,
+            'periode'    => $request->periode . '-01',
             'commitment' => $request->commitment,
             'real_ratio' => $request->real_ratio,
         ]);

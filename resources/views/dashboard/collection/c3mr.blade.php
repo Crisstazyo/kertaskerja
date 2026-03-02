@@ -106,7 +106,7 @@
                             </div>
                         </div>
                         <span class="text-[10px] font-black tracking-widest text-red-600 bg-red-50 border border-red-100 rounded-md px-3 py-1 uppercase">
-                            Periode: {{ $periode->periode ? date('M Y', strtotime($periode->periode)) : '—' }}
+                            Periode: {{ now()->translatedFormat('F Y') }}
                         </span>
                     </div>
 
@@ -118,7 +118,7 @@
                         <div>
                             <p class="text-sm font-black text-amber-800">Target Sudah Terkunci</p>
                             <p class="text-xs text-amber-700 mt-0.5">
-                                Target ratio untuk periode <strong>{{ $periode->periode ? date('M Y', strtotime($periode->periode)) : '—' }}</strong> telah ditambahkan. Input baru hanya tersedia di bulan depan.
+                                Target ratio untuk periode <strong>{{ now()->translatedFormat('F Y') }}</strong> telah ditambahkan. Input baru hanya tersedia di bulan depan.
                             </p>
                         </div>
                     </div>
@@ -193,6 +193,7 @@
                     <thead>
                         <tr class="bg-slate-50 border-b border-slate-100">
                             <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Tanggal Input</th>
+                            <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Periode</th>
                             <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Tipe</th>
                             <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Ratio (%)</th>
                             <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Komitmen (%)</th>
@@ -202,7 +203,10 @@
                         @forelse($activities as $activity)
                         <tr class="hover:bg-slate-50 transition-colors">
                             <td class="px-6 py-4 text-sm text-center font-semibold text-slate-600">
-                                {{ $activity->updated_at->translatedFormat('d M Y') }}
+                                {{ $activity->updated_at->translatedFormat('d M Y H:i') }} 
+                            </td>
+                            <td class="px-6 py-4 text-sm text-center font-semibold text-slate-600">
+                                {{ $activity->periode ? date('M Y', strtotime($activity->periode)) : '—' }} 
                             </td>
                             <td class="px-6 py-4 text-center">
                                 @if($activity->type == 'C3MR')

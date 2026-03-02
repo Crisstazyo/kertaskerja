@@ -118,7 +118,9 @@
                         <div>
                             <p class="text-sm font-black text-amber-800">Target Sudah Terkunci</p>
                             <p class="text-xs text-amber-700 mt-0.5">
-                                Target ratio untuk periode <strong>{{ now()->translatedFormat('F Y') }}</strong> telah ditambahkan. Input baru hanya tersedia di bulan depan.
+                                Target ratio untuk periode <strong>
+                                    Periode: {{ now()->translatedFormat('F Y') }}
+                                </strong> telah ditambahkan. Input baru hanya tersedia di bulan depan.
                             </p>
                         </div>
                     </div>
@@ -126,7 +128,7 @@
                     <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 text-center">Target Ratio Billing Perdana</label>
                         <div class="relative max-w-sm mx-auto">
-                            <input type="text" value="{{ $bill->first()->commitment ?? 0 }}" readonly
+                            <input type="text" value="{{ $activities->first()->commitment ?? 0 }}" readonly
                                 class="w-full px-6 py-5 text-4xl font-black text-red-600 border-2 border-slate-200 rounded-xl bg-slate-50 text-center focus:outline-none">
                             <div class="absolute inset-y-0 right-0 pr-5 flex items-center pointer-events-none">
                                 <span class="text-slate-400 font-black text-2xl">%</span>
@@ -151,15 +153,25 @@
 
                     <form action="{{ route('collection.billing.storeRealisasi') }}" method="POST" class="max-w-lg mx-auto space-y-5">
                         @csrf
+                        <input type="hidden" name="periode" value="{{$periode->periode ?? date('Y-m-01')}}">   
                         <div>
                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Realisasi Billing Perdana (%)</label>
                             <div class="relative">
+                                @if($activities->where('commitment', '==', null)->where('periode', date('Y-m-01'))->first())
+                                    <input type="number" step="0.01" name="ratio_aktual" required
+                                        class="w-full px-6 py-4 text-2xl font-black text-slate-400 border-2 border-slate-200 rounded-xl bg-slate-50 text-center focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors cursor-not-allowed"
+                                        placeholder="0.00" readonly disabled>
+                                    <div class="absolute inset-y-0 right-0 pr-5 flex items-center pointer-events-none">
+                                        <span class="text-slate-400 font-black text-xl">%</span>
+                                    </div>
+                                @else
                                 <input type="number" step="0.01" name="ratio_aktual" required
                                     class="w-full px-6 py-4 text-2xl font-black text-slate-800 border-2 border-slate-200 rounded-xl focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors"
                                     placeholder="0.00">
                                 <div class="absolute inset-y-0 right-0 pr-5 flex items-center pointer-events-none">
                                     <span class="text-slate-400 font-black text-xl">%</span>
                                 </div>
+                                @endif
                             </div>
                         </div>
                         <div class="flex justify-center">
@@ -191,6 +203,7 @@
                     <thead>
                         <tr class="bg-slate-50 border-b border-slate-100">
                             <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Tanggal Input</th>
+                            <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Periode</th>
                             <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Tipe</th>
                             <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Ratio (%)</th>
                             <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Komitmen (%)</th>
@@ -200,7 +213,10 @@
                         @forelse($activities as $activity)
                         <tr class="hover:bg-slate-50 transition-colors">
                             <td class="px-6 py-4 text-sm text-center font-semibold text-slate-600">
-                                {{ $activity->updated_at->translatedFormat('d M Y') }}
+                                {{ $activity->updated_at->translatedFormat('d M Y H:i') }}
+                            </td>
+                            <td class="px-6 py-4 text-sm text-center font-semibold text-slate-600">
+                                {{ $activity->periode ? date('M Y', strtotime($activity->periode)) : '—' }} 
                             </td>
                             <td class="px-6 py-4 text-center">
                                 @if($activity->type == 'Billing Perdana')
@@ -213,7 +229,7 @@
                                 {{ number_format($activity->real_ratio ?? 0, 2) }}%
                             </td>
                             <td class="px-6 py-4 text-center font-black text-slate-700">
-                                {{ $bill->first()->commitment ?? 0 }}%
+                                {{ $activity->commitment ?? 0 }}%
                             </td>
                         </tr>
                         @empty

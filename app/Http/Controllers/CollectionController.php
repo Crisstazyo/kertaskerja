@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Collection;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
@@ -31,6 +32,8 @@ class CollectionController extends Controller
             ->exists();
             
         $activities = Collection::where('type', 'C3MR')
+            ->whereMonth('periode', $currentMonth)
+            ->whereYear('periode', $currentYear)
             ->orderBy('updated_at', 'desc')
             ->get();
 
@@ -51,10 +54,10 @@ class CollectionController extends Controller
     public function storeC3mrRealisasi(Request $request)
     {
         $request->validate([
-            'periode' => 'required|date_format:Y-m',
+            'periode' => 'required|string',
             'ratio_aktual' => 'required|numeric',
         ]);
-        $log = Collection::where('periode', $request->periode)->where('type', $request->type)->where('segment', $request->segment)->first();
+        $log = Collection::where('periode', $request->periode)->where('type', 'C3MR')->where('segment', $request->segment)->first();
 
         if($log) {
             $log->update([
@@ -69,12 +72,12 @@ class CollectionController extends Controller
             ]);
         }
 
-        Collection::create([
-            'user_id' => Auth::id(),
-            'type' => 'C3MR',
-            'real_ratio' => $request->ratio_aktual,
+        // Collection::create([
+        //     'user_id' => Auth::id(),
+        //     'type' => 'C3MR',
+        //     'real_ratio' => $request->ratio_aktual,
 
-        ]);
+        // ]);
         
         return redirect()->back()->with('success', 'C3MR Realisasi berhasil disimpan');
     }
@@ -83,6 +86,7 @@ class CollectionController extends Controller
     {
         $currentMonth = Carbon::now()->month;
         $currentYear = Carbon::now()->year;
+        $currentDate = Carbon::now();
         
         $hasMonthlyCommitment = Collection::where('user_id', Auth::id())
             ->where('type', 'Billing Perdana')
@@ -92,71 +96,111 @@ class CollectionController extends Controller
             ->exists();
             
         $activities = Collection::where('type', 'Billing Perdana')
+            ->whereMonth('periode', $currentMonth)
+            ->whereYear('periode', $currentYear)
             ->orderBy('updated_at', 'desc')
             ->get();
+            // dd($activities);
 
         $bill = Collection::where('type', 'Billing Perdana')
             ->orderBy('updated_at', 'asc')
             ->get();
-        // dd($activities);
+
+        $periode = Collection::where('type', 'Billing Perdana')
+            ->orderBy('updated_at', 'asc')
+            ->whereYear('periode', $currentDate->year)
+            ->whereMonth('periode', $currentDate->month)
+            ->first();
+        // dd($periode);
             
-        return view('dashboard.collection.billing', compact('hasMonthlyCommitment', 'activities', 'bill'));
+        return view('dashboard.collection.billing', compact('hasMonthlyCommitment', 'activities', 'bill', 'periode'));
     }
 
     public function storeBillingRealisasi(Request $request)
     {
         $request->validate([
+            'periode' => 'required|string',
             'ratio_aktual' => 'required|numeric',
         ]);
+        $log = Collection::where('periode', $request->periode)->where('type', 'Billing Perdana')->where('segment', $request->segment)->first();
 
-        Collection::create([
-            'user_id' => Auth::id(),
-            'type' => 'Billing Perdana',
-            'real_ratio' => $request->ratio_aktual,
+        if($log) {
+            $log->update([
+                'real_ratio' => $request->ratio_aktual,
+            ]);
+        } else {
+             Collection::create([
+                'user_id' => Auth::id(),
+                'type' => 'Billing Perdana',
+                'periode' => $request->periode,
+                'real_ratio' => $request->ratio_aktual,
+            ]);
+        }
 
-        ]);
+        // Collection::create([
+        //     'user_id' => Auth::id(),
+        //     'type' => 'Billing Perdana',
+        //     'real_ratio' => $request->ratio_aktual,
+
+        // ]);
         
         return redirect()->back()->with('success', 'Billing Perdana Realisasi berhasil disimpan');
     }
 
     public function cr()
     {
-        $currentMonth = Carbon::now()->month;
-        $currentYear = Carbon::now()->year;
-        
-        $hasMonthlyCommitment = Collection::where('user_id', Auth::id())
-            ->where('type', 'Collection Ratio')
-            ->where('status', 'active')
-            ->whereMonth('updated_at', $currentMonth)
-            ->whereYear('updated_at', $currentYear)
-            ->exists();
+        $collections = Collection::with('user')
+        ->where('type', 'Collection Ratio')
+        ->orderBy('created_at', 'desc')
+        ->paginate(15)
+        ->withQueryString();
+        $users = User::all();
+        // collect all distinct periode values for Billing Perdana entries
+        $periodes = Collection::where('type', 'Collection Ratio')
+        ->selectRaw("DATE_FORMAT(periode, '%Y-%m') as periode")
+        ->distinct()
+        ->orderBy('periode', 'desc')
+        ->pluck('periode')
+        ->map(function ($item) {
+            return Carbon::createFromFormat('Y-m', $item)
+                ->locale('id')
+                ->translatedFormat('F Y');
+        });
             
-        $activities = Collection::where('type', 'Collection Ratio')
-            ->orderBy('updated_at', 'desc')
-            ->get();
-
-        $ratio = Collection::where('type', 'Collection Ratio')
-            ->orderBy('updated_at', 'asc')
-            ->get();
-        // dd($activities);
-            
-        return view('dashboard.collection.collectionRatio', compact('hasMonthlyCommitment', 'activities', 'ratio'));
+        return view('dashboard.collection.collectionRatio', compact('collections', 'users', 'periodes'));
     }
 
     public function storeCrRealisasi(Request $request)
     {
         $request->validate([
-            'ratio_aktual' => 'required|numeric',
+            'status'     => 'required|in:active,inactive',
+            'periode'    => 'required|date_format:Y-m',
+            'segment'    => 'nullable|string',
+            'commitment' => 'nullable|string',
+            'real_ratio' => 'nullable|string',
         ]);
+        $periodeDate = $request->periode . '-01';
 
-        Collection::create([
-            'user_id' => Auth::id(),
-            'type' => 'Collection Ratio',
-            'real_ratio' => $request->ratio_aktual,
+        // cek/update berdasarkan kombinasi type+segment+periode
+        $attributes = [
+            'type'    => 'Collection Ratio',
+            'segment' => $request->segment,
+            'periode' => $periodeDate,
+        ];
 
-        ]);
-        
-        return redirect()->back()->with('success', 'Collection Ratio Realisasi berhasil disimpan');
+        $values = [
+            'user_id'    => Auth::id(),          // otomatis user login
+            'status'     => $request->status,
+            // 'commitment' => $request->commitment,
+            'real_ratio' => $request->real_ratio,
+        ];
+
+        $collection = Collection::updateOrCreate($attributes, $values);
+        $message = $collection->wasRecentlyCreated
+            ? 'Data berhasil disimpan'
+            : 'Data berhasil diperbarui';
+
+        return back()->with('success', $message);
     }
 
     public function utip()
@@ -205,6 +249,7 @@ class CollectionController extends Controller
         $data = [
             'user_id' => Auth::id(),
             'type' => $request->type,
+            'plan' => $request->plan_value ?? 0,
             'commitment' => $request->commitment_value ?? 0,
             'real_ratio' => $request->ratio_aktual,
         ];

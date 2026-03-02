@@ -168,6 +168,7 @@
                         @csrf
                         <input type="hidden" name="type" id="type-input" value="{{ $utips->first()->type ?? '' }}">
                         <input type="hidden" name="commitment_value" id="commitment-input" value="{{ $utips->first()->commitment ?? 0 }}">
+                        <input type="hidden" name="plan_value" id="plan-input" value="{{ $utips->first()->plan ?? 0 }}">
                         <input type="hidden" name="commitment" id="commitment-input" value="{{ $utips->first()->commitment ?? '' }}">
 
                         <div class="max-w-lg mx-auto space-y-5">
