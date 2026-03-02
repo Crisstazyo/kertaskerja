@@ -352,18 +352,32 @@
                                 </td>
                                 
                                 <!-- BAUT/BAST - Display text value -->
-                                <td class="px-2 py-2 text-center border-r bg-emerald-50">
-                                    <span class="text-xs {{ $funnel && $funnel->delivery_baut_bast ? 'text-emerald-700 font-semibold' : 'text-gray-400' }}">
-                                        {{ $funnel && $funnel->delivery_baut_bast ? $funnel->delivery_baut_bast : '-' }}
-                                    </span>
+                                @if($denganMitra)
+                                <td class="px-2 py-2 text-center border-r bg-green-50">
+                                    <input type="checkbox" 
+                                           class="funnel-checkbox w-4 h-4 text-green-600 cursor-pointer" 
+                                           data-field="delivery_baut_bast"
+                                           data-data-type="koreksi"
+                                           data-data-id="{{ $row->id }}"
+                                           {{ $checked('delivery_baut_bast') ? 'checked' : '' }}>
                                 </td>
+                                @else
+                                <td class="px-2 py-2 text-center border-r bg-green-50"><span class="text-gray-300">-</span></td>
+                                @endif
                                 
                                 <!-- BASO - Display text value -->
-                                <td class="px-2 py-2 text-center border-r bg-emerald-50">
-                                    <span class="text-xs {{ $funnel && $funnel->delivery_baso ? 'text-emerald-700 font-semibold' : 'text-gray-400' }}">
-                                        {{ $funnel && $funnel->delivery_baso ? $funnel->delivery_baso : '-' }}
-                                    </span>
+                                @if($denganMitra)
+                                <td class="px-2 py-2 text-center border-r bg-green-50">
+                                    <input type="checkbox" 
+                                           class="funnel-checkbox w-4 h-4 text-green-600 cursor-pointer" 
+                                           data-field="delivery_baso"
+                                           data-data-type="koreksi"
+                                           data-data-id="{{ $row->id }}"
+                                           {{ $checked('delivery_baso') ? 'checked' : '' }}>
                                 </td>
+                                @else
+                                <td class="px-2 py-2 text-center border-r bg-green-50"><span class="text-gray-300">-</span></td>
+                                @endif
                                 
                                 <!-- BILLING COMPLETE - Ditampilkan untuk semua -->
                                 <td class="px-2 py-2 text-center border-r bg-indigo-50">

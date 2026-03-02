@@ -1,172 +1,125 @@
 @extends('layouts.app')
 
-@section('title', 'Government - Scalling')
+@section('title', 'Government Dashboard')
 
 @section('content')
-<div class="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-zinc-100 relative overflow-hidden">
-    <!-- Decorative Background Elements -->
-    <div class="absolute top-0 left-0 w-96 h-96 bg-gradient-to-br from-blue-100 to-blue-50 rounded-full filter blur-3xl opacity-40 -translate-x-1/2 -translate-y-1/2"></div>
-    <div class="absolute bottom-0 right-0 w-96 h-96 bg-gradient-to-tl from-indigo-100 to-indigo-50 rounded-full filter blur-3xl opacity-40 translate-x-1/2 translate-y-1/2"></div>
-    
-    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <!-- Header -->
-        <div class="mb-12">
-            <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-200/50 p-8">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center space-x-6">
-                        <a href="{{ route('dashboard.gov') }}" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-5 py-2.5 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl flex items-center gap-2 text-sm">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+<div class="min-h-screen" style="background:#f1f5f9;">
+    <div class="max-w-7xl mx-auto px-8 py-10">
+
+        {{-- ══ HEADER ══ --}}
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 px-10 py-7 mb-10 relative overflow-hidden">
+            <div class="absolute top-0 left-0 right-0 h-1.5"
+                style="background: linear-gradient(90deg, #dc2626, #ef4444, #dc2626);"></div>
+            <div class="absolute -right-10 -top-10 w-56 h-56 rounded-full opacity-[0.04]" style="background: #dc2626;"></div>
+            <div class="relative flex items-center justify-between">
+                <div class="flex items-center space-x-6">
+                    <img src="{{ asset('img/Telkom.png') }}" alt="Telkom" class="h-12 w-auto">
+                    <div class="w-px h-12 bg-slate-200"></div>
+                    <div>
+                        <p class="text-[10px] font-black tracking-[0.3em] text-red-600 uppercase mb-1">Witel Sumut</p>
+                        <h1 class="text-2xl font-black tracking-tight text-slate-900 leading-none uppercase">Government <span class="text-red-600">Dashboard</span></h1>
+                        <p class="text-slate-400 text-xs font-bold mt-1 uppercase tracking-tight">Kertas Kerja Management System</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                        <a href=""
+                            class="flex items-center space-x-2.5 bg-white border-2 border-slate-900 hover:bg-red-600 hover:border-red-600 text-slate-900 hover:text-white px-6 py-3 rounded-xl font-black text-xs transition-all duration-300 shadow-sm group uppercase tracking-wider">
+                            <svg class="w-5 h-5 group-hover:rotate-12 transition-transform" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                    d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                             </svg>
-                            Back to Dashboard
+                            <span>View Report</span>
                         </a>
-                        <div class="border-l-2 border-gray-300 h-12"></div>
-                        <div>
-                            <h1 class="text-4xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">Scalling Management</h1>
-                        </div>
-                    </div>
+                        <form action="{{ route('logout') }}" method="POST">
+                            @csrf
+                            <button type="submit"
+                                class="group flex items-center space-x-2.5 bg-slate-900 hover:bg-red-600 text-white font-bold text-sm px-5 py-3 rounded-xl transition-all duration-300 shadow-md hover:shadow-lg hover:shadow-red-200">
+                                <svg class="w-4 h-4 transition-transform duration-300 group-hover:rotate-12" fill="none"
+                                    stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                </svg>
+                                <span>Logout</span>
+                            </button>
+                        </form>
                 </div>
             </div>
         </div>
 
-        <!-- LOP Categories Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
-            <!-- LOP On Hand Card -->
-            <a href="{{ route('dashboard.gov.lop-on-hand') }}" class="group">
-                <div class="relative bg-white/90 backdrop-blur-lg rounded-2xl shadow-xl overflow-hidden border border-gray-200/50 hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3">
-                    <div class="absolute inset-0 bg-gradient-to-br from-emerald-500 to-teal-600 opacity-0 group-hover:opacity-5 transition-opacity duration-500"></div>
-                    
-                    <div class="relative">
-                        <div class="bg-gradient-to-br from-emerald-500 to-teal-600 p-10 text-white relative overflow-hidden">
-                            <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
-                            <div class="absolute -bottom-6 -left-6 w-40 h-40 bg-white/5 rounded-full"></div>
-                            <div class="relative">
-                                <div class="flex items-start justify-between mb-6">
-                                    <div>
-                                        <h2 class="text-3xl font-bold mb-2">LOP On Hand</h2>
-                                    </div>
-                                    <span class="px-4 py-1.5 bg-white/20 backdrop-blur-sm text-xs font-bold rounded-full">ACTIVE</span>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="p-6">
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center text-emerald-600 font-bold group-hover:text-emerald-700 transition-colors">
-                                    <span>Open Data</span>
-                                    <svg class="w-5 h-5 ml-2 group-hover:translate-x-2 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
-                                    </svg>
-                                </div>
-                            </div>
-                        </div>
+        {{-- ══ 1. SCALLING TABLE ══ --}}
+        <div class="mb-10">
+            <div class="flex items-center justify-between mb-5">
+                <div class="flex items-center space-x-3">
+                    <div class="w-1.5 h-8 bg-red-600 rounded-full"></div>
+                    <div>
+                        <h2 class="text-xl font-black text-slate-900 tracking-tight">Scalling Management</h2>
                     </div>
                 </div>
-            </a>
-
-            <!-- LOP Qualified Card -->
-            <a href="" class="group">
-                <div class="relative bg-white/90 backdrop-blur-lg rounded-2xl shadow-xl overflow-hidden border border-gray-200/50 hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3">
-                    <div class="absolute inset-0 bg-gradient-to-br from-purple-500 to-fuchsia-600 opacity-0 group-hover:opacity-5 transition-opacity duration-500"></div>
-                    
-                    <div class="relative">
-                        <div class="bg-gradient-to-br from-purple-500 to-fuchsia-600 p-10 text-white relative overflow-hidden">
-                            <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
-                            <div class="absolute -bottom-6 -left-6 w-40 h-40 bg-white/5 rounded-full"></div>
-                            <div class="relative">
-                                <div class="flex items-start justify-between mb-6">
-                                    <div>
-                                        <h2 class="text-3xl font-bold mb-2">LOP Qualified</h2>
-                                    </div>
-                                    <span class="px-4 py-1.5 bg-white/20 backdrop-blur-sm text-xs font-bold rounded-full">ACTIVE</span>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="p-6">
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center text-purple-600 font-bold group-hover:text-purple-700 transition-colors">
-                                    <span>Open Data</span>
-                                    <svg class="w-5 h-5 ml-2 group-hover:translate-x-2 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
-                                    </svg>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </a>
-
-            <!-- LOP Koreksi Card --> 
-            <a href="{{ route('dashboard.gov.lop-koreksi') }}" class="group">
-                <div class="relative bg-white/90 backdrop-blur-lg rounded-2xl shadow-xl overflow-hidden border border-gray-200/50 hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3">
-                    <div class="absolute inset-0 bg-gradient-to-br from-pink-500 to-rose-600 opacity-0 group-hover:opacity-5 transition-opacity duration-500"></div>
-                    
-                    <div class="relative">
-                        <div class="bg-gradient-to-br from-pink-500 to-rose-600 p-10 text-white relative overflow-hidden">
-                            <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
-                            <div class="absolute -bottom-6 -left-6 w-40 h-40 bg-white/5 rounded-full"></div>
-                            <div class="relative">
-                                <div class="flex items-start justify-between mb-6">
-                                    <div>
-                                        <h2 class="text-3xl font-bold mb-2">LOP Koreksi</h2>
-                                    </div>
-                                    <span class="px-4 py-1.5 bg-white/20 backdrop-blur-sm text-xs font-bold rounded-full">ACTIVE</span>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="p-6">
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center text-pink-600 font-bold group-hover:text-pink-700 transition-colors">
-                                    <span>Open Data</span>
-                                    <svg class="w-5 h-5 ml-2 group-hover:translate-x-2 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
-                                    </svg>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </a>
-        </div>
-
-        <!-- Scalling Table Section (Admin Upload + Checkbox) -->
-        <div class="mt-14">
-            <div class="mb-6 flex items-center gap-3">
-                <div class="w-1 h-8 bg-gradient-to-b from-blue-500 to-indigo-600 rounded-full"></div>
-                <h2 class="text-2xl font-bold text-gray-800">Scalling Table</h2>
-                <span class="text-xs font-bold text-blue-600 bg-blue-50 border border-blue-200 rounded-full px-3 py-1 uppercase tracking-wider">Interactive Checklist</span>
+                <span class="text-xs font-bold text-slate-500 bg-white border border-slate-200 rounded-full px-4 py-1.5 shadow-sm">LOP Government</span>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
                 @php
                 $scallingCards = [
-                    ['key' => 'on-hand',  'label' => 'LOP On Hand',  'from' => 'from-emerald-500', 'to' => 'to-teal-600',    'text' => 'text-emerald-600'],
-                    ['key' => 'qualified','label' => 'LOP Qualified','from' => 'from-purple-500',  'to' => 'to-fuchsia-600', 'text' => 'text-purple-600'],
-                    ['key' => 'koreksi',  'label' => 'LOP Koreksi',  'from' => 'from-orange-500',  'to' => 'to-red-600',     'text' => 'text-orange-600'],
-                    ['key' => 'initiate', 'label' => 'LOP Initiate', 'from' => 'from-blue-500',    'to' => 'to-indigo-600',  'text' => 'text-blue-600'],
+                    [
+                        'key'   => 'on-hand',
+                        'label' => 'LOP On Hand',
+                        'sub'   => 'Data LOP On Hand Government',
+                        'badge' => 'ON-HAND',
+                        'route' => route('dashboard.gov.lop-on-hand'),
+                        'icon'  => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>',
+                    ],
+                    [
+                        'key'   => 'qualified',
+                        'label' => 'LOP Qualified',
+                        'sub'   => 'Data LOP Qualified Government',
+                        'badge' => 'QUALIFIED',
+                        'route' => '',
+                        'icon'  => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>',
+                    ],
+                    [
+                        'key'   => 'koreksi',
+                        'label' => 'LOP Koreksi',
+                        'sub'   => 'Data LOP Koreksi Government',
+                        'badge' => 'KOREKSI',
+                        'route' => route('dashboard.gov.lop-koreksi'),
+                        'icon'  => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>',
+                    ],
+                    [
+                        'key'   => 'initiate',
+                        'label' => 'LOP Initiate',
+                        'sub'   => 'Data LOP Initiate Government',
+                        'badge' => 'INITIATE',
+                        'route' => '',
+                        'icon'  => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"/>',
+                    ],
                 ];
                 @endphp
+
                 @foreach($scallingCards as $card)
-                <a href="" class="group">
-                    <div class="bg-white/90 backdrop-blur-lg rounded-2xl shadow-lg overflow-hidden border border-gray-200/50 hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2">
-                        <div class="bg-gradient-to-br {{ $card['from'] }} {{ $card['to'] }} p-8 text-white relative overflow-hidden">
-                            <div class="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
-                            <div class="relative">
-                                <div class="flex items-center justify-between mb-3">
-                                    <h3 class="text-xl font-bold">{{ $card['label'] }}</h3>
-                                    <svg class="w-6 h-6 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
-                                    </svg>
-                                </div>
-                                <span class="text-xs font-bold bg-white/20 backdrop-blur-sm rounded-full px-3 py-1">CHECKLIST</span>
+                <a href="{{ $card['route'] }}"
+                    class="group bg-white rounded-2xl border-2 border-slate-100 hover:border-red-200 shadow-sm hover:shadow-xl hover:shadow-red-500/10 transition-all duration-300 hover:-translate-y-1.5 overflow-hidden relative">
+                    <div class="h-1 w-full bg-gradient-to-r from-red-600 to-red-400 opacity-0 group-hover:opacity-100 transition-all duration-300"></div>
+                    <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                        style="background: radial-gradient(ellipse at top right, #fff1f2 0%, transparent 60%);"></div>
+                    <div class="p-6 relative">
+                        <div class="flex items-start justify-between mb-5">
+                            <div class="rounded-xl flex items-center justify-center shadow-sm border-2"
+                                style="background: linear-gradient(135deg, #fff1f2, #ffe4e6); border-color: #fecdd3; width:52px; height:52px;">
+                                <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    {!! $card['icon'] !!}
+                                </svg>
                             </div>
+                            <span class="text-[10px] font-black tracking-widest text-red-600 bg-red-50 border border-red-100 rounded-md px-2 py-0.5">{{ $card['badge'] }}</span>
                         </div>
-                        <div class="p-5">
-                            <div class="flex items-center {{ $card['text'] }} font-bold group-hover:opacity-80 transition-opacity">
-                                <span class="text-sm">Buka Tabel</span>
-                                <svg class="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                        <h3 class="text-lg font-black text-slate-900 tracking-tight mb-1">{{ $card['label'] }}</h3>
+                        <p class="text-sm text-slate-500 font-medium mb-5">{{ $card['sub'] }}</p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-black text-slate-400 group-hover:text-red-600 uppercase tracking-widest transition-colors duration-200">open data</span>
+                            <div class="w-7 h-7 rounded-lg bg-slate-100 group-hover:bg-red-600 flex items-center justify-center transition-all duration-200">
+                                <svg class="w-3.5 h-3.5 text-slate-400 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
                                 </svg>
                             </div>
                         </div>
@@ -175,6 +128,86 @@
                 @endforeach
             </div>
         </div>
+
+        {{-- ══ 2. RISING STAR — BINTANG 4 ══ --}}
+        <div class="mb-10">
+            <div class="flex items-center justify-between mb-5">
+                <div class="flex items-center space-x-3">
+                    <div class="w-1.5 h-8 bg-red-600 rounded-full"></div>
+                    <div>
+                        <h2 class="text-xl font-black text-slate-900 tracking-tight">Rising Star — Bintang 4</h2>
+                    </div>
+                </div>
+                <span class="text-xs font-bold text-slate-500 bg-white border border-slate-200 rounded-full px-4 py-1.5 shadow-sm">Asodomoro Management</span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                {{-- Asodomoro 0-3 Bulan --}}
+                <a href=""
+                    class="group bg-white rounded-2xl border-2 border-slate-100 hover:border-red-200 shadow-sm hover:shadow-xl hover:shadow-red-500/10 transition-all duration-300 hover:-translate-y-1.5 overflow-hidden relative">
+                    <div class="h-1 w-full bg-gradient-to-r from-red-600 to-red-400 opacity-0 group-hover:opacity-100 transition-all duration-300"></div>
+                    <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                        style="background: radial-gradient(ellipse at top right, #fff1f2 0%, transparent 60%);"></div>
+                    <div class="p-7 flex items-center space-x-6 relative">
+                        <div class="rounded-2xl flex items-center justify-center shadow-sm border-2 flex-shrink-0"
+                            style="background: linear-gradient(135deg, #fff1f2, #ffe4e6); border-color: #fecdd3; width:64px; height:64px;">
+                            <svg class="w-7 h-7 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                            </svg>
+                        </div>
+                        <div class="flex-1">
+                            <span class="text-[10px] font-black tracking-widest text-red-600 bg-red-50 border border-red-100 rounded-md px-2 py-0.5">0-3 BLN</span>
+                            <h3 class="text-xl font-black text-slate-900 tracking-tight mt-2 mb-1">Aosodomoro 0-3 Bulan</h3>
+                            <p class="text-sm text-slate-500 font-medium mb-3">Input realisasi data Aosodomoro untuk periode 0-3 bulan</p>
+                            <div class="flex items-center text-xs font-black text-slate-400 group-hover:text-red-600 uppercase tracking-widest transition-colors duration-200">
+                                Input Data
+                                <svg class="w-3.5 h-3.5 ml-1.5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="w-8 h-8 rounded-xl bg-slate-100 group-hover:bg-red-600 flex items-center justify-center transition-all duration-200 flex-shrink-0">
+                            <svg class="w-4 h-4 text-slate-400 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
+                            </svg>
+                        </div>
+                    </div>
+                </a>
+
+                {{-- Asodomoro >3 Bulan --}}
+                <a href=""
+                    class="group bg-white rounded-2xl border-2 border-slate-100 hover:border-red-200 shadow-sm hover:shadow-xl hover:shadow-red-500/10 transition-all duration-300 hover:-translate-y-1.5 overflow-hidden relative">
+                    <div class="h-1 w-full bg-gradient-to-r from-red-600 to-red-400 opacity-0 group-hover:opacity-100 transition-all duration-300"></div>
+                    <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                        style="background: radial-gradient(ellipse at top right, #fff1f2 0%, transparent 60%);"></div>
+                    <div class="p-7 flex items-center space-x-6 relative">
+                        <div class="rounded-2xl flex items-center justify-center shadow-sm border-2 flex-shrink-0"
+                            style="background: linear-gradient(135deg, #fff1f2, #ffe4e6); border-color: #fecdd3; width:64px; height:64px;">
+                            <svg class="w-7 h-7 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                            </svg>
+                        </div>
+                        <div class="flex-1">
+                            <span class="text-[10px] font-black tracking-widest text-red-600 bg-red-50 border border-red-100 rounded-md px-2 py-0.5">&gt;3 BLN</span>
+                            <h3 class="text-xl font-black text-slate-900 tracking-tight mt-2 mb-1">Aosodomoro &gt;3 Bulan</h3>
+                            <p class="text-sm text-slate-500 font-medium mb-3">Input realisasi data Aosodomoro untuk periode lebih dari 3 bulan</p>
+                            <div class="flex items-center text-xs font-black text-slate-400 group-hover:text-red-600 uppercase tracking-widest transition-colors duration-200">
+                                Input Data Realisasi
+                                <svg class="w-3.5 h-3.5 ml-1.5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="w-8 h-8 rounded-xl bg-slate-100 group-hover:bg-red-600 flex items-center justify-center transition-all duration-200 flex-shrink-0">
+                            <svg class="w-4 h-4 text-slate-400 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
+                            </svg>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
     </div>
 </div>
 @endsection

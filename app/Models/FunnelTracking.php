@@ -81,6 +81,11 @@ class FunnelTracking extends Model
         return $this->hasMany(TaskProgress::class, 'task_id');
     }
 
+    public function data()
+    {
+        return $this->belongsTo(ScallingData::class, 'data_id');
+    }
+
     /**
      * Get today's progress for current user
      */

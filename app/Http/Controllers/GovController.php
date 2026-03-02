@@ -71,7 +71,7 @@ class GovController extends Controller
             ->values();
 
         $latestImport = ScallingImport::with(['data.funnel.todayProgress'])
-            ->where('type', 'on-hand')
+            ->where('type', 'koreksi')
             ->where('status', 'active')
             ->where('segment', 'government')
             ->where('periode', $currentPeriodeDate)

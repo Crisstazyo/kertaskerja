@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\ScallingData;
 use App\Models\ScallingImport;
+use App\Models\FunnelTracking;
+use App\Models\TaskProgress;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use PhpOffice\PhpSpreadsheet\IOFactory;
@@ -145,7 +147,16 @@ class ScallingController extends Controller
                         'uploaded_by'         => auth()->user()->name ?? $request->ip(),
                     ]);
 
+                    // hapus data scalling yang lama, tetapi kumpulkan id baris terlebih dahulu
+                    $scallingIds = ScallingData::where('imports_log_id', $log->id)->pluck('id')->toArray();
+                    $funnelIds = FunnelTracking::where('data_id', $log->id)->pluck('id')->toArray();
                     ScallingData::where('imports_log_id', $log->id)->delete();
+
+                    // tambahan: hapus entri taskProgress dan FunnelTracking berdasarkan id scallingData
+                    if (!empty($scallingIds)) {
+                        FunnelTracking::whereIn('data_id', $scallingIds)->delete();
+                        TaskProgress::whereIn('task_id', $funnelIds)->delete();
+                    }
                 } else {
                     // buat log baru
                     $log = ScallingImport::create([

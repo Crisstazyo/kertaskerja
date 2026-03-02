@@ -54,6 +54,8 @@ return new class extends Migration
             
             // Index untuk query lebih cepat
             $table->index(['data_type', 'data_id']);
+            $table->foreign('data_id')->references('id')->on('scalling_data')->onDelete('cascade');
+
         });
     }
 
