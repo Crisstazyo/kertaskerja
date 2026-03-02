@@ -21,12 +21,13 @@ class CollectionController extends Controller
     {
         $currentMonth = Carbon::now()->month;
         $currentYear = Carbon::now()->year;
-        
+        $currentDate = Carbon::now();
+
         $hasMonthlyCommitment = Collection::where('user_id', Auth::id())
             ->where('type', 'C3MR')
             ->where('status', 'active')
-            ->whereMonth('updated_at', $currentMonth)
-            ->whereYear('updated_at', $currentYear)
+            ->whereYear('periode', $currentDate->year)
+            ->whereMonth('periode', $currentDate->month)
             ->exists();
             
         $activities = Collection::where('type', 'C3MR')
@@ -36,16 +37,37 @@ class CollectionController extends Controller
         $comm = Collection::where('type', 'C3MR')
             ->orderBy('updated_at', 'asc')
             ->get();
-        // dd($activities);
+        
+        $periode = Collection::where('type', 'C3MR')
+            ->orderBy('updated_at', 'asc')
+            ->whereYear('periode', $currentDate->year)
+            ->whereMonth('periode', $currentDate->month)
+            ->first();
+        // dd($comm);
             
-        return view('dashboard.collection.c3mr', compact('hasMonthlyCommitment', 'activities', 'comm'));
+        return view('dashboard.collection.c3mr', compact('hasMonthlyCommitment', 'activities', 'comm', 'periode'));
     }
 
     public function storeC3mrRealisasi(Request $request)
     {
         $request->validate([
+            'periode' => 'required|date_format:Y-m',
             'ratio_aktual' => 'required|numeric',
         ]);
+        $log = Collection::where('periode', $request->periode)->where('type', $request->type)->where('segment', $request->segment)->first();
+
+        if($log) {
+            $log->update([
+                'real_ratio' => $request->ratio_aktual,
+            ]);
+        } else {
+             Collection::create([
+                'user_id' => Auth::id(),
+                'type' => 'C3MR',
+                'periode' => $request->periode,
+                'real_ratio' => $request->ratio_aktual,
+            ]);
+        }
 
         Collection::create([
             'user_id' => Auth::id(),

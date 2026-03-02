@@ -152,14 +152,13 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Segment</label>
-                        <select id="filterSegment" onchange="filterTable()"
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Periode</label>
+                        <select id="filterPeriode" onchange="filterTable()"
                             class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-semibold text-slate-700 focus:outline-none focus:border-red-400 bg-white">
-                            <option value="">Semua Segment</option>
-                            <option value="gov">Government</option>
-                            <option value="private">Private</option>
-                            <option value="soe">SOE</option>
-                            <option value="sme">SME</option>
+                            <option value="">Semua Periode</option>
+                            @foreach($periodes as $periode)
+                                <option value="{{ $periode }}">{{ $periode }}</option>
+                            @endforeach
                         </select>
                     </div>
                     <div>

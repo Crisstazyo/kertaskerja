@@ -29,7 +29,18 @@ class AdminController extends Controller
         ->paginate(15)
         ->withQueryString();
         $users = User::all();
-        return view('admin.collection.collectionRatio', compact('collections', 'users'));
+        // collect all distinct periode values for Billing Perdana entries
+        $periodes = Collection::where('type', 'Collection Ratio')
+        ->selectRaw("DATE_FORMAT(periode, '%Y-%m') as periode")
+        ->distinct()
+        ->orderBy('periode', 'desc')
+        ->pluck('periode')
+        ->map(function ($item) {
+            return Carbon::createFromFormat('Y-m', $item)
+                ->locale('id')
+                ->translatedFormat('F Y');
+        });
+        return view('admin.collection.collectionRatio', compact('collections', 'users', 'periodes'));
     }
 
     public function collectionRatioStore(Request $request)
@@ -71,7 +82,18 @@ class AdminController extends Controller
         ->paginate(15)
         ->withQueryString();
         $users = User::all();
-        return view('admin.collection.c3mr', compact('collections', 'users'));
+        // collect all distinct periode values for Billing Perdana entries
+        $periodes = Collection::where('type', 'C3MR')
+        ->selectRaw("DATE_FORMAT(periode, '%Y-%m') as periode")
+        ->distinct()
+        ->orderBy('periode', 'desc')
+        ->pluck('periode')
+        ->map(function ($item) {
+            return Carbon::createFromFormat('Y-m', $item)
+                ->locale('id')
+                ->translatedFormat('F Y');
+        });
+        return view('admin.collection.c3mr', compact('collections', 'users', 'periodes'));
     }
 
     public function c3mrStore(Request $request)
@@ -127,7 +149,18 @@ class AdminController extends Controller
         ->paginate(15)
         ->withQueryString();
         $users = User::all();
-        return view('admin.collection.billingPerdana', compact('collections', 'users'));
+        // collect all distinct periode values for Billing Perdana entries
+        $periodes = Collection::where('type', 'Billing Perdana')
+        ->selectRaw("DATE_FORMAT(periode, '%Y-%m') as periode")
+        ->distinct()
+        ->orderBy('periode', 'desc')
+        ->pluck('periode')
+        ->map(function ($item) {
+            return Carbon::createFromFormat('Y-m', $item)
+                ->locale('id')
+                ->translatedFormat('F Y');
+        });
+        return view('admin.collection.billingPerdana', compact('collections', 'users', 'periodes'));
     }
 
     public function billingStore(Request $request)
@@ -173,7 +206,12 @@ class AdminController extends Controller
             ->selectRaw("DATE_FORMAT(periode, '%Y-%m') as periode")
             ->distinct()
             ->orderBy('periode', 'desc')
-            ->pluck('periode');
+            ->pluck('periode')
+            ->map(function ($item) {
+            return Carbon::createFromFormat('Y-m', $item)
+                ->locale('id')
+                ->translatedFormat('F Y');
+        });
         return view('admin.collection.utip', compact('collections', 'users', 'periodes'));
     }
 

@@ -106,7 +106,7 @@
                             </div>
                         </div>
                         <span class="text-[10px] font-black tracking-widest text-red-600 bg-red-50 border border-red-100 rounded-md px-3 py-1 uppercase">
-                            Periode: {{ now()->translatedFormat('F Y') }}
+                            Periode: {{ $periode->periode ? date('M Y', strtotime($periode->periode)) : '—' }}
                         </span>
                     </div>
 
@@ -118,7 +118,7 @@
                         <div>
                             <p class="text-sm font-black text-amber-800">Target Sudah Terkunci</p>
                             <p class="text-xs text-amber-700 mt-0.5">
-                                Target ratio untuk periode <strong>{{ now()->translatedFormat('F Y') }}</strong> telah ditambahkan. Input baru hanya tersedia di bulan depan.
+                                Target ratio untuk periode <strong>{{ $periode->periode ? date('M Y', strtotime($periode->periode)) : '—' }}</strong> telah ditambahkan. Input baru hanya tersedia di bulan depan.
                             </p>
                         </div>
                     </div>
@@ -151,6 +151,7 @@
 
                     <form action="{{ route('collection.c3mr.storeRealisasi') }}" method="POST" class="max-w-lg mx-auto space-y-5">
                         @csrf
+                        <input type="hidden" name="periode" value="{{$periode->periode ?? date('Y-m')}}">
                         <div>
                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Realisasi C3MR (%)</label>
                             <div class="relative">
