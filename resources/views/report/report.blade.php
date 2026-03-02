@@ -111,7 +111,7 @@
                         <div>
                             <p class="text-[10px] font-black tracking-[0.3em] text-red-600 uppercase mb-1">Witel Sumut</p>
                             <h1 class="text-2xl font-black tracking-tight text-slate-900 leading-none uppercase">
-                                Report <span class="text-red-600">Collection</span>
+                                Report <span class="text-red-600">Data</span>
                             </h1>
                             <p class="text-slate-400 text-xs font-bold mt-1 uppercase tracking-tight">
                                 Periode: {{ $periodeLabel }}
@@ -215,7 +215,7 @@
                     <div class="flex items-center space-x-3">
                         <div class="w-1 h-6 bg-red-600 rounded-full"></div>
                         <h2 class="text-base font-black text-slate-900 uppercase tracking-wide">
-                            Report Collection — {{ $periodeLabel }}
+                            Report Data — {{ $periodeLabel }}
                         </h2>
                     </div>
                     <button onclick="window.print()"
@@ -231,7 +231,7 @@
                 <div class="p-6 overflow-x-auto">
                     <div class="print-header">
                         <p style="font-size:10px; font-weight:900; letter-spacing:0.2em; color:#dc2626; text-transform:uppercase; margin-bottom:2px;">Witel Sumut</p>
-                        <h1 style="font-size:16px; font-weight:900; text-transform:uppercase; margin:0;">Report Collection</h1>
+                        <h1 style="font-size:16px; font-weight:900; text-transform:uppercase; margin:0;">Report Data</h1>
                         <p style="font-size:9px; color:#555; margin-top:2px;">Periode: {{ $periodeLabel }}</p>
                         <hr style="margin: 6px 0; border-color:#ccc;">
                     </div>
