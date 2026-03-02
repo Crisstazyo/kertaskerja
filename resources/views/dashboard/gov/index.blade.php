@@ -7,7 +7,7 @@
     <!-- Decorative Background Elements -->
     <div class="absolute top-0 left-0 w-96 h-96 bg-gradient-to-br from-red-100 to-red-50 rounded-full filter blur-3xl opacity-40 -translate-x-1/2 -translate-y-1/2"></div>
     <div class="absolute bottom-0 right-0 w-96 h-96 bg-gradient-to-tl from-blue-100 to-blue-50 rounded-full filter blur-3xl opacity-40 translate-x-1/2 translate-y-1/2"></div>
-    
+
     <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <!-- Premium Header -->
         <div class="mb-8">
@@ -42,7 +42,7 @@
             <a href="{{ route('dashboard.gov.scalling') }}" class="group block">
                 <div class="relative bg-white/90 backdrop-blur-lg rounded-2xl shadow-xl overflow-hidden border border-gray-200/50 hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2">
                     <div class="absolute inset-0 bg-gradient-to-br from-blue-500 to-indigo-600 opacity-0 group-hover:opacity-5 transition-opacity duration-500"></div>
-                    
+
                     <div class="relative">
                         <div class="bg-gradient-to-br from-blue-500 to-indigo-600 p-10 text-white relative overflow-hidden">
                             <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
@@ -78,7 +78,7 @@
                 </div>
                 <div>
                     <h2 class="text-3xl font-black text-slate-900">Rising Star - Bintang 4</h2>
-                    <p class="text-sm text-slate-600 mt-1">Program Asodomoro untuk meningkatkan kinerja Government</p>
+                    <p class="text-sm text-slate-600 mt-1">Program asodomoro untuk meningkatkan kinerja Government</p>
                 </div>
             </div>
 
@@ -90,21 +90,21 @@
                     <div>
                         <p class="text-sm font-bold text-pink-900 mb-1">Informasi Program</p>
                         <p class="text-xs text-pink-800 leading-relaxed">
-                            Target komitmen Asodomoro adalah <strong>70%</strong>. Silakan input data realisasi Anda secara berkala.
+                            Target komitmen asodomoro adalah <strong>70%</strong>. Silakan input data realisasi Anda secara berkala.
                         </p>
                     </div>
                 </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Asodomoro 0-3 Bulan -->
+                <!-- asodomoro 0-3 Bulan -->
                 <div class="bg-white rounded-xl p-6 border-2 border-pink-300 shadow-md hover:shadow-xl transition-all transform hover:-translate-y-1">
                     <div class="flex items-center justify-between mb-4">
-                        <h3 class="font-black text-slate-900 text-lg">Asodomoro 0-3 Bulan</h3>
+                        <h3 class="font-black text-slate-900 text-lg">asodomoro 0-3 Bulan</h3>
                         <span class="bg-pink-100 text-pink-800 text-xs font-black px-3 py-1 rounded-full">0-3 BLN</span>
                     </div>
-                    <p class="text-sm text-slate-600 mb-6">Input realisasi data Asodomoro untuk periode 0-3 bulan</p>
-                    <a href="" 
+                    <p class="text-sm text-slate-600 mb-6">Input realisasi data asodomoro untuk periode 0-3 bulan</p>
+                    <a href=""
                         class="w-full bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white font-bold text-sm px-4 py-3 rounded-lg transition-all shadow-md hover:shadow-lg flex items-center justify-center space-x-2 group">
                         <svg class="w-5 h-5 group-hover:rotate-12 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
@@ -113,14 +113,14 @@
                     </a>
                 </div>
 
-                <!-- Asodomoro >3 Bulan -->
+                <!-- asodomoro >3 Bulan -->
                 <div class="bg-white rounded-xl p-6 border-2 border-rose-300 shadow-md hover:shadow-xl transition-all transform hover:-translate-y-1">
                     <div class="flex items-center justify-between mb-4">
-                        <h3 class="font-black text-slate-900 text-lg">Asodomoro >3 Bulan</h3>
+                        <h3 class="font-black text-slate-900 text-lg">asodomoro >3 Bulan</h3>
                         <span class="bg-purple-100 text-purple-800 text-xs font-black px-3 py-1 rounded-full">>3 BLN</span>
                     </div>
-                    <p class="text-sm text-slate-600 mb-6">Input realisasi data Asodomoro untuk periode lebih dari 3 bulan</p>
-                    <a href="" 
+                    <p class="text-sm text-slate-600 mb-6">Input realisasi data asodomoro untuk periode lebih dari 3 bulan</p>
+                    <a href=""
                         class="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold text-sm px-4 py-3 rounded-lg transition-all shadow-md hover:shadow-lg flex items-center justify-center space-x-2 group">
                         <svg class="w-5 h-5 group-hover:rotate-12 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>

@@ -13,22 +13,49 @@ use Illuminate\Support\Facades\Auth;
 
 class Admin2Controller extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         return view('admin.index');
     }
 
+    // ══════════════════════════════════════════════════════
+    // Helper: upsert RisingStar per (user_id, type_id, periode)
+    // Admin hanya mengisi commitment; real_ratio diisi user.
+    // Kolom yang tidak dikirim tidak ditimpa.
+    // ══════════════════════════════════════════════════════
+    private function upsertRisingStar(int $typeId, int $userId, array $values, string $periode = null): RisingStar
+    {
+        $periode = $periode ?? Carbon::now()->format('Y-m-01');
+
+        $record = RisingStar::firstOrNew([
+            'user_id' => $userId,
+            'type_id' => $typeId,
+            'periode' => $periode,
+        ]);
+
+        foreach ($values as $col => $val) {
+            $record->{$col} = $val;
+        }
+
+        if (! $record->exists) {
+            $record->status = 'active';
+        }
+
+        $record->save();
+
+        return $record;
+    }
+
+    // ══ Rising Star Tables ══
+
     public function risingStar1Table()
     {
-        $types = RisingStarType::where('type', '1')->get();
+        $types  = RisingStarType::where('type', '1')->get();
         $rstars = RisingStar::with(['type', 'user'])
-        ->mainType(1)
-        ->orderBy('created_at', 'desc')
-        ->paginate(15);
-        // dd($rstars);
+            ->mainType(1)
+            ->orderBy('periode', 'desc')
+            ->orderBy('updated_at', 'desc')
+            ->paginate(15);
 
         $users = User::all();
         return view('admin.risingstar.risingStar1', compact('rstars', 'types', 'users'));
@@ -36,12 +63,12 @@ class Admin2Controller extends Controller
 
     public function risingStar2Table()
     {
-        $types = RisingStarType::where('type', '2')->get();
+        $types  = RisingStarType::where('type', '2')->get();
         $rstars = RisingStar::with(['type', 'user'])
-        ->mainType(2)
-        ->orderBy('created_at', 'desc')
-        ->paginate(15);
-        // dd($rstars);
+            ->mainType(2)
+            ->orderBy('periode', 'desc')
+            ->orderBy('updated_at', 'desc')
+            ->paginate(15);
 
         $users = User::all();
         return view('admin.risingstar.risingStar2', compact('rstars', 'types', 'users'));
@@ -49,12 +76,12 @@ class Admin2Controller extends Controller
 
     public function risingStar3Table()
     {
-        $types = RisingStarType::where('type', '3')->get();
+        $types  = RisingStarType::where('type', '3')->get();
         $rstars = RisingStar::with(['type', 'user'])
-        ->mainType(3)
-        ->orderBy('created_at', 'desc')
-        ->paginate(15);
-        // dd($rstars);
+            ->mainType(3)
+            ->orderBy('periode', 'desc')
+            ->orderBy('updated_at', 'desc')
+            ->paginate(15);
 
         $users = User::all();
         return view('admin.risingstar.risingStar3', compact('rstars', 'types', 'users'));
@@ -62,36 +89,57 @@ class Admin2Controller extends Controller
 
     public function risingStar4Table()
     {
-        $types = RisingStarType::where('type', '4')->get();
+        // Rising Star type 4 = Aosodomoro (Gov)
+        $types  = RisingStarType::where('type', '4')->get();
         $rstars = RisingStar::with(['type', 'user'])
-        ->mainType(4    )
-        ->orderBy('created_at', 'desc')
-        ->paginate(15);
-        // dd($rstars);
+            ->mainType(4)
+            ->orderBy('periode', 'desc')
+            ->orderBy('updated_at', 'desc')
+            ->paginate(15);
 
         $users = User::all();
         return view('admin.risingstar.risingStar4', compact('rstars', 'types', 'users'));
     }
 
+    // ══ Rising Star Store ══
+    // Admin menginput commitment (dan opsional real_ratio).
+    // Upsert per (user_id, type_id, periode) — tidak buat baris baru jika periode sama.
     public function risingStarStore(Request $request)
     {
+        // Mapping segment → user_id yang sudah fixed di sistem
+        $segmentUserMap = [
+            'gov' => 2,
+            'sme' => 4,
+        ];
+
         $request->validate([
             'status'     => 'required|in:active,inactive',
             'type_id'    => 'required|exists:rising_star_types,id',
-            'commitment' => 'nullable|string',
-            'real_ratio' => 'nullable|string',
+            'segment'    => 'required|in:gov,sme',
+            'periode'    => 'nullable|string',
+            'commitment' => 'nullable|numeric|min:0',
         ]);
 
-        RisingStar::create([
-            'user_id'    => Auth::id(),          // otomatis user login
-            'status'     => $request->status,
-            'type_id'    => $request->type_id,
-            'commitment' => $request->commitment,
-            'real_ratio' => $request->real_ratio,
-        ]);
+        $userId  = $segmentUserMap[$request->segment];
+        $periode = $request->filled('periode')
+            ? Carbon::parse($request->periode . '-01')->format('Y-m-d')
+            : Carbon::now()->format('Y-m-01');
 
-        return back()->with('success', 'Data berhasil disimpan');
+        $this->upsertRisingStar(
+            typeId:  (int) $request->type_id,
+            userId:  $userId,
+            values:  [
+                'status'     => $request->status,
+                'commitment' => $request->commitment,
+            ],
+            periode: $periode,
+        );
+
+        $segmentLabel = $request->segment === 'gov' ? 'Government' : 'SME';
+        return back()->with('success', "Commitment untuk segment {$segmentLabel} berhasil disimpan.");
     }
+
+    // ══ HSI ══
 
     public function hsiTable()
     {
@@ -99,31 +147,30 @@ class Admin2Controller extends Controller
         $existing = Hsi::where('created_at', '>=', $currentPeriode)
             ->where('created_at', '<', Carbon::parse($currentPeriode)->addMonth())
             ->first();
-        $hsi = Hsi::with('user')
-        ->orderBy('created_at', 'desc')
-        ->paginate(15)
-        ->withQueryString();
+
+        $hsi   = Hsi::with('user')->orderBy('created_at', 'desc')->paginate(15)->withQueryString();
         $users = User::all();
-        return view('admin.hsiagency.hsi', compact('existing','hsi', 'users'));
+
+        return view('admin.hsiagency.hsi', compact('existing', 'hsi', 'users'));
     }
 
     public function hsiStore(Request $request)
     {
         $request->validate([
-            // 'status'     => 'required|in:active,inactive',
             'commitment' => 'nullable|string',
             'real_ratio' => 'nullable|string',
         ]);
 
         Hsi::create([
-            'user_id'    => Auth::id(),          // otomatis user login
-            // 'status'     => $request->status,
+            'user_id'    => Auth::id(),
             'commitment' => $request->commitment,
             'real_ratio' => $request->real_ratio,
         ]);
 
         return back()->with('success', 'Data berhasil disimpan');
     }
+
+    // ══ Telda ══
 
     public function teldaTable()
     {
@@ -139,42 +186,30 @@ class Admin2Controller extends Controller
             'tapanuli'        => 'Tapanuli',
         ];
 
-        $currentPeriode = Carbon::now()->startOfMonth()->toDateString();
-
-        // Ambil semua record periode ini, index by region
-        $existingByRegion = Telda::where('periode', $currentPeriode)
-            ->get()
-            ->keyBy('region');
-
-        // Semua riwayat, di-group by periode lalu by region
-        $history = Telda::orderBy('periode', 'desc')->get();
-
-        $historyByPeriode = $history->groupBy('periode');
-
-        $users = User::all();
+        $currentPeriode    = Carbon::now()->startOfMonth()->toDateString();
+        $existingByRegion  = Telda::where('periode', $currentPeriode)->get()->keyBy('region');
+        $history           = Telda::orderBy('periode', 'desc')->get();
+        $historyByPeriode  = $history->groupBy('periode');
+        $users             = User::all();
 
         return view('admin.telda.telda', compact(
-            'teldas',
-            'existingByRegion',
-            'history',
-            'historyByPeriode',
-            'users'
+            'teldas', 'existingByRegion', 'history', 'historyByPeriode', 'users'
         ));
     }
 
     public function teldaStore(Request $request)
     {
         $request->validate([
-            'periode'          => 'required|string',
-            'regions'          => 'required|array',
-            'regions.*.region'     => 'required|string',
-            'regions.*.commitment' => 'nullable|numeric|min:0',
-            'regions.*.real_ratio' => 'nullable|numeric|min:0',
+            'periode'                  => 'required|string',
+            'regions'                  => 'required|array',
+            'regions.*.region'         => 'required|string',
+            'regions.*.commitment'     => 'nullable|numeric|min:0',
+            'regions.*.real_ratio'     => 'nullable|numeric|min:0',
         ]);
 
         $periode = $request->periode . '-01';
 
-        foreach ($request->regions as $regionKey => $data) {
+        foreach ($request->regions as $data) {
             Telda::updateOrCreate(
                 [
                     'periode' => $periode,
@@ -192,51 +227,10 @@ class Admin2Controller extends Controller
         return back()->with('success', 'Data Telda berhasil disimpan');
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
-    }
+    public function create() {}
+    public function store(Request $request) {}
+    public function show(string $id) {}
+    public function edit(string $id) {}
+    public function update(Request $request, string $id) {}
+    public function destroy(string $id) {}
 }
