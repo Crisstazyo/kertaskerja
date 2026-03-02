@@ -78,23 +78,21 @@
                     </div>
                     
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Segment</label>
-                        <select name="segment"
-                            class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors bg-white">
-                            <option value="">— Pilih Segment —</option>
-                            <option value="gov">Government</option>
-                            <option value="private">Private</option>
-                            <option value="soe">SOE</option>
-                            <option value="sme">SME</option>
-                        </select>
-                    </div>
-                    <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Status</label>
                         <select name="status" required
                             class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors bg-white">
                             <option value="active">Active</option>
                             <option value="inactive">Inactive</option>
                         </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Periode</label>
+                        <input type="month" name="periode" required
+                            value="{{ date('Y-m') }}"
+                            class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors bg-white">
+                        @error('periode')
+                            <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                        @enderror
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Commitment</label>
@@ -188,10 +186,9 @@
                             <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">User</th>
                             <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Tipe</th>
                             <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
-                            <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Segment</th>
                             <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Commitment</th>
                             <th class="px-6 py-3 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">Real Ratio</th>
-                            <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Created At</th>
+                            <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Periode</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
@@ -210,16 +207,20 @@
                             </td>
                             <td class="px-6 py-4 text-sm text-slate-700">{{ $item->type ?? '—' }}</td>
                             <td class="px-6 py-4">
-                                <span class="text-xs font-bold rounded-md px-2.5 py-1
-                                    {{ $item->status === 'active' ? 'text-green-700 bg-green-50 border border-green-200' : 'text-slate-700 bg-slate-50 border border-slate-200' }}">
-                                    {{ ucfirst($item->status) }}
-                                </span>
+                                <form action="{{ route('admin.collection.toggleStatus', $item->id) }}" method="POST">
+                                    @csrf
+                                    @method('PATCH')
+                                    <button type="submit"
+                                        class="text-xs font-bold rounded-md px-2.5 py-1 transition-colors duration-150
+                                            {{ $item->status === 'active' ? 'text-green-700 bg-green-50 border border-green-200' : 'text-slate-700 bg-slate-50 border border-slate-200' }}">
+                                        {{ ucfirst($item->status) }}
+                                    </button>
+                                </form>
                             </td>
-                            <td class="px-6 py-4 text-sm text-slate-700">{{ $item->segment ?? '—' }}</td>
                             <td class="px-6 py-4 text-sm text-slate-700">{{ $item->commitment ?? '—' }}</td>
                             <td class="px-6 py-4 text-right text-sm font-black text-slate-800">{{ $item->real_ratio ?? '—' }}</td>
                             <td class="px-6 py-4 text-center text-sm text-slate-400">
-                                {{ $item->created_at ? $item->created_at->format('d M Y') : '—' }}
+                                {{ $item->periode ? date('d M Y', strtotime($item->periode)) : '—' }}
                             </td>
                         </tr>
                         @empty

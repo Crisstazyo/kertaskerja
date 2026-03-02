@@ -83,6 +83,37 @@ class GovController extends Controller
         return view('dashboard.gov.lop-koreksi', compact('latestImport', 'currentPeriode', 'periodOptions'));
     }
 
+    public function lopQualified()
+    {
+        // gunakan parameter periode (format YYYY-MM) daripada month/year terpisah
+        $currentPeriode = request()->get('periode', date('Y-m'));
+        // kolom periode di database disimpan sebagai DATE (YYYY-MM-01), jadi tambahkan '-01'
+        $currentPeriodeDate = $currentPeriode . '-01';
+
+        // produce list of available periods (YYYY-MM) from past imports
+        $periodOptions = ScallingImport::where('type', 'qualified')
+            ->where('segment', 'government')
+            ->where('status', 'active')
+            ->orderBy('periode', 'desc')
+            ->get()
+            ->pluck('periode')
+            ->map(fn($d) => \Carbon\Carbon::parse($d)->format('Y-m'))
+            ->unique()
+            ->values();
+
+        $latestImport = ScallingImport::with(['data.funnel.todayProgress'])
+            ->where('type', 'qualified')
+            ->where('status', 'active')
+            ->where('segment', 'government')
+            ->where('periode', $currentPeriodeDate)
+            ->latest()
+            ->first();
+        
+        // Get admin note
+        
+        return view('dashboard.gov.lop-qualified', compact('latestImport', 'currentPeriode', 'periodOptions'));
+    }
+
     public function updateFunnelCheckbox(Request $request)
     {
         $request->validate([

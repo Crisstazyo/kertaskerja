@@ -35,21 +35,31 @@ class AdminController extends Controller
     {
         $request->validate([
             'status'     => 'required|in:active,inactive',
-            'segment'    => 'nullable|string',
+            'periode'    => 'required|date_format:Y-m',
             'commitment' => 'nullable|string',
             'real_ratio' => 'nullable|string',
         ]);
+        $periodeDate = $request->periode . '-01';
 
-        Collection::create([
+        // cek/update berdasarkan kombinasi type+segment+periode
+        $attributes = [
+            'type'    => 'Collection Ratio',
+            'periode' => $periodeDate,
+        ];
+
+        $values = [
             'user_id'    => Auth::id(),          // otomatis user login
-            'type'       => 'Collection Ratio',              // dipaksa dari backend
             'status'     => $request->status,
-            'segment'    => $request->segment,
             'commitment' => $request->commitment,
             'real_ratio' => $request->real_ratio,
-        ]);
+        ];
 
-        return back()->with('success', 'Data berhasil disimpan');
+        $collection = Collection::updateOrCreate($attributes, $values);
+        $message = $collection->wasRecentlyCreated
+            ? 'Data berhasil disimpan'
+            : 'Data berhasil diperbarui';
+
+        return back()->with('success', $message);
     }
 
     public function c3mrTable()
@@ -67,21 +77,45 @@ class AdminController extends Controller
     {
         $request->validate([
             'status'     => 'required|in:active,inactive',
+            'periode'    => 'required|date_format:Y-m',
             'segment'    => 'nullable|string',
             'commitment' => 'nullable|string',
             'real_ratio' => 'nullable|string',
         ]);
+        $periodeDate = $request->periode . '-01';
 
-        Collection::create([
+        // cek/update berdasarkan kombinasi type+segment+periode
+        $attributes = [
+            'type'    => 'C3MR',
+            'segment' => $request->segment,
+            'periode' => $periodeDate,
+        ];
+
+        $values = [
             'user_id'    => Auth::id(),          // otomatis user login
-            'type'       => 'C3MR',              // dipaksa dari backend
             'status'     => $request->status,
-            'segment'    => $request->segment,
             'commitment' => $request->commitment,
             'real_ratio' => $request->real_ratio,
-        ]);
+        ];
 
-        return back()->with('success', 'Data berhasil disimpan');
+        $collection = Collection::updateOrCreate($attributes, $values);
+        $message = $collection->wasRecentlyCreated
+            ? 'Data berhasil disimpan'
+            : 'Data berhasil diperbarui';
+
+        return back()->with('success', $message);
+    }
+
+    /**
+     * Flip active/inactive status for a given collection record.
+     */
+    public function toggleCollectionStatus($id)
+    {
+        $collection = Collection::findOrFail($id);
+        $collection->status = $collection->status === 'active' ? 'inactive' : 'active';
+        $collection->save();
+
+        return back()->with('success', 'Status berhasil diubah');
     }
 
     public function billingTable()
@@ -99,56 +133,81 @@ class AdminController extends Controller
     {
         $request->validate([
             'status'     => 'required|in:active,inactive',
-            'segment'    => 'nullable|string',
+            'periode'    => 'required|date_format:Y-m',
             'commitment' => 'nullable|string',
             'real_ratio' => 'nullable|string',
         ]);
+        $periodeDate = $request->periode . '-01';
 
-        Collection::create([
+        // cek/update berdasarkan kombinasi type+segment+periode
+        $attributes = [
+            'type'    => 'Billing Perdana',
+            'periode' => $periodeDate,
+        ];
+
+        $values = [
             'user_id'    => Auth::id(),          // otomatis user login
-            'type'       => 'Billing Perdana',              // dipaksa dari backend
             'status'     => $request->status,
-            'segment'    => $request->segment,
             'commitment' => $request->commitment,
             'real_ratio' => $request->real_ratio,
-        ]);
+        ];
 
-        return back()->with('success', 'Data berhasil disimpan');
+        $collection = Collection::updateOrCreate($attributes, $values);
+        $message = $collection->wasRecentlyCreated
+            ? 'Data berhasil disimpan'
+            : 'Data berhasil diperbarui';
+
+        return back()->with('success', $message);
     }
 
     public function utipTable()
     {
+        // Show all collections whose type contains 'UTIP'
         $collections = Collection::with('user')
         ->where('type', 'like', '%UTIP%')
         ->orderBy('created_at', 'desc')
         ->paginate(15)
         ->withQueryString();
         $users = User::all();
-        return view('admin.collection.utip', compact('collections', 'users'));
+        $periodes = Collection::where('type', 'like', '%UTIP%')
+            ->selectRaw("DATE_FORMAT(periode, '%Y-%m') as periode")
+            ->distinct()
+            ->orderBy('periode', 'desc')
+            ->pluck('periode');
+        return view('admin.collection.utip', compact('collections', 'users', 'periodes'));
     }
 
     public function utipStore(Request $request)
     {
         $request->validate([
             'status'     => 'required|in:active,inactive',
-            'type'    => 'nullable|string',
-            'segment'    => 'nullable|string',
-            'plan'    => 'nullable|string',
+            'periode'    => 'required|date_format:Y-m',
+            'type'       => 'required|string',
+            'plan'       => 'nullable|string',
             'commitment' => 'nullable|string',
             'real_ratio' => 'nullable|string',
         ]);
+        $periodeDate = $request->periode . '-01';
 
-        Collection::create([
+        // cek/update berdasarkan kombinasi type+periode
+        $attributes = [
+            'type'    => $request->type,
+            'periode' => $periodeDate,
+        ];
+        $values = [
             'user_id'    => Auth::id(),          // otomatis user login
             'status'     => $request->status,
-            'type'       => $request->type,              
-            'segment'    => $request->segment,
             'plan'       => $request->plan,
             'commitment' => $request->commitment,
             'real_ratio' => $request->real_ratio,
-        ]);
+        ];
 
-        return back()->with('success', 'Data berhasil disimpan');
+        $collection = Collection::updateOrCreate($attributes, $values);
+        $message = $collection->wasRecentlyCreated
+            ? 'Data berhasil disimpan'
+            : 'Data berhasil diperbarui';
+
+        return back()->with('success', $message);
     }
 
     public function ctcTable()

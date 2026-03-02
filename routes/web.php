@@ -3,9 +3,11 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Admin2Controller;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ScallingController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\GovController;
+use App\Http\Controllers\PrivateController;
 use App\Http\Controllers\CollectionController;
 
 Route::get('/', function () {
@@ -18,6 +20,7 @@ Route::post('/login', [AuthController::class, 'login'])->name('auth.login');
 // Authenticated routes
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+    Route::get('/report', [ReportController::class, 'index'])->name('report.index');
 
     // Home redirect
     // Route::get('/', function () {
@@ -31,6 +34,10 @@ Route::middleware('auth')->group(function () {
         // Colection Ratio routes
         Route::get('/collection-ratio', [AdminController::class, 'collectionRatioTable'])->name('admin.collection-ratio');
         Route::post('/collection-ratio', [AdminController::class, 'collectionRatioStore'])->name('admin.collection-ratio.store');
+
+        // toggle status helper (used by tables)
+        Route::patch('/collection/{id}/status', [AdminController::class, 'toggleCollectionStatus'])
+            ->name('admin.collection.toggleStatus');
 
         // C3MR routes
         Route::get('/c3mr', [AdminController::class, 'c3mrTable'])->name('admin.c3mr');
@@ -82,6 +89,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/scalling/soe', [ScallingController::class, 'indexSoe'])->name('admin.scalling.soe');
         Route::get('/scalling/sme', [ScallingController::class, 'indexSme'])->name('admin.scalling.sme');
         Route::get('/scalling/private', [ScallingController::class, 'indexPrivate'])->name('admin.scalling.private');
+
+        // Governtment dashboard (role: gov) - admin access
         // on-hand upload listing and actions
         Route::get('/scalling/gov/on-hand', [ScallingController::class, 'onHandGov'])->name('admin.scalling.gov.on-hand');
         Route::post('/scalling/gov/on-hand', [ScallingController::class, 'import'])->name('admin.scalling.gov.on-hand.store');
@@ -93,6 +102,31 @@ Route::middleware('auth')->group(function () {
         Route::post('/scalling/gov/koreksi', [ScallingController::class, 'import'])->name('admin.scalling.gov.koreksi.store');
         Route::get('/scalling/gov/koreksi/{scallingImport}', [ScallingController::class, 'show'])->name('admin.scalling.gov.koreksi.show');
         Route::delete('/scalling/gov/koreksi/{scallingImport}', [ScallingController::class, 'destroy'])->name('admin.scalling.gov.koreksi.destroy');
+
+        // qualified upload listing and actions
+        Route::get('/scalling/gov/qualified', [ScallingController::class, 'qualifiedGov'])->name('admin.scalling.gov.qualified');
+        Route::post('/scalling/gov/qualified', [ScallingController::class, 'import'])->name('admin.scalling.gov.qualified.store');
+        Route::get('/scalling/gov/qualified/{scallingImport}', [ScallingController::class, 'show'])->name('admin.scalling.gov.qualified.show');
+        Route::delete('/scalling/gov/qualified/{scallingImport}', [ScallingController::class, 'destroy'])->name('admin.scalling.gov.qualified.destroy');
+
+        // Private dashboard (role: private) - admin access
+        // on-hand upload listing and actions
+        Route::get('/scalling/private/on-hand', [ScallingController::class, 'onHandPrivate'])->name('admin.scalling.private.on-hand');
+        Route::post('/scalling/private/on-hand', [ScallingController::class, 'import'])->name('admin.scalling.private.on-hand.store');
+        Route::get('/scalling/private/on-hand/{scallingImport}', [ScallingController::class, 'show'])->name('admin.scalling.private.on-hand.show');
+        Route::delete('/scalling/private/on-hand/{scallingImport}', [ScallingController::class, 'destroy'])->name('admin.scalling.private.on-hand.destroy');
+
+        // koreksi upload listing and actions
+        Route::get('/scalling/private/koreksi', [ScallingController::class, 'koreksiPrivate'])->name('admin.scalling.private.koreksi');
+        Route::post('/scalling/private/koreksi', [ScallingController::class, 'import'])->name('admin.scalling.private.koreksi.store');
+        Route::get('/scalling/private/koreksi/{scallingImport}', [ScallingController::class, 'show'])->name('admin.scalling.private.koreksi.show');
+        Route::delete('/scalling/private/koreksi/{scallingImport}', [ScallingController::class, 'destroy'])->name('admin.scalling.private.koreksi.destroy');
+
+        // qualified upload listing and actions
+        Route::get('/scalling/private/qualified', [ScallingController::class, 'qualifiedPrivate'])->name('admin.scalling.private.qualified');
+        Route::post('/scalling/private/qualified', [ScallingController::class, 'import'])->name('admin.scalling.private.qualified.store');
+        Route::get('/scalling/private/qualified/{scallingImport}', [ScallingController::class, 'show'])->name('admin.scalling.private.qualified.show');
+        Route::delete('/scalling/private/qualified/{scallingImport}', [PrivateController::class, 'destroy'])->name('admin.scalling.private.qualified.destroy');
         
     });
 
@@ -105,7 +139,14 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [GovController::class, 'scalling'])->name('dashboard.gov');
         Route::get('/scalling/on-hand', [GovController::class, 'lopOnHand'])->name('dashboard.gov.lop-on-hand');
         Route::get('/scalling/koreksi', [GovController::class, 'lopKoreksi'])->name('dashboard.gov.lop-koreksi');
+        Route::get('/scalling/qualified', [GovController::class, 'lopQualified'])->name('dashboard.gov.lop-qualified');
         Route::post('/funnel/update', [GovController::class, 'updateFunnelCheckbox'])->name('funnel.update');
+
+        Route::get('/aosodomoro/above-3-bulan', [GovController::class, 'aosodomoroAbove3Bulan'])->name('dashboard.gov.aosodomoro-above-3-bulan');
+        Route::post('/aosodomoro/above-3-bulan', [GovController::class, 'storeAosodomoroAbove3Bulan'])->name('dashboard.gov.aosodomoro-above-3-bulan.store');
+
+        Route::get('/aosodomoro/0-3-bulan', [GovController::class, 'aosodomoro03Bulan'])->name('dashboard.gov.aosodomoro-0-3-bulan');
+        Route::post('/aosodomoro/0-3-bulan', [GovController::class, 'storeAosodomoro03Bulan'])->name('dashboard.gov.aosodomoro-0-3-bulan.store');
     });
 
     // SOE dashboard (role: soe)
@@ -124,9 +165,15 @@ Route::middleware('auth')->group(function () {
 
     // Private dashboard (role: private)
     Route::middleware('role:private')->prefix('dashboard/private')->group(function () {
-        Route::get('/', function () {
-            return view('dashboard.private.index');
-        })->name('dashboard.private');
+        // Route::get('/', function () {
+        //     return view('dashboard.private.index');
+        // })->name('dashboard.private');
+
+        Route::get('/', [PrivateController::class, 'scalling'])->name('dashboard.private');
+        Route::get('/scalling/on-hand', [PrivateController::class, 'lopOnHand'])->name('dashboard.private.lop-on-hand');
+        Route::get('/scalling/koreksi', [PrivateController::class, 'lopKoreksi'])->name('dashboard.private.lop-koreksi');
+        Route::get('/scalling/qualified', [PrivateController::class, 'lopQualified'])->name('dashboard.private.lop-qualified');
+        Route::post('/funnel/update', [PrivateController::class, 'updateFunnelCheckbox'])->name('funnel.update');
     });
 
     // Collection dashboard (role: collection)

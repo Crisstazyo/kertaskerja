@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Government Dashboard')
+@section('title', 'Private Dashboard')
 
 @section('content')
 <div class="min-h-screen" style="background:#f1f5f9;">
@@ -17,7 +17,7 @@
                     <div class="w-px h-12 bg-slate-200"></div>
                     <div>
                         <p class="text-[10px] font-black tracking-[0.3em] text-red-600 uppercase mb-1">Witel Sumut</p>
-                        <h1 class="text-2xl font-black tracking-tight text-slate-900 leading-none uppercase">Government <span class="text-red-600">Dashboard</span></h1>
+                        <h1 class="text-2xl font-black tracking-tight text-slate-900 leading-none uppercase">Private <span class="text-red-600">Dashboard</span></h1>
                         <p class="text-slate-400 text-xs font-bold mt-1 uppercase tracking-tight">Kertas Kerja Management System</p>
                     </div>
                 </div>
@@ -65,31 +65,31 @@
                     [
                         'key'   => 'on-hand',
                         'label' => 'LOP On Hand',
-                        'sub'   => 'Data LOP On Hand Government',
+                        'sub'   => 'Data LOP On Hand Private',
                         'badge' => 'ON-HAND',
-                        'route' => route('dashboard.gov.lop-on-hand'),
+                        'route' => route('dashboard.private.lop-on-hand'),
                         'icon'  => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>',
                     ],
                     [
                         'key'   => 'qualified',
                         'label' => 'LOP Qualified',
-                        'sub'   => 'Data LOP Qualified Government',
+                        'sub'   => 'Data LOP Qualified Private',
                         'badge' => 'QUALIFIED',
-                        'route' => route('dashboard.gov.lop-qualified'),
+                        'route' => route('dashboard.private.lop-qualified'),
                         'icon'  => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>',
                     ],
                     [
                         'key'   => 'koreksi',
                         'label' => 'LOP Koreksi',
-                        'sub'   => 'Data LOP Koreksi Government',
+                        'sub'   => 'Data LOP Koreksi Private',
                         'badge' => 'KOREKSI',
-                        'route' => route('dashboard.gov.lop-koreksi'),
+                        'route' => route('dashboard.private.lop-koreksi'),
                         'icon'  => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>',
                     ],
                     [
                         'key'   => 'initiate',
                         'label' => 'LOP Initiate',
-                        'sub'   => 'Data LOP Initiate Government',
+                        'sub'   => 'Data LOP Initiate Private',
                         'badge' => 'INITIATE',
                         'route' => '',
                         'icon'  => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"/>',
@@ -129,84 +129,6 @@
             </div>
         </div>
 
-        {{-- ══ 2. RISING STAR — BINTANG 4 ══ --}}
-        <div class="mb-10">
-            <div class="flex items-center justify-between mb-5">
-                <div class="flex items-center space-x-3">
-                    <div class="w-1.5 h-8 bg-red-600 rounded-full"></div>
-                    <div>
-                        <h2 class="text-xl font-black text-slate-900 tracking-tight">Rising Star — Bintang 4</h2>
-                    </div>
-                </div>
-                <span class="text-xs font-bold text-slate-500 bg-white border border-slate-200 rounded-full px-4 py-1.5 shadow-sm">Asodomoro Management</span>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                {{-- Asodomoro 0-3 Bulan --}}
-                <a href="{{ route('dashboard.gov.aosodomoro-0-3-bulan') }}"
-                    class="group bg-white rounded-2xl border-2 border-slate-100 hover:border-red-200 shadow-sm hover:shadow-xl hover:shadow-red-500/10 transition-all duration-300 hover:-translate-y-1.5 overflow-hidden relative">
-                    <div class="h-1 w-full bg-gradient-to-r from-red-600 to-red-400 opacity-0 group-hover:opacity-100 transition-all duration-300"></div>
-                    <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                        style="background: radial-gradient(ellipse at top right, #fff1f2 0%, transparent 60%);"></div>
-                    <div class="p-7 flex items-center space-x-6 relative">
-                        <div class="rounded-2xl flex items-center justify-center shadow-sm border-2 flex-shrink-0"
-                            style="background: linear-gradient(135deg, #fff1f2, #ffe4e6); border-color: #fecdd3; width:64px; height:64px;">
-                            <svg class="w-7 h-7 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                            </svg>
-                        </div>
-                        <div class="flex-1">
-                            <span class="text-[10px] font-black tracking-widest text-red-600 bg-red-50 border border-red-100 rounded-md px-2 py-0.5">0-3 BLN</span>
-                            <h3 class="text-xl font-black text-slate-900 tracking-tight mt-2 mb-1">Aosodomoro 0-3 Bulan</h3>
-                            <p class="text-sm text-slate-500 font-medium mb-3">Input realisasi data Aosodomoro untuk periode 0-3 bulan</p>
-                            <div class="flex items-center text-xs font-black text-slate-400 group-hover:text-red-600 uppercase tracking-widest transition-colors duration-200">
-                                Input Data
-                                <svg class="w-3.5 h-3.5 ml-1.5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
-                                </svg>
-                            </div>
-                        </div>
-                        <div class="w-8 h-8 rounded-xl bg-slate-100 group-hover:bg-red-600 flex items-center justify-center transition-all duration-200 flex-shrink-0">
-                            <svg class="w-4 h-4 text-slate-400 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
-                            </svg>
-                        </div>
-                    </div>
-                </a>
-
-                {{-- Asodomoro >3 Bulan --}}
-                <a href="{{ route('dashboard.gov.aosodomoro-above-3-bulan') }}"
-                    class="group bg-white rounded-2xl border-2 border-slate-100 hover:border-red-200 shadow-sm hover:shadow-xl hover:shadow-red-500/10 transition-all duration-300 hover:-translate-y-1.5 overflow-hidden relative">
-                    <div class="h-1 w-full bg-gradient-to-r from-red-600 to-red-400 opacity-0 group-hover:opacity-100 transition-all duration-300"></div>
-                    <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                        style="background: radial-gradient(ellipse at top right, #fff1f2 0%, transparent 60%);"></div>
-                    <div class="p-7 flex items-center space-x-6 relative">
-                        <div class="rounded-2xl flex items-center justify-center shadow-sm border-2 flex-shrink-0"
-                            style="background: linear-gradient(135deg, #fff1f2, #ffe4e6); border-color: #fecdd3; width:64px; height:64px;">
-                            <svg class="w-7 h-7 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                            </svg>
-                        </div>
-                        <div class="flex-1">
-                            <span class="text-[10px] font-black tracking-widest text-red-600 bg-red-50 border border-red-100 rounded-md px-2 py-0.5">&gt;3 BLN</span>
-                            <h3 class="text-xl font-black text-slate-900 tracking-tight mt-2 mb-1">Aosodomoro &gt;3 Bulan</h3>
-                            <p class="text-sm text-slate-500 font-medium mb-3">Input realisasi data Aosodomoro untuk periode lebih dari 3 bulan</p>
-                            <div class="flex items-center text-xs font-black text-slate-400 group-hover:text-red-600 uppercase tracking-widest transition-colors duration-200">
-                                Input Data Realisasi
-                                <svg class="w-3.5 h-3.5 ml-1.5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
-                                </svg>
-                            </div>
-                        </div>
-                        <div class="w-8 h-8 rounded-xl bg-slate-100 group-hover:bg-red-600 flex items-center justify-center transition-all duration-200 flex-shrink-0">
-                            <svg class="w-4 h-4 text-slate-400 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
-                            </svg>
-                        </div>
-                    </div>
-                </a>
-            </div>
-        </div>
 
     </div>
 </div>

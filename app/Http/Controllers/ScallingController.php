@@ -56,15 +56,21 @@ class ScallingController extends Controller
 
     public function onHandGov()
     {
-        $logs= ScallingImport::where('type', 'on-hand')->latest()->paginate(10);
+        $logs= ScallingImport::where('type', 'on-hand')->where('segment', 'government')->latest()->paginate(10);
         $projects = ScallingData::with('scallingImport')->latest()->paginate(20);
         return view('admin.scalling.gov.onHand', compact('logs', 'projects'));
     }
     public function koreksiGov()
     {
-        $logs= ScallingImport::where('type', 'koreksi')->latest()->paginate(10);
+        $logs= ScallingImport::where('type', 'koreksi')->where('segment', 'government')->latest()->paginate(10);
         $projects = ScallingData::with('scallingImport')->latest()->paginate(20);
         return view('admin.scalling.gov.koreksi', compact('logs', 'projects'));
+    }
+    public function qualifiedGov()
+    {
+        $logs= ScallingImport::where('type', 'qualified')->where('segment', 'government')->latest()->paginate(10);
+        $projects = ScallingData::with('scallingImport')->latest()->paginate(20);
+        return view('admin.scalling.gov.qualified', compact('logs', 'projects'));
     }
 
     public function onHandSme()
@@ -79,7 +85,21 @@ class ScallingController extends Controller
 
     public function onHandPrivate()
     {
-        return view('admin.scalling.private.onHand', $this->sharedViewData());
+        $logs= ScallingImport::where('type', 'on-hand')->where('segment', 'private')->latest()->paginate(10);
+        $projects = ScallingData::with('scallingImport')->latest()->paginate(20);
+        return view('admin.scalling.private.onHand', compact('logs', 'projects'));
+    }
+    public function koreksiPrivate()
+    {
+        $logs= ScallingImport::where('type', 'koreksi')->where('segment', 'private')->latest()->paginate(10);
+        $projects = ScallingData::with('scallingImport')->latest()->paginate(20);
+        return view('admin.scalling.private.koreksi', compact('logs', 'projects'));
+    }
+    public function qualifiedPrivate()
+    {
+        $logs= ScallingImport::where('type', 'qualified')->where('segment', 'private')->latest()->paginate(10);
+        $projects = ScallingData::with('scallingImport')->latest()->paginate(20);
+        return view('admin.scalling.private.qualified', compact('logs', 'projects'));
     }
 
     // ── IMPORT ────────────────────────────────────────────────────────────────
