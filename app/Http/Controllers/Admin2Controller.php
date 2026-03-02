@@ -20,7 +20,6 @@ class Admin2Controller extends Controller
 
     // ══════════════════════════════════════════════════════
     // Helper: upsert RisingStar per (user_id, type_id, periode)
-    // Admin hanya mengisi commitment; real_ratio diisi user.
     // Kolom yang tidak dikirim tidak ditimpa.
     // ══════════════════════════════════════════════════════
     private function upsertRisingStar(int $typeId, int $userId, array $values, string $periode = null): RisingStar
@@ -38,7 +37,7 @@ class Admin2Controller extends Controller
         }
 
         if (! $record->exists) {
-            $record->status = 'active';
+            $record->status = $values['status'] ?? 'active';
         }
 
         $record->save();
@@ -89,7 +88,6 @@ class Admin2Controller extends Controller
 
     public function risingStar4Table()
     {
-        // Rising Star type 4 = Aosodomoro (Gov)
         $types  = RisingStarType::where('type', '4')->get();
         $rstars = RisingStar::with(['type', 'user'])
             ->mainType(4)
@@ -102,25 +100,33 @@ class Admin2Controller extends Controller
     }
 
     // ══ Rising Star Store ══
-    // Admin menginput commitment (dan opsional real_ratio).
     // Upsert per (user_id, type_id, periode) — tidak buat baris baru jika periode sama.
     public function risingStarStore(Request $request)
     {
-        // Mapping segment → user_id yang sudah fixed di sistem
-        $segmentUserMap = [
-            'gov' => 2,
-            'sme' => 4,
-        ];
-
         $request->validate([
             'status'     => 'required|in:active,inactive',
             'type_id'    => 'required|exists:rising_star_types,id',
-            'segment'    => 'required|in:gov,sme',
             'periode'    => 'nullable|string',
             'commitment' => 'nullable|numeric|min:0',
+            'real_ratio' => 'nullable|numeric|min:0',
+            // segment hanya wajib untuk type 4
+            'segment'    => 'nullable|in:gov,sme',
+            'user_id'    => 'nullable|exists:users,id',
         ]);
 
-        $userId  = $segmentUserMap[$request->segment];
+        // Tentukan user_id:
+        // - Jika ada segment (type 4), mapping ke user fixed
+        // - Jika ada user_id di request (type 1/2/3 pakai auth user), pakai itu
+        if ($request->filled('segment')) {
+            $segmentUserMap = [
+                'gov' => 2,
+                'sme' => 4,
+            ];
+            $userId = $segmentUserMap[$request->segment];
+        } else {
+            $userId = $request->filled('user_id') ? (int) $request->user_id : Auth::id();
+        }
+
         $periode = $request->filled('periode')
             ? Carbon::parse($request->periode . '-01')->format('Y-m-d')
             : Carbon::now()->format('Y-m-01');
@@ -131,12 +137,17 @@ class Admin2Controller extends Controller
             values:  [
                 'status'     => $request->status,
                 'commitment' => $request->commitment,
+                'real_ratio' => $request->real_ratio,
             ],
             periode: $periode,
         );
 
-        $segmentLabel = $request->segment === 'gov' ? 'Government' : 'SME';
-        return back()->with('success', "Commitment untuk segment {$segmentLabel} berhasil disimpan.");
+        if ($request->filled('segment')) {
+            $segmentLabel = $request->segment === 'gov' ? 'Government' : 'SME';
+            return back()->with('success', "Data untuk segment {$segmentLabel} periode " . Carbon::parse($periode)->format('F Y') . " berhasil disimpan / diperbarui.");
+        }
+
+        return back()->with('success', "Data Rising Star periode " . Carbon::parse($periode)->format('F Y') . " berhasil disimpan / diperbarui.");
     }
 
     // ══ HSI ══

@@ -8,6 +8,7 @@ use App\Models\Ctc;
 use App\Models\Ct0;
 use App\Models\Psak;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 
 class AdminController extends Controller
@@ -139,14 +140,13 @@ class AdminController extends Controller
         ]);
         $periodeDate = $request->periode . '-01';
 
-        // cek/update berdasarkan kombinasi type+segment+periode
         $attributes = [
             'type'    => 'Billing Perdana',
             'periode' => $periodeDate,
         ];
 
         $values = [
-            'user_id'    => Auth::id(),          // otomatis user login
+            'user_id'    => Auth::id(),
             'status'     => $request->status,
             'commitment' => $request->commitment,
             'real_ratio' => $request->real_ratio,
@@ -212,11 +212,11 @@ class AdminController extends Controller
 
     public function ctcTable()
     {
-        $collections = Ctc::with('user')
-        // ->where('type', 'like', '%UTIP%')
-        ->orderBy('created_at', 'desc')
-        ->paginate(15)
-        ->withQueryString();
+        $collections = Ctc::with('user')   // sesuaikan nama model
+            ->orderBy('periode', 'desc')
+            ->orderBy('updated_at', 'desc')
+            ->paginate(15)
+            ->withQueryString();
         $users = User::all();
         return view('admin.ctc.ctc', compact('collections', 'users'));
     }
@@ -225,29 +225,39 @@ class AdminController extends Controller
     {
         $request->validate([
             'status'     => 'required|in:active,inactive',
-            'segment'    => 'nullable|string',
+            'segment'    => 'required|string',
+            'periode'    => 'nullable|string',
             'commitment' => 'nullable|string',
             'real_ratio' => 'nullable|string',
         ]);
 
-        Ctc::create([
-            'user_id'    => Auth::id(),          // otomatis user login
-            'status'     => $request->status,
-            'segment'    => $request->segment,
-            'commitment' => $request->commitment,
-            'real_ratio' => $request->real_ratio,
-        ]);
+        $periode = $request->filled('periode')
+            ? Carbon::parse($request->periode . '-01')->format('Y-m-d')
+            : Carbon::now()->format('Y-m-01');
 
-        return back()->with('success', 'Data berhasil disimpan');
+        Ctc::updateOrCreate(   // sesuaikan nama model
+            [
+                'user_id' => Auth::id(),
+                'segment' => $request->segment,
+                'periode' => $periode,
+            ],
+            [
+                'status'     => $request->status,
+                'commitment' => $request->commitment,
+                'real_ratio' => $request->real_ratio,
+            ]
+        );
+
+        return back()->with('success', 'Data CTC periode ' . Carbon::parse($periode)->format('F Y') . ' berhasil disimpan / diperbarui.');
     }
 
     public function ct0Table()
     {
         $collections = Ct0::with('user')
-        // ->where('type', 'like', '%UTIP%')
-        ->orderBy('created_at', 'desc')
-        ->paginate(15)
-        ->withQueryString();
+            ->orderBy('periode', 'desc')
+            ->orderBy('updated_at', 'desc')
+            ->paginate(15)
+            ->withQueryString();
         $users = User::all();
         return view('admin.ctc.ct0', compact('collections', 'users'));
     }
@@ -256,45 +266,49 @@ class AdminController extends Controller
     {
         $request->validate([
             'status'     => 'required|in:active,inactive',
-            'region'    => 'nullable|string',
+            'region'     => 'required|string',
+            'periode'    => 'nullable|string',
             'commitment' => 'nullable|string',
             'real_ratio' => 'nullable|string',
         ]);
 
-        Ct0::create([
-            'user_id'    => Auth::id(),          // otomatis user login
-            'status'     => $request->status,
-            'region'    => $request->region,
-            'commitment' => $request->commitment,
-            'real_ratio' => $request->real_ratio,
-        ]);
+        $periode = $request->filled('periode')
+            ? Carbon::parse($request->periode . '-01')->format('Y-m-d')
+            : Carbon::now()->format('Y-m-01');
 
-        return back()->with('success', 'Data berhasil disimpan');
+        Ct0::updateOrCreate(
+            [
+                'user_id' => Auth::id(),
+                'region'  => $request->region,
+                'periode' => $periode,
+            ],
+            [
+                'status'     => $request->status,
+                'commitment' => $request->commitment,
+                'real_ratio' => $request->real_ratio,
+            ]
+        );
+
+        return back()->with('success', 'Data CT0 periode ' . Carbon::parse($periode)->format('F Y') . ' berhasil disimpan / diperbarui.');
     }
 
-    public function psakGov(Request $request)
+        public function psakGov(Request $request)
     {
-        // build query and optionally filter by month/year of created_at
         $query = Psak::with('user')
             ->where('type', 'Government');
 
-        // filter parameters are expected as numeric values (1-12 for month, 4‑digit year)
         if ($request->filled('filter_month')) {
-            $query->whereMonth('created_at', $request->filter_month);
+            $query->whereMonth('periode', $request->filter_month);
         }
         if ($request->filled('filter_year')) {
-            $query->whereYear('created_at', $request->filter_year);
+            $query->whereYear('periode', $request->filter_year);
         }
-
-        // allow server‐side segment filtering (code values)
-        if ($request->filled('segmen')) {
+           if ($request->filled('segmen')) {
             $query->where('segment', $request->segmen);
         }
 
-        // also select the month name and year if you want to use them in the view
         $govs = $query
-            ->selectRaw("psaks.*, MONTHNAME(created_at) as month_name, YEAR(created_at) as year")
-            ->orderBy('created_at', 'desc')
+            ->orderBy('periode', 'desc')
             ->paginate(15)
             ->withQueryString();
 
@@ -305,44 +319,50 @@ class AdminController extends Controller
     public function psakGovStore(Request $request)
     {
         $request->validate([
-            'segment'    => 'nullable|string',
-            'comm_ssl' => 'nullable|string',
-            'comm_rp' => 'nullable|string',
-            'real_ssl' => 'nullable|string',
-            'real_rp' => 'nullable|string',
+            'periode'  => 'required|string',
+            'segment'  => 'required|string',
+            'comm_ssl' => 'nullable|numeric',
+            'comm_rp'  => 'nullable|numeric',
+            'real_ssl' => 'nullable|numeric',
+            'real_rp'  => 'nullable|numeric',
         ]);
 
-        Psak::create([
-            'user_id'    => Auth::id(),          // otomatis user login
-            'type'       => 'Government',              // dipaksa dari backend
-            'segment'    => $request->segment,
-            'comm_ssl' => $request->comm_ssl,
-            'comm_rp' => $request->comm_rp,
-            'real_ssl' => $request->real_ssl,
-            'real_rp' => $request->real_rp,
+           $periode = $request->periode . '-01';
+
+        $psak = Psak::firstOrNew([
+            'user_id' => Auth::id(),
+            'type'    => 'Government',
+            'segment' => $request->segment,
+            'periode' => $periode,
         ]);
 
-        return back()->with('success', 'Data berhasil disimpan');
+        if ($request->filled('comm_ssl')) $psak->comm_ssl = $request->comm_ssl;
+        if ($request->filled('comm_rp'))  $psak->comm_rp  = $request->comm_rp;
+        if ($request->filled('real_ssl')) $psak->real_ssl = $request->real_ssl;
+        if ($request->filled('real_rp'))  $psak->real_rp  = $request->real_rp;
+
+        $psak->save();
+
+        return back()->with('success', 'Data PSAK Government berhasil disimpan.');
     }
 
     public function psakPrivate(Request $request)
     {
-        // build query and optionally filter by month/year of created_at
         $query = Psak::with('user')
             ->where('type', 'Private');
 
-        // filter parameters are expected as numeric values (1-12 for month, 4‑digit year)
         if ($request->filled('filter_month')) {
-            $query->whereMonth('created_at', $request->filter_month);
+            $query->whereMonth('periode', $request->filter_month);
         }
         if ($request->filled('filter_year')) {
-            $query->whereYear('created_at', $request->filter_year);
+            $query->whereYear('periode', $request->filter_year);
+        }
+           if ($request->filled('segmen')) {
+            $query->where('segment', $request->segmen);
         }
 
-        // also select the month name and year if you want to use them in the view
         $pvts = $query
-            ->selectRaw("psaks.*, MONTHNAME(created_at) as month_name, YEAR(created_at) as year")
-            ->orderBy('created_at', 'desc')
+            ->orderBy('periode', 'desc')
             ->paginate(15)
             ->withQueryString();
 
@@ -353,92 +373,50 @@ class AdminController extends Controller
     public function psakPrivateStore(Request $request)
     {
         $request->validate([
-            'segment'    => 'nullable|string',
-            'comm_ssl' => 'nullable|string',
-            'comm_rp' => 'nullable|string',
-            'real_ssl' => 'nullable|string',
-            'real_rp' => 'nullable|string',
+            'periode'  => 'required|string',
+            'segment'  => 'required|string',
+            'comm_ssl' => 'nullable|numeric',
+            'comm_rp'  => 'nullable|numeric',
+            'real_ssl' => 'nullable|numeric',
+            'real_rp'  => 'nullable|numeric',
         ]);
 
-        Psak::create([
-            'user_id'    => Auth::id(),          // otomatis user login
-            'type'       => 'Private',              // dipaksa dari backend
-            'segment'    => $request->segment,
-            'comm_ssl' => $request->comm_ssl,
-            'comm_rp' => $request->comm_rp,
-            'real_ssl' => $request->real_ssl,
-            'real_rp' => $request->real_rp,
+           $periode = $request->periode . '-01';
+
+        $psak = Psak::firstOrNew([
+            'user_id' => Auth::id(),
+            'type'    => 'Private',
+            'segment' => $request->segment,
+            'periode' => $periode,
         ]);
 
-        return back()->with('success', 'Data berhasil disimpan');
-    }
+        if ($request->filled('comm_ssl')) $psak->comm_ssl = $request->comm_ssl;
+        if ($request->filled('comm_rp'))  $psak->comm_rp  = $request->comm_rp;
+        if ($request->filled('real_ssl')) $psak->real_ssl = $request->real_ssl;
+        if ($request->filled('real_rp'))  $psak->real_rp  = $request->real_rp;
 
-    public function psakSme(Request $request)
-    {
-        // build query and optionally filter by month/year of created_at
-        $query = Psak::with('user')
-            ->where('type', 'SME');
+        $psak->save();
 
-        // filter parameters are expected as numeric values (1-12 for month, 4‑digit year)
-        if ($request->filled('filter_month')) {
-            $query->whereMonth('created_at', $request->filter_month);
-        }
-        if ($request->filled('filter_year')) {
-            $query->whereYear('created_at', $request->filter_year);
-        }
-
-        // also select the month name and year if you want to use them in the view
-        $smes = $query
-            ->selectRaw("psaks.*, MONTHNAME(created_at) as month_name, YEAR(created_at) as year")
-            ->orderBy('created_at', 'desc')
-            ->paginate(15)
-            ->withQueryString();
-
-        $users = User::all();
-        return view('admin.psak.sme', compact('smes', 'users'));
-    }
-
-    public function psakSmeStore(Request $request)
-    {
-        $request->validate([
-            'segment'    => 'nullable|string',
-            'comm_ssl' => 'nullable|string',
-            'comm_rp' => 'nullable|string',
-            'real_ssl' => 'nullable|string',
-            'real_rp' => 'nullable|string',
-        ]);
-
-        Psak::create([
-            'user_id'    => Auth::id(),          // otomatis user login
-            'type'       => 'SME',              // dipaksa dari backend
-            'segment'    => $request->segment,
-            'comm_ssl' => $request->comm_ssl,
-            'comm_rp' => $request->comm_rp,
-            'real_ssl' => $request->real_ssl,
-            'real_rp' => $request->real_rp,
-        ]);
-
-        return back()->with('success', 'Data berhasil disimpan');
+        return back()->with('success', 'Data PSAK Private berhasil disimpan.');
     }
 
     public function psakSoe(Request $request)
     {
-        // build query and optionally filter by month/year of created_at
         $query = Psak::with('user')
             ->where('type', 'SOE');
 
-        // filter parameters are expected as numeric values (1-12 for month, 4‑digit year)
         if ($request->filled('filter_month')) {
-            $query->whereMonth('created_at', $request->filter_month);
+            $query->whereMonth('periode', $request->filter_month);
         }
         if ($request->filled('filter_year')) {
-            $query->whereYear('created_at', $request->filter_year);
+            $query->whereYear('periode', $request->filter_year);
+        }
+           if ($request->filled('segmen')) {
+            $query->where('segment', $request->segmen);
         }
 
-        // also select the month name and year if you want to use them in the view
         $soes = $query
-            ->selectRaw("psaks.*, MONTHNAME(created_at) as month_name, YEAR(created_at) as year")
-            ->orderBy('created_at', 'desc')
+            ->orderBy('periode', 'desc')
             ->paginate(15)
             ->withQueryString();
 
@@ -449,24 +427,85 @@ class AdminController extends Controller
     public function psakSoeStore(Request $request)
     {
         $request->validate([
-            'segment'    => 'nullable|string',
-            'comm_ssl' => 'nullable|string',
-            'comm_rp' => 'nullable|string',
-            'real_ssl' => 'nullable|string',
-            'real_rp' => 'nullable|string',
+            'periode'  => 'required|string',
+            'segment'  => 'required|string',
+            'comm_ssl' => 'nullable|numeric',
+            'comm_rp'  => 'nullable|numeric',
+            'real_ssl' => 'nullable|numeric',
+            'real_rp'  => 'nullable|numeric',
         ]);
 
-        Psak::create([
-            'user_id'    => Auth::id(),          // otomatis user login
-            'type'       => 'SOE',              // dipaksa dari backend
-            'segment'    => $request->segment,
-            'comm_ssl' => $request->comm_ssl,
-            'comm_rp' => $request->comm_rp,
-            'real_ssl' => $request->real_ssl,
-            'real_rp' => $request->real_rp,
+           $periode = $request->periode . '-01';
+
+        $psak = Psak::firstOrNew([
+            'user_id' => Auth::id(),
+            'type'    => 'SOE',
+            'segment' => $request->segment,
+            'periode' => $periode,
         ]);
 
-        return back()->with('success', 'Data berhasil disimpan');
+        if ($request->filled('comm_ssl')) $psak->comm_ssl = $request->comm_ssl;
+        if ($request->filled('comm_rp'))  $psak->comm_rp  = $request->comm_rp;
+        if ($request->filled('real_ssl')) $psak->real_ssl = $request->real_ssl;
+        if ($request->filled('real_rp'))  $psak->real_rp  = $request->real_rp;
+
+        $psak->save();
+
+        return back()->with('success', 'Data PSAK SOE berhasil disimpan.');
+    }
+
+        public function psakSme(Request $request)
+    {
+        $query = Psak::with('user')
+            ->where('type', 'SME');
+
+        if ($request->filled('filter_month')) {
+            $query->whereMonth('periode', $request->filter_month);
+        }
+        if ($request->filled('filter_year')) {
+            $query->whereYear('periode', $request->filter_year);
+        }
+           if ($request->filled('segmen')) {
+            $query->where('segment', $request->segmen);
+        }
+
+        $smes = $query
+            ->orderBy('periode', 'desc')
+            ->paginate(15)
+            ->withQueryString();
+
+        $users = User::all();
+        return view('admin.psak.sme', compact('smes', 'users'));
+    }
+
+    public function psakSmeStore(Request $request)
+    {
+        $request->validate([
+            'periode'  => 'required|string',
+            'segment'  => 'required|string',
+            'comm_ssl' => 'nullable|numeric',
+            'comm_rp'  => 'nullable|numeric',
+            'real_ssl' => 'nullable|numeric',
+            'real_rp'  => 'nullable|numeric',
+        ]);
+
+           $periode = $request->periode . '-01';
+
+        $psak = Psak::firstOrNew([
+            'user_id' => Auth::id(),
+            'type'    => 'SME',
+            'segment' => $request->segment,
+            'periode' => $periode,
+        ]);
+
+        if ($request->filled('comm_ssl')) $psak->comm_ssl = $request->comm_ssl;
+        if ($request->filled('comm_rp'))  $psak->comm_rp  = $request->comm_rp;
+        if ($request->filled('real_ssl')) $psak->real_ssl = $request->real_ssl;
+        if ($request->filled('real_rp'))  $psak->real_rp  = $request->real_rp;
+
+        $psak->save();
+
+        return back()->with('success', 'Data PSAK SME berhasil disimpan.');
     }
 
     public function risingStar1Table()

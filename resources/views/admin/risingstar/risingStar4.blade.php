@@ -60,7 +60,7 @@
             <div class="px-8 py-5 border-b border-slate-100">
                 <div class="flex items-center space-x-3">
                     <div class="w-1.5 h-8 bg-red-600 rounded-full"></div>
-                    <h2 class="text-base font-black text-slate-900 uppercase tracking-wide">Input / Update Commitment</h2>
+                    <h2 class="text-base font-black text-slate-900 uppercase tracking-wide">Input  Commitment</h2>
                 </div>
             </div>
             <div class="p-8">
@@ -86,7 +86,6 @@
                         <div>
                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">
                                 Periode
-                                <span class="text-slate-400 font-medium normal-case tracking-normal ml-1">(default: bulan ini)</span>
                             </label>
                             <input type="month" name="periode" value="{{ old('periode', now()->format('Y-m')) }}"
                                 class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors">
@@ -125,6 +124,13 @@
                             <input type="number" name="commitment" step="0.01" min="0" max="100"
                                 value="{{ old('commitment') }}"
                                 placeholder="cth: 30.00"
+                                class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors">
+                        </div>
+
+                        {{-- Real Ratio --}}
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Real Ratio (%)</label>
+                            <input type="text" name="real_ratio" value="{{ old('real_ratio') }}" placeholder="cth: 95.50"
                                 class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors">
                         </div>
 
