@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
@@ -25,27 +26,30 @@ class AuthController extends Controller
             'email'    => 'required|email',
             'password' => 'required|min:6',
         ], [
-            'email.required'    => 'Email harus diisi',
-            'email.email'       => 'Format email tidak valid',
-            'password.required' => 'Password harus diisi',
-            'password.min'      => 'Password minimal 6 karakter',
+            'email.required'    => 'Email harus diisi.',
+            'email.email'       => 'Format email tidak valid.',
+            'password.required' => 'Password harus diisi.',
+            'password.min'      => 'Password minimal 6 karakter.',
         ]);
 
-        // Check credentials
-        if (Auth::attempt(
-            ['email' => $request->email, 'password' => $request->password],
-            $request->remember_me
-        )) {
-            $request->session()->regenerate();
+        $user = User::where('email', $request->email)->first();
 
-            // Redirect berdasarkan role
-            $user = Auth::user();
-            return $this->redirectByRole($user->role);
+        if (!$user) {
+            return back()
+                ->withInput($request->only('email', 'remember_me'))
+                ->withErrors(['email' => 'Akun dengan email ini tidak ditemukan.']);
         }
 
-        return back()
-            ->withInput($request->only('email', 'remember_me'))
-            ->withErrors(['email' => 'Email atau password salah']);
+        if (!Hash::check($request->password, $user->password)) {
+            return back()
+                ->withInput($request->only('email', 'remember_me'))
+                ->withErrors(['password' => 'Password yang kamu masukkan salah.']);
+        }
+
+        Auth::login($user, $request->remember_me);
+        $request->session()->regenerate();
+
+        return $this->redirectByRole($user->role);
     }
 
     /**

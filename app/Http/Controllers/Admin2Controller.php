@@ -7,6 +7,7 @@ use App\Models\RisingStar;
 use App\Models\RisingStarType;
 use App\Models\Hsi;
 use App\Models\User;
+use App\Models\Telda;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 
@@ -32,7 +33,7 @@ class Admin2Controller extends Controller
         $users = User::all();
         return view('admin.risingstar.risingStar1', compact('rstars', 'types', 'users'));
     }
-    
+
     public function risingStar2Table()
     {
         $types = RisingStarType::where('type', '2')->get();
@@ -122,6 +123,73 @@ class Admin2Controller extends Controller
         ]);
 
         return back()->with('success', 'Data berhasil disimpan');
+    }
+
+    public function teldaTable()
+    {
+        $teldas = [
+            'medan'           => 'Medan',
+            'binjai'          => 'Binjai',
+            'deliserdang'     => 'Deli Serdang',
+            'simalungun'      => 'Simalungun',
+            'pematangsiantar' => 'Pematang Siantar',
+            'tebingtinggi'    => 'Tebing Tinggi',
+            'asahan'          => 'Asahan',
+            'labuhanbatu'     => 'Labuhan Batu',
+            'tapanuli'        => 'Tapanuli',
+        ];
+
+        $currentPeriode = Carbon::now()->startOfMonth()->toDateString();
+
+        // Ambil semua record periode ini, index by region
+        $existingByRegion = Telda::where('periode', $currentPeriode)
+            ->get()
+            ->keyBy('region');
+
+        // Semua riwayat, di-group by periode lalu by region
+        $history = Telda::orderBy('periode', 'desc')->get();
+
+        $historyByPeriode = $history->groupBy('periode');
+
+        $users = User::all();
+
+        return view('admin.telda.telda', compact(
+            'teldas',
+            'existingByRegion',
+            'history',
+            'historyByPeriode',
+            'users'
+        ));
+    }
+
+    public function teldaStore(Request $request)
+    {
+        $request->validate([
+            'periode'          => 'required|string',
+            'regions'          => 'required|array',
+            'regions.*.region'     => 'required|string',
+            'regions.*.commitment' => 'nullable|numeric|min:0',
+            'regions.*.real_ratio' => 'nullable|numeric|min:0',
+        ]);
+
+        $periode = $request->periode . '-01';
+
+        foreach ($request->regions as $regionKey => $data) {
+            Telda::updateOrCreate(
+                [
+                    'periode' => $periode,
+                    'region'  => $data['region'],
+                ],
+                [
+                    'user_id'    => Auth::id(),
+                    'status'     => $data['status'] ?? 'active',
+                    'commitment' => $data['commitment'] ?? null,
+                    'real_ratio' => $data['real_ratio'] ?? null,
+                ]
+            );
+        }
+
+        return back()->with('success', 'Data Telda berhasil disimpan');
     }
 
     /**

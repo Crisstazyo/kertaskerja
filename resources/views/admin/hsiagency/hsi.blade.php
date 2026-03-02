@@ -23,14 +23,12 @@
                     </div>
                 </div>
                 <div class="flex items-center space-x-4">
-                    <a href="{{route('admin.index')}}">
-                    <button 
+                    <a href="{{ route('admin.index') }}"
                         class="flex items-center space-x-2.5 bg-white border-2 border-slate-900 hover:bg-slate-900 text-slate-900 hover:text-white px-6 py-3 rounded-xl font-black text-xs transition-all duration-300 shadow-sm uppercase tracking-wider">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/>
                         </svg>
-                        <span>Back</span>
-                    </button>
+                        <span>Back to Dashboard</span>
                     </a>
                     <form action="{{ route('logout') }}" method="POST">
                         @csrf
