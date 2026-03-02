@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Admin - Scalling Management - Government')
+@section('title', 'Admin - Scalling Management - SME')
 
 @section('content')
 <div class="min-h-screen" style="background:#f1f5f9;">
@@ -19,7 +19,7 @@
                         <p class="text-[10px] font-black tracking-[0.3em] text-red-600 uppercase mb-1">Witel Sumut</p>
                         <h1 class="text-2xl font-black tracking-tight text-slate-900 leading-none uppercase">Scaling <span class="text-red-600">Management</span></h1>
                         <p class="text-slate-400 text-xs font-bold mt-1 uppercase tracking-tight">
-                            Government
+                            SME
                         </p>
                     </div>
                 </div>
@@ -74,7 +74,7 @@
                     </div>
                 </div>
                 <span class="text-xs font-bold text-slate-500 bg-white border border-slate-200 rounded-full px-4 py-1.5 shadow-sm uppercase tracking-wide">
-                    Government Segment
+                    SME Segment
                 </span>
             </div>
 
@@ -101,19 +101,12 @@
                         'type'    => 'koreksi',
                         'icon'    => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>',
                     ],
-                    [
-                        'label'   => 'LOP Initiate',
-                        'sub'     => 'Manage LOP Initiate data, upload files, dan lihat progress',
-                        'badge'   => 'INITIATE',
-                        'type'    => 'initiate',
-                        'icon'    => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"/>',
-                    ],
                 ];
             @endphp
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                 @foreach($lopCards as $card)
-                <a href=""
+                <a href="{{ route('admin.scalling.sme.' . $card['type']) }}"
                     class="group bg-white rounded-2xl border-2 border-slate-100 hover:border-red-200 shadow-sm hover:shadow-xl hover:shadow-red-500/10 transition-all duration-300 hover:-translate-y-1.5 overflow-hidden relative">
                     <div class="h-1 w-full bg-gradient-to-r from-red-600 to-red-400 opacity-0 group-hover:opacity-100 transition-all duration-300"></div>
                     <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"

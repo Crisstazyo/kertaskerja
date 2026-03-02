@@ -126,7 +126,45 @@ Route::middleware('auth')->group(function () {
         Route::get('/scalling/private/qualified', [ScallingController::class, 'qualifiedPrivate'])->name('admin.scalling.private.qualified');
         Route::post('/scalling/private/qualified', [ScallingController::class, 'import'])->name('admin.scalling.private.qualified.store');
         Route::get('/scalling/private/qualified/{scallingImport}', [ScallingController::class, 'show'])->name('admin.scalling.private.qualified.show');
-        Route::delete('/scalling/private/qualified/{scallingImport}', [PrivateController::class, 'destroy'])->name('admin.scalling.private.qualified.destroy');
+        Route::delete('/scalling/private/qualified/{scallingImport}', [ScallingController::class, 'destroy'])->name('admin.scalling.private.qualified.destroy');
+
+        // SOE dashboard (role: soe) - admin access
+        // on-hand upload listing and actions
+        Route::get('/scalling/soe/on-hand', [ScallingController::class, 'onHandSoe'])->name('admin.scalling.soe.on-hand');
+        Route::post('/scalling/soe/on-hand', [ScallingController::class, 'import'])->name('admin.scalling.soe.on-hand.store');
+        Route::get('/scalling/soe/on-hand/{scallingImport}', [ScallingController::class, 'show'])->name('admin.scalling.soe.on-hand.show');
+        Route::delete('/scalling/soe/on-hand/{scallingImport}', [ScallingController::class, 'destroy'])->name('admin.scalling.soe.on-hand.destroy');
+
+        // koreksi upload listing and actions
+        Route::get('/scalling/soe/koreksi', [ScallingController::class, 'koreksiSoe'])->name('admin.scalling.soe.koreksi');
+        Route::post('/scalling/soe/koreksi', [ScallingController::class, 'import'])->name('admin.scalling.soe.koreksi.store');
+        Route::get('/scalling/soe/koreksi/{scallingImport}', [ScallingController::class, 'show'])->name('admin.scalling.soe.koreksi.show');
+        Route::delete('/scalling/soe/koreksi/{scallingImport}', [ScallingController::class, 'destroy'])->name('admin.scalling.soe.koreksi.destroy');
+
+        // qualified upload listing and actions
+        Route::get('/scalling/soe/qualified', [ScallingController::class, 'qualifiedSoe'])->name('admin.scalling.soe.qualified');
+        Route::post('/scalling/soe/qualified', [ScallingController::class, 'import'])->name('admin.scalling.soe.qualified.store');
+        Route::get('/scalling/soe/qualified/{scallingImport}', [ScallingController::class, 'show'])->name('admin.scalling.soe.qualified.show');
+        Route::delete('/scalling/soe/qualified/{scallingImport}', [ScallingController::class, 'destroy'])->name('admin.scalling.soe.qualified.destroy');
+
+        // SME dashboard (role: sme) - admin access
+        // on-hand upload listing and actions
+        Route::get('/scalling/sme/on-hand', [ScallingController::class, 'onHandSme'])->name('admin.scalling.sme.on-hand');
+        Route::post('/scalling/sme/on-hand', [ScallingController::class, 'import'])->name('admin.scalling.sme.on-hand.store');
+        Route::get('/scalling/sme/on-hand/{scallingImport}', [ScallingController::class, 'show'])->name('admin.scalling.sme.on-hand.show');
+        Route::delete('/scalling/sme/on-hand/{scallingImport}', [ScallingController::class, 'destroy'])->name('admin.scalling.sme.on-hand.destroy');
+
+        // koreksi upload listing and actions
+        Route::get('/scalling/sme/koreksi', [ScallingController::class, 'koreksiSme'])->name('admin.scalling.sme.koreksi');
+        Route::post('/scalling/sme/koreksi', [ScallingController::class, 'import'])->name('admin.scalling.sme.koreksi.store');
+        Route::get('/scalling/sme/koreksi/{scallingImport}', [ScallingController::class, 'show'])->name('admin.scalling.sme.koreksi.show');
+        Route::delete('/scalling/sme/koreksi/{scallingImport}', [ScallingController::class, 'destroy'])->name('admin.scalling.sme.koreksi.destroy');
+
+        // qualified upload listing and actions
+        Route::get('/scalling/sme/qualified', [ScallingController::class, 'qualifiedSme'])->name('admin.scalling.sme.qualified');
+        Route::post('/scalling/sme/qualified', [ScallingController::class, 'import'])->name('admin.scalling.sme.qualified.store');
+        Route::get('/scalling/sme/qualified/{scallingImport}', [ScallingController::class, 'show'])->name('admin.scalling.sme.qualified.show');
+        Route::delete('/scalling/sme/qualified/{scallingImport}', [ScallingController::class, 'destroy'])->name('admin.scalling.sme.qualified.destroy');
         
     });
 

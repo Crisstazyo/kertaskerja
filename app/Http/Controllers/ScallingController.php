@@ -73,14 +73,29 @@ class ScallingController extends Controller
         return view('admin.scalling.gov.qualified', compact('logs', 'projects'));
     }
 
-    public function onHandSme()
-    {
-        return view('admin.scalling.sme.onHand', $this->sharedViewData());
-    }
+    // public function onHandSme()
+    // {
+    //     return view('admin.scalling.sme.onHand', $this->sharedViewData());
+    // }
 
     public function onHandSoe()
     {
-        return view('admin.scalling.soe.onHand', $this->sharedViewData());
+        $logs= ScallingImport::where('type', 'on-hand')->where('segment', 'soe')->latest()->paginate(10);
+        $projects = ScallingData::with('scallingImport')->latest()->paginate(20);
+        return view('admin.scalling.soe.onHand', compact('logs', 'projects'));
+    }
+
+    public function koreksiSoe()
+    {
+        $logs= ScallingImport::where('type', 'koreksi')->where('segment', 'soe')->latest()->paginate(10);
+        $projects = ScallingData::with('scallingImport')->latest()->paginate(20);
+        return view('admin.scalling.soe.koreksi', compact('logs', 'projects'));
+    }
+    public function qualifiedSoe()
+    {
+        $logs= ScallingImport::where('type', 'qualified')->where('segment', 'soe')->latest()->paginate(10);
+        $projects = ScallingData::with('scallingImport')->latest()->paginate(20);
+        return view('admin.scalling.soe.qualified', compact('logs', 'projects'));
     }
 
     public function onHandPrivate()
@@ -100,6 +115,25 @@ class ScallingController extends Controller
         $logs= ScallingImport::where('type', 'qualified')->where('segment', 'private')->latest()->paginate(10);
         $projects = ScallingData::with('scallingImport')->latest()->paginate(20);
         return view('admin.scalling.private.qualified', compact('logs', 'projects'));
+    }
+
+    public function onHandSme()
+    {
+        $logs= ScallingImport::where('type', 'on-hand')->where('segment', 'sme')->latest()->paginate(10);
+        $projects = ScallingData::with('scallingImport')->latest()->paginate(20);
+        return view('admin.scalling.sme.onHand', compact('logs', 'projects'));
+    }
+    public function koreksiSme()
+    {
+        $logs= ScallingImport::where('type', 'koreksi')->where('segment', 'sme')->latest()->paginate(10);
+        $projects = ScallingData::with('scallingImport')->latest()->paginate(20);
+        return view('admin.scalling.sme.koreksi', compact('logs', 'projects'));
+    }
+    public function qualifiedSme()
+    {
+        $logs= ScallingImport::where('type', 'qualified')->where('segment', 'sme')->latest()->paginate(10);
+        $projects = ScallingData::with('scallingImport')->latest()->paginate(20);
+        return view('admin.scalling.sme.qualified', compact('logs', 'projects'));
     }
 
     // ── IMPORT ────────────────────────────────────────────────────────────────
@@ -207,14 +241,14 @@ class ScallingController extends Controller
             @unlink($tempPath);
 
             $count = count($rows);
-            return redirect()->route('admin.scalling.gov.on-hand')
+            return redirect()->back()
                 ->with('success', "Import berhasil! {$count} baris diimpor dari \"{$originalFilename}\".");
 
         } catch (\Throwable $e) {
             // Tidak ada log yang disimpan — hapus file lalu tampilkan pesan error saja
             @unlink($tempPath);
 
-            return redirect()->route('admin.scalling.gov.on-hand')
+            return redirect()->back()
                 ->with('error', 'Import gagal: ' . $e->getMessage());
         }
     }

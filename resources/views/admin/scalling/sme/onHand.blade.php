@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Government')
+@section('title', 'SME')
 
 @section('content')
 <div class="min-h-screen" style="background:#f1f5f9;">
@@ -18,13 +18,13 @@
                         <p class="text-[10px] font-black tracking-[0.3em] text-red-600 uppercase mb-1">Witel Sumut</p>
                         <h1 class="text-2xl font-black tracking-tight text-slate-900 leading-none uppercase">
                             LOP On Hand
-                            <span class="text-red-600">— Government</span>
+                            <span class="text-red-600">— SME</span>
                         </h1>
                         <p class="text-slate-400 text-xs font-bold mt-1 uppercase tracking-tight">Scaling Management System</p>
                     </div>
                 </div>
                 <div class="flex items-center space-x-4">
-                    <a href="{{ route('admin.scalling.gov') }}"
+                    <a href="{{ route('admin.scalling.sme') }}"
                         class="flex items-center space-x-2.5 bg-white border-2 border-slate-900 hover:bg-slate-900 text-slate-900 hover:text-white px-6 py-3 rounded-xl font-black text-xs transition-all duration-300 shadow-sm uppercase tracking-wider">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/>
@@ -109,9 +109,11 @@
                 <h2 class="text-base font-black text-slate-900 uppercase tracking-wide">Upload File</h2>
             </div>
 
-            <form action="{{ route('admin.scalling.gov.on-hand') }}" method="POST" enctype="multipart/form-data">
+            <form action="{{ route('admin.scalling.sme.on-hand') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
+                    <input type="hidden" name="type" value="on-hand">
+                    <input type="hidden" name="segment" value="sme">
                     <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Periode</label>
                         <input type="month" name="periode" required
@@ -129,9 +131,9 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/>
                             </svg>
                             <span id="file-name-text" class="text-sm font-semibold text-slate-400">Pilih file (.xlsx, .xls, .csv)</span>
-                            <input type="file" name="file" accept=".xlsx,.xls,.csv" required class="sr-only" onchange="displayFileName(this)">
+                            <input type="file" name="excel_file" accept=".xlsx,.xls,.csv" required class="sr-only" onchange="displayFileName(this)">
                         </label>
-                        @error('file')
+                        @error('excel_file')
                             <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
                         @enderror
                     </div>
@@ -157,44 +159,48 @@
                     <h2 class="text-base font-black text-slate-900 uppercase tracking-wide">Riwayat Upload</h2>
                 </div>
                 <span class="text-xs font-bold text-slate-400 bg-slate-50 border border-slate-200 rounded-full px-3 py-1">
-                    {{ $projects->total() }} uploads
+                    {{ $logs->total() }} uploads
                 </span>
             </div>
 
-            @if($projects->count() > 0)
+            @if($logs->count() > 0)
             <div class="overflow-x-auto">
                 <table class="min-w-full">
                     <thead>
                         <tr class="bg-slate-50 border-b border-slate-100">
-                            <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Periode</th>
                             <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">File Name</th>
                             <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Admin</th>
-                            <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Tanggal</th>
+                            <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Periode</th>
+                            <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
                             <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Rows</th>
                             <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Aksi</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
-                        @foreach($projects as $data)
+                        @foreach($logs as $data)
                         <tr class="hover:bg-slate-50 transition-colors">
+                            <td class="px-6 py-4">
+                                <div class="flex items-center space-x-2">
+                                    <svg class="w-4 h-4 text-slate-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                    </svg>
+                                    <span class="text-sm font-semibold text-slate-700">{{ $data->original_filename }}</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 text-sm font-semibold text-slate-600">{{ $data->uploaded_by }}</td>
                             <td class="px-6 py-4">
                                 <span class="text-xs font-bold text-red-600 bg-red-50 border border-red-100 rounded-md px-2.5 py-1">
                                     {{ $data->periode ? \Carbon\Carbon::parse($data->periode)->format('M Y') : '-' }}
                                 </span>
                             </td>
                             <td class="px-6 py-4">
-                                <div class="flex items-center space-x-2">
-                                    <svg class="w-4 h-4 text-slate-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                                    </svg>
-                                    <span class="text-sm font-semibold text-slate-700">{{ $data->file_name }}</span>
-                                </div>
+                                <span class="text-xs font-bold text-green-600 bg-green-50 border border-green-100 rounded-md px-2.5 py-1">
+                                    {{ $data->status ?? 'active' }}
+                                </span>
                             </td>
-                            <td class="px-6 py-4 text-sm font-semibold text-slate-600">{{ $data->uploaded_by }}</td>
-                            <td class="px-6 py-4 text-sm text-slate-400">{{ $data->created_at->format('d M Y, H:i') }}</td>
                             <td class="px-6 py-4">
                                 <span class="text-xs font-bold text-slate-500 bg-slate-100 rounded-md px-2.5 py-1">
-                                    {{ is_array($data->data) ? count($data->data) - 1 : 0 }} rows
+                                    {{ $data->total_rows_imported ?? 0 }} rows
                                 </span>
                             </td>
                             <td class="px-6 py-4 text-center">
@@ -216,34 +222,40 @@
                                         <div class="w-1 h-4 bg-red-500 rounded-full"></div>
                                         <span class="text-xs font-black text-slate-600 uppercase tracking-widest">File Preview</span>
                                     </div>
-                                    @if(is_array($data->data) && count($data->data) > 0)
+                                    @php
+                                        $previewRows = $data->scallingData()->limit(20)->get();
+                                        $hasPreview = $previewRows->isNotEmpty();
+                                    @endphp
+
+                                    @if($hasPreview)
                                     <div class="overflow-x-auto">
                                         <table class="min-w-full text-xs">
                                             <thead class="bg-slate-50 border-b border-slate-100">
                                                 <tr>
-                                                    @if(isset($data->data[0]) && is_array($data->data[0]))
-                                                        @foreach($data->data[0] as $index => $header)
-                                                        <th class="px-4 py-2.5 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">{{ $header ?? 'Col ' . ($index + 1) }}</th>
-                                                        @endforeach
-                                                    @endif
+                                                    @php
+                                                        $first = $previewRows->first()->toArray();
+                                                        $excluded = ['created_at', 'updated_at']; // tambahkan kolom lain kalau perlu
+                                                        $headers = array_diff(array_keys($first), $excluded);
+                                                    @endphp
+                                                    @foreach($headers as $header)
+                                                        <th class="px-4 py-2.5 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">{{ $header }}</th>
+                                                    @endforeach
                                                 </tr>
                                             </thead>
                                             <tbody class="divide-y divide-slate-100">
-                                                @foreach(array_slice($data->data, 1, 5) as $row)
+                                                @foreach($previewRows as $row)
                                                 <tr class="hover:bg-slate-50">
-                                                    @if(is_array($row))
-                                                        @foreach($row as $cell)
-                                                        <td class="px-4 py-2.5 text-slate-700">{{ $cell }}</td>
-                                                        @endforeach
-                                                    @endif
+                                                    @foreach($headers as $field)
+                                                        <td class="px-4 py-2.5 text-slate-700">{{ $row->{$field} }}</td>
+                                                    @endforeach
                                                 </tr>
                                                 @endforeach
                                             </tbody>
                                         </table>
                                     </div>
-                                    @if(count($data->data) > 6)
+                                    @if($previewRows->count() > 5)
                                     <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center py-3 border-t border-slate-100">
-                                        Menampilkan 5 dari {{ count($data->data) - 1 }} baris
+                                        Menampilkan 5 dari {{ $data->scallingData()->count() }} baris
                                     </p>
                                     @endif
                                     @else
@@ -259,7 +271,7 @@
 
             @if($projects->hasPages())
             <div class="px-6 py-4 border-t border-slate-100">
-                {{ $projects->links() }}
+                {{ $logs->links() }}
             </div>
             @endif
 

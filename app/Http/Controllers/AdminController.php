@@ -48,6 +48,7 @@ class AdminController extends Controller
         $request->validate([
             'status'     => 'required|in:active,inactive',
             'periode'    => 'required|date_format:Y-m',
+            'segment'    => 'nullable|string',
             'commitment' => 'nullable|string',
             'real_ratio' => 'nullable|string',
         ]);
@@ -56,6 +57,7 @@ class AdminController extends Controller
         // cek/update berdasarkan kombinasi type+segment+periode
         $attributes = [
             'type'    => 'Collection Ratio',
+            'segment' => $request->segment,
             'periode' => $periodeDate,
         ];
 

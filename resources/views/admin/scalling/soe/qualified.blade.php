@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Private')
+@section('title', 'SOE')
 
 @section('content')
 <div class="min-h-screen" style="background:#f1f5f9;">
@@ -18,13 +18,13 @@
                         <p class="text-[10px] font-black tracking-[0.3em] text-red-600 uppercase mb-1">Witel Sumut</p>
                         <h1 class="text-2xl font-black tracking-tight text-slate-900 leading-none uppercase">
                             LOP Qualified
-                            <span class="text-red-600">— Private</span>
+                            <span class="text-red-600">— SOE</span>
                         </h1>
                         <p class="text-slate-400 text-xs font-bold mt-1 uppercase tracking-tight">Scaling Management System</p>
                     </div>
                 </div>
                 <div class="flex items-center space-x-4">
-                    <a href="{{ route('admin.scalling.private') }}"
+                    <a href="{{ route('admin.scalling.soe') }}"
                         class="flex items-center space-x-2.5 bg-white border-2 border-slate-900 hover:bg-slate-900 text-slate-900 hover:text-white px-6 py-3 rounded-xl font-black text-xs transition-all duration-300 shadow-sm uppercase tracking-wider">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/>
@@ -109,11 +109,11 @@
                 <h2 class="text-base font-black text-slate-900 uppercase tracking-wide">Upload File</h2>
             </div>
 
-            <form action="{{ route('admin.scalling.private.qualified') }}" method="POST" enctype="multipart/form-data">
+            <form action="{{ route('admin.scalling.soe.qualified') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
                     <input type="hidden" name="type" value="qualified">
-                    <input type="hidden" name="segment" value="private">
+                    <input type="hidden" name="segment" value="soe">
                     <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Periode</label>
                         <input type="month" name="periode" required
