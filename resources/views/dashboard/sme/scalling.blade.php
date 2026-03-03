@@ -91,7 +91,7 @@
                         'label' => 'LOP Initiate',
                         'sub'   => 'Data LOP Initiate SME',
                         'badge' => 'INITIATE',
-                        'route' => '',
+                        'route' => route('dashboard.sme.lop-initiate'),
                         'icon'  => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"/>',
                     ],
                 ];
@@ -138,7 +138,7 @@
                         <h2 class="text-xl font-black text-slate-900 tracking-tight">Scalling — Upselling HSI</h2>
                     </div>
                 </div>
-                <span class="text-xs font-bold text-slate-500 bg-white border border-slate-200 rounded-full px-4 py-1.5 shadow-sm">Asodomoro Management</span>
+                <span class="text-xs font-bold text-slate-500 bg-white border border-slate-200 rounded-full px-4 py-1.5 shadow-sm">Scalling Management</span>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-5">

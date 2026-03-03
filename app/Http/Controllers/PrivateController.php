@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\ScallingImport;
+use App\Models\ScallingData;
+
 
 class PrivateController extends Controller
 {
@@ -112,6 +114,46 @@ class PrivateController extends Controller
         // Get admin note
         
         return view('dashboard.private.lop-qualified', compact('latestImport', 'currentPeriode', 'periodOptions'));
+    }
+
+    public function lopInitiate()
+    {
+        $currentPeriode = request()->get('periode', date('Y-m'));
+        $currentPeriodeDate = $currentPeriode . '-01';
+
+        $periodOptions = ScallingImport::where('type', 'initiate')
+            ->where('segment', 'private')
+            ->where('status', 'active')
+            ->orderBy('periode', 'desc')
+            ->get()
+            ->pluck('periode')
+            ->map(fn($d) => \Carbon\Carbon::parse($d)->format('Y-m'))
+            ->unique()
+            ->values();
+
+        $rows = ScallingData::with(['funnel.todayProgress'])
+            ->whereHas('scallingImport', function ($query) use ($currentPeriodeDate) {
+                $query->where('type', 'initiate')
+                    ->where('status', 'active')
+                    ->where('segment', 'private')
+                    ->where('periode', $currentPeriodeDate);
+            })
+            ->latest()
+            ->get();
+            // dd($rows);
+
+        $latestImport = ScallingImport::with(['data.funnel.todayProgress'])
+            ->where('type', 'initiate')
+            ->where('status', 'active')
+            ->where('segment', 'private')
+            ->where('periode', $currentPeriodeDate)
+            ->latest()
+            ->first();
+        // dd($latestImport);
+        
+        // Get admin note
+        
+        return view('dashboard.private.lop-initiate', compact('latestImport', 'currentPeriode', 'periodOptions', 'rows'));
     }
 
     public function updateFunnelCheckbox(Request $request)

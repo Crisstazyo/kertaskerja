@@ -2,586 +2,532 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ScallingData;
+use App\Models\ScallingImport;
+use App\Models\FunnelTracking;
+use App\Models\TaskProgress;
 use Illuminate\Http\Request;
-use App\Models\Collection;
-use App\Models\Ctc;
-use App\Models\Ct0;
-use App\Models\Psak;
-use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Auth;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class AdminController extends Controller
+class ScallingController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    // ── LAYOUT EXCEL ─────────────────────────────────────────────────────────
+    private const HEADER_ROW     = 3;  // Baris ke-5: header kolom (NO, PROJECT, dst.)
+    private const DATA_START_ROW = 7;  // Baris ke-7: data pertama
+    private const MAX_COL        = 9;  // Kolom A(1) s/d I(9)
+
+    // ── MAPPING HEADER EXCEL → KOLOM DATABASE ────────────────────────────────
+    private array $columnMap = [
+        'NO'                       => 'no',
+        'PROJECT'                  => 'project',
+        'ID LOP'                   => 'id_lop',
+        'CC'                       => 'cc',
+        'NIPNAS'                   => 'nipnas',
+        'AM'                       => 'am',
+        'MITRA'                    => 'mitra',
+        'PLAN BULAN BILLCOMP 2025' => 'plan_bulan_billcomp_2025',
+        'EST NILAI BC'             => 'est_nilai_bc',
+    ];
+
+    // ── HALAMAN ───────────────────────────────────────────────────────────────
+
+    public function indexGov()
     {
-        return view('admin.index');
+        return view('admin.scalling.gov.gov', $this->sharedViewData());
     }
 
-    public function collectionRatioTable()
+    public function indexSoe()
     {
-        $collections = Collection::with('user')
-        ->where('type', 'Collection Ratio')
-        ->orderBy('created_at', 'desc')
-        ->paginate(15)
-        ->withQueryString();
-        $users = User::all();
-        $periodes = Collection::where('type', 'like', '%UTIP%')
-        ->selectRaw("DATE_FORMAT(periode, '%Y-%m') as periode")
-        ->distinct()
-        ->orderBy('periode', 'desc')
-        ->pluck('periode')
-        ->map(function ($item) {
-            return Carbon::createFromFormat('Y-m', $item)
-                ->locale('id')
-                ->translatedFormat('F Y');
-        });
-        return view('admin.collection.collectionRatio', compact('collections', 'users', 'periodes'));
+        return view('admin.scalling.soe.soe', $this->sharedViewData());
     }
 
-    public function collectionRatioStore(Request $request)
+    public function indexSme()
+    {
+        return view('admin.scalling.sme.sme', $this->sharedViewData());
+    }
+
+    public function indexPrivate()
+    {
+        return view('admin.scalling.private.private', $this->sharedViewData());
+    }
+
+    public function indexInitiate()
+    {
+        return view('admin.scalling.initiate.initiate', $this->sharedViewData());
+    }
+
+    // Government
+    public function onHandGov()
+    {
+        $logs= ScallingImport::where('type', 'on-hand')->where('segment', 'government')->latest()->paginate(10);
+        $projects = ScallingData::with('scallingImport')->latest()->paginate(20);
+        return view('admin.scalling.gov.onHand', compact('logs', 'projects'));
+    }
+    public function koreksiGov()
+    {
+        $logs= ScallingImport::where('type', 'koreksi')->where('segment', 'government')->latest()->paginate(10);
+        $projects = ScallingData::with('scallingImport')->latest()->paginate(20);
+        return view('admin.scalling.gov.koreksi', compact('logs', 'projects'));
+    }
+    public function qualifiedGov()
+    {
+        $logs= ScallingImport::where('type', 'qualified')->where('segment', 'government')->latest()->paginate(10);
+        $projects = ScallingData::with('scallingImport')->latest()->paginate(20);
+        return view('admin.scalling.gov.qualified', compact('logs', 'projects'));
+    }
+    public function initiateGov()
+    {
+        $currentPeriode = now()->format('Y-m');
+        $logs= ScallingImport::where('type', 'initiate')->where('segment', 'government')->latest()->paginate(10);
+        $projects = ScallingData::with('scallingImport')
+            ->whereHas('scallingImport', function ($query) {
+                $query->where('type', 'initiate')
+                    ->where('segment', 'government');
+            })
+            ->latest()
+            ->paginate(10);
+
+        $periodes = ScallingImport::whereHas('scallingData')
+            ->selectRaw("DATE_FORMAT(periode, '%Y-%m') as periode")
+            ->where('type', 'initiate')
+            ->where('segment', 'government')
+            ->distinct()
+            ->orderBy('periode', 'asc')
+            ->pluck('periode');
+        // dd($periodes);
+        return view('admin.scalling.gov.initiate', compact('logs', 'projects', 'periodes', 'currentPeriode'));
+    }
+
+    // SOE
+    public function onHandSoe()
+    {
+        $logs= ScallingImport::where('type', 'on-hand')->where('segment', 'soe')->latest()->paginate(10);
+        $projects = ScallingData::with('scallingImport')->latest()->paginate(20);
+        return view('admin.scalling.soe.onHand', compact('logs', 'projects'));
+    }
+
+    public function koreksiSoe()
+    {
+        $logs= ScallingImport::where('type', 'koreksi')->where('segment', 'soe')->latest()->paginate(10);
+        $projects = ScallingData::with('scallingImport')->latest()->paginate(20);
+        return view('admin.scalling.soe.koreksi', compact('logs', 'projects'));
+    }
+    public function qualifiedSoe()
+    {
+        $logs= ScallingImport::where('type', 'qualified')->where('segment', 'soe')->latest()->paginate(10);
+        $projects = ScallingData::with('scallingImport')->latest()->paginate(20);
+        return view('admin.scalling.soe.qualified', compact('logs', 'projects'));
+    }
+    public function initiateSoe()
+    {
+        $currentPeriode = now()->format('Y-m');
+        $logs= ScallingImport::where('type', 'initiate')->where('segment', 'soe')->latest()->paginate(10);
+        $projects = ScallingData::with('scallingImport')
+            ->whereHas('scallingImport', function ($query) {
+                $query->where('type', 'initiate')
+                    ->where('segment', 'soe');
+            })
+            ->latest()
+            ->paginate(10);
+
+        $periodes = ScallingImport::whereHas('scallingData')
+            ->selectRaw("DATE_FORMAT(periode, '%Y-%m') as periode")
+            ->where('type', 'initiate')
+            ->where('segment', 'soe')
+            ->distinct()
+            ->orderBy('periode', 'asc')
+            ->pluck('periode');
+        // dd($periodes);
+        return view('admin.scalling.soe.initiate', compact('logs', 'projects', 'periodes', 'currentPeriode'));
+    }
+
+    // Private
+    public function onHandPrivate()
+    {
+        $logs= ScallingImport::where('type', 'on-hand')->where('segment', 'private')->latest()->paginate(10);
+        $projects = ScallingData::with('scallingImport')->latest()->paginate(20);
+        return view('admin.scalling.private.onHand', compact('logs', 'projects'));
+    }
+    public function koreksiPrivate()
+    {
+        $logs= ScallingImport::where('type', 'koreksi')->where('segment', 'private')->latest()->paginate(10);
+        $projects = ScallingData::with('scallingImport')->latest()->paginate(20);
+        return view('admin.scalling.private.koreksi', compact('logs', 'projects'));
+    }
+    public function qualifiedPrivate()
+    {
+        $logs= ScallingImport::where('type', 'qualified')->where('segment', 'private')->latest()->paginate(10);
+        $projects = ScallingData::with('scallingImport')->latest()->paginate(20);
+        return view('admin.scalling.private.qualified', compact('logs', 'projects'));
+    }
+    public function initiatePrivate()
+    {
+        $currentPeriode = now()->format('Y-m');
+        $logs= ScallingImport::where('type', 'initiate')->where('segment', 'private')->latest()->paginate(10);
+        $projects = ScallingData::with('scallingImport')
+            ->whereHas('scallingImport', function ($query) {
+                $query->where('type', 'initiate')
+                    ->where('segment', 'private');
+            })
+            ->latest()
+            ->paginate(10);
+            // dd($projects);
+
+        $periodes = ScallingImport::whereHas('scallingData')
+            ->selectRaw("DATE_FORMAT(periode, '%Y-%m') as periode")
+            ->where('type', 'initiate')
+            ->where('segment', 'private')
+            ->distinct()
+            ->orderBy('periode', 'asc')
+            ->pluck('periode');
+        // dd($periodes);
+        return view('admin.scalling.private.initiate', compact('logs', 'projects', 'periodes', 'currentPeriode'));
+    }
+
+    // SME
+    public function onHandSme()
+    {
+        $logs= ScallingImport::where('type', 'on-hand')->where('segment', 'sme')->latest()->paginate(10);
+        $projects = ScallingData::with('scallingImport')->latest()->paginate(20);
+        return view('admin.scalling.sme.onHand', compact('logs', 'projects'));
+    }
+    public function koreksiSme()
+    {
+        $logs= ScallingImport::where('type', 'koreksi')->where('segment', 'sme')->latest()->paginate(10);
+        $projects = ScallingData::with('scallingImport')->latest()->paginate(20);
+        return view('admin.scalling.sme.koreksi', compact('logs', 'projects'));
+    }
+    public function qualifiedSme()
+    {
+        $logs= ScallingImport::where('type', 'qualified')->where('segment', 'sme')->latest()->paginate(10);
+        $projects = ScallingData::with('scallingImport')->latest()->paginate(20);
+        return view('admin.scalling.sme.qualified', compact('logs', 'projects'));
+    }
+    public function initiateSme()
+    {
+        $currentPeriode = now()->format('Y-m');
+        $logs= ScallingImport::where('type', 'initiate')->where('segment', 'sme')->latest()->paginate(10);
+        $projects = ScallingData::with('scallingImport')
+            ->whereHas('scallingImport', function ($query) {
+                $query->where('type', 'initiate')
+                    ->where('segment', 'sme');
+            })
+            ->latest()
+            ->paginate(10);
+
+        $periodes = ScallingImport::whereHas('scallingData')
+            ->selectRaw("DATE_FORMAT(periode, '%Y-%m') as periode")
+            ->where('type', 'initiate')
+            ->where('segment', 'sme')
+            ->distinct()
+            ->orderBy('periode', 'asc')
+            ->pluck('periode');
+        // dd($periodes);
+        return view('admin.scalling.sme.initiate', compact('logs', 'projects', 'periodes', 'currentPeriode'));
+    }
+
+    // ── IMPORT ────────────────────────────────────────────────────────────────
+
+    public function import(Request $request)
     {
         $request->validate([
-            'status'     => 'required|in:active,inactive',
-            'periode'    => 'required|date_format:Y-m',
-            'commitment' => 'nullable|string',
-            'real_ratio' => 'nullable|string',
+            'excel_file' => ['required', 'file', 'mimes:xlsx,xls,csv', 'max:10240'],
+        ], [
+            'excel_file.required' => 'File Excel wajib diunggah.',
+            'excel_file.mimes'    => 'File harus berformat .xlsx, .xls, atau .csv.',
+            'excel_file.max'      => 'Ukuran file maksimal 10 MB.',
+        ]);
+        $request->validate([
+            'periode'     => 'required|date_format:Y-m',
+            'type'       => 'required|nullable',
+            'segment'    => 'required|nullable',
         ]);
         $periodeDate = $request->periode . '-01';
 
-        // cek/update berdasarkan kombinasi type+segment+periode
-        $attributes = [
-            'type'    => 'Collection Ratio',
-            'periode' => $periodeDate,
-        ];
+        $file             = $request->file('excel_file');
+        $originalFilename = $file->getClientOriginalName();
+        $tempPath         = $file->getRealPath();
 
-        $values = [
-            'user_id'    => Auth::id(),          // otomatis user login
-            'status'     => $request->status,
-            'commitment' => $request->commitment,
-            'real_ratio' => $request->real_ratio,
-        ];
+        try {
+            // ── 1. Baca & parsing Excel dulu — SEBELUM menyentuh database ──
+            $spreadsheet = IOFactory::load($tempPath);
+            $sheet       = $spreadsheet->getActiveSheet();
 
-        $collection = Collection::updateOrCreate($attributes, $values);
-        $message = $collection->wasRecentlyCreated
-            ? 'Data berhasil disimpan'
-            : 'Data berhasil diperbarui';
+            $headerMap  = $this->readAndValidateHeaders($sheet);
+            $rows       = [];
+            $highestRow = $sheet->getHighestRow();
 
-        return back()->with('success', $message);
+            for ($rowIndex = self::DATA_START_ROW; $rowIndex <= $highestRow; $rowIndex++) {
+                if ($this->isTotalRow($sheet, $rowIndex)) {
+                    break;
+                }
+
+                $rowData = $this->readRow($sheet, $rowIndex, $headerMap);
+
+                if ($this->isRowEmpty($rowData)) {
+                    continue;
+                }
+
+                $rows[] = $rowData; // belum ada log id, ditambahkan setelah log dibuat
+            }
+
+            if (empty($rows)) {
+                throw new \Exception('Tidak ada data valid yang ditemukan di dalam file Excel.');
+            }
+
+            // ── 2. Semua parsing berhasil — baru simpan ke database ──
+            DB::transaction(function () use ($rows, $originalFilename, $request, $periodeDate) {
+                // cek apakah sudah ada log dengan periode yang sama
+                $log = ScallingImport::where('periode', $periodeDate)->where('type', $request->type)->where('segment', $request->segment)->first();
+
+                if ($log) {
+                    // gunakan kembali log yang ada dan hapus data lama
+                    $log->update([
+                        'original_filename'   => $originalFilename,
+                        'status'              => 'active',
+                        'type'                => $request->type,
+                        'segment'             => $request->segment,
+                        'total_rows_imported' => count($rows),
+                        'uploaded_by'         => auth()->user()->name ?? $request->ip(),
+                    ]);
+
+                    // hapus data scalling yang lama, tetapi kumpulkan id baris terlebih dahulu
+                    $scallingIds = ScallingData::where('imports_log_id', $log->id)->pluck('id')->toArray();
+                    $funnelIds = FunnelTracking::where('data_id', $log->id)->pluck('id')->toArray();
+                    ScallingData::where('imports_log_id', $log->id)->delete();
+
+                    // tambahan: hapus entri taskProgress dan FunnelTracking berdasarkan id scallingData
+                    if (!empty($scallingIds)) {
+                        FunnelTracking::whereIn('data_id', $scallingIds)->delete();
+                        TaskProgress::whereIn('task_id', $funnelIds)->delete();
+                    }
+                } else {
+                    // buat log baru
+                    $log = ScallingImport::create([
+                        'original_filename'   => $originalFilename,
+                        'status'              => 'active',
+                        'type'                => $request->type,
+                        'segment'             => $request->segment,
+                        'periode'             => $periodeDate,
+                        'total_rows_imported' => count($rows),
+                        'uploaded_by'         => auth()->user()->name ?? $request->ip(),
+                    ]);
+                }
+
+                // Sisipkan foreign key ke setiap baris
+                $timestamp  = now();
+                $insertRows = array_map(fn($row) => array_merge($row, [
+                    'imports_log_id' => $log->id,
+                    'created_at'     => $timestamp,
+                    'updated_at'     => $timestamp,
+                ]), $rows);
+
+                foreach (array_chunk($insertRows, 500) as $chunk) {
+                    ScallingData::insert($chunk);
+                }
+            });
+
+            // ── 3. Hapus file setelah semua berhasil ──
+            @unlink($tempPath);
+
+            $count = count($rows);
+            return redirect()->back()
+                ->with('success', "Import berhasil! {$count} baris diimpor dari \"{$originalFilename}\".");
+
+        } catch (\Throwable $e) {
+            // Tidak ada log yang disimpan — hapus file lalu tampilkan pesan error saja
+            @unlink($tempPath);
+
+            return redirect()->back()
+                ->with('error', 'Import gagal: ' . $e->getMessage());
+        }
     }
 
-    public function c3mrTable()
+    // ── SHOW / DESTROY ────────────────────────────────────────────────────────
+
+    public function show(ScallingImport $scallingImport)
     {
-        $collections = Collection::with('user')
-        ->where('type', 'C3MR')
-        ->orderBy('created_at', 'desc')
-        ->paginate(15)
-        ->withQueryString();
-        $users = User::all();
-        $periodes = Collection::where('type', 'like', '%UTIP%')
-        ->selectRaw("DATE_FORMAT(periode, '%Y-%m') as periode")
-        ->distinct()
-        ->orderBy('periode', 'desc')
-        ->pluck('periode')
-        ->map(function ($item) {
-            return Carbon::createFromFormat('Y-m', $item)
-                ->locale('id')
-                ->translatedFormat('F Y');
-        });
-        return view('admin.collection.c3mr', compact('collections', 'users', 'periodes'));
+        $projects = $scallingImport->scallingData()->paginate(20);
+        return view('admin.scalling.show', compact('scallingImport', 'projects'));
     }
 
-    public function c3mrStore(Request $request)
+    public function destroy(ScallingImport $scallingImport)
+    {
+        DB::transaction(function () use ($scallingImport) {
+            $scallingImport->scallingData()->delete();
+            $scallingImport->delete();
+        });
+
+        return redirect()->route('admin.scalling.index')
+            ->with('success', 'Log dan data terkait berhasil dihapus.');
+    }
+
+    // ── PRIVATE HELPERS ───────────────────────────────────────────────────────
+
+    private function sharedViewData(): array
+    {
+        return [
+            'logs'     => ScallingImport::latest()->paginate(10),
+            'projects' => ScallingData::with('scallingImport')->latest()->paginate(20),
+        ];
+    }
+
+    // Initiate Store
+    public function storeData(Request $request)
     {
         $request->validate([
-            'status'     => 'required|in:active,inactive',
-            'periode'    => 'required|date_format:Y-m',
-            'segment'    => 'nullable|string',
-            'commitment' => 'nullable|string',
-            'real_ratio' => 'nullable|string',
+            'status' => 'required|in:active,inactive',
+            'periode' => 'required|date_format:Y-m',
+            'project' => 'required|string',
+            'id_lop' => 'nullable|string',
+            'cc' => 'nullable|string',
+            'nipnas' => 'nullable|string',
+            'am' => 'nullable|string',
+            'mitra' => 'nullable|string',
+            'plan_bulan_billcomp_2025' => 'nullable|integer',
+            'est_nilai_bc' => 'nullable|numeric',
         ]);
+
         $periodeDate = $request->periode . '-01';
 
-        // cek/update berdasarkan kombinasi type+segment+periode
-        $attributes = [
-            'type'    => 'C3MR',
+        $import= ScallingImport::create([
+            'original_filename' => null,
+            'status' => $request->status,
+            'type' => 'initiate',
             'segment' => $request->segment,
             'periode' => $periodeDate,
-        ];
+            'total_rows_imported' => 0,
+            'uploaded_by' => auth()->user()->name ?? $request->ip(),
+        ]);
 
-        $values = [
-            'user_id'    => Auth::id(),          // otomatis user login
-            'status'     => $request->status,
-            'commitment' => $request->commitment,
-            'real_ratio' => $request->real_ratio,
-        ];
+        $data = ScallingData::create([
+            'imports_log_id' => $import->id,
+            'project' => $request->project,
+            'id_lop' => $request->id_lop,
+            'cc' => $request->cc,
+            'nipnas' => $request->nipnas,
+            'am' => $request->am,
+            'mitra' => $request->mitra,
+            'plan_bulan_billcomp_2025' => $request->plan_bulan_billcomp_2025,
+            'est_nilai_bc' => $request->est_nilai_bc,
+        ]);
 
-        $collection = Collection::updateOrCreate($attributes, $values);
-        $message = $collection->wasRecentlyCreated
-            ? 'Data berhasil disimpan'
-            : 'Data berhasil diperbarui';
-
-        return back()->with('success', $message);
+        return redirect()->back()->with('success', "Data untuk project \"{$data->project}\" berhasil disimpan.");
     }
 
     /**
-     * Flip active/inactive status for a given collection record.
+     * Baca header dari baris HEADER_ROW.
+     * Salin konstanta ke variable lokal dulu sebelum digunakan sebagai string.
      */
-    public function toggleCollectionStatus($id)
+    private function readAndValidateHeaders(Worksheet $sheet): array
     {
-        $collection = Collection::findOrFail($id);
+        $headerMap    = [];
+        $foundHeaders = [];
+        $headerRow    = self::HEADER_ROW; // wajib disalin ke variable
+
+        for ($col = 1; $col <= self::MAX_COL; $col++) {
+            $coordinate = Coordinate::stringFromColumnIndex($col) . $headerRow; // "A5", "B5", dst.
+            $rawValue   = $sheet->getCell($coordinate)->getValue();
+            $normalized = preg_replace('/\s+/', ' ', strtoupper(trim((string) $rawValue)));
+
+            if (isset($this->columnMap[$normalized])) {
+                $headerMap[$col] = $this->columnMap[$normalized];
+                $foundHeaders[]  = $normalized;
+            }
+        }
+
+        if (!in_array('NO', $foundHeaders) || !in_array('PROJECT', $foundHeaders)) {
+            $found = implode(', ', $foundHeaders) ?: '(tidak ada)';
+            throw new \Exception(
+                "Header tidak ditemukan di baris ke-" . self::HEADER_ROW . ". " .
+                "Kolom terbaca: {$found}. Pastikan header NO dan PROJECT ada di baris " . self::HEADER_ROW . "."
+            );
+        }
+
+        return $headerMap;
+    }
+
+    /**
+     * Cek apakah baris $rowIndex adalah baris TOTAL.
+     * Menerima Worksheet + nomor baris — bukan array rowData.
+     * Loop di-break saat ini ditemukan, sehingga baris TOTAL tidak pernah masuk DB.
+     */
+    private function isTotalRow(Worksheet $sheet, int $rowIndex): bool
+    {
+        $rowNum = $rowIndex; // salin ke variable biasa
+
+        for ($col = 1; $col <= self::MAX_COL; $col++) {
+            $coordinate = Coordinate::stringFromColumnIndex($col) . $rowNum;
+            $value      = strtoupper(trim((string) $sheet->getCell($coordinate)->getValue()));
+
+            if (str_contains($value, 'TOTAL')) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Baca satu baris. Gunakan getValue() agar nilai numerik tidak berubah format.
+     */
+    private function readRow(Worksheet $sheet, int $rowIndex, array $headerMap): array
+    {
+        $rowData = [];
+        $rowNum  = $rowIndex; // salin ke variable biasa
+
+        for ($col = 1; $col <= self::MAX_COL; $col++) {
+            if (!isset($headerMap[$col])) continue;
+
+            $dbColumn   = $headerMap[$col];
+            $coordinate = Coordinate::stringFromColumnIndex($col) . $rowNum; // "A7", dst.
+            $raw        = $sheet->getCell($coordinate)->getValue();
+            $cellValue  = trim((string) $raw);
+
+            if (in_array($dbColumn, ['no', 'plan_bulan_billcomp_2025'])) {
+                $cellValue = is_numeric($cellValue) ? (int) $cellValue : null;
+
+            } elseif ($dbColumn === 'est_nilai_bc') {
+                // Nilai sudah float dari Excel? langsung pakai
+                if (is_numeric($raw)) {
+                    $cellValue = (float) $raw;
+                } else {
+                    // Fallback: parse format Indonesia 457.854.960
+                    $clean = preg_replace('/[^\d,.]/', '', $cellValue);
+                    $clean = str_replace('.', '', $clean);
+                    $clean = str_replace(',', '.', $clean);
+                    $cellValue = is_numeric($clean) ? (float) $clean : null;
+                }
+
+            } else {
+                $cellValue = ($cellValue === '') ? null : $cellValue;
+            }
+
+            $rowData[$dbColumn] = $cellValue;
+        }
+
+        return $rowData;
+    }
+
+    /** True jika semua nilai di baris kosong/null. */
+    private function isRowEmpty(array $rowData): bool
+    {
+        foreach ($rowData as $value) {
+            if ($value !== null && $value !== '') return false;
+        }
+        return true;
+    }
+
+    public function toggleStatus($id)
+    {
+        $collection = ScallingImport::findOrFail($id);
         $collection->status = $collection->status === 'active' ? 'inactive' : 'active';
         $collection->save();
 
         return back()->with('success', 'Status berhasil diubah');
-    }
-
-    public function billingTable()
-    {
-        $collections = Collection::with('user')
-        ->where('type', 'Billing Perdana')
-        ->orderBy('created_at', 'desc')
-        ->paginate(15)
-        ->withQueryString();
-        $users = User::all();
-        // collect all distinct periode values for Billing Perdana entries
-        $periodes = Collection::where('type', 'like', '%UTIP%')
-        ->selectRaw("DATE_FORMAT(periode, '%Y-%m') as periode")
-        ->distinct()
-        ->orderBy('periode', 'desc')
-        ->pluck('periode')
-        ->map(function ($item) {
-            return Carbon::createFromFormat('Y-m', $item)
-                ->locale('id')
-                ->translatedFormat('F Y');
-        });
-        return view('admin.collection.billingPerdana', compact('collections', 'users', 'periodes'));
-    }
-
-    public function billingStore(Request $request)
-    {
-        $request->validate([
-            'status'     => 'required|in:active,inactive',
-            'periode'    => 'required|date_format:Y-m',
-            'commitment' => 'nullable|string',
-            'real_ratio' => 'nullable|string',
-        ]);
-        $periodeDate = $request->periode . '-01';
-
-        // cek/update berdasarkan kombinasi type+segment+periode
-        $attributes = [
-            'type'    => 'Billing Perdana',
-            'periode' => $periodeDate,
-        ];
-
-        $values = [
-            'user_id'    => Auth::id(),          // otomatis user login
-            'status'     => $request->status,
-            'commitment' => $request->commitment,
-            'real_ratio' => $request->real_ratio,
-        ];
-
-        $collection = Collection::updateOrCreate($attributes, $values);
-        $message = $collection->wasRecentlyCreated
-            ? 'Data berhasil disimpan'
-            : 'Data berhasil diperbarui';
-
-        return back()->with('success', $message);
-    }
-
-    public function utipTable()
-    {
-        // Show all collections whose type contains 'UTIP'
-        $collections = Collection::with('user')
-        ->where('type', 'like', '%UTIP%')
-        ->orderBy('created_at', 'desc')
-        ->paginate(15)
-        ->withQueryString();
-        $users = User::all();
-        $periodes = Collection::where('type', 'like', '%UTIP%')
-        ->selectRaw("DATE_FORMAT(periode, '%Y-%m') as periode")
-        ->distinct()
-        ->orderBy('periode', 'desc')
-        ->pluck('periode')
-        ->map(function ($item) {
-            return Carbon::createFromFormat('Y-m', $item)
-                ->locale('id')
-                ->translatedFormat('F Y');
-        });
-        return view('admin.collection.utip', compact('collections', 'users', 'periodes'));
-    }
-
-    public function utipStore(Request $request)
-    {
-        $request->validate([
-            'status'     => 'required|in:active,inactive',
-            'periode'    => 'required|date_format:Y-m',
-            'type'       => 'required|string',
-            'plan'       => 'nullable|string',
-            'commitment' => 'nullable|string',
-            'real_ratio' => 'nullable|string',
-        ]);
-        $periodeDate = $request->periode . '-01';
-
-        // cek/update berdasarkan kombinasi type+periode
-        $attributes = [
-            'type'    => $request->type,
-            'periode' => $periodeDate,
-        ];
-        $values = [
-            'user_id'    => Auth::id(),          // otomatis user login
-            'status'     => $request->status,
-            'plan'       => $request->plan,
-            'commitment' => $request->commitment,
-            'real_ratio' => $request->real_ratio,
-        ];
-
-        $collection = Collection::updateOrCreate($attributes, $values);
-        $message = $collection->wasRecentlyCreated
-            ? 'Data berhasil disimpan'
-            : 'Data berhasil diperbarui';
-
-        return back()->with('success', $message);
-    }
-
-    public function ctcTable()
-    {
-        $collections = Ctc::with('user')
-        // ->where('type', 'like', '%UTIP%')
-        ->orderBy('created_at', 'desc')
-        ->paginate(15)
-        ->withQueryString();
-        $users = User::all();
-        return view('admin.ctc.ctc', compact('collections', 'users'));
-    }
-
-    public function ctcStore(Request $request)
-    {
-        $request->validate([
-            'status'     => 'required|in:active,inactive',
-            'segment'    => 'nullable|string',
-            'commitment' => 'nullable|string',
-            'real_ratio' => 'nullable|string',
-        ]);
-
-        Ctc::create([
-            'user_id'    => Auth::id(),          // otomatis user login
-            'status'     => $request->status,
-            'segment'    => $request->segment,
-            'commitment' => $request->commitment,
-            'real_ratio' => $request->real_ratio,
-        ]);
-
-        return back()->with('success', 'Data berhasil disimpan');
-    }
-
-    public function ct0Table()
-    {
-        $collections = Ct0::with('user')
-        // ->where('type', 'like', '%UTIP%')
-        ->orderBy('created_at', 'desc')
-        ->paginate(15)
-        ->withQueryString();
-        $users = User::all();
-        return view('admin.ctc.ct0', compact('collections', 'users'));
-    }
-
-    public function ct0Store(Request $request)
-    {
-        $request->validate([
-            'status'     => 'required|in:active,inactive',
-            'region'    => 'nullable|string',
-            'commitment' => 'nullable|string',
-            'real_ratio' => 'nullable|string',
-        ]);
-
-        Ct0::create([
-            'user_id'    => Auth::id(),          // otomatis user login
-            'status'     => $request->status,
-            'region'    => $request->region,
-            'commitment' => $request->commitment,
-            'real_ratio' => $request->real_ratio,
-        ]);
-
-        return back()->with('success', 'Data berhasil disimpan');
-    }
-
-    public function psakGov(Request $request)
-    {
-        // build query and optionally filter by month/year of created_at
-        $query = Psak::with('user')
-            ->where('type', 'Government');
-
-        // filter parameters are expected as numeric values (1-12 for month, 4‑digit year)
-        if ($request->filled('filter_month')) {
-            $query->whereMonth('created_at', $request->filter_month);
-        }
-        if ($request->filled('filter_year')) {
-            $query->whereYear('created_at', $request->filter_year);
-        }
-
-        // allow server‐side segment filtering (code values)
-        if ($request->filled('segmen')) {
-            $query->where('segment', $request->segmen);
-        }
-
-        // also select the month name and year if you want to use them in the view
-        $govs = $query
-            ->selectRaw("psaks.*, MONTHNAME(created_at) as month_name, YEAR(created_at) as year")
-            ->orderBy('created_at', 'desc')
-            ->paginate(15)
-            ->withQueryString();
-
-        $users = User::all();
-        return view('admin.psak.gov', compact('govs', 'users'));
-    }
-
-    public function psakGovStore(Request $request)
-    {
-        $request->validate([
-            'segment'    => 'nullable|string',
-            'comm_ssl' => 'nullable|string',
-            'comm_rp' => 'nullable|string',
-            'real_ssl' => 'nullable|string',
-            'real_rp' => 'nullable|string',
-        ]);
-
-        Psak::create([
-            'user_id'    => Auth::id(),          // otomatis user login
-            'type'       => 'Government',              // dipaksa dari backend
-            'segment'    => $request->segment,
-            'comm_ssl' => $request->comm_ssl,
-            'comm_rp' => $request->comm_rp,
-            'real_ssl' => $request->real_ssl,
-            'real_rp' => $request->real_rp,
-        ]);
-
-        return back()->with('success', 'Data berhasil disimpan');
-    }
-
-    public function psakPrivate(Request $request)
-    {
-        // build query and optionally filter by month/year of created_at
-        $query = Psak::with('user')
-            ->where('type', 'Private');
-
-        // filter parameters are expected as numeric values (1-12 for month, 4‑digit year)
-        if ($request->filled('filter_month')) {
-            $query->whereMonth('created_at', $request->filter_month);
-        }
-        if ($request->filled('filter_year')) {
-            $query->whereYear('created_at', $request->filter_year);
-        }
-
-        // also select the month name and year if you want to use them in the view
-        $pvts = $query
-            ->selectRaw("psaks.*, MONTHNAME(created_at) as month_name, YEAR(created_at) as year")
-            ->orderBy('created_at', 'desc')
-            ->paginate(15)
-            ->withQueryString();
-
-        $users = User::all();
-        return view('admin.psak.private', compact('pvts', 'users'));
-    }
-
-    public function psakPrivateStore(Request $request)
-    {
-        $request->validate([
-            'segment'    => 'nullable|string',
-            'comm_ssl' => 'nullable|string',
-            'comm_rp' => 'nullable|string',
-            'real_ssl' => 'nullable|string',
-            'real_rp' => 'nullable|string',
-        ]);
-
-        Psak::create([
-            'user_id'    => Auth::id(),          // otomatis user login
-            'type'       => 'Private',              // dipaksa dari backend
-            'segment'    => $request->segment,
-            'comm_ssl' => $request->comm_ssl,
-            'comm_rp' => $request->comm_rp,
-            'real_ssl' => $request->real_ssl,
-            'real_rp' => $request->real_rp,
-        ]);
-
-        return back()->with('success', 'Data berhasil disimpan');
-    }
-
-    public function psakSme(Request $request)
-    {
-        // build query and optionally filter by month/year of created_at
-        $query = Psak::with('user')
-            ->where('type', 'SME');
-
-        // filter parameters are expected as numeric values (1-12 for month, 4‑digit year)
-        if ($request->filled('filter_month')) {
-            $query->whereMonth('created_at', $request->filter_month);
-        }
-        if ($request->filled('filter_year')) {
-            $query->whereYear('created_at', $request->filter_year);
-        }
-
-        // also select the month name and year if you want to use them in the view
-        $smes = $query
-            ->selectRaw("psaks.*, MONTHNAME(created_at) as month_name, YEAR(created_at) as year")
-            ->orderBy('created_at', 'desc')
-            ->paginate(15)
-            ->withQueryString();
-
-        $users = User::all();
-        return view('admin.psak.sme', compact('smes', 'users'));
-    }
-
-    public function psakSmeStore(Request $request)
-    {
-        $request->validate([
-            'segment'    => 'nullable|string',
-            'comm_ssl' => 'nullable|string',
-            'comm_rp' => 'nullable|string',
-            'real_ssl' => 'nullable|string',
-            'real_rp' => 'nullable|string',
-        ]);
-
-        Psak::create([
-            'user_id'    => Auth::id(),          // otomatis user login
-            'type'       => 'SME',              // dipaksa dari backend
-            'segment'    => $request->segment,
-            'comm_ssl' => $request->comm_ssl,
-            'comm_rp' => $request->comm_rp,
-            'real_ssl' => $request->real_ssl,
-            'real_rp' => $request->real_rp,
-        ]);
-
-        return back()->with('success', 'Data berhasil disimpan');
-    }
-
-    public function psakSoe(Request $request)
-    {
-        // build query and optionally filter by month/year of created_at
-        $query = Psak::with('user')
-            ->where('type', 'SOE');
-
-        // filter parameters are expected as numeric values (1-12 for month, 4‑digit year)
-        if ($request->filled('filter_month')) {
-            $query->whereMonth('created_at', $request->filter_month);
-        }
-        if ($request->filled('filter_year')) {
-            $query->whereYear('created_at', $request->filter_year);
-        }
-
-        // also select the month name and year if you want to use them in the view
-        $soes = $query
-            ->selectRaw("psaks.*, MONTHNAME(created_at) as month_name, YEAR(created_at) as year")
-            ->orderBy('created_at', 'desc')
-            ->paginate(15)
-            ->withQueryString();
-
-        $users = User::all();
-        return view('admin.psak.soe', compact('soes', 'users'));
-    }
-
-    public function psakSoeStore(Request $request)
-    {
-        $request->validate([
-            'segment'    => 'nullable|string',
-            'comm_ssl' => 'nullable|string',
-            'comm_rp' => 'nullable|string',
-            'real_ssl' => 'nullable|string',
-            'real_rp' => 'nullable|string',
-        ]);
-
-        Psak::create([
-            'user_id'    => Auth::id(),          // otomatis user login
-            'type'       => 'SOE',              // dipaksa dari backend
-            'segment'    => $request->segment,
-            'comm_ssl' => $request->comm_ssl,
-            'comm_rp' => $request->comm_rp,
-            'real_ssl' => $request->real_ssl,
-            'real_rp' => $request->real_rp,
-        ]);
-
-        return back()->with('success', 'Data berhasil disimpan');
-    }
-
-    public function risingStar1Table()
-    {
-        $collections = Ctc::with('user')
-        // ->where('type', 'like', '%UTIP%')
-        ->orderBy('created_at', 'desc')
-        ->paginate(15)
-        ->withQueryString();
-        $users = User::all();
-        return view('admin.ctc.ctc', compact('collections', 'users'));
-    }
-
-    public function risingStar1Store(Request $request)
-    {
-        $request->validate([
-            'status'     => 'required|in:active,inactive',
-            'segment'    => 'nullable|string',
-            'commitment' => 'nullable|string',
-            'real_ratio' => 'nullable|string',
-        ]);
-
-        Ctc::create([
-            'user_id'    => Auth::id(),          // otomatis user login
-            'status'     => $request->status,
-            'segment'    => $request->segment,
-            'commitment' => $request->commitment,
-            'real_ratio' => $request->real_ratio,
-        ]);
-
-        return back()->with('success', 'Data berhasil disimpan');
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
     }
 }

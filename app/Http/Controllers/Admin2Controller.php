@@ -169,10 +169,11 @@ class Admin2Controller extends Controller
     {
         $currentPeriode = Carbon::now()->format('Y-m') . '-01';
         $existing = Hsi::where('created_at', '>=', $currentPeriode)
+            
             ->where('created_at', '<', Carbon::parse($currentPeriode)->addMonth())
             ->first();
 
-        $hsi   = Hsi::with('user')->orderBy('created_at', 'desc')->paginate(15)->withQueryString();
+        $hsi   = Hsi::with('user')->where('type', 'Sales HSI Non AM Non Telda')->orderBy('created_at', 'desc')->paginate(15)->withQueryString();
         $users = User::all();
 
         return view('admin.hsiagency.hsi', compact('existing', 'hsi', 'users'));
@@ -214,28 +215,29 @@ class Admin2Controller extends Controller
 
     // ══ Telda ══
 
-    public function teldaTable()
+    public function teldaTable(Request $request)
     {
         $teldas = [
-            'medan'           => 'Medan',
-            'binjai'          => 'Binjai',
-            'deliserdang'     => 'Deli Serdang',
-            'simalungun'      => 'Simalungun',
-            'pematangsiantar' => 'Pematang Siantar',
-            'tebingtinggi'    => 'Tebing Tinggi',
-            'asahan'          => 'Asahan',
-            'labuhanbatu'     => 'Labuhan Batu',
-            'tapanuli'        => 'Tapanuli',
+            'lubukpakam'            => 'Lubuk Pakam',
+            'binjai'                => 'Binjai',
+            'siantar'               => 'Siantar',
+            'kisaran'               => 'Kisaran',
+            'kabanjahe'             => 'Kabanjahe',
+            'rantauprapat'          => 'Rantau Prapat',
+            'toba'                  => 'Toba',
+            'sibolga'               => 'Sibolga',
+            'padangsidempuan'       => 'Padang Sidempuan',
         ];
 
-        $currentPeriode    = Carbon::now()->startOfMonth()->toDateString();
+        $selectedPeriode   = $request->get('periode', Carbon::now()->format('Y-m'));
+        $currentPeriode    = $selectedPeriode . '-01';
         $existingByRegion  = Telda::where('periode', $currentPeriode)->get()->keyBy('region');
-        $history           = Telda::orderBy('periode', 'desc')->get();
-        $historyByPeriode  = $history->groupBy('periode');
+        $history           = Telda::orderBy('periode', 'asc')->get();
+        $historyByPeriode  = $history->groupBy(fn($r) => substr($r->periode, 0, 7));
         $users             = User::all();
 
         return view('admin.telda.telda', compact(
-            'teldas', 'existingByRegion', 'history', 'historyByPeriode', 'users'
+            'teldas', 'existingByRegion', 'history', 'historyByPeriode', 'users', 'selectedPeriode'
         ));
     }
 
@@ -266,7 +268,8 @@ class Admin2Controller extends Controller
             );
         }
 
-        return back()->with('success', 'Data Telda berhasil disimpan');
+        return redirect()->to(url()->current() . '?periode=' . $request->periode)
+            ->with('success', 'Data Telda berhasil disimpan');
     }
 
     public function create() {}

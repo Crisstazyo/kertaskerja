@@ -8,6 +8,7 @@ use App\Models\FunnelTracking;
 use App\Models\TaskProgress;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
@@ -15,7 +16,7 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 class ScallingController extends Controller
 {
     // ── LAYOUT EXCEL ─────────────────────────────────────────────────────────
-    private const HEADER_ROW     = 3;  // Baris ke-5: header kolom (NO, PROJECT, dst.)
+    private const HEADER_ROW     = 3;  // Baris ke-3: header kolom (NO, PROJECT, dst.)
     private const DATA_START_ROW = 7;  // Baris ke-7: data pertama
     private const MAX_COL        = 9;  // Kolom A(1) s/d I(9)
 
@@ -32,7 +33,7 @@ class ScallingController extends Controller
         'EST NILAI BC'             => 'est_nilai_bc',
     ];
 
-    // ── HALAMAN ───────────────────────────────────────────────────────────────
+    // ── HALAMAN INDEX ─────────────────────────────────────────────────────────
 
     public function indexGov()
     {
@@ -54,86 +55,185 @@ class ScallingController extends Controller
         return view('admin.scalling.private.private', $this->sharedViewData());
     }
 
+    public function indexInitiate()
+    {
+        return view('admin.scalling.initiate.initiate', $this->sharedViewData());
+    }
+
+    // ── GOVERNMENT ────────────────────────────────────────────────────────────
+
     public function onHandGov()
     {
-        $logs= ScallingImport::where('type', 'on-hand')->where('segment', 'government')->latest()->paginate(10);
+        $logs     = ScallingImport::where('type', 'on-hand')->where('segment', 'government')->latest()->paginate(10);
         $projects = ScallingData::with('scallingImport')->latest()->paginate(20);
         return view('admin.scalling.gov.onHand', compact('logs', 'projects'));
     }
+
     public function koreksiGov()
     {
-        $logs= ScallingImport::where('type', 'koreksi')->where('segment', 'government')->latest()->paginate(10);
+        $logs     = ScallingImport::where('type', 'koreksi')->where('segment', 'government')->latest()->paginate(10);
         $projects = ScallingData::with('scallingImport')->latest()->paginate(20);
         return view('admin.scalling.gov.koreksi', compact('logs', 'projects'));
     }
+
     public function qualifiedGov()
     {
-        $logs= ScallingImport::where('type', 'qualified')->where('segment', 'government')->latest()->paginate(10);
+        $logs     = ScallingImport::where('type', 'qualified')->where('segment', 'government')->latest()->paginate(10);
         $projects = ScallingData::with('scallingImport')->latest()->paginate(20);
         return view('admin.scalling.gov.qualified', compact('logs', 'projects'));
     }
 
-    // public function onHandSme()
-    // {
-    //     return view('admin.scalling.sme.onHand', $this->sharedViewData());
-    // }
+    public function initiateGov()
+    {
+        $currentPeriode = now()->format('Y-m');
+        $logs           = ScallingImport::where('type', 'initiate')->where('segment', 'government')->latest()->paginate(10);
+        $projects       = ScallingData::with('scallingImport')
+            ->whereHas('scallingImport', function ($query) {
+                $query->where('type', 'initiate')->where('segment', 'government');
+            })
+            ->latest()
+            ->paginate(10);
+        $periodes = ScallingImport::whereHas('scallingData')
+            ->selectRaw("DATE_FORMAT(periode, '%Y-%m') as periode")
+            ->where('type', 'initiate')
+            ->where('segment', 'government')
+            ->distinct()
+            ->orderBy('periode', 'asc')
+            ->pluck('periode');
+
+        return view('admin.scalling.gov.initiate', compact('logs', 'projects', 'periodes', 'currentPeriode'));
+    }
+
+    // ── SOE ───────────────────────────────────────────────────────────────────
 
     public function onHandSoe()
     {
-        $logs= ScallingImport::where('type', 'on-hand')->where('segment', 'soe')->latest()->paginate(10);
+        $logs     = ScallingImport::where('type', 'on-hand')->where('segment', 'soe')->latest()->paginate(10);
         $projects = ScallingData::with('scallingImport')->latest()->paginate(20);
         return view('admin.scalling.soe.onHand', compact('logs', 'projects'));
     }
 
     public function koreksiSoe()
     {
-        $logs= ScallingImport::where('type', 'koreksi')->where('segment', 'soe')->latest()->paginate(10);
+        $logs     = ScallingImport::where('type', 'koreksi')->where('segment', 'soe')->latest()->paginate(10);
         $projects = ScallingData::with('scallingImport')->latest()->paginate(20);
         return view('admin.scalling.soe.koreksi', compact('logs', 'projects'));
     }
+
     public function qualifiedSoe()
     {
-        $logs= ScallingImport::where('type', 'qualified')->where('segment', 'soe')->latest()->paginate(10);
+        $logs     = ScallingImport::where('type', 'qualified')->where('segment', 'soe')->latest()->paginate(10);
         $projects = ScallingData::with('scallingImport')->latest()->paginate(20);
         return view('admin.scalling.soe.qualified', compact('logs', 'projects'));
     }
 
+    public function initiateSoe()
+    {
+        $currentPeriode = now()->format('Y-m');
+        $logs           = ScallingImport::where('type', 'initiate')->where('segment', 'soe')->latest()->paginate(10);
+        $projects       = ScallingData::with('scallingImport')
+            ->whereHas('scallingImport', function ($query) {
+                $query->where('type', 'initiate')->where('segment', 'soe');
+            })
+            ->latest()
+            ->paginate(10);
+        $periodes = ScallingImport::whereHas('scallingData')
+            ->selectRaw("DATE_FORMAT(periode, '%Y-%m') as periode")
+            ->where('type', 'initiate')
+            ->where('segment', 'soe')
+            ->distinct()
+            ->orderBy('periode', 'asc')
+            ->pluck('periode');
+
+        return view('admin.scalling.soe.initiate', compact('logs', 'projects', 'periodes', 'currentPeriode'));
+    }
+
+    // ── PRIVATE ───────────────────────────────────────────────────────────────
+
     public function onHandPrivate()
     {
-        $logs= ScallingImport::where('type', 'on-hand')->where('segment', 'private')->latest()->paginate(10);
+        $logs     = ScallingImport::where('type', 'on-hand')->where('segment', 'private')->latest()->paginate(10);
         $projects = ScallingData::with('scallingImport')->latest()->paginate(20);
         return view('admin.scalling.private.onHand', compact('logs', 'projects'));
     }
+
     public function koreksiPrivate()
     {
-        $logs= ScallingImport::where('type', 'koreksi')->where('segment', 'private')->latest()->paginate(10);
+        $logs     = ScallingImport::where('type', 'koreksi')->where('segment', 'private')->latest()->paginate(10);
         $projects = ScallingData::with('scallingImport')->latest()->paginate(20);
         return view('admin.scalling.private.koreksi', compact('logs', 'projects'));
     }
+
     public function qualifiedPrivate()
     {
-        $logs= ScallingImport::where('type', 'qualified')->where('segment', 'private')->latest()->paginate(10);
+        $logs     = ScallingImport::where('type', 'qualified')->where('segment', 'private')->latest()->paginate(10);
         $projects = ScallingData::with('scallingImport')->latest()->paginate(20);
         return view('admin.scalling.private.qualified', compact('logs', 'projects'));
     }
 
+    public function initiatePrivate()
+    {
+        $currentPeriode = now()->format('Y-m');
+        $logs           = ScallingImport::where('type', 'initiate')->where('segment', 'private')->latest()->paginate(10);
+        $projects       = ScallingData::with('scallingImport')
+            ->whereHas('scallingImport', function ($query) {
+                $query->where('type', 'initiate')->where('segment', 'private');
+            })
+            ->latest()
+            ->paginate(10);
+        $periodes = ScallingImport::whereHas('scallingData')
+            ->selectRaw("DATE_FORMAT(periode, '%Y-%m') as periode")
+            ->where('type', 'initiate')
+            ->where('segment', 'private')
+            ->distinct()
+            ->orderBy('periode', 'asc')
+            ->pluck('periode');
+
+        return view('admin.scalling.private.initiate', compact('logs', 'projects', 'periodes', 'currentPeriode'));
+    }
+
+    // ── SME ───────────────────────────────────────────────────────────────────
+
     public function onHandSme()
     {
-        $logs= ScallingImport::where('type', 'on-hand')->where('segment', 'sme')->latest()->paginate(10);
+        $logs     = ScallingImport::where('type', 'on-hand')->where('segment', 'sme')->latest()->paginate(10);
         $projects = ScallingData::with('scallingImport')->latest()->paginate(20);
         return view('admin.scalling.sme.onHand', compact('logs', 'projects'));
     }
+
     public function koreksiSme()
     {
-        $logs= ScallingImport::where('type', 'koreksi')->where('segment', 'sme')->latest()->paginate(10);
+        $logs     = ScallingImport::where('type', 'koreksi')->where('segment', 'sme')->latest()->paginate(10);
         $projects = ScallingData::with('scallingImport')->latest()->paginate(20);
         return view('admin.scalling.sme.koreksi', compact('logs', 'projects'));
     }
+
     public function qualifiedSme()
     {
-        $logs= ScallingImport::where('type', 'qualified')->where('segment', 'sme')->latest()->paginate(10);
+        $logs     = ScallingImport::where('type', 'qualified')->where('segment', 'sme')->latest()->paginate(10);
         $projects = ScallingData::with('scallingImport')->latest()->paginate(20);
         return view('admin.scalling.sme.qualified', compact('logs', 'projects'));
+    }
+
+    public function initiateSme()
+    {
+        $currentPeriode = now()->format('Y-m');
+        $logs           = ScallingImport::where('type', 'initiate')->where('segment', 'sme')->latest()->paginate(10);
+        $projects       = ScallingData::with('scallingImport')
+            ->whereHas('scallingImport', function ($query) {
+                $query->where('type', 'initiate')->where('segment', 'sme');
+            })
+            ->latest()
+            ->paginate(10);
+        $periodes = ScallingImport::whereHas('scallingData')
+            ->selectRaw("DATE_FORMAT(periode, '%Y-%m') as periode")
+            ->where('type', 'initiate')
+            ->where('segment', 'sme')
+            ->distinct()
+            ->orderBy('periode', 'asc')
+            ->pluck('periode');
+
+        return view('admin.scalling.sme.initiate', compact('logs', 'projects', 'periodes', 'currentPeriode'));
     }
 
     // ── IMPORT ────────────────────────────────────────────────────────────────
@@ -148,12 +248,12 @@ class ScallingController extends Controller
             'excel_file.max'      => 'Ukuran file maksimal 10 MB.',
         ]);
         $request->validate([
-            'periode'     => 'required|date_format:Y-m',
-            'type'       => 'required|nullable',
-            'segment'    => 'required|nullable',
+            'periode'  => 'required|date_format:Y-m',
+            'type'     => 'required|nullable',
+            'segment'  => 'required|nullable',
         ]);
-        $periodeDate = $request->periode . '-01';
 
+        $periodeDate      = $request->periode . '-01';
         $file             = $request->file('excel_file');
         $originalFilename = $file->getClientOriginalName();
         $tempPath         = $file->getRealPath();
@@ -178,7 +278,7 @@ class ScallingController extends Controller
                     continue;
                 }
 
-                $rows[] = $rowData; // belum ada log id, ditambahkan setelah log dibuat
+                $rows[] = $rowData;
             }
 
             if (empty($rows)) {
@@ -187,11 +287,12 @@ class ScallingController extends Controller
 
             // ── 2. Semua parsing berhasil — baru simpan ke database ──
             DB::transaction(function () use ($rows, $originalFilename, $request, $periodeDate) {
-                // cek apakah sudah ada log dengan periode yang sama
-                $log = ScallingImport::where('periode', $periodeDate)->where('type', $request->type)->where('segment', $request->segment)->first();
+                $log = ScallingImport::where('periode', $periodeDate)
+                    ->where('type', $request->type)
+                    ->where('segment', $request->segment)
+                    ->first();
 
                 if ($log) {
-                    // gunakan kembali log yang ada dan hapus data lama
                     $log->update([
                         'original_filename'   => $originalFilename,
                         'status'              => 'active',
@@ -201,18 +302,15 @@ class ScallingController extends Controller
                         'uploaded_by'         => auth()->user()->name ?? $request->ip(),
                     ]);
 
-                    // hapus data scalling yang lama, tetapi kumpulkan id baris terlebih dahulu
                     $scallingIds = ScallingData::where('imports_log_id', $log->id)->pluck('id')->toArray();
-                    $funnelIds = FunnelTracking::where('data_id', $log->id)->pluck('id')->toArray();
+                    $funnelIds   = FunnelTracking::where('data_id', $log->id)->pluck('id')->toArray();
                     ScallingData::where('imports_log_id', $log->id)->delete();
 
-                    // tambahan: hapus entri taskProgress dan FunnelTracking berdasarkan id scallingData
                     if (!empty($scallingIds)) {
                         FunnelTracking::whereIn('data_id', $scallingIds)->delete();
                         TaskProgress::whereIn('task_id', $funnelIds)->delete();
                     }
                 } else {
-                    // buat log baru
                     $log = ScallingImport::create([
                         'original_filename'   => $originalFilename,
                         'status'              => 'active',
@@ -224,7 +322,6 @@ class ScallingController extends Controller
                     ]);
                 }
 
-                // Sisipkan foreign key ke setiap baris
                 $timestamp  = now();
                 $insertRows = array_map(fn($row) => array_merge($row, [
                     'imports_log_id' => $log->id,
@@ -237,7 +334,6 @@ class ScallingController extends Controller
                 }
             });
 
-            // ── 3. Hapus file setelah semua berhasil ──
             @unlink($tempPath);
 
             $count = count($rows);
@@ -245,9 +341,7 @@ class ScallingController extends Controller
                 ->with('success', "Import berhasil! {$count} baris diimpor dari \"{$originalFilename}\".");
 
         } catch (\Throwable $e) {
-            // Tidak ada log yang disimpan — hapus file lalu tampilkan pesan error saja
             @unlink($tempPath);
-
             return redirect()->back()
                 ->with('error', 'Import gagal: ' . $e->getMessage());
         }
@@ -272,6 +366,61 @@ class ScallingController extends Controller
             ->with('success', 'Log dan data terkait berhasil dihapus.');
     }
 
+    // ── STORE DATA (shared: gov, soe, private, sme) ───────────────────────────
+
+    public function storeData(Request $request)
+    {
+        $request->validate([
+            'status'                  => 'required|in:active,inactive',
+            'periode'                 => 'required|date_format:Y-m',
+            'project'                 => 'required|string',
+            'id_lop'                  => 'nullable|string',
+            'cc'                      => 'nullable|string',
+            'nipnas'                  => 'nullable|string',
+            'am'                      => 'nullable|string',
+            'mitra'                   => 'nullable|string',
+            'plan_bulan_billcomp_2025'=> 'nullable|integer',
+            'est_nilai_bc'            => 'nullable|numeric',
+        ]);
+
+        $periodeDate = $request->periode . '-01';
+
+        $import = ScallingImport::create([
+            'original_filename'   => null,
+            'status'              => $request->status,
+            'type'                => 'initiate',
+            'segment'             => $request->segment,
+            'periode'             => $periodeDate,
+            'total_rows_imported' => 0,
+            'uploaded_by'         => auth()->user()->name ?? $request->ip(),
+        ]);
+
+        $data = ScallingData::create([
+            'imports_log_id'          => $import->id,
+            'project'                 => $request->project,
+            'id_lop'                  => $request->id_lop,
+            'cc'                      => $request->cc,
+            'nipnas'                  => $request->nipnas,
+            'am'                      => $request->am,
+            'mitra'                   => $request->mitra,
+            'plan_bulan_billcomp_2025'=> $request->plan_bulan_billcomp_2025,
+            'est_nilai_bc'            => $request->est_nilai_bc,
+        ]);
+
+        return redirect()->back()->with('success', "Data untuk project \"{$data->project}\" berhasil disimpan.");
+    }
+
+    // ── TOGGLE STATUS ─────────────────────────────────────────────────────────
+
+    public function toggleStatus($id)
+    {
+        $collection         = ScallingImport::findOrFail($id);
+        $collection->status = $collection->status === 'active' ? 'inactive' : 'active';
+        $collection->save();
+
+        return back()->with('success', 'Status berhasil diubah');
+    }
+
     // ── PRIVATE HELPERS ───────────────────────────────────────────────────────
 
     private function sharedViewData(): array
@@ -282,18 +431,14 @@ class ScallingController extends Controller
         ];
     }
 
-    /**
-     * Baca header dari baris HEADER_ROW.
-     * Salin konstanta ke variable lokal dulu sebelum digunakan sebagai string.
-     */
     private function readAndValidateHeaders(Worksheet $sheet): array
     {
         $headerMap    = [];
         $foundHeaders = [];
-        $headerRow    = self::HEADER_ROW; // wajib disalin ke variable
+        $headerRow    = self::HEADER_ROW;
 
         for ($col = 1; $col <= self::MAX_COL; $col++) {
-            $coordinate = Coordinate::stringFromColumnIndex($col) . $headerRow; // "A5", "B5", dst.
+            $coordinate = Coordinate::stringFromColumnIndex($col) . $headerRow;
             $rawValue   = $sheet->getCell($coordinate)->getValue();
             $normalized = preg_replace('/\s+/', ' ', strtoupper(trim((string) $rawValue)));
 
@@ -314,14 +459,9 @@ class ScallingController extends Controller
         return $headerMap;
     }
 
-    /**
-     * Cek apakah baris $rowIndex adalah baris TOTAL.
-     * Menerima Worksheet + nomor baris — bukan array rowData.
-     * Loop di-break saat ini ditemukan, sehingga baris TOTAL tidak pernah masuk DB.
-     */
     private function isTotalRow(Worksheet $sheet, int $rowIndex): bool
     {
-        $rowNum = $rowIndex; // salin ke variable biasa
+        $rowNum = $rowIndex;
 
         for ($col = 1; $col <= self::MAX_COL; $col++) {
             $coordinate = Coordinate::stringFromColumnIndex($col) . $rowNum;
@@ -335,19 +475,16 @@ class ScallingController extends Controller
         return false;
     }
 
-    /**
-     * Baca satu baris. Gunakan getValue() agar nilai numerik tidak berubah format.
-     */
     private function readRow(Worksheet $sheet, int $rowIndex, array $headerMap): array
     {
         $rowData = [];
-        $rowNum  = $rowIndex; // salin ke variable biasa
+        $rowNum  = $rowIndex;
 
         for ($col = 1; $col <= self::MAX_COL; $col++) {
             if (!isset($headerMap[$col])) continue;
 
             $dbColumn   = $headerMap[$col];
-            $coordinate = Coordinate::stringFromColumnIndex($col) . $rowNum; // "A7", dst.
+            $coordinate = Coordinate::stringFromColumnIndex($col) . $rowNum;
             $raw        = $sheet->getCell($coordinate)->getValue();
             $cellValue  = trim((string) $raw);
 
@@ -355,17 +492,14 @@ class ScallingController extends Controller
                 $cellValue = is_numeric($cellValue) ? (int) $cellValue : null;
 
             } elseif ($dbColumn === 'est_nilai_bc') {
-                // Nilai sudah float dari Excel? langsung pakai
                 if (is_numeric($raw)) {
                     $cellValue = (float) $raw;
                 } else {
-                    // Fallback: parse format Indonesia 457.854.960
-                    $clean = preg_replace('/[^\d,.]/', '', $cellValue);
-                    $clean = str_replace('.', '', $clean);
-                    $clean = str_replace(',', '.', $clean);
+                    $clean     = preg_replace('/[^\d,.]/', '', $cellValue);
+                    $clean     = str_replace('.', '', $clean);
+                    $clean     = str_replace(',', '.', $clean);
                     $cellValue = is_numeric($clean) ? (float) $clean : null;
                 }
-
             } else {
                 $cellValue = ($cellValue === '') ? null : $cellValue;
             }
@@ -376,7 +510,6 @@ class ScallingController extends Controller
         return $rowData;
     }
 
-    /** True jika semua nilai di baris kosong/null. */
     private function isRowEmpty(array $rowData): bool
     {
         foreach ($rowData as $value) {

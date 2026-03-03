@@ -91,6 +91,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/scalling/soe', [ScallingController::class, 'indexSoe'])->name('admin.scalling.soe');
         Route::get('/scalling/sme', [ScallingController::class, 'indexSme'])->name('admin.scalling.sme');
         Route::get('/scalling/private', [ScallingController::class, 'indexPrivate'])->name('admin.scalling.private');
+        // Route::get('/scalling/initiate', [ScallingController::class, 'indexInitiate'])->name('admin.scalling.initiate');
 
         // Governtment dashboard (role: gov) - admin access
         // on-hand upload listing and actions
@@ -110,6 +111,16 @@ Route::middleware('auth')->group(function () {
         Route::post('/scalling/gov/qualified', [ScallingController::class, 'import'])->name('admin.scalling.gov.qualified.store');
         Route::get('/scalling/gov/qualified/{scallingImport}', [ScallingController::class, 'show'])->name('admin.scalling.gov.qualified.show');
         Route::delete('/scalling/gov/qualified/{scallingImport}', [ScallingController::class, 'destroy'])->name('admin.scalling.gov.qualified.destroy');
+
+        // initiate upload listing and actions
+        Route::get('/scalling/gov/initiate', [ScallingController::class, 'initiateGov'])->name('admin.scalling.gov.initiate');
+        Route::post('/scalling/gov/initiate', [ScallingController::class, 'storeData'])->name('admin.scalling.gov.initiate.storeData');
+        Route::get('/scalling/private/initiate', [ScallingController::class, 'initiatePrivate'])->name('admin.scalling.private.initiate');
+        Route::post('/scalling/private/initiate/store', [ScallingController::class, 'storeData'])->name('admin.scalling.private.initiate.storeData');
+        Route::get('/scalling/soe/initiate', [ScallingController::class, 'initiateSoe'])->name('admin.scalling.soe.initiate');
+        Route::post('/scalling/soe/initiate', [ScallingController::class, 'storeData'])->name('admin.scalling.soe.initiate.storeData');
+        Route::get('/scalling/sme/initiate', [ScallingController::class, 'initiateSme'])->name('admin.scalling.sme.initiate');
+        Route::post('/scalling/sme/initiate', [ScallingController::class, 'storeData'])->name('admin.scalling.sme.initiate.storeData');
 
         // Private dashboard (role: private) - admin access
         // on-hand upload listing and actions
@@ -180,6 +191,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/scalling/on-hand', [GovController::class, 'lopOnHand'])->name('dashboard.gov.lop-on-hand');
         Route::get('/scalling/koreksi', [GovController::class, 'lopKoreksi'])->name('dashboard.gov.lop-koreksi');
         Route::get('/scalling/qualified', [GovController::class, 'lopQualified'])->name('dashboard.gov.lop-qualified');
+        Route::get('/scalling/initiate', [GovController::class, 'lopInitiate'])->name('dashboard.gov.lop-initiate');
         Route::post('/funnel/update', [GovController::class, 'updateFunnelCheckbox'])->name('dashboard.gov.funnel.update');
 
         Route::get('/aosodomoro/above-3-bulan', [GovController::class, 'aosodomoroAbove3Bulan'])->name('dashboard.gov.aosodomoro-above-3-bulan');
@@ -197,6 +209,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/scalling/on-hand', [SoeController::class, 'lopOnHand'])->name('dashboard.soe.lop-on-hand');
         Route::get('/scalling/koreksi', [SoeController::class, 'lopKoreksi'])->name('dashboard.soe.lop-koreksi');
         Route::get('/scalling/qualified', [SoeController::class, 'lopQualified'])->name('dashboard.soe.lop-qualified');
+        Route::get('/scalling/initiate', [SoeController::class, 'lopInitiate'])->name('dashboard.soe.lop-initiate');
         Route::post('/funnel/update', [SoeController::class, 'updateFunnelCheckbox'])->name('dashboard.soe.funnel.update');
     });
 
@@ -208,6 +221,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/scalling/on-hand', [SmeController::class, 'lopOnHand'])->name('dashboard.sme.lop-on-hand');
         Route::get('/scalling/koreksi', [SmeController::class, 'lopKoreksi'])->name('dashboard.sme.lop-koreksi');
         Route::get('/scalling/qualified', [SmeController::class, 'lopQualified'])->name('dashboard.sme.lop-qualified');
+        Route::get('/scalling/initiate', [SmeController::class, 'lopInitiate'])->name('dashboard.sme.lop-initiate');
         Route::post('/funnel/update', [SmeController::class, 'updateFunnelCheckbox'])->name('dashboard.sme.funnel.update');
 
         Route::get('/aosodomoro/above-3-bulan', [SmeController::class, 'aosodomoroAbove3Bulan'])->name('dashboard.sme.aosodomoro-above-3-bulan');
@@ -230,6 +244,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/scalling/on-hand', [PrivateController::class, 'lopOnHand'])->name('dashboard.private.lop-on-hand');
         Route::get('/scalling/koreksi', [PrivateController::class, 'lopKoreksi'])->name('dashboard.private.lop-koreksi');
         Route::get('/scalling/qualified', [PrivateController::class, 'lopQualified'])->name('dashboard.private.lop-qualified');
+        Route::get('/scalling/initiate', [PrivateController::class, 'lopInitiate'])->name('dashboard.private.lop-initiate');
         Route::post('/funnel/update', [PrivateController::class, 'updateFunnelCheckbox'])->name('dashboard.private.funnel.update');
     });
 

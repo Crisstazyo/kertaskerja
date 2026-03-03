@@ -91,7 +91,7 @@
                         'label' => 'LOP Initiate',
                         'sub'   => 'Data LOP Initiate Private',
                         'badge' => 'INITIATE',
-                        'route' => '',
+                        'route' => route('dashboard.private.lop-initiate'),
                         'icon'  => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"/>',
                     ],
                 ];

@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('scalling_imports', function (Blueprint $table) {
             $table->id();
-            $table->string('original_filename');
+            $table->string('original_filename')->nullable();
             $table->string('status')->default('active'); // active atau inactive
             $table->string('type')->nullable(); // 
             $table->string('segment')->nullable(); // 

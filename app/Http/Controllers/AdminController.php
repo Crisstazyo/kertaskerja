@@ -146,22 +146,22 @@ class AdminController extends Controller
     public function billingTable()
     {
         $collections = Collection::with('user')
-        ->where('type', 'Billing Perdana')
-        ->orderBy('created_at', 'desc')
-        ->paginate(15)
-        ->withQueryString();
+            ->where('type', 'Billing Perdana')
+            ->orderBy('created_at', 'desc')
+            ->paginate(15)
+            ->withQueryString();
         $users = User::all();
         // collect all distinct periode values for Billing Perdana entries
         $periodes = Collection::where('type', 'Billing Perdana')
-        ->selectRaw("DATE_FORMAT(periode, '%Y-%m') as periode")
-        ->distinct()
-        ->orderBy('periode', 'desc')
-        ->pluck('periode')
-        ->map(function ($item) {
-            return Carbon::createFromFormat('Y-m', $item)
-                ->locale('id')
-                ->translatedFormat('F Y');
-        });
+            ->selectRaw("DATE_FORMAT(periode, '%Y-%m') as periode")
+            ->distinct()
+            ->orderBy('periode', 'desc')
+            ->pluck('periode')
+            ->map(function ($item) {
+                return Carbon::createFromFormat('Y-m', $item)
+                    ->locale('id')
+                    ->translatedFormat('F Y');
+            });
         return view('admin.collection.billingPerdana', compact('collections', 'users', 'periodes'));
     }
 
