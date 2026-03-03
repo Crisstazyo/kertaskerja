@@ -69,6 +69,8 @@ class FunnelTracking extends Model
         'f5_p8' => 'boolean',
         // DELIVERY
         'delivery_kontrak' => 'boolean',
+        'delivery_baut_bast' => 'boolean',
+        'delivery_baso' => 'boolean',
         'delivery_billing_complete' => 'boolean',
         'delivery_nilai_billcomp' => 'decimal:2',
     ];

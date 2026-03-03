@@ -9,7 +9,7 @@
         <div class="mb-8">
             <div class="flex items-center justify-between mb-6">
                 <div class="flex items-center gap-6">
-                    <a href="{{ route('dashboard.private') }}" class="text-gray-500 hover:text-gray-700 transition-colors flex items-center gap-2 text-sm font-medium">
+                    <a href="{{ route('dashboard.gov') }}" class="text-gray-500 hover:text-gray-700 transition-colors flex items-center gap-2 text-sm font-medium">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                         </svg>
@@ -650,7 +650,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return previousFields;
     }
     
-    // Auto-check previous stages
+    // Auto-check previous stages using explicit stage mapping
     function autoCheckPreviousStages(dataType, dataId, clickedField) {
         const currentStage = getStageFromField(clickedField);
         if (!currentStage) return;
@@ -668,7 +668,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 checkbox.checked = true;
                 
                 // Send AJAX to update in database
-                fetch('{{ route("funnel.update") }}', {
+                fetch('{{ route("dashboard.gov.funnel.update") }}', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -686,6 +686,23 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+
+    // Cascade backwards based on DOM order
+    function cascadeBackwards(checkbox) {
+        const row = checkbox.closest('tr');
+        if (!row) return;
+        const boxes = Array.from(row.querySelectorAll('.funnel-checkbox, .billing-checkbox'));
+        const idx = boxes.indexOf(checkbox);
+        if (idx === -1) return;
+        const laterChecked = boxes.slice(idx + 1).some(cb => cb.checked);
+        if (!laterChecked) return;
+        boxes.slice(0, idx).forEach(cb => {
+            if (!cb.checked) {
+                cb.checked = true;
+                updateFunnelCheckbox(cb);
+            }
+        });
+    }
     
     function updateFunnelCheckbox(checkbox) {
         const dataType = checkbox.dataset.dataType;
@@ -693,7 +710,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const field = checkbox.dataset.field;
         const value = checkbox.checked;
         
-        fetch('{{ route("funnel.update") }}', {
+        fetch('{{ route("dashboard.gov.funnel.update") }}', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -715,9 +732,9 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (data.success) {
                 console.log('✓ Checkbox updated successfully');
-                // If checkbox was checked, auto-check all previous stages
                 if (value) {
                     autoCheckPreviousStages(dataType, dataId, field);
+                    cascadeBackwards(checkbox);
                 }
             } else {
                 console.error('Update failed');
@@ -743,7 +760,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // no further cleaning required; pass the raw number string through
         estNilai = estNilai ? estNilai : '0';
         
-        fetch('{{ route("funnel.update") }}', {
+        fetch('{{ route("dashboard.gov.funnel.update") }}', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -820,7 +837,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         console.log('📤 Sending request:', payload);
         
-        fetch('{{ route("funnel.update") }}', {
+        fetch('{{ route("dashboard.gov.funnel.update") }}', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

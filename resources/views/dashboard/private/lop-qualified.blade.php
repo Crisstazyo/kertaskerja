@@ -650,7 +650,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return previousFields;
     }
     
-    // Auto-check previous stages
+    // Auto-check previous stages using explicit stage mapping
     function autoCheckPreviousStages(dataType, dataId, clickedField) {
         const currentStage = getStageFromField(clickedField);
         if (!currentStage) return;
@@ -668,7 +668,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 checkbox.checked = true;
                 
                 // Send AJAX to update in database
-                fetch('{{ route("funnel.update") }}', {
+                fetch('{{ route("dashboard.private.funnel.update") }}', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -686,6 +686,22 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+
+    function cascadeBackwards(checkbox) {
+        const row = checkbox.closest('tr');
+        if (!row) return;
+        const boxes = Array.from(row.querySelectorAll('.funnel-checkbox, .billing-checkbox'));
+        const idx = boxes.indexOf(checkbox);
+        if (idx === -1) return;
+        const laterChecked = boxes.slice(idx + 1).some(cb => cb.checked);
+        if (!laterChecked) return;
+        boxes.slice(0, idx).forEach(cb => {
+            if (!cb.checked) {
+                cb.checked = true;
+                updateFunnelCheckbox(cb);
+            }
+        });
+    }
     
     function updateFunnelCheckbox(checkbox) {
         const dataType = checkbox.dataset.dataType;
@@ -693,7 +709,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const field = checkbox.dataset.field;
         const value = checkbox.checked;
         
-        fetch('{{ route("funnel.update") }}', {
+        fetch('{{ route("dashboard.private.funnel.update") }}', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -715,9 +731,9 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (data.success) {
                 console.log('✓ Checkbox updated successfully');
-                // If checkbox was checked, auto-check all previous stages
                 if (value) {
                     autoCheckPreviousStages(dataType, dataId, field);
+                    cascadeBackwards(checkbox);
                 }
             } else {
                 console.error('Update failed');
@@ -743,7 +759,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // no further cleaning required; pass the raw number string through
         estNilai = estNilai ? estNilai : '0';
         
-        fetch('{{ route("funnel.update") }}', {
+        fetch('{{ route("dashboard.private.funnel.update") }}', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -820,7 +836,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         console.log('📤 Sending request:', payload);
         
-        fetch('{{ route("funnel.update") }}', {
+        fetch('{{ route("dashboard.private.funnel.update") }}', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

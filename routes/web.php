@@ -180,7 +180,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/scalling/on-hand', [GovController::class, 'lopOnHand'])->name('dashboard.gov.lop-on-hand');
         Route::get('/scalling/koreksi', [GovController::class, 'lopKoreksi'])->name('dashboard.gov.lop-koreksi');
         Route::get('/scalling/qualified', [GovController::class, 'lopQualified'])->name('dashboard.gov.lop-qualified');
-        Route::post('/funnel/update', [GovController::class, 'updateFunnelCheckbox'])->name('funnel.update');
+        Route::post('/funnel/update', [GovController::class, 'updateFunnelCheckbox'])->name('dashboard.gov.funnel.update');
 
         Route::get('/aosodomoro/above-3-bulan', [GovController::class, 'aosodomoroAbove3Bulan'])->name('dashboard.gov.aosodomoro-above-3-bulan');
         Route::post('/aosodomoro/above-3-bulan', [GovController::class, 'storeAosodomoroAbove3Bulan'])->name('dashboard.gov.aosodomoro-above-3-bulan.store');
@@ -197,7 +197,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/scalling/on-hand', [SoeController::class, 'lopOnHand'])->name('dashboard.soe.lop-on-hand');
         Route::get('/scalling/koreksi', [SoeController::class, 'lopKoreksi'])->name('dashboard.soe.lop-koreksi');
         Route::get('/scalling/qualified', [SoeController::class, 'lopQualified'])->name('dashboard.soe.lop-qualified');
-        Route::post('/funnel/update', [SoeController::class, 'updateFunnelCheckbox'])->name('funnel.update');
+        Route::post('/funnel/update', [SoeController::class, 'updateFunnelCheckbox'])->name('dashboard.soe.funnel.update');
     });
 
     // SME dashboard (role: sme)
@@ -208,7 +208,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/scalling/on-hand', [SmeController::class, 'lopOnHand'])->name('dashboard.sme.lop-on-hand');
         Route::get('/scalling/koreksi', [SmeController::class, 'lopKoreksi'])->name('dashboard.sme.lop-koreksi');
         Route::get('/scalling/qualified', [SmeController::class, 'lopQualified'])->name('dashboard.sme.lop-qualified');
-        Route::post('/funnel/update', [SmeController::class, 'updateFunnelCheckbox'])->name('funnel.update');
+        Route::post('/funnel/update', [SmeController::class, 'updateFunnelCheckbox'])->name('dashboard.sme.funnel.update');
 
         Route::get('/aosodomoro/above-3-bulan', [SmeController::class, 'aosodomoroAbove3Bulan'])->name('dashboard.sme.aosodomoro-above-3-bulan');
         Route::post('/aosodomoro/above-3-bulan', [SmeController::class, 'storeAosodomoroAbove3Bulan'])->name('dashboard.sme.aosodomoro-above-3-bulan.store');
@@ -230,7 +230,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/scalling/on-hand', [PrivateController::class, 'lopOnHand'])->name('dashboard.private.lop-on-hand');
         Route::get('/scalling/koreksi', [PrivateController::class, 'lopKoreksi'])->name('dashboard.private.lop-koreksi');
         Route::get('/scalling/qualified', [PrivateController::class, 'lopQualified'])->name('dashboard.private.lop-qualified');
-        Route::post('/funnel/update', [PrivateController::class, 'updateFunnelCheckbox'])->name('funnel.update');
+        Route::post('/funnel/update', [PrivateController::class, 'updateFunnelCheckbox'])->name('dashboard.private.funnel.update');
     });
 
     // Collection dashboard (role: collection)

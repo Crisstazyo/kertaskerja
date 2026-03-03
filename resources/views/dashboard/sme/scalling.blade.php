@@ -22,7 +22,7 @@
                     </div>
                 </div>
                 <div class="flex items-center space-x-4">
-                        <a href=""
+                        <a href="{{ route('report.index') }}"
                             class="flex items-center space-x-2.5 bg-white border-2 border-slate-900 hover:bg-red-600 hover:border-red-600 text-slate-900 hover:text-white px-6 py-3 rounded-xl font-black text-xs transition-all duration-300 shadow-sm group uppercase tracking-wider">
                             <svg class="w-5 h-5 group-hover:rotate-12 transition-transform" fill="none"
                                 stroke="currentColor" viewBox="0 0 24 24">
