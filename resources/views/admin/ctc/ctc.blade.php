@@ -102,6 +102,7 @@
                                 <select name="segment" required
                                     class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors bg-white">
                                     <option value="" disabled selected>— Pilih Segment —</option>
+                                    <option value="CT0" {{ old('segment') === 'CT0' ? 'selected' : '' }}>CT0</option>
                                     <option value="Sales Hsi (all)" {{ old('segment') === 'Sales Hsi (all)' ? 'selected' : '' }}>Sales Hsi (all)</option>
                                     <option value="Churn" {{ old('segment') === 'Churn' ? 'selected' : '' }}>Churn</option>
                                     <option value="Winback" {{ old('segment') === 'Winback' ? 'selected' : '' }}>Winback
@@ -201,6 +202,7 @@
                             <select id="filterSegment" onchange="filterTable()"
                                 class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-semibold text-slate-700 focus:outline-none focus:border-red-400 bg-white">
                                 <option value="">Semua Segment</option>
+                                <option value="CT0">CT0</option>
                                 <option value="Sales Hsi (all)">Sales Hsi (all)</option>
                                 <option value="Churn">Churn</option>
                                 <option value="Winback">Winback</option>

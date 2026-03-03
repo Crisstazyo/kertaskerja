@@ -116,6 +116,7 @@
                                             'Telda Siantar',
                                             'Telda Kabanjahe',
                                             'Telda Rantauprapat',
+                                            'Telda Toba',
                                             'Telda Sibolga',
                                             'Telda Padang Sidempuan',
                                         ];
@@ -226,6 +227,7 @@
                                 <option value="Telda Siantar">Telda Siantar</option>
                                 <option value="Telda Kabanjahe">Telda Kabanjahe</option>
                                 <option value="Telda Rantauprapat">Telda Rantauprapat</option>
+                                <option value="Telda Toba">Telda Toba</option>
                                 <option value="Telda Sibolga">Telda Sibolga</option>
                                 <option value="Telda Padang Sidempuan">Telda Padang Sidempuan</option>
                             </select>
