@@ -66,12 +66,7 @@
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-8 mb-8">
             <div class="flex items-center space-x-3 mb-6">
                 <div class="w-1 h-6 bg-red-600 rounded-full"></div>
-                <h2 class="text-base font-black text-slate-900 uppercase tracking-wide">Input Data — Bulan Ini</h2>
-                @if($existing)
-                <span class="text-xs font-bold text-blue-600 bg-blue-50 border border-blue-200 rounded-md px-2.5 py-1 ml-2">
-                    ✏️ Update {{ \Carbon\Carbon::parse($existing->created_at)->format('F Y') }}
-                </span>
-                @endif
+                <h2 class="text-base font-black text-slate-900 uppercase tracking-wide">Input Data</h2>
             </div>
 
             <form action="{{ route('admin.hsi-agency.store') }}" method="POST">
@@ -105,7 +100,6 @@
                     <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">
                             Real (SSL)
-                            <span class="normal-case font-medium text-slate-400 ml-1">— diisi setelah commitment</span>
                         </label>
                         <input type="number" name="real_ratio" id="hsi_real"
                             placeholder="Contoh: 145"
@@ -149,51 +143,39 @@
                 <table class="min-w-full">
                     <thead>
                         <tr class="bg-slate-50 border-b border-slate-100">
-                            <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">No</th>
-                            <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Periode</th>
-                            <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">User</th>
-                            <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Commitment (SSL)</th>
-                            <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Real (SSL)</th>
-                            <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Achievement</th>
-                            <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Tanggal Input</th>
+                            <th class="px-9 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">No</th>
+                            <th class="px-12 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Periode</th>
+                            <th class="px-12 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">User</th>
+                            <th class="px-12 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Commitment (SSL)</th>
+                            <th class="px-12 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Real (SSL)</th>
+                            <th class="px-15 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Tanggal Input</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
                         @forelse($hsi as $index => $item)
                         <tr class="hover:bg-slate-50 transition-colors">
-                            <td class="px-6 py-4 text-sm font-bold text-slate-400">{{ $index + 1 }}</td>
-                            <td class="px-6 py-4">
+                            <td class="px-9 py-4 text-sm font-bold text-slate-400">{{ $index + 1 }}</td>
+                            <td class="px-12 py-4">
                                 <span class="text-xs font-bold text-red-600 bg-red-50 border border-red-100 rounded-md px-2.5 py-1">
                                     {{ \Carbon\Carbon::parse($item->periode)->format('M Y') }}
                                 </span>
                             </td>
-                            <td class="px-6 py-4 text-sm font-semibold text-slate-700">{{ $item->user->name ?? '-' }}</td>
-                            <td class="px-6 py-4 text-sm font-bold text-slate-800">
+                            <td class="px-12 py-4 text-sm font-semibold text-slate-700">{{ $item->user->name ?? '-' }}</td>
+                            <td class="px-12 py-4 text-sm font-bold text-slate-800">
                                 @if(!is_null($item->commitment))
-                                    {{ number_format($item->commitment, 0, ',', '.') }} <span class="text-slate-400 font-medium">SSL</span>
+                                    {{ number_format($item->commitment, 0, ',', '.') }} <span class="text-slate-400 font-medium"></span>
                                 @else
                                     <span class="text-slate-300">—</span>
                                 @endif
                             </td>
-                            <td class="px-6 py-4 text-sm font-bold text-slate-800">
+                            <td class="px-12 py-4 text-sm font-bold text-slate-800">
                                 @if(!is_null($item->real_ratio) && !is_null($item->commitment) && $item->commitment > 0)
-                                    {{ number_format($item->real_ratio, 0, ',', '.') }} <span class="text-slate-400 font-medium">SSL</span>
+                                    {{ number_format($item->real_ratio, 0, ',', '.') }} <span class="text-slate-400 font-medium"></span>
                                 @else
                                     <span class="text-slate-300">—</span>
                                 @endif
                             </td>
-                            <td class="px-6 py-4">
-                                @if(!is_null($item->real_ratio) && $item->commitment > 0)
-                                    @php $achievement = ($item->real_ratio / $item->commitment) * 100; @endphp
-                                    <span class="text-xs font-bold rounded-md px-2.5 py-1
-                                        {{ $achievement >= 100 ? 'text-green-700 bg-green-50 border border-green-200' : ($achievement >= 80 ? 'text-yellow-700 bg-yellow-50 border border-yellow-200' : 'text-red-700 bg-red-50 border border-red-200') }}">
-                                        {{ number_format($achievement, 1) }}%
-                                    </span>
-                                @else
-                                    <span class="text-slate-300 text-sm">—</span>
-                                @endif
-                            </td>
-                            <td class="px-6 py-4 text-sm text-slate-400">{{ $item->created_at->format('d M Y, H:i') }}</td>
+                            <td class="px-15 py-4 text-sm text-slate-400">{{ $item->created_at->format('d M Y, H:i') }}</td>
                         </tr>
                         @empty
                         <tr>
