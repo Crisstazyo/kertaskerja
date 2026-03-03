@@ -368,7 +368,7 @@ class ScallingController extends Controller
 
     // ── STORE DATA (shared: gov, soe, private, sme) ───────────────────────────
 
-public function storeData(Request $request)
+    public function storeData(Request $request)
     {
         $request->validate([
             'status'                   => 'required|in:active,inactive',
@@ -378,7 +378,7 @@ public function storeData(Request $request)
             'cc'                       => 'required|string|max:100',
             'nipnas'                   => 'required|string|max:50',
             'am'                       => 'required|string|max:100',
-            'mitra'                    => 'required|string|max:255',
+            'mitra'                    => 'nullable|string|max:255',
             'plan_bulan_billcomp_2025' => 'required|integer|min:1|max:12',
             'est_nilai_bc'             => 'required|numeric|min:0',
         ], [
@@ -396,8 +396,6 @@ public function storeData(Request $request)
             'nipnas.max'                        => 'NIPNAS maksimal 50 karakter',
             'am.required'                       => 'Nama AM wajib diisi',
             'am.max'                            => 'Nama AM maksimal 100 karakter',
-            'mitra.required'                    => 'Nama mitra wajib diisi',
-            'mitra.max'                         => 'Nama mitra maksimal 255 karakter',
             'plan_bulan_billcomp_2025.required' => 'Plan bulan wajib diisi',
             'plan_bulan_billcomp_2025.integer'  => 'Plan harus berupa angka (contoh: 10)',
             'plan_bulan_billcomp_2025.min'      => 'Plan bulan minimal 1',
