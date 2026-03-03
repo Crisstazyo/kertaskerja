@@ -368,25 +368,49 @@ class ScallingController extends Controller
 
     // ── STORE DATA (shared: gov, soe, private, sme) ───────────────────────────
 
-    public function storeData(Request $request)
+public function storeData(Request $request)
     {
         $request->validate([
-            'status'                  => 'required|in:active,inactive',
-            'periode'                 => 'required|date_format:Y-m',
-            'project'                 => 'required|string',
-            'id_lop'                  => 'nullable|string',
-            'cc'                      => 'nullable|string',
-            'nipnas'                  => 'nullable|string',
-            'am'                      => 'nullable|string',
-            'mitra'                   => 'nullable|string',
-            'plan_bulan_billcomp_2025'=> 'nullable|integer',
-            'est_nilai_bc'            => 'nullable|numeric',
+            'status'                   => 'required|in:active,inactive',
+            'periode'                  => 'required|date_format:Y-m',
+            'project'                  => 'required|string|max:255',
+            'id_lop'                   => 'required|string|max:100',
+            'cc'                       => 'required|string|max:100',
+            'nipnas'                   => 'required|string|max:50',
+            'am'                       => 'required|string|max:100',
+            'mitra'                    => 'required|string|max:255',
+            'plan_bulan_billcomp_2025' => 'required|integer|min:1|max:12',
+            'est_nilai_bc'             => 'required|numeric|min:0',
+        ], [
+            'status.required'                   => 'Status wajib diisi',
+            'status.in'                         => 'Status harus berupa "active" atau "inactive"',
+            'periode.required'                  => 'Periode wajib diisi',
+            'periode.date_format'               => 'Format periode harus berupa bulan dan tahun (contoh: 2025-03)',
+            'project.required'                  => 'Nama project wajib diisi',
+            'project.max'                       => 'Nama project maksimal 255 karakter',
+            'id_lop.required'                   => 'ID LOP wajib diisi',
+            'id_lop.max'                        => 'ID LOP maksimal 100 karakter',
+            'cc.required'                       => 'CC wajib diisi',
+            'cc.max'                            => 'CC maksimal 100 karakter',
+            'nipnas.required'                   => 'NIPNAS wajib diisi',
+            'nipnas.max'                        => 'NIPNAS maksimal 50 karakter',
+            'am.required'                       => 'Nama AM wajib diisi',
+            'am.max'                            => 'Nama AM maksimal 100 karakter',
+            'mitra.required'                    => 'Nama mitra wajib diisi',
+            'mitra.max'                         => 'Nama mitra maksimal 255 karakter',
+            'plan_bulan_billcomp_2025.required' => 'Plan bulan wajib diisi',
+            'plan_bulan_billcomp_2025.integer'  => 'Plan harus berupa angka (contoh: 10)',
+            'plan_bulan_billcomp_2025.min'      => 'Plan bulan minimal 1',
+            'plan_bulan_billcomp_2025.max'      => 'Plan bulan maksimal 12',
+            'est_nilai_bc.required'             => 'Estimasi nilai BC wajib diisi',
+            'est_nilai_bc.numeric'              => 'Estimasi nilai BC harus berupa angka (contoh: 10000)',
+            'est_nilai_bc.min'                  => 'Estimasi nilai BC tidak boleh negatif',
         ]);
 
         $periodeDate = $request->periode . '-01';
 
         $import = ScallingImport::create([
-            'original_filename'   => null,
+            'original_filename'   => 'manual-input',
             'status'              => $request->status,
             'type'                => 'initiate',
             'segment'             => $request->segment,
@@ -396,15 +420,15 @@ class ScallingController extends Controller
         ]);
 
         $data = ScallingData::create([
-            'imports_log_id'          => $import->id,
-            'project'                 => $request->project,
-            'id_lop'                  => $request->id_lop,
-            'cc'                      => $request->cc,
-            'nipnas'                  => $request->nipnas,
-            'am'                      => $request->am,
-            'mitra'                   => $request->mitra,
-            'plan_bulan_billcomp_2025'=> $request->plan_bulan_billcomp_2025,
-            'est_nilai_bc'            => $request->est_nilai_bc,
+            'imports_log_id'           => $import->id,
+            'project'                  => $request->project,
+            'id_lop'                   => $request->id_lop,
+            'cc'                       => $request->cc,
+            'nipnas'                   => $request->nipnas,
+            'am'                       => $request->am,
+            'mitra'                    => $request->mitra,
+            'plan_bulan_billcomp_2025' => $request->plan_bulan_billcomp_2025,
+            'est_nilai_bc'             => $request->est_nilai_bc,
         ]);
 
         return redirect()->back()->with('success', "Data untuk project \"{$data->project}\" berhasil disimpan.");

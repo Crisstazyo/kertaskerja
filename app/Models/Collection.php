@@ -28,6 +28,9 @@ class Collection extends Model
      * @var array<string, string>
      */
     protected $casts = [
+        'plan'       => 'float',
+        'commitment' => 'float',
+        'real_ratio' => 'float',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];

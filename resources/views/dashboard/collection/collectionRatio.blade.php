@@ -228,8 +228,8 @@
                                 </form>
                             </td>
                             <td class="px-6 py-4 text-sm text-slate-700">{{ $item->segment ?? '—' }}</td>
-                            <td class="px-6 py-4 text-sm text-slate-700">{{ $item->commitment ?? '—' }}</td>
-                            <td class="px-6 py-4 text-right text-sm font-black text-slate-800">{{ $item->real_ratio ?? '—' }}</td>
+                            <td class="px-6 py-4 text-center text-sm text-slate-700">{{ $item->commitment ?? '—' }}</td>
+                            <td class="px-6 py-4 text-center text-sm font-black text-slate-800">{{ $item->real_ratio ?? '—' }}</td>
                             <td class="px-6 py-4 text-center text-sm text-slate-400">
                                 {{ $item->periode ? date('d M Y', strtotime($item->periode)) : '—' }}
                             </td>
