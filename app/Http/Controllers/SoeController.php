@@ -133,9 +133,8 @@ class SoeController extends Controller
                     ->where('segment', 'soe')
                     ->where('periode', $currentPeriodeDate);
             })
-            ->latest()
-            ->get();
-            // dd($rows);
+            ->get()
+            ->filter(fn($item) => strtoupper(trim($item->no ?? '')) !== 'TOTAL');
 
         $latestImport = ScallingImport::with(['data.funnel.todayProgress'])
             ->where('type', 'initiate')
@@ -144,11 +143,34 @@ class SoeController extends Controller
             ->where('periode', $currentPeriodeDate)
             ->latest()
             ->first();
-        // dd($latestImport);
-        
-        // Get admin note
-        
-        return view('dashboard.soe.lop-initiate', compact('latestImport', 'currentPeriode', 'periodOptions', 'rows'));
+
+        // Hitung total langsung dari $rows yang sudah difilter
+        $totalEstNilai = $rows->sum(fn($item) => floatval($item->est_nilai_bc ?? 0));
+
+        $totalBillComp = $rows->sum(function ($item) {
+            $funnel        = $item->funnel;
+            $master        = $funnel;
+            $todayProgress = $funnel?->todayProgress;
+
+            $masterChecked = $master && $master->delivery_billing_complete;
+            $todayChecked  = $todayProgress && $todayProgress->delivery_billing_complete;
+
+            if ($todayChecked || $masterChecked) {
+                $nilai = $todayProgress->delivery_nilai_billcomp
+                    ?? ($masterChecked ? $master->delivery_nilai_billcomp : null);
+
+                if (!$nilai) {
+                    $cleanValue = str_replace(['.', ','], '', $item->est_nilai_bc ?? '0');
+                    $nilai = (float) $cleanValue;
+                }
+                return (float) $nilai;
+            }
+            return 0;
+        });
+
+        return view('dashboard.soe.lop-initiate', compact(
+            'latestImport', 'currentPeriode', 'periodOptions', 'rows', 'totalEstNilai', 'totalBillComp'
+        ));
     }
 
     public function updateFunnelCheckbox(Request $request)

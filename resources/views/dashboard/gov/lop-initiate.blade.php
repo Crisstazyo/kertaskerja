@@ -333,48 +333,10 @@
                         <tr class="border-t-2 border-red-200 bg-slate-50">
                             <td colspan="7" class="px-4 py-3 text-right text-xs font-black text-slate-700 uppercase tracking-widest border-r border-slate-100">TOTAL:</td>
                             <td class="px-4 py-3 text-center font-black text-emerald-700 border-r border-slate-100 bg-emerald-50">
-                                @php
-                                    $totalRow = $latestImport->data->first(function($item) {
-                                        return strtoupper(trim($item->no ?? '')) === 'TOTAL';
-                                    });
-                                    if ($totalRow) {
-                                        $totalEstNilai = floatval($totalRow->est_nilai_bc ?? 0);
-                                    } else {
-                                        $totalEstNilai = $latestImport->data->reduce(function($carry, $item) {
-                                            if (strtoupper(trim($item->no ?? '')) === 'TOTAL') return $carry;
-                                            return $carry + floatval($item->est_nilai_bc ?? 0);
-                                        }, 0);
-                                    }
-                                @endphp
                                 {{ number_format($totalEstNilai, 0, ',', '.') }}
                             </td>
                             <td colspan="20" class="border-r border-slate-100"></td>
                             <td class="px-4 py-3 text-center font-black text-violet-700 bg-violet-50" id="total-nilai-billcomp">
-                                @php
-                                    $totalBillComp = 0;
-                                    foreach($latestImport->data as $row) {
-                                        if (strtoupper(trim($row->no ?? '')) === 'TOTAL') continue;
-                                        
-                                        $funnel = $row->funnel;
-                                        $master = $funnel;
-                                        $todayProgress = $funnel?->todayProgress;
-                                        
-                                        $masterChecked = $master && $master->delivery_billing_complete;
-                                        $todayChecked  = $todayProgress && $todayProgress->delivery_billing_complete;
-                                        
-                                        if ($todayChecked || $masterChecked) {
-                                            $nilai = $todayProgress->delivery_nilai_billcomp 
-                                                ?? ($masterChecked ? $master->delivery_nilai_billcomp : null);
-                                            
-                                            if (!$nilai) {
-                                                $cleanValue = str_replace(['.', ','], '', $row->est_nilai_bc ?? '0');
-                                                $nilai = (float) $cleanValue;
-                                            }
-                                            
-                                            $totalBillComp += (float) $nilai;
-                                        }
-                                    }
-                                @endphp
                                 <span>{{ number_format($totalBillComp, 0, ',', '.') }}</span>
                             </td>
                             <td class="border-r border-slate-100"></td>
