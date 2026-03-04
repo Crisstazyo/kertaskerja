@@ -8,6 +8,11 @@ use App\Models\Ct0;
 use App\Models\Ctc;
 use App\Models\RisingStar;
 use App\Models\Psak;
+use App\Models\ScallingImport;
+use App\Models\ScallingData;
+use App\Models\FunnelTracking;
+use App\Models\Hsi;
+use App\Models\Telda;
 use Carbon\Carbon;
 
 class ReportController extends Controller
@@ -42,15 +47,12 @@ class ReportController extends Controller
                 ->value('result') ?? 0;
         };
 
-        // ══ C3MR ══
         $c3mrKomitmen  = $avgCol('C3MR', 'commitment');
         $c3mrRealisasi = $avgCol('C3MR', 'real_ratio');
 
-        // ══ BILLING PERDANAN ══
         $bilperKomitmen  = $avgCol('Billing Perdana', 'commitment');
         $bilperRealisasi = $avgCol('Billing Perdana', 'real_ratio');
 
-        // ══ COLLECTION RATIO (per segment) ══
         $crData = [];
         $segmentMap = [
             'GOV'     => 'Government',
@@ -65,7 +67,6 @@ class ReportController extends Controller
             ];
         }
 
-        // ══ UTIP CORRECTIVE ══
         $utipCorrective = [
             'label'    => 'UTIP Corrective',
             'planRp'   => $sumCol('UTIP Corrective', 'plan'),
@@ -73,7 +74,6 @@ class ReportController extends Controller
             'realRp'   => $sumCol('UTIP Corrective', 'real_ratio'),
         ];
 
-        // ══ NEW UTIP (per periode) ══
         $newUtipAll = Collection::where('type', 'like', 'New UTIP%')
             ->tap($filterPeriode)
             ->get();
@@ -162,7 +162,7 @@ class ReportController extends Controller
         $ct0TotalReal   = array_sum(array_column($ct0Data, 'real'));
         $ct0Score       = $ct0TotalCommit == 0 ? '-' : number_format(($ct0TotalReal / $ct0TotalCommit) * 100, 1) . '%';
 
-        $ctcCt0Real   = Ctc::where('segment', 'CT0')->tap($filterPeriodeCt0)
+        $ctcCt0Real = Ctc::where('segment', 'CT0')->tap($filterPeriodeCt0)
             ->get()->sum(fn($r) => $toFloat($r->commitment));
 
         $ctcSegments = ['Sales HSI (all)', 'Churn', 'Winback'];
@@ -238,15 +238,13 @@ class ReportController extends Controller
         $b3Real   = $b3Rows->sum(fn($r) => $toFloat($r->real_ratio));
         $b3Score  = $b3Commit > 0 ? number_format($b3Real, 1) . '%' : '-';
 
-        $b4Rows7  = $rsRows(7);
-        $b4Rows8  = $rsRows(8);
+        $b4Rows7   = $rsRows(7);
+        $b4Rows8   = $rsRows(8);
         $b4Commit7 = $b4Rows7->sum(fn($r) => $toFloat($r->commitment));
         $b4Real7   = $b4Rows7->sum(fn($r) => $toFloat($r->real_ratio));
         $b4Commit8 = $b4Rows8->sum(fn($r) => $toFloat($r->commitment));
         $b4Real8   = $b4Rows8->sum(fn($r) => $toFloat($r->real_ratio));
-
         $b4RpMillion = (0.30 * $b4Real7) + (0.70 * $b4Real8);
-
         $b4Score = number_format($b4RpMillion, 1) . '%';
 
         $filterPeriodePsak = function ($q) use ($filtered, $filterBulan, $filterTahun) {
@@ -262,12 +260,12 @@ class ReportController extends Controller
         ];
 
         $psakIndicators = [
-            'nc_step14'    => 'Not Close Step 1-4',
-            'nc_step5'     => 'Not Close Step 5',
-            'nc_konfirmasi'=> 'Not Close Konfirmasi',
-            'nc_splitbill' => 'Not Close Splitt Bill',
-            'nc_crvariable'=> 'Not Close CR Variable',
-            'nc_unidentified'=> 'Not Close Unidentified KB',
+            'nc_step14'       => 'Not Close Step 1-4',
+            'nc_step5'        => 'Not Close Step 5',
+            'nc_konfirmasi'   => 'Not Close Konfirmasi',
+            'nc_splitbill'    => 'Not Close Splitt Bill',
+            'nc_crvariable'   => 'Not Close CR Variable',
+            'nc_unidentified' => 'Not Close Unidentified KB',
         ];
 
         $psakData = [];
@@ -276,7 +274,7 @@ class ReportController extends Controller
                 ->tap($filterPeriodePsak)
                 ->get();
 
-            $indicators = [];
+            $indicators  = [];
             $totalCommRp = 0;
             $totalRealRp = 0;
 
@@ -286,8 +284,7 @@ class ReportController extends Controller
                 $commRp  = $filtered_rows->sum(fn($r) => $toFloat($r->comm_rp));
                 $realSsl = $filtered_rows->sum(fn($r) => $toFloat($r->real_ssl));
                 $realRp  = $filtered_rows->sum(fn($r) => $toFloat($r->real_rp));
-
-                $ach = $commRp == 0 ? '-' : number_format(($realRp / $commRp) * 100, 1) . '%';
+                $ach     = $commRp == 0 ? '-' : number_format(($realRp / $commRp) * 100, 1) . '%';
 
                 $totalCommRp += $commRp;
                 $totalRealRp += $realRp;
@@ -311,6 +308,117 @@ class ReportController extends Controller
             ];
         }
 
+        $scalingBulan = $filtered && $filterBulan ? (int) $filterBulan : Carbon::now()->month;
+        $scalingTahun = $filtered && $filterTahun ? (int) $filterTahun : Carbon::now()->year;
+
+        if ($filtered && $filterBulan && !$filterTahun) {
+            $foundImport = ScallingImport::where('status', 'active')
+                ->whereMonth('periode', $scalingBulan)
+                ->orderByDesc('periode')
+                ->first();
+            if ($foundImport) {
+                $scalingTahun = (int) Carbon::parse($foundImport->periode)->year;
+            }
+        }
+
+        $scalingPeriodeDate = Carbon::createFromDate($scalingTahun, $scalingBulan, 1)->format('Y-m-d');
+        $scalingPeriodeYm   = Carbon::createFromDate($scalingTahun, $scalingBulan, 1)->format('Y-m');
+
+        $scallingSegments = [
+            'gov'     => ['label' => 'Project Gov',     'segment' => 'government'],
+            'private' => ['label' => 'Project Private', 'segment' => 'private'],
+            'soe'     => ['label' => 'Project SOE',     'segment' => 'soe'],
+            'sme'     => ['label' => 'Project SME',     'segment' => 'sme'],
+        ];
+
+        $scallingTypes = [
+            'on-hand'  => 'On Hand',
+            'qualified' => 'Qualified',
+            'initiate'  => 'Initiate',
+            'koreksi'   => 'Correction',
+        ];
+
+        $scallingData = [];
+        foreach ($scallingSegments as $segKey => $seg) {
+            foreach ($scallingTypes as $type => $typeLabel) {
+                $import = ScallingImport::where('segment', $seg['segment'])
+                    ->where('type', $type)
+                    ->where('periode', $scalingPeriodeDate)
+                    ->where('status', 'active')
+                    ->first();
+
+                $commitAmount = 0;
+                $commitRp     = 0;
+                $realAmount   = 0;
+                $realRp       = 0;
+
+                if ($import) {
+                    $dataRows = ScallingData::where('imports_log_id', $import->id)->get();
+                    $commitAmount = $dataRows->count();
+                    $commitRp     = (float) $dataRows->sum('est_nilai_bc');
+
+                    $dataIds = $dataRows->pluck('id');
+                    $funnels = FunnelTracking::whereIn('data_id', $dataIds)->get();
+                    $realAmount = $funnels->where('delivery_billing_complete', true)->count();
+                    $realRp     = (float) $funnels->sum('delivery_nilai_billcomp');
+                }
+
+                $scallingData[$segKey][$type] = [
+                    'label'         => $typeLabel,
+                    'commit_amount' => $commitAmount,
+                    'commit_rp'     => $commitRp,
+                    'real_amount'   => $realAmount,
+                    'real_rp'       => $realRp,
+                ];
+            }
+        }
+
+        $hsiAgencyRow = Hsi::where('type', 'Sales HSI Non AM Non Telda')
+            ->whereYear('periode', $scalingTahun)
+            ->whereMonth('periode', $scalingBulan)
+            ->first();
+
+        $hsiData = [
+            'commit_amount' => (float) ($hsiAgencyRow->commitment ?? 0),
+            'real_amount'   => (float) ($hsiAgencyRow->real_ratio ?? 0),
+        ];
+
+        $teldaRegions = [
+            'lubukpakam'      => 'Lubuk Pakam',
+            'binjai'          => 'Binjai',
+            'pematangsiantar' => 'Pematang Siantar',
+            'kisaran'         => 'Kisaran',
+            'kabanjahe'       => 'Kabanjahe',
+            'rantauprapat'    => 'Rantau Prapat',
+            'toba'            => 'Toba',
+            'sibolga'         => 'Sibolga',
+            'padangsidempuan' => 'Padang Sidempuan',
+        ];
+
+        $teldaData = [];
+        foreach ($teldaRegions as $regionKey => $regionLabel) {
+            $record = Telda::where('region', $regionKey)
+                ->whereYear('periode', $scalingTahun)
+                ->whereMonth('periode', $scalingBulan)
+                ->first();
+
+            $teldaData[$regionKey] = [
+                'label'     => $regionLabel,
+                'commit_rp' => $record ? (float) $record->commitment : null,
+                'real_rp'   => $record ? (float) $record->real_ratio : null,
+            ];
+        }
+
+        $upsellingRow = Hsi::where('type', 'Next Level HSI')
+            ->whereYear('periode', $scalingTahun)
+            ->whereMonth('periode', $scalingBulan)
+            ->first();
+
+        $upsellingData = [
+            'commit_rp' => (float) ($upsellingRow->commitment ?? 0),
+            'real_rp'   => (float) ($upsellingRow->real_ratio ?? 0),
+        ];
+
         return view('report.report', compact(
             'filtered', 'filterBulan', 'filterTahun',
             'c3mrKomitmen', 'c3mrRealisasi',
@@ -324,7 +432,97 @@ class ReportController extends Controller
             'b2Data', 'b2Score',
             'b3Commit', 'b3Real', 'b3Score',
             'b4Commit7', 'b4Real7', 'b4Commit8', 'b4Real8', 'b4RpMillion', 'b4Score',
-            'psakData'
+            'psakData',
+            'scallingSegments', 'scallingTypes', 'scallingData',
+            'hsiData', 'teldaData', 'teldaRegions', 'upsellingData',
+            'scalingPeriodeYm'
+        ));
+    }
+
+    public function detail(Request $request, string $segment, string $type)
+    {
+        $segmentMap = [
+            'gov'     => ['label' => 'Government', 'db' => 'government'],
+            'private' => ['label' => 'Private',    'db' => 'private'],
+            'soe'     => ['label' => 'SOE',         'db' => 'soe'],
+            'sme'     => ['label' => 'SME',         'db' => 'sme'],
+        ];
+
+        $typeMap = [
+            'on-hand'  => 'On Hand',
+            'qualified' => 'Qualified',
+            'initiate'  => 'Initiate',
+            'koreksi'   => 'Correction',
+        ];
+
+        abort_if(!isset($segmentMap[$segment]), 404);
+        abort_if(!isset($typeMap[$type]), 404);
+
+        $segmentLabel = $segmentMap[$segment]['label'];
+        $segmentDb    = $segmentMap[$segment]['db'];
+        $typeLabel    = $typeMap[$type];
+
+        $availableImports = \App\Models\ScallingImport::where('segment', $segmentDb)
+            ->where('type', $type)
+            ->where('status', 'active')
+            ->orderByDesc('periode')
+            ->get();
+
+        $periodOptions = $availableImports
+            ->map(fn($i) => \Carbon\Carbon::parse($i->periode)->format('Y-m'))
+            ->unique()
+            ->values()
+            ->toArray();
+
+        if ($request->filled('periode')) {
+            $currentPeriode = $request->input('periode');
+        } elseif (count($periodOptions)) {
+            $currentPeriode = $periodOptions[0];
+        } else {
+            $currentPeriode = \Carbon\Carbon::now()->format('Y-m');
+        }
+
+        if (!$request->filled('periode') && !in_array($currentPeriode, $periodOptions) && count($periodOptions)) {
+            $currentPeriode = $periodOptions[0];
+        }
+
+        [$periodeYear, $periodeMonth] = explode('-', $currentPeriode);
+        $periodeLabel = \Carbon\Carbon::createFromDate((int)$periodeYear, (int)$periodeMonth, 1)->format('F Y');
+        $periodeDate  = \Carbon\Carbon::createFromDate((int)$periodeYear, (int)$periodeMonth, 1)->format('Y-m-d');
+
+        $import = \App\Models\ScallingImport::where('segment', $segmentDb)
+            ->where('type', $type)
+            ->where('periode', $periodeDate)
+            ->where('status', 'active')
+            ->first();
+
+        $dataRows  = collect();
+        $funnelMap = collect();
+
+        if ($import) {
+            $dataRows = \App\Models\ScallingData::where('imports_log_id', $import->id)
+                ->get()
+                ->filter(fn($r) => strtoupper(trim($r->no ?? '')) !== 'TOTAL')
+                ->values();
+
+            $dataIds = $dataRows->pluck('id');
+
+            $allFunnels = \App\Models\FunnelTracking::whereIn('data_id', $dataIds)->get();
+
+            $funnelMap = $dataIds->mapWithKeys(function ($dataId) use ($allFunnels) {
+                $latest = $allFunnels->where('data_id', $dataId)
+                    ->sortByDesc('updated_at')
+                    ->first();
+                return [$dataId => $latest];
+            });
+        }
+
+        return view('report.detail', compact(
+            'segment', 'type',
+            'segmentLabel', 'typeLabel',
+            'periodeLabel', 'currentPeriode',
+            'periodOptions',
+            'import', 'dataRows', 'funnelMap'
         ));
     }
 }

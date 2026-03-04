@@ -23,6 +23,9 @@ Route::post('/login', [AuthController::class, 'login'])->name('auth.login');
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     Route::get('/report', [ReportController::class, 'index'])->name('report.index');
+    Route::get('/report/detail/{segment}/{type}', [ReportController::class, 'detail'])
+    ->name('report.detail')
+    ->middleware('auth');
 
     // Home redirect
     // Route::get('/', function () {
@@ -178,7 +181,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/scalling/sme/qualified', [ScallingController::class, 'import'])->name('admin.scalling.sme.qualified.store');
         Route::get('/scalling/sme/qualified/{scallingImport}', [ScallingController::class, 'show'])->name('admin.scalling.sme.qualified.show');
         Route::delete('/scalling/sme/qualified/{scallingImport}', [ScallingController::class, 'destroy'])->name('admin.scalling.sme.qualified.destroy');
-        
+
     });
 
     // Government dashboard (role: gov)

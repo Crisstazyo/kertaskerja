@@ -64,7 +64,7 @@
         @endif
 
         {{-- ══ ACTION BUTTONS ══ --}}
-        <div class="grid grid-cols-2 gap-4 mb-8">
+        <div class="grid grid-cols-1 gap-4 mb-8">
             <a href=""
                 class="group bg-white rounded-xl border border-slate-200 hover:border-red-300 hover:shadow-md transition-all duration-200 px-6 py-5 flex items-center justify-between">
                 <div class="flex items-center space-x-4">
@@ -76,24 +76,6 @@
                     <div>
                         <p class="font-black text-slate-900 text-sm">Lihat Progress</p>
                         <p class="text-xs text-slate-400 font-medium mt-0.5">Progress yang diupdate user</p>
-                    </div>
-                </div>
-                <svg class="w-4 h-4 text-slate-300 group-hover:text-red-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
-                </svg>
-            </a>
-
-            <a href=""
-                class="group bg-white rounded-xl border border-slate-200 hover:border-red-300 hover:shadow-md transition-all duration-200 px-6 py-5 flex items-center justify-between">
-                <div class="flex items-center space-x-4">
-                    <div class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0" style="background:#fff1f2; border:1.5px solid #fecdd3;">
-                        <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                    </div>
-                    <div>
-                        <p class="font-black text-slate-900 text-sm">Lihat Riwayat</p>
-                        <p class="text-xs text-slate-400 font-medium mt-0.5">Historical progress data</p>
                     </div>
                 </div>
                 <svg class="w-4 h-4 text-slate-300 group-hover:text-red-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">

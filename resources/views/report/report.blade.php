@@ -50,6 +50,14 @@
             }
         }
 
+        function scalingAchColor($ach) {
+            if ($ach === null) return ['bg' => '', 'text' => 'text-slate-400', 'label' => '-'];
+            if ($ach >= 100)   return ['bg' => 'background:#16a34a;', 'text' => 'text-white', 'label' => number_format($ach,1,',','.') . '%'];
+            if ($ach >= 80)    return ['bg' => 'background:#eab308;', 'text' => 'text-slate-900', 'label' => number_format($ach,1,',','.') . '%'];
+            if ($ach >= 50)    return ['bg' => 'background:#ef4444;', 'text' => 'text-white', 'label' => number_format($ach,1,',','.') . '%'];
+            return                    ['bg' => 'background:#000000;', 'text' => 'text-white', 'label' => number_format($ach,1,',','.') . '%'];
+        }
+
         $bulanNames = ['','Januari','Februari','Maret','April','Mei','Juni',
                        'Juli','Agustus','September','Oktober','November','Desember'];
 
@@ -132,12 +140,38 @@
         $b3ScoreColor   = getColorClass($b3Score, $fairnessRs);
         $b4ScoreColor   = getColorClass($b4Score, $fairnessB4);
         $b4RpMillionFmt = number_format($b4RpMillion, 1);
+
+        $scalingDetailRoutes = [
+    'gov'     => [
+        'on-hand'   => route('report.detail', ['segment' => 'gov',     'type' => 'on-hand',   'periode' => $scalingPeriodeYm]),
+        'qualified' => route('report.detail', ['segment' => 'gov',     'type' => 'qualified', 'periode' => $scalingPeriodeYm]),
+        'initiate'  => route('report.detail', ['segment' => 'gov',     'type' => 'initiate',  'periode' => $scalingPeriodeYm]),
+        'koreksi'   => route('report.detail', ['segment' => 'gov',     'type' => 'koreksi',   'periode' => $scalingPeriodeYm]),
+    ],
+    'private' => [
+        'on-hand'   => route('report.detail', ['segment' => 'private', 'type' => 'on-hand',   'periode' => $scalingPeriodeYm]),
+        'qualified' => route('report.detail', ['segment' => 'private', 'type' => 'qualified', 'periode' => $scalingPeriodeYm]),
+        'initiate'  => route('report.detail', ['segment' => 'private', 'type' => 'initiate',  'periode' => $scalingPeriodeYm]),
+        'koreksi'   => route('report.detail', ['segment' => 'private', 'type' => 'koreksi',   'periode' => $scalingPeriodeYm]),
+    ],
+    'soe'     => [
+        'on-hand'   => route('report.detail', ['segment' => 'soe',     'type' => 'on-hand',   'periode' => $scalingPeriodeYm]),
+        'qualified' => route('report.detail', ['segment' => 'soe',     'type' => 'qualified', 'periode' => $scalingPeriodeYm]),
+        'initiate'  => route('report.detail', ['segment' => 'soe',     'type' => 'initiate',  'periode' => $scalingPeriodeYm]),
+        'koreksi'   => route('report.detail', ['segment' => 'soe',     'type' => 'koreksi',   'periode' => $scalingPeriodeYm]),
+    ],
+    'sme'     => [
+        'on-hand'   => route('report.detail', ['segment' => 'sme',     'type' => 'on-hand',   'periode' => $scalingPeriodeYm]),
+        'qualified' => route('report.detail', ['segment' => 'sme',     'type' => 'qualified', 'periode' => $scalingPeriodeYm]),
+        'initiate'  => route('report.detail', ['segment' => 'sme',     'type' => 'initiate',  'periode' => $scalingPeriodeYm]),
+        'koreksi'   => route('report.detail', ['segment' => 'sme',     'type' => 'koreksi',   'periode' => $scalingPeriodeYm]),
+    ],
+];
     @endphp
 
     <div class="min-h-screen" style="background:#f1f5f9;">
         <div class="max-w-7xl mx-auto px-8 py-10">
 
-            {{-- ══ HEADER ══ --}}
             <div class="bg-white rounded-2xl shadow-sm border border-slate-200 px-10 py-7 mb-8 relative overflow-hidden no-print">
                 <div class="absolute top-0 left-0 right-0 h-1.5" style="background: linear-gradient(90deg, #dc2626, #ef4444, #dc2626);"></div>
                 <div class="absolute -right-10 -top-10 w-56 h-56 rounded-full opacity-[0.04]" style="background: #dc2626;"></div>
@@ -168,8 +202,8 @@
                             };
                         @endphp
                         <a href="{{ $dashboardRoute }}"
-                            class="flex items-center space-x-2.5 bg-white border-2 border-slate-900 hover:bg-slate-900 text-slate-900 hover:text-white px-6 py-3 rounded-xl font-black text-xs transition-all duration-300 shadow-sm uppercase tracking-wider">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            class="flex items-center space-x-2.5 bg-white border-2 border-slate-900 hover:bg-red-600 hover:border-red-600 text-slate-900 hover:text-white px-6 py-3 rounded-xl font-black text-xs transition-all duration-300 shadow-sm group uppercase tracking-wider">
+                            <svg class="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/>
                             </svg>
                             <span>Back to Dashboard</span>
@@ -179,7 +213,8 @@
                             <button type="submit"
                                 class="group flex items-center space-x-2.5 bg-slate-900 hover:bg-red-600 text-white font-bold text-sm px-5 py-3 rounded-xl transition-all duration-300 shadow-md hover:shadow-lg hover:shadow-red-200">
                                 <svg class="w-4 h-4 transition-transform duration-300 group-hover:rotate-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
                                 </svg>
                                 <span>Logout</span>
                             </button>
@@ -188,10 +223,9 @@
                 </div>
             </div>
 
-            {{-- ══ FILTER ══ --}}
             <div class="bg-white rounded-2xl border border-slate-200 shadow-sm px-8 py-5 mb-8 no-print">
                 <div class="flex items-center space-x-3 mb-4">
-                    <div class="w-1 h-6 bg-red-600 rounded-full"></div>
+                    <div class="w-1.5 h-8 bg-red-600 rounded-full"></div>
                     <h2 class="text-base font-black text-slate-900 uppercase tracking-wide">Filter Periode</h2>
                 </div>
                 <form method="GET" action="{{ route('report.index') }}">
@@ -235,11 +269,10 @@
                 </form>
             </div>
 
-            {{-- ══ TABLE ══ --}}
-            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm">
                 <div class="px-8 py-5 border-b border-slate-100 flex items-center justify-between no-print">
                     <div class="flex items-center space-x-3">
-                        <div class="w-1 h-6 bg-red-600 rounded-full"></div>
+                        <div class="w-1.5 h-8 bg-red-600 rounded-full"></div>
                         <h2 class="text-base font-black text-slate-900 uppercase tracking-wide">Report Data — {{ $periodeLabel }}</h2>
                     </div>
                     <button onclick="window.print()" class="flex items-center space-x-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-xs px-4 py-2 rounded-lg transition-colors uppercase tracking-wider">
@@ -279,6 +312,174 @@
                             </tr>
                         </thead>
                         <tbody class="text-gray-800">
+
+                            <tr class="border-b-2 border-black font-bold">
+                                <td class="border border-gray-400 text-center">1</td>
+                                <td colspan="10" class="border border-gray-400 px-2 py-1 uppercase bg-gray-50">Scaling</td>
+                            </tr>
+
+                            @php
+                                $segLetters = ['gov' => 'a', 'private' => 'b', 'soe' => 'c', 'sme' => 'd'];
+                                $typeKeys   = array_keys($scallingTypes);
+                                $typeCount  = count($typeKeys);
+                            @endphp
+
+                            @foreach($scallingSegments as $segKey => $seg)
+                                @php
+                                    $letter   = $segLetters[$segKey];
+                                    $typeRows = $scallingData[$segKey];
+                                    $scoreCommit = 0; $scoreReal = 0;
+                                    foreach(['on-hand','qualified','initiate'] as $t) {
+                                        $scoreCommit += $typeRows[$t]['commit_rp'];
+                                        $scoreReal   += $typeRows[$t]['real_rp'];
+                                    }
+                                    $scoreVal = $scoreCommit > 0 ? ($scoreReal / $scoreCommit) * 100 : null;
+                                    $scoreC   = scalingAchColor($scoreVal);
+                                @endphp
+
+                                @foreach($typeKeys as $ti => $typeKey)
+                                    @php
+                                        $row      = $typeRows[$typeKey];
+                                        $isFirst  = ($ti === 0);
+                                        $cRp      = $row['commit_rp'];
+                                        $rRp      = $row['real_rp'];
+                                        $achVal   = $cRp > 0 ? ($rRp / $cRp) * 100 : null;
+                                        $achC     = scalingAchColor($achVal);
+                                        $showScore = ($typeKey === 'on-hand');
+                                    @endphp
+                                    <tr id="scaling-row-{{ $segKey }}-{{ $typeKey }}">
+                                        @if($segKey === 'gov' && $isFirst)
+                                            @php $fairnessScalingRowspan = $typeCount * count($scallingSegments) + 1 + count($teldaRegions) + 1; @endphp
+                                            <td rowspan="{{ $typeCount * count($scallingSegments) + 1 + count($teldaRegions) + 1 }}" class="border border-gray-400 text-center align-middle"></td>
+                                        @endif
+
+                                        @if($isFirst)
+                                        <td class="border border-gray-400 px-2 py-1 font-semibold align-top" rowspan="{{ $typeCount }}">{{ $letter }}&nbsp;&nbsp;{{ $seg['label'] }}</td>
+                                        @endif
+
+                                        <td class="border border-gray-400 px-2 py-1">{{ $row['label'] }}</td>
+                                        <td class="border border-gray-400 text-center">lop</td>
+
+                                        <td class="border border-gray-400 px-2 text-right">
+                                            {{ $row['commit_amount'] > 0 ? $row['commit_amount'] : ($cRp > 0 ? '-' : '') }}
+                                        </td>
+                                        <td class="border border-gray-400 px-2 text-right">
+                                            {{ $cRp > 0 ? number_format($cRp / 1000000, 3, ',', '.') : '' }}
+                                        </td>
+                                        <td class="border border-gray-400 px-2 text-right">
+                                            {{ $row['real_amount'] > 0 ? $row['real_amount'] : ($rRp > 0 ? '-' : '') }}
+                                        </td>
+                                        <td class="border border-gray-400 px-2 text-right">
+                                            {{ $rRp > 0 ? number_format($rRp / 1000000, 3, ',', '.') : '' }}
+                                        </td>
+
+                                        @if($segKey === 'gov' && $isFirst)
+                                            <td class="border border-gray-400 text-center align-middle" rowspan="{{ $fairnessScalingRowspan }}">0-100</td>
+                                        @endif
+
+                                        <td class="border border-gray-400 text-right font-bold" style="{{ $achC['bg'] }}">
+                                            <span class="{{ $achC['text'] }}">{{ $achC['label'] }}</span>
+                                        </td>
+
+                                        @if($showScore)
+                                        <td class="border border-gray-400 text-right font-bold align-middle" rowspan="3" style="{{ $scoreC['bg'] }}">
+                                            <span class="{{ $scoreC['text'] }}">{{ $scoreC['label'] }}</span>
+                                        </td>
+                                        @elseif($typeKey === 'koreksi')
+                                        <td class="border-t border-b border-r border-gray-400"></td>
+                                        @endif
+                                    </tr>
+                                @endforeach
+                            @endforeach
+
+                            @php
+                                $hsiCommit = $hsiData['commit_amount'];
+                                $hsiReal   = $hsiData['real_amount'];
+                                $hsiAchVal = $hsiCommit > 0 ? ($hsiReal / $hsiCommit) * 100 : null;
+                                $hsiC      = scalingAchColor($hsiAchVal);
+                            @endphp
+                            <tr>
+                                <td class="border border-gray-400 px-2 py-1 font-semibold">e&nbsp;&nbsp;HSI Agency</td>
+                                <td class="border border-gray-400 px-2 py-1">Sales HSI Non AM Non Telda</td>
+                                <td class="border border-gray-400 text-center">ssl</td>
+                                <td class="border border-gray-400 px-2 text-right">
+                                    {{ $hsiCommit > 0 ? number_format($hsiCommit, 0) : '' }}
+                                </td>
+                                <td class="border border-gray-400"></td>
+                                <td class="border border-gray-400 px-2 text-right">
+                                    {{ $hsiReal > 0 ? number_format($hsiReal, 0) : '' }}
+                                </td>
+                                <td class="border border-gray-400"></td>
+                                <td colspan="2" class="border border-gray-400 text-right font-bold" style="{{ $hsiC['bg'] }}">
+                                    <span class="{{ $hsiC['text'] }}">{{ $hsiC['label'] }}</span>
+                                </td>
+                            </tr>
+
+                            @php
+                                $teldaCount      = count($teldaRegions);
+                                $teldaSumCommit  = collect($teldaData)->sum('commit_rp');
+                                $teldaSumReal    = collect($teldaData)->sum('real_rp');
+                                $teldaScoreVal   = $teldaSumCommit > 0 ? ($teldaSumReal / $teldaSumCommit) * 100 : null;
+                                $teldaScoreC     = scalingAchColor($teldaScoreVal);
+                            @endphp
+                            @foreach($teldaData as $rKey => $region)
+                                @php
+                                    $isTFirst   = $loop->first;
+                                    $cRp        = $region['commit_rp'];
+                                    $rRp        = $region['real_rp'];
+                                    $tAchVal    = (!is_null($cRp) && $cRp > 0) ? ($rRp / $cRp) * 100 : null;
+                                    $tAchC      = scalingAchColor($tAchVal);
+                                @endphp
+                                <tr>
+                                    @if($isTFirst)
+                                    <td class="border border-gray-400 px-2 py-1 font-semibold align-top" rowspan="{{ $teldaCount }}">f&nbsp;&nbsp;Telda</td>
+                                    @endif
+
+                                    <td class="border border-gray-400 px-2 py-1">{{ $region['label'] }}</td>
+                                    <td class="border border-gray-400 text-center">Rp</td>
+                                    <td class="border border-gray-400"></td>
+                                    <td class="border border-gray-400 px-2 text-right">
+                                        {{ !is_null($cRp) && $cRp > 0 ? number_format($cRp, 1, ',', '.') : ($cRp === 0.0 ? '' : '-') }}
+                                    </td>
+                                    <td class="border border-gray-400"></td>
+                                    <td class="border border-gray-400 px-2 text-right">
+                                        {{ !is_null($rRp) && $rRp > 0 ? number_format($rRp, 1, ',', '.') : '' }}
+                                    </td>
+
+                                    <td class="border border-gray-400 text-right font-bold" style="{{ $tAchC['bg'] }}">
+                                        <span class="{{ $tAchC['text'] }}">{{ $tAchC['label'] }}</span>
+                                    </td>
+
+                                    @if($isTFirst)
+                                    <td class="border border-gray-400 text-right font-bold align-middle" rowspan="{{ $teldaCount }}" style="{{ $teldaScoreC['bg'] }}">
+                                        <span class="{{ $teldaScoreC['text'] }}">{{ $teldaScoreC['label'] }}</span>
+                                    </td>
+                                    @endif
+                                </tr>
+                            @endforeach
+
+                            @php
+                                $upCommit = (float) $upsellingData['commit_rp'];
+                                $upReal   = (float) $upsellingData['real_rp'];
+                                $upAchVal = $upCommit > 0 ? ($upReal / $upCommit) * 100 : null;
+                                $upC      = scalingAchColor($upAchVal);
+                            @endphp
+                            <tr>
+                                <td class="border border-gray-400 px-2 py-1 font-semibold">g&nbsp;&nbsp;Upselling HSI</td>
+                                <td class="border border-gray-400 px-2 py-1">Next Level HSI</td>
+                                <td class="border border-gray-400 text-center">Rp</td>
+                                <td class="border border-gray-400"></td>
+                                <td class="border border-gray-400 px-2 text-right">
+                                    {{ $upCommit > 0 ? number_format($upCommit, 1, ',', '.') : '' }}
+                                </td>
+                                <td class="border border-gray-400"></td>
+                                <td class="border border-gray-400 px-2 text-right">
+                                    {{ $upReal > 0 ? number_format($upReal, 1, ',', '.') : '' }}
+                                </td>
+                                <td colspan="2" class="border border-gray-400 text-right font-bold" style="{{ $upC['bg'] }}">
+                                    <span class="{{ $upC['text'] }}">{{ $upC['label'] }}</span>
+                                </td>
+                            </tr>
 
                             <tr class="border-b-2 border-black font-bold">
                                 <td class="border border-gray-400 text-center">2</td>
@@ -372,51 +573,32 @@
                                     @if($ri === 0)
                                         <td rowspan="{{ $ctcSectionRows }}" class="border border-gray-400"></td>
                                     @endif
-
                                     @if($ri === 0)
-                                        <td rowspan="{{ $ct0RowCount }}" class="border border-gray-400 px-2 py-1 align-top font-semibold">
-                                            a&nbsp;&nbsp;Paid Pra CT0
-                                        </td>
+                                        <td rowspan="{{ $ct0RowCount }}" class="border border-gray-400 px-2 py-1 align-top font-semibold">a&nbsp;&nbsp;Paid Pra CT0</td>
                                     @endif
-
                                     <td class="border border-gray-400 px-2 py-1">{{ $region['label'] }}</td>
                                     <td class="border border-gray-400 text-center">Rp</td>
                                     <td class="border border-gray-400"></td>
-                                    <td class="border border-gray-400 px-2 text-right">
-                                        {{ $region['commit'] > 0 ? number_format($region['commit'], 1) : '' }}
-                                    </td>
+                                    <td class="border border-gray-400 px-2 text-right">{{ $region['commit'] > 0 ? number_format($region['commit'], 1) : '' }}</td>
                                     <td class="border border-gray-400"></td>
-                                    <td class="border border-gray-400 px-2 text-right">
-                                        {{ $region['real'] > 0 ? number_format($region['real'], 1) : '' }}
-                                    </td>
-
+                                    <td class="border border-gray-400 px-2 text-right">{{ $region['real'] > 0 ? number_format($region['real'], 1) : '' }}</td>
                                     @if($ri === 0)
                                         <td rowspan="{{ $ct0RowCount }}" class="border border-gray-400 text-center align-middle">{{ $fairnessCt0 }}</td>
                                     @endif
-
-                                    <td class="border border-gray-400 text-right font-bold {{ $region['achColor'] }}">
-                                        {{ $region['ach'] }}
-                                    </td>
-
+                                    <td class="border border-gray-400 text-right font-bold {{ $region['achColor'] }}">{{ $region['ach'] }}</td>
                                     @if($ri === 0)
-                                        <td rowspan="{{ $ct0RowCount }}" class="border border-gray-400 text-right font-bold align-middle {{ $ct0ScoreColor }}">
-                                            {{ $ct0Score }}
-                                        </td>
+                                        <td rowspan="{{ $ct0RowCount }}" class="border border-gray-400 text-right font-bold align-middle {{ $ct0ScoreColor }}">{{ $ct0Score }}</td>
                                     @endif
                                 </tr>
                             @endforeach
 
                             <tr>
-                                <td rowspan="{{ $ctcRowCount }}" class="border border-gray-400 px-2 py-1 align-top font-semibold">
-                                    b&nbsp;&nbsp;CTC
-                                </td>
+                                <td rowspan="{{ $ctcRowCount }}" class="border border-gray-400 px-2 py-1 align-top font-semibold">b&nbsp;&nbsp;CTC</td>
                                 <td class="border border-gray-400 px-2 py-1">CT0</td>
                                 <td class="border border-gray-400 text-center">ssl</td>
                                 <td class="border border-gray-400"></td>
                                 <td class="border border-gray-400"></td>
-                                <td class="border border-gray-400 px-2 text-right font-semibold">
-                                    {{ $ctcCt0Real > 0 ? number_format($ctcCt0Real, 0) : '' }}
-                                </td>
+                                <td class="border border-gray-400 px-2 text-right font-semibold">{{ $ctcCt0Real > 0 ? number_format($ctcCt0Real, 0) : '' }}</td>
                                 <td class="border border-gray-400"></td>
                                 <td class="border border-gray-400"></td>
                                 <td colspan="2" class="border border-gray-400"></td>
@@ -426,18 +608,12 @@
                                 <tr>
                                     <td class="border border-gray-400 px-2 py-1">{{ $seg }}</td>
                                     <td class="border border-gray-400 text-center">ssl</td>
-                                    <td class="border border-gray-400 px-2 text-right">
-                                        {{ $ctcData[$seg]['commit'] > 0 ? number_format($ctcData[$seg]['commit'], 0) : '' }}
-                                    </td>
+                                    <td class="border border-gray-400 px-2 text-right">{{ $ctcData[$seg]['commit'] > 0 ? number_format($ctcData[$seg]['commit'], 0) : '' }}</td>
                                     <td class="border border-gray-400"></td>
-                                    <td class="border border-gray-400 px-2 text-right font-semibold">
-                                        {{ $ctcData[$seg]['real'] > 0 ? number_format($ctcData[$seg]['real'], 0) : '' }}
-                                    </td>
+                                    <td class="border border-gray-400 px-2 text-right font-semibold">{{ $ctcData[$seg]['real'] > 0 ? number_format($ctcData[$seg]['real'], 0) : '' }}</td>
                                     <td class="border border-gray-400"></td>
                                     <td class="border border-gray-400 text-center">{{ $fairnessCtc }}</td>
-                                    <td colspan="2" class="border border-gray-400 text-right font-bold {{ $ctcData[$seg]['achColor'] }}">
-                                        {{ $ctcData[$seg]['ach'] }}
-                                    </td>
+                                    <td colspan="2" class="border border-gray-400 text-right font-bold {{ $ctcData[$seg]['achColor'] }}">{{ $ctcData[$seg]['ach'] }}</td>
                                 </tr>
                             @endforeach
 
@@ -449,33 +625,10 @@
                                 <td class="border border-gray-400 px-2 text-right font-semibold">{{ $lossRateReal }}</td>
                                 <td class="border border-gray-400"></td>
                                 <td class="border border-gray-400 text-center">{{ $fairnessLoss }}</td>
-                                <td colspan="2" class="border border-gray-400 text-right font-bold {{ $lossRateColor }}">
-                                    {{ $lossRateAch }}
-                                </td>
+                                <td colspan="2" class="border border-gray-400 text-right font-bold {{ $lossRateColor }}">{{ $lossRateAch }}</td>
                             </tr>
 
-                            @php
-                                $fairnessRs  = '0-100';
-                                $fairnessB4  = '0-70';
-
-                                $b1ScoreColor = getColorClass($b1Score, $fairnessRs);
-                                $b2ScoreColor = getColorClass($b2Score, $fairnessRs);
-                                $b3ScoreColor = getColorClass($b3Score, $fairnessRs);
-                                $b4ScoreColor = getColorClass($b4Score, $fairnessB4);
-
-                                foreach ($b1Data as $tid => $row) {
-                                    $pct = $row['commit'] > 0 ? number_format($row['ratio'], 1) . '%' : '-';
-                                    $b1Data[$tid]['realPct']   = $pct;
-                                    $b1Data[$tid]['realColor'] = getColorClass($pct, $fairnessRs);
-                                }
-                                foreach ($b2Data as $tid => $row) {
-                                    $pct = $row['commit'] > 0 ? number_format($row['ratio'], 1) . '%' : '-';
-                                    $b2Data[$tid]['realPct']   = $pct;
-                                    $b2Data[$tid]['realColor'] = getColorClass($pct, $fairnessRs);
-                                }
-
-                                $rsSectionRows = count($b1Data) + count($b2Data) + 1 + 2;
-                            @endphp
+                            @php $rsSectionRows = count($b1Data) + count($b2Data) + 1 + 2; @endphp
 
                             <tr class="border-b-2 border-black font-bold">
                                 <td class="border border-gray-400 text-center">4</td>
@@ -492,9 +645,7 @@
                                     <td class="border border-gray-400 text-center">%</td>
                                     <td class="border border-gray-400 px-2 text-right">{{ $row['commit'] > 0 ? number_format($row['commit'], 0) : '' }}</td>
                                     <td class="border border-gray-400"></td>
-                                    <td class="border border-gray-400 px-2 text-right font-bold {{ $row['realColor'] }}">
-                                        {{ $row['real'] > 0 ? number_format($row['real'], 1) : '' }}
-                                    </td>
+                                    <td class="border border-gray-400 px-2 text-right font-bold {{ $row['achColor'] }}">{{ $row['real'] > 0 ? number_format($row['real'], 1) : '' }}</td>
                                     <td class="border border-gray-400"></td>
                                     @if($loop->first)
                                         <td rowspan="{{ count($b1Data) }}" class="border border-gray-400 text-center align-middle">{{ $fairnessRs }}</td>
@@ -512,9 +663,7 @@
                                     <td class="border border-gray-400 text-center">%</td>
                                     <td class="border border-gray-400 px-2 text-right">{{ $row['commit'] > 0 ? number_format($row['commit'], 0) : '' }}</td>
                                     <td class="border border-gray-400"></td>
-                                    <td class="border border-gray-400 px-2 text-right font-bold {{ $row['realColor'] }}">
-                                        {{ $row['real'] > 0 ? number_format($row['real'], 1) : '' }}
-                                    </td>
+                                    <td class="border border-gray-400 px-2 text-right font-bold {{ $row['achColor'] }}">{{ $row['real'] > 0 ? number_format($row['real'], 1) : '' }}</td>
                                     <td class="border border-gray-400"></td>
                                     @if($loop->first)
                                         <td rowspan="{{ count($b2Data) }}" class="border border-gray-400 text-center align-middle">{{ $fairnessRs }}</td>
@@ -529,9 +678,7 @@
                                 <td class="border border-gray-400 text-center">%</td>
                                 <td class="border border-gray-400 px-2 text-right">{{ $b3Commit > 0 ? number_format($b3Commit, 0) : '' }}</td>
                                 <td class="border border-gray-400"></td>
-                                <td class="border border-gray-400 px-2 text-right font-bold {{ $b3ScoreColor }}">
-                                    {{ $b3Real > 0 ? number_format($b3Real, 1) : '' }}
-                                </td>
+                                <td class="border border-gray-400 px-2 text-right font-bold {{ $b3ScoreColor }}">{{ $b3Real > 0 ? number_format($b3Real, 1) : '' }}</td>
                                 <td class="border border-gray-400"></td>
                                 <td class="border border-gray-400 text-center">{{ $fairnessRs }}</td>
                                 <td colspan="2" class="border border-gray-400 text-center font-bold {{ $b3ScoreColor }}">{{ $b3Score }}</td>
@@ -544,13 +691,10 @@
                                 <td class="border border-gray-400 px-2 text-right">{{ $b4Commit7 > 0 ? number_format($b4Commit7, 0) : '' }}</td>
                                 <td class="border border-gray-400"></td>
                                 <td class="border border-gray-400 px-2 text-right">{{ $b4Real7 > 0 ? number_format($b4Real7, 1) : '' }}</td>
-                                <td rowspan="2" class="border border-gray-400 px-2 text-right align-middle">
-                                    {{ $b4RpMillion > 0 ? number_format($b4RpMillion, 1) : '' }}
-                                </td>
+                                <td rowspan="2" class="border border-gray-400 px-2 text-right align-middle">{{ $b4RpMillion > 0 ? number_format($b4RpMillion, 1) : '' }}</td>
                                 <td rowspan="2" class="border border-gray-400 text-center align-middle">{{ $fairnessB4 }}</td>
                                 <td rowspan="2" colspan="2" class="border border-gray-400 text-center font-bold align-middle {{ $b4ScoreColor }}">{{ $b4Score }}</td>
                             </tr>
-
                             <tr>
                                 <td class="border border-gray-400 px-2 py-1">AOSODOMORO &gt;3 Bulan</td>
                                 <td class="border border-gray-400 px-2 text-right">{{ $b4Commit8 > 0 ? number_format($b4Commit8, 0) : '' }}</td>
@@ -573,60 +717,42 @@
 
                             @foreach($psakData as $typeKey => $typeData)
                                 @php
-                                    $subLabel    = $psakSubLabels[array_search($typeKey, array_keys($psakData))];
-                                    $scoreColor  = getColorClass($typeData['score'], $fairnessPsak);
-                                    $indicators  = array_values($typeData['indicators']);
-                                    $indCount    = count($indicators);
+                                    $subLabel   = $psakSubLabels[array_search($typeKey, array_keys($psakData))];
+                                    $scoreColor = getColorClass($typeData['score'], $fairnessPsak);
+                                    $indicators = array_values($typeData['indicators']);
+                                    $indCount   = count($indicators);
                                 @endphp
-
                                 @foreach($indicators as $idx => $ind)
-                                    @php
-                                        $achColor = getColorClass($ind['ach'], $fairnessPsak);
-                                        $hasData  = $ind['commSsl'] > 0 || $ind['commRp'] > 0 || $ind['realSsl'] > 0 || $ind['realRp'] > 0;
-                                    @endphp
+                                    @php $achColor = getColorClass($ind['ach'], $fairnessPsak); @endphp
                                     <tr>
                                         @if($loop->parent->first && $idx === 0)
                                             <td rowspan="{{ $psakAllRows }}" class="border border-gray-400"></td>
                                         @endif
-
                                         @if($idx === 0)
                                             <td rowspan="{{ $indCount }}" class="border border-gray-400 px-2 py-1 align-top font-semibold">
                                                 {{ $subLabel }}&nbsp;&nbsp;{{ $typeData['label'] }}
                                             </td>
                                         @endif
-
                                         <td class="border border-gray-400 px-2 py-1">{{ $ind['label'] }}</td>
-
                                         <td class="border border-gray-400 text-center text-xs">TIBS</td>
-
                                         <td class="border border-gray-400 px-2 text-right">
-                                            {{ $hasData && $ind['commSsl'] > 0 ? number_format($ind['commSsl'], 0) : ($hasData ? '-' : '') }}
+                                            {{ $ind['commSsl'] > 0 ? number_format($ind['commSsl'], 0) : ($ind['commRp'] > 0 || $ind['realRp'] > 0 ? '-' : '') }}
                                         </td>
-
                                         <td class="border border-gray-400 px-2 text-right">
-                                            {{ $ind['commRp'] > 0 ? number_format($ind['commRp'], 0) : ($hasData ? '-' : '') }}
+                                            {{ $ind['commRp'] > 0 ? number_format($ind['commRp'], 0) : ($ind['realRp'] > 0 ? '-' : '') }}
                                         </td>
-
                                         <td class="border border-gray-400 px-2 text-right">
-                                            {{ $hasData && $ind['realSsl'] > 0 ? number_format($ind['realSsl'], 0) : ($hasData ? '-' : '') }}
+                                            {{ $ind['realSsl'] > 0 ? number_format($ind['realSsl'], 0) : ($ind['realRp'] > 0 ? '-' : '') }}
                                         </td>
-
                                         <td class="border border-gray-400 px-2 text-right">
-                                            {{ $ind['realRp'] > 0 ? number_format($ind['realRp'], 0) : ($hasData ? '-' : '') }}
+                                            {{ $ind['realRp'] > 0 ? number_format($ind['realRp'], 0) : '' }}
                                         </td>
-
                                         @if($loop->parent->first && $idx === 0)
                                             <td rowspan="{{ $psakAllRows }}" class="border border-gray-400 text-center align-middle">{{ $fairnessPsak }}</td>
                                         @endif
-
-                                        <td class="border border-gray-400 px-2 text-right font-bold {{ $achColor }}">
-                                            {{ $ind['ach'] }}
-                                        </td>
-
+                                        <td class="border border-gray-400 px-2 text-right font-bold {{ $achColor }}">{{ $ind['ach'] }}</td>
                                         @if($idx === 0)
-                                            <td rowspan="{{ $indCount }}" class="border border-gray-400 text-right font-bold align-middle {{ $scoreColor }}">
-                                                {{ $typeData['score'] }}
-                                            </td>
+                                            <td rowspan="{{ $indCount }}" class="border border-gray-400 text-right font-bold align-middle {{ $scoreColor }}">{{ $typeData['score'] }}</td>
                                         @endif
                                     </tr>
                                 @endforeach
@@ -634,13 +760,13 @@
 
                         </tbody>
                     </table>
+                    <div id="scaling-detail-btns" style="position:relative;height:0;overflow:visible;pointer-events:none;"></div>
                 </div>
             </div>
 
-            {{-- ══ KETERANGAN WARNA ══ --}}
             <div class="bg-white rounded-2xl border border-slate-200 shadow-sm px-8 py-5 mt-6 no-print">
                 <div class="flex items-center space-x-3 mb-3">
-                    <div class="w-1 h-6 bg-red-600 rounded-full"></div>
+                    <div class="w-1.5 h-8 bg-red-600 rounded-full"></div>
                     <h2 class="text-base font-black text-slate-900 uppercase tracking-wide">Keterangan Warna</h2>
                 </div>
                 <div class="flex flex-wrap gap-5 text-xs font-semibold">
@@ -688,4 +814,90 @@
     }
     .print-header { display: none; }
 </style>
+
+<script>
+(function () {
+    var rows = [
+        { id: 'scaling-row-gov-on-hand',      href: '{{ $scalingDetailRoutes['gov']['on-hand'] }}' },
+        { id: 'scaling-row-gov-qualified',     href: '{{ $scalingDetailRoutes['gov']['qualified'] }}' },
+        { id: 'scaling-row-gov-initiate',      href: '{{ $scalingDetailRoutes['gov']['initiate'] }}' },
+        { id: 'scaling-row-gov-koreksi',       href: '{{ $scalingDetailRoutes['gov']['koreksi'] }}' },
+        { id: 'scaling-row-private-on-hand',   href: '{{ $scalingDetailRoutes['private']['on-hand'] }}' },
+        { id: 'scaling-row-private-qualified', href: '{{ $scalingDetailRoutes['private']['qualified'] }}' },
+        { id: 'scaling-row-private-initiate',  href: '{{ $scalingDetailRoutes['private']['initiate'] }}' },
+        { id: 'scaling-row-private-koreksi',   href: '{{ $scalingDetailRoutes['private']['koreksi'] }}' },
+        { id: 'scaling-row-soe-on-hand',       href: '{{ $scalingDetailRoutes['soe']['on-hand'] }}' },
+        { id: 'scaling-row-soe-qualified',     href: '{{ $scalingDetailRoutes['soe']['qualified'] }}' },
+        { id: 'scaling-row-soe-initiate',      href: '{{ $scalingDetailRoutes['soe']['initiate'] }}' },
+        { id: 'scaling-row-soe-koreksi',       href: '{{ $scalingDetailRoutes['soe']['koreksi'] }}' },
+        { id: 'scaling-row-sme-on-hand',       href: '{{ $scalingDetailRoutes['sme']['on-hand'] }}' },
+        { id: 'scaling-row-sme-qualified',     href: '{{ $scalingDetailRoutes['sme']['qualified'] }}' },
+        { id: 'scaling-row-sme-initiate',      href: '{{ $scalingDetailRoutes['sme']['initiate'] }}' },
+        { id: 'scaling-row-sme-koreksi',       href: '{{ $scalingDetailRoutes['sme']['koreksi'] }}' },
+    ];
+
+    function renderButtons() {
+        var container = document.getElementById('scaling-detail-btns');
+        if (!container) return;
+
+        var wrapper = container.closest('.overflow-x-auto');
+        if (!wrapper) return;
+
+        var table = wrapper.querySelector('table');
+        if (!table) return;
+
+        container.innerHTML = '';
+        container.style.pointerEvents = 'none';
+
+        var tableRight = table.offsetWidth + 6;
+        var containerTopInScroll = table.offsetTop + table.offsetHeight;
+
+        rows.forEach(function (g) {
+            var tr = document.getElementById(g.id);
+            if (!tr) return;
+
+            var trTopInScroll = table.offsetTop + tr.offsetTop;
+            var btnTop = trTopInScroll + (tr.offsetHeight / 2) - 10 - containerTopInScroll;
+
+            var btn = document.createElement('a');
+            btn.href = g.href;
+            btn.textContent = 'detail';
+            btn.style.cssText = [
+                'position:absolute',
+                'left:' + (tableRight + 6) + 'px',
+                'top:' + btnTop + 'px',
+                'display:inline-flex',
+                'align-items:center',
+                'padding:2px 8px',
+                'background:#1e293b',
+                'color:white',
+                'font-size:10px',
+                'font-weight:900',
+                'border-radius:5px',
+                'text-transform:uppercase',
+                'letter-spacing:0.05em',
+                'text-decoration:none',
+                'white-space:nowrap',
+                'box-shadow:0 1px 3px rgba(0,0,0,.3)',
+                'pointer-events:all',
+                'z-index:50',
+            ].join(';');
+
+            btn.onmouseenter = function () { this.style.background = '#dc2626'; };
+            btn.onmouseleave = function () { this.style.background = '#1e293b'; };
+            container.appendChild(btn);
+        });
+    }
+
+    function init() { setTimeout(renderButtons, 80); }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+    window.addEventListener('resize', renderButtons);
+})();
+</script>
+
 @endsection
