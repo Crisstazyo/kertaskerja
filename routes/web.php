@@ -185,6 +185,11 @@ Route::middleware('auth')->group(function () {
         Route::patch('/scalling/{id}/toggle-status', [ScallingController::class, 'toggleStatus'])
         ->name('admin.scalling.toggle-status');
 
+        Route::get('/progress/{segment}/{type}', [ReportController::class, 'progress'])
+        ->name('admin.progress');
+        Route::post('/progress/{segment}/{type}/funnel', [ReportController::class, 'progressFunnelUpdate'])
+        ->name('admin.progress.funnel.update');
+
     });
 
     // Government dashboard (role: gov)

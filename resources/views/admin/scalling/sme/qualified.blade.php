@@ -75,7 +75,7 @@
 
             {{-- ══ ACTION BUTTONS ══ --}}
             <div class="grid grid-cols gap-4 mb-8">
-                <a href=""
+                <a href="{{ route('admin.progress', ['segment' => 'sme', 'type' => 'qualified']) }}"
                     class="group bg-white rounded-xl border border-slate-200 hover:border-red-300 hover:shadow-md transition-all duration-200 px-6 py-5 flex items-center justify-between">
                     <div class="flex items-center space-x-4">
                         <div class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
