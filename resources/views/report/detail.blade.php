@@ -255,11 +255,27 @@
                         <tr class="border-t-2 border-red-200 bg-slate-50">
                             <td colspan="7" class="px-4 py-3 text-right text-xs font-black text-slate-700 uppercase tracking-widest border-r border-slate-100">TOTAL:</td>
                             <td class="px-4 py-3 text-center font-black text-emerald-700 border-r border-slate-100 bg-emerald-50">
-                                {{ number_format($dataRows->sum(fn($r) => floatval(str_replace(['.', ','], ['', '.'], $r->est_nilai_bc ?? '0'))), 0, ',', '.') }}
+                                {{ number_format(
+                                    $dataRows->sum(function ($r) {
+                                        $value = $r->est_nilai_bc ?? '0';
+
+                                        // Jika format Indonesia (ada koma sebagai desimal)
+                                        if (str_contains($value, ',')) {
+                                            $value = str_replace('.', '', $value); // hapus ribuan
+                                            $value = str_replace(',', '.', $value); // ubah desimal
+                                        }
+
+                                        return floatval($value);
+                                    }),
+                                0, ',', '.') }}
                             </td>
                             <td colspan="20" class="border-r border-slate-100"></td>
                             <td class="px-4 py-3 text-center font-black text-violet-700 bg-violet-50">
-                                {{ number_format($funnelMap->filter(fn($f) => $f && $f->delivery_billing_complete)->sum(fn($f) => $f->delivery_nilai_billcomp ?? 0), 0, ',', '.') }}
+                                {{ number_format(
+    $funnelMap
+        ->where('delivery_billing_complete', true)
+        ->sum('delivery_nilai_billcomp'),
+0, ',', '.') }}
                             </td>
                         </tr>
                     </tfoot>

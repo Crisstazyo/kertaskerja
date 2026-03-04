@@ -341,26 +341,53 @@ class ReportController extends Controller
         $scallingData = [];
         foreach ($scallingSegments as $segKey => $seg) {
             foreach ($scallingTypes as $type => $typeLabel) {
-                $import = ScallingImport::where('segment', $seg['segment'])
-                    ->where('type', $type)
-                    ->where('periode', $scalingPeriodeDate)
-                    ->where('status', 'active')
-                    ->first();
 
                 $commitAmount = 0;
                 $commitRp     = 0;
                 $realAmount   = 0;
                 $realRp       = 0;
 
-                if ($import) {
-                    $dataRows = ScallingData::where('imports_log_id', $import->id)->get();
-                    $commitAmount = $dataRows->count();
-                    $commitRp     = (float) $dataRows->sum('est_nilai_bc');
+                if ($type === 'initiate') {
+                    // Initiate: banyak import per periode (1 import per row input manual)
+                    $importIds = ScallingImport::where('segment', $seg['segment'])
+                        ->where('type', $type)
+                        ->where('periode', $scalingPeriodeDate)
+                        ->where('status', 'active')
+                        ->pluck('id');
 
-                    $dataIds = $dataRows->pluck('id');
-                    $funnels = FunnelTracking::whereIn('data_id', $dataIds)->get();
-                    $realAmount = $funnels->where('delivery_billing_complete', true)->count();
-                    $realRp     = (float) $funnels->sum('delivery_nilai_billcomp');
+                    if ($importIds->isNotEmpty()) {
+                        $dataRows = ScallingData::whereIn('imports_log_id', $importIds)
+                            ->get()
+                            ->filter(fn($r) => strtoupper(trim($r->no ?? '')) !== 'TOTAL');
+
+                        $commitAmount = $dataRows->count();
+                        $commitRp     = (float) $dataRows->sum('est_nilai_bc');
+
+                        $dataIds    = $dataRows->pluck('id');
+                        $funnels    = FunnelTracking::whereIn('data_id', $dataIds)->get();
+                        $realAmount = $funnels->where('delivery_billing_complete', true)->count();
+                        $realRp     = (float) $funnels->sum('delivery_nilai_billcomp');
+                        dd($funnels, $realAmount, $realRp);
+                    }
+                } else {
+                    // On-hand, qualified, koreksi: 1 import per periode (upload Excel)
+                    $import = ScallingImport::where('segment', $seg['segment'])
+                        ->where('type', $type)
+                        ->where('periode', $scalingPeriodeDate)
+                        ->where('status', 'active')
+                        ->first();
+
+                    if ($import) {
+                        $dataRows = ScallingData::where('imports_log_id', $import->id)->get();
+
+                        $commitAmount = $dataRows->count();
+                        $commitRp     = (float) $dataRows->sum('est_nilai_bc');
+
+                        $dataIds    = $dataRows->pluck('id');
+                        $funnels    = FunnelTracking::whereIn('data_id', $dataIds)->get();
+                        $realAmount = $funnels->where('delivery_billing_complete', true)->count();
+                        $realRp     = (float) $funnels->sum('delivery_nilai_billcomp');
+                    }
                 }
 
                 $scallingData[$segKey][$type] = [
@@ -499,14 +526,34 @@ class ReportController extends Controller
         $dataRows  = collect();
         $funnelMap = collect();
 
-        if ($import) {
-            $dataRows = \App\Models\ScallingData::where('imports_log_id', $import->id)
-                ->get()
-                ->filter(fn($r) => strtoupper(trim($r->no ?? '')) !== 'TOTAL')
-                ->values();
+        if ($type === 'initiate') {
+            // Initiate: banyak import per periode, ambil semua
+            $importIds = \App\Models\ScallingImport::where('segment', $segmentDb)
+                ->where('type', $type)
+                ->where('periode', $periodeDate)
+                ->where('status', 'active')
+                ->pluck('id');
 
-            $dataIds = $dataRows->pluck('id');
+            if ($importIds->isNotEmpty()) {
+                // Set $import ke salah satu agar kondisi @if($import) di blade tetap true
+                $import = \App\Models\ScallingImport::find($importIds->first());
 
+                $dataRows = \App\Models\ScallingData::whereIn('imports_log_id', $importIds)
+                    ->get()
+                    ->filter(fn($r) => strtoupper(trim($r->no ?? '')) !== 'TOTAL')
+                    ->values();
+            }
+        } else {
+            if ($import) {
+                $dataRows = \App\Models\ScallingData::where('imports_log_id', $import->id)
+                    ->get()
+                    ->filter(fn($r) => strtoupper(trim($r->no ?? '')) !== 'TOTAL')
+                    ->values();
+            }
+        }
+
+        if ($dataRows->isNotEmpty()) {
+            $dataIds    = $dataRows->pluck('id');
             $allFunnels = \App\Models\FunnelTracking::whereIn('data_id', $dataIds)->get();
 
             $funnelMap = $dataIds->mapWithKeys(function ($dataId) use ($allFunnels) {
