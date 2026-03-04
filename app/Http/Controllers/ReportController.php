@@ -347,47 +347,65 @@ class ReportController extends Controller
                 $realAmount   = 0;
                 $realRp       = 0;
 
-                if ($type === 'initiate') {
-                    // Initiate: banyak import per periode (1 import per row input manual)
-                    $importIds = ScallingImport::where('segment', $seg['segment'])
-                        ->where('type', $type)
-                        ->where('periode', $scalingPeriodeDate)
-                        ->where('status', 'active')
-                        ->pluck('id');
+                // if ($type === 'initiate') {
+                //     // Initiate: banyak import per periode (1 import per row input manual)
+                //     $importIds = ScallingImport::where('segment', $seg['segment'])
+                //         ->where('type', $type)
+                //         ->where('periode', $scalingPeriodeDate)
+                //         ->where('status', 'active')
+                //         ->pluck('id');
 
-                    if ($importIds->isNotEmpty()) {
-                        $dataRows = ScallingData::whereIn('imports_log_id', $importIds)
-                            ->get()
-                            ->filter(fn($r) => strtoupper(trim($r->no ?? '')) !== 'TOTAL');
+                //     if ($importIds->isNotEmpty()) {
+                //         $dataRows = ScallingData::whereIn('imports_log_id', $importIds)
+                //             ->get()
+                //             ->filter(fn($r) => strtoupper(trim($r->no ?? '')) !== 'TOTAL');
 
-                        $commitAmount = $dataRows->count();
-                        $commitRp     = (float) $dataRows->sum('est_nilai_bc');
+                //         $commitAmount = $dataRows->count();
+                //         $commitRp     = (float) $dataRows->sum('est_nilai_bc');
 
-                        $dataIds    = $dataRows->pluck('id');
-                        $funnels    = FunnelTracking::whereIn('data_id', $dataIds)->get();
-                        $realAmount = $funnels->where('delivery_billing_complete', true)->count();
-                        $realRp     = (float) $funnels->sum('delivery_nilai_billcomp');
-                    }
-                } else {
-                    // On-hand, qualified, koreksi: 1 import per periode (upload Excel)
-                    $import = ScallingImport::where('segment', $seg['segment'])
+                //         $dataIds    = $dataRows->pluck('id');
+                //         $funnels    = FunnelTracking::whereIn('data_id', $dataIds)->get();
+                //         $realAmount = $funnels->where('delivery_billing_complete', true)->count();
+                //         $realRp     = (float) $funnels->sum('delivery_nilai_billcomp');
+                //     }
+                // } else {
+                //     // On-hand, qualified, koreksi: 1 import per periode (upload Excel)
+                //     $import = ScallingImport::where('segment', $seg['segment'])
+                //         ->where('type', $type)
+                //         ->where('periode', $scalingPeriodeDate)
+                //         ->where('status', 'active')
+                //         ->first();
+
+                //     if ($import) {
+                //         $dataRows = ScallingData::where('imports_log_id', $import->id)->get();
+
+                //         $commitAmount = $dataRows->count();
+                //         $commitRp     = (float) $dataRows->sum('est_nilai_bc');
+
+                //         $dataIds    = $dataRows->pluck('id');
+                //         $funnels    = FunnelTracking::whereIn('data_id', $dataIds)->get();
+                //         $realAmount = $funnels->where('delivery_billing_complete', true)->count();
+                //         $realRp     = (float) $funnels->sum('delivery_nilai_billcomp');
+                //     }
+                // }
+                $import = ScallingImport::where('segment', $seg['segment'])
                         ->where('type', $type)
                         ->where('periode', $scalingPeriodeDate)
                         ->where('status', 'active')
                         ->first();
 
                     if ($import) {
+                        $dateRows = ScallingData::where('imports_log_id', $import->id)->where('created_at', '=', $import->created_at)->get();
                         $dataRows = ScallingData::where('imports_log_id', $import->id)->get();
 
-                        $commitAmount = $dataRows->count();
-                        $commitRp     = (float) $dataRows->sum('est_nilai_bc');
+                        $commitAmount = $dateRows->count();
+                        $commitRp     = (float) $dateRows->sum('est_nilai_bc');
 
                         $dataIds    = $dataRows->pluck('id');
                         $funnels    = FunnelTracking::whereIn('data_id', $dataIds)->get();
                         $realAmount = $funnels->where('delivery_billing_complete', true)->count();
                         $realRp     = (float) $funnels->sum('delivery_nilai_billcomp');
                     }
-                }
 
                 $scallingData[$segKey][$type] = [
                     'label'         => $typeLabel,

@@ -407,17 +407,35 @@ class ScallingController extends Controller
 
         $periodeDate = $request->periode . '-01';
 
-        $import = ScallingImport::create([
-            'original_filename'   => 'manual-input',
-            'status'              => $request->status,
-            'type'                => 'initiate',
-            'segment'             => $request->segment,
-            'periode'             => $periodeDate,
-            'total_rows_imported' => 0,
-            'uploaded_by'         => auth()->user()->name ?? $request->ip(),
-        ]);
+        $log = ScallingImport::where('periode', $periodeDate)
+            ->where('type', 'initiate')
+            ->where('segment', $request->segment)
+            ->first();
 
-        $data = ScallingData::create([
+        if($log) {   
+            $data = ScallingData::create([
+            'imports_log_id'           => $log->id,
+            'project'                  => $request->project,
+            'id_lop'                   => $request->id_lop,
+            'cc'                       => $request->cc,
+            'nipnas'                   => $request->nipnas,
+            'am'                       => $request->am,
+            'mitra'                    => $request->mitra,
+            'plan_bulan_billcomp_2025' => $request->plan_bulan_billcomp_2025,
+            'est_nilai_bc'             => $request->est_nilai_bc,
+        ]);
+        } else {
+            $import = ScallingImport::create([
+                'original_filename'   => 'manual-input',
+                'status'              => $request->status,
+                'type'                => 'initiate',
+                'segment'             => $request->segment,
+                'periode'             => $periodeDate,
+                'total_rows_imported' => 0,
+                'uploaded_by'         => auth()->user()->name ?? $request->ip(),
+            ]);
+
+            $data = ScallingData::create([
             'imports_log_id'           => $import->id,
             'project'                  => $request->project,
             'id_lop'                   => $request->id_lop,
@@ -428,6 +446,9 @@ class ScallingController extends Controller
             'plan_bulan_billcomp_2025' => $request->plan_bulan_billcomp_2025,
             'est_nilai_bc'             => $request->est_nilai_bc,
         ]);
+        }
+
+        
 
         return redirect()->back()->with('success', "Data untuk project \"{$data->project}\" berhasil disimpan.");
     }

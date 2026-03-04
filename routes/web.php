@@ -205,6 +205,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/scalling/initiate', [GovController::class, 'lopInitiate'])->name('dashboard.gov.lop-initiate');
         Route::post('/funnel/update', [GovController::class, 'updateFunnelCheckbox'])->name('dashboard.gov.funnel.update');
 
+        Route::post('/scalling/addData', [GovController::class, 'storeData'])->name('dashboard.gov.add-data');
+
         Route::get('/aosodomoro/above-3-bulan', [GovController::class, 'aosodomoroAbove3Bulan'])->name('dashboard.gov.aosodomoro-above-3-bulan');
         Route::post('/aosodomoro/above-3-bulan', [GovController::class, 'storeAosodomoroAbove3Bulan'])->name('dashboard.gov.aosodomoro-above-3-bulan.store');
 
@@ -222,7 +224,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/scalling/qualified', [SoeController::class, 'lopQualified'])->name('dashboard.soe.lop-qualified');
         Route::get('/scalling/initiate', [SoeController::class, 'lopInitiate'])->name('dashboard.soe.lop-initiate');
         Route::post('/funnel/update', [SoeController::class, 'updateFunnelCheckbox'])->name('dashboard.soe.funnel.update');
-    });
+
+        Route::post('/scalling/addData', [SoeController::class, 'storeData'])->name('dashboard.soe.add-data');
+        });
 
     // SME dashboard (role: sme)
     Route::middleware('role:sme')->prefix('dashboard/sme')->group(function () {
@@ -243,6 +247,9 @@ Route::middleware('auth')->group(function () {
 
         Route::get('/upselling', [SmeController::class, 'upselling'])->name('dashboard.sme.upselling');
         Route::post('/upselling', [SmeController::class, 'storeUpselling'])->name('dashboard.sme.upselling.store');
+
+        Route::post('/scalling/addData', [SmeController::class, 'storeData'])->name('dashboard.sme.add-data');
+
     });
 
     // Private dashboard (role: private)
@@ -257,6 +264,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/scalling/qualified', [PrivateController::class, 'lopQualified'])->name('dashboard.private.lop-qualified');
         Route::get('/scalling/initiate', [PrivateController::class, 'lopInitiate'])->name('dashboard.private.lop-initiate');
         Route::post('/funnel/update', [PrivateController::class, 'updateFunnelCheckbox'])->name('dashboard.private.funnel.update');
+        Route::post('/scalling/addData', [PrivateController::class, 'storeData'])->name('dashboard.private.add-data');
     });
 
     // Collection dashboard (role: collection)

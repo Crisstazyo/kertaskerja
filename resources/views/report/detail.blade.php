@@ -68,7 +68,7 @@
                     {{ $periodeLabel }}
                 </span>
 
-                @if(count($periodOptions) > 1)
+                <!-- @if(count($periodOptions) > 1)
                 <form method="GET" action="{{ route('report.detail', ['segment' => $segment, 'type' => $type]) }}" class="flex items-center">
                     <div class="relative">
                         <select name="periode" onchange="this.form.submit()"
@@ -86,7 +86,7 @@
                         </div>
                     </div>
                 </form>
-                @endif
+                @endif -->
 
                 <span class="text-[11px] font-black tracking-widest text-slate-500 bg-white border border-slate-200 rounded-md px-3 py-1 shadow-sm">
                     {{ $dataRows->count() }} LOP
@@ -272,10 +272,10 @@
                             <td colspan="20" class="border-r border-slate-100"></td>
                             <td class="px-4 py-3 text-center font-black text-violet-700 bg-violet-50">
                                 {{ number_format(
-    $funnelMap
-        ->where('delivery_billing_complete', true)
-        ->sum('delivery_nilai_billcomp'),
-0, ',', '.') }}
+                                    $funnelMap
+                                        ->where('delivery_billing_complete', true)
+                                        ->sum('delivery_nilai_billcomp'),
+                                0, ',', '.') }}
                             </td>
                         </tr>
                     </tfoot>

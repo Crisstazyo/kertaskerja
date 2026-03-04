@@ -127,7 +127,7 @@ class PrivateController extends Controller
         $rows = ScallingData::with(['funnel.todayProgress'])
             ->whereHas('scallingImport', function ($query) use ($currentPeriodeDate) {
                 $query->where('type', 'initiate')
-                    ->where('status', 'active')
+                    // ->where('status', 'active')
                     ->where('segment', 'private')
                     ->where('periode', $currentPeriodeDate);
             })
@@ -168,6 +168,92 @@ class PrivateController extends Controller
         return view('dashboard.private.lop-initiate', compact(
             'latestImport', 'currentPeriode', 'periodOptions', 'rows', 'totalEstNilai', 'totalBillComp'
         ));
+    }
+
+    public function storeData(Request $request)
+    {
+        $request->validate([
+            'status'                   => 'required|in:active,inactive',
+            'periode'                  => 'required|date_format:Y-m',
+            'project'                  => 'required|string|max:255',
+            'id_lop'                   => 'required|string|max:100',
+            'cc'                       => 'required|string|max:100',
+            'nipnas'                   => 'required|string|max:50',
+            'am'                       => 'required|string|max:100',
+            'mitra'                    => 'nullable|string|max:255',
+            'plan_bulan_billcomp_2025' => 'required|integer|min:1|max:12',
+            'est_nilai_bc'             => 'required|numeric|min:0',
+        ], [
+            'status.required'                   => 'Status wajib diisi',
+            'status.in'                         => 'Status harus berupa "active" atau "inactive"',
+            'periode.required'                  => 'Periode wajib diisi',
+            'periode.date_format'               => 'Format periode harus berupa bulan dan tahun (contoh: 2025-03)',
+            'project.required'                  => 'Nama project wajib diisi',
+            'project.max'                       => 'Nama project maksimal 255 karakter',
+            'id_lop.required'                   => 'ID LOP wajib diisi',
+            'id_lop.max'                        => 'ID LOP maksimal 100 karakter',
+            'cc.required'                       => 'CC wajib diisi',
+            'cc.max'                            => 'CC maksimal 100 karakter',
+            'nipnas.required'                   => 'NIPNAS wajib diisi',
+            'nipnas.max'                        => 'NIPNAS maksimal 50 karakter',
+            'am.required'                       => 'Nama AM wajib diisi',
+            'am.max'                            => 'Nama AM maksimal 100 karakter',
+            'plan_bulan_billcomp_2025.required' => 'Plan bulan wajib diisi',
+            'plan_bulan_billcomp_2025.integer'  => 'Plan harus berupa angka (contoh: 10)',
+            'plan_bulan_billcomp_2025.min'      => 'Plan bulan minimal 1',
+            'plan_bulan_billcomp_2025.max'      => 'Plan bulan maksimal 12',
+            'est_nilai_bc.required'             => 'Estimasi nilai BC wajib diisi',
+            'est_nilai_bc.numeric'              => 'Estimasi nilai BC harus berupa angka (contoh: 10000)',
+            'est_nilai_bc.min'                  => 'Estimasi nilai BC tidak boleh negatif',
+        ]);
+
+        $periodeDate = $request->periode . '-01';
+
+        $log = ScallingImport::where('periode', $periodeDate)
+            ->where('type', $request->type)
+            ->where('segment', $request->segment)
+            ->first();
+
+        if($log) {   
+            $data = ScallingData::create([
+            'no'                      => $log->data()->count() + 1, // Auto-increment berdasarkan jumlah data yang sudah ada untuk log ini
+            'imports_log_id'           => $log->id,
+            'project'                  => $request->project,
+            'id_lop'                   => $request->id_lop,
+            'cc'                       => $request->cc,
+            'nipnas'                   => $request->nipnas,
+            'am'                       => $request->am,
+            'mitra'                    => $request->mitra,
+            'plan_bulan_billcomp_2025' => $request->plan_bulan_billcomp_2025,
+            'est_nilai_bc'             => $request->est_nilai_bc,
+        ]);
+        } else {
+            $import = ScallingImport::create([
+                'original_filename'   => 'manual-input',
+                'status'              => $request->status,
+                'type'                => $request->type,
+                'segment'             => $request->segment,
+                'periode'             => $periodeDate,
+                'total_rows_imported' => 0,
+                'uploaded_by'         => auth()->user()->name ?? $request->ip(),
+            ]);
+
+            $data = ScallingData::create([
+            'imports_log_id'           => $import->id,
+            'project'                  => $request->project,
+            'id_lop'                   => $request->id_lop,
+            'cc'                       => $request->cc,
+            'nipnas'                   => $request->nipnas,
+            'am'                       => $request->am,
+            'mitra'                    => $request->mitra,
+            'plan_bulan_billcomp_2025' => $request->plan_bulan_billcomp_2025,
+            'est_nilai_bc'             => $request->est_nilai_bc,
+        ]);
+        }
+
+        
+
+        return redirect()->back()->with('success', "Data untuk project \"{$data->project}\" berhasil disimpan.");
     }
 
     public function updateFunnelCheckbox(Request $request)

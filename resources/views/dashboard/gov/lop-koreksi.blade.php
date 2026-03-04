@@ -46,6 +46,14 @@
         </div>
 
         @if($latestImport)
+        @if(session('success'))
+        <div class="flex items-center space-x-3 bg-green-50 border border-green-200 text-green-800 px-5 py-3.5 mb-5 rounded-xl">
+            <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+            </svg>
+            <p class="text-sm font-bold">{{ session('success') }}</p>
+        </div>
+        @endif
 
         @php $isReadOnly = ($latestImport->status ?? 'active') !== 'active'; @endphp
 
@@ -91,6 +99,15 @@
                 @endif
                 <span class="text-[10px] font-black tracking-widest text-orange-700 bg-orange-50 border border-orange-200 rounded-md px-3 py-1 uppercase">KOREKSI</span>
                 <span class="text-[10px] font-black tracking-widest text-slate-500 bg-white border border-slate-200 rounded-md px-3 py-1 uppercase shadow-sm">GOVERNMENT</span>
+                @if(!$isReadOnly)
+                <button onclick="document.getElementById('modalAddLop').classList.remove('hidden')"
+                    class="flex items-center space-x-2 bg-red-600 hover:bg-red-700 text-white font-black text-xs px-4 py-2 rounded-lg transition-all uppercase tracking-wider shadow-sm">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
+                    </svg>
+                    <span>Add LOP</span>
+                </button>
+                @endif
                 @if($isReadOnly)
                 <span class="text-[12px] font-black tracking-widest text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-3 py-1 uppercase">
                     🔒 Locked
@@ -160,7 +177,7 @@
                         @foreach($latestImport->data as $row)
                         @php
                             $funnel = $row->funnel;
-                            $denganMitra = strtolower(trim($row->mitra ?? '')) === 'dengan mitra';
+                            $denganMitra = strtolower(trim($row->mitra ?? ''));
                             $master = $funnel;
                             $today  = $funnel?->todayProgress;
                             $checked = fn($field) =>
@@ -178,7 +195,7 @@
                             <td class="px-3 py-2.5 whitespace-nowrap text-slate-600 border-r border-slate-100">{{ $row->cc }}</td>
                             <td class="px-4 py-2.5 text-slate-600 border-r border-slate-100">{{ $row->am }}</td>
                             <td class="px-4 py-2.5 text-slate-700 border-r border-slate-100 bg-emerald-50 font-semibold">{{ $row->mitra }}</td>
-                            <td class="px-4 py-2.5 whitespace-nowrap text-slate-600 border-r border-slate-100 text-center">{{ $row->plan_bulan_billcom_p_2025 }}</td>
+                            <td class="px-4 py-2.5 whitespace-nowrap text-slate-600 border-r border-slate-100 text-center">{{ $row->plan_bulan_billcomp_2025 }}</td>
                             <td class="px-4 py-2.5 whitespace-nowrap font-black text-slate-800 border-r border-slate-100">{{ $row->est_nilai_bc }}</td>
 
                             {{-- F0 --}}
@@ -480,6 +497,130 @@
         @endif
 
     </div>
+    {{-- ══ MODAL ADD LOP ══ --}}
+    @php $isReadOnly = ($latestImport->status ?? 'active') !== 'active'; @endphp
+    @if(!$isReadOnly)
+    <div id="modalAddLop" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4"
+        style="background: rgba(0,0,0,0.5);">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl relative overflow-hidden">
+
+            {{-- Modal header --}}
+            <div class="absolute top-0 left-0 right-0 h-1" style="background: linear-gradient(90deg, #dc2626, #ef4444, #dc2626);"></div>
+            <div class="px-8 py-6 border-b border-slate-100 flex items-center justify-between">
+                <div>
+                    <h3 class="text-base font-black text-slate-900 uppercase tracking-wide">Tambah LOP Koreksi</h3>
+                    <p class="text-xs text-slate-400 font-medium mt-0.5">Government — Scalling Koreksi</p>
+                </div>
+                <button onclick="document.getElementById('modalAddLop').classList.add('hidden')"
+                    class="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-100 hover:bg-red-100 hover:text-red-600 text-slate-500 transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+
+            {{-- Modal body --}}
+            <form action="{{ route('dashboard.gov.add-data') }}" method="POST">
+                @csrf
+                <input type="hidden" name="type" value="koreksi">
+                <input type="hidden" name="status" value="active">
+                <input type="hidden" name="segment" value="government">
+                {{-- Kirim periode yang sedang aktif --}}
+                <input type="hidden" name="periode" value="{{ $currentPeriode }}">
+
+                <div class="px-8 py-6 grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[60vh] overflow-y-auto">
+
+                    {{-- Project --}}
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Project Name <span class="text-red-500">*</span></label>
+                        <input type="text" name="project" value="{{ old('project') }}" placeholder="cth: Project ABC"
+                            class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors" required>
+                    </div>
+
+                    {{-- ID LOP --}}
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">ID LOP <span class="text-red-500">*</span></label>
+                        <input type="text" name="id_lop" value="{{ old('id_lop') }}" placeholder="cth: LOP-001"
+                            class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors" required>
+                    </div>
+
+                    {{-- CC --}}
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">CC <span class="text-red-500">*</span></label>
+                        <input type="text" name="cc" value="{{ old('cc') }}" placeholder="cth: Provsu"
+                            class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors" required>
+                    </div>
+
+                    {{-- NIPNAS --}}
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">NIPNAS <span class="text-red-500">*</span></label>
+                        <input type="text" name="nipnas" value="{{ old('nipnas') }}" placeholder="cth: 1234567890"
+                            class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors" required>
+                    </div>
+
+                    {{-- AM --}}
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">AM <span class="text-red-500">*</span></label>
+                        <input type="text" name="am" value="{{ old('am') }}" placeholder="cth: Frengky Hutajulu"
+                            class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors" required>
+                    </div>
+
+                    {{-- Mitra --}}
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Mitra</label>
+                        <input type="text" name="mitra" value="{{ old('mitra') }}" placeholder="cth: Dengan Mitra"
+                            class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors">
+                    </div>
+
+                    {{-- Plan Bulan --}}
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Plan Bulan Bill Comp <span class="text-red-500">*</span></label>
+                        <input type="number" name="plan_bulan_billcomp_2025" value="{{ old('plan_bulan_billcomp_2025') }}"
+                            placeholder="1-12" min="1" max="12"
+                            class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors" required>
+                    </div>
+
+                    {{-- Est Nilai BC --}}
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Estimasi Nilai BC <span class="text-red-500">*</span></label>
+                        <input type="number" name="est_nilai_bc" value="{{ old('est_nilai_bc') }}"
+                            placeholder="cth: 1000000" min="0"
+                            class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors" required>
+                    </div>
+
+                </div>
+
+                {{-- Modal footer --}}
+                <div class="px-8 py-5 border-t border-slate-100 flex items-center justify-between">
+                    <p class="text-xs text-slate-400 font-medium">
+                        Periode: <span class="font-black text-slate-600">{{ \Carbon\Carbon::createFromFormat('Y-m', $currentPeriode)->format('F Y') }}</span>
+                    </p>
+                    <div class="flex items-center space-x-3">
+                        <button type="button"
+                            onclick="document.getElementById('modalAddLop').classList.add('hidden')"
+                            class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 font-black text-xs rounded-xl transition-all uppercase tracking-wider">
+                            Batal
+                        </button>
+                        <button type="submit"
+                            class="flex items-center space-x-2 px-6 py-2.5 bg-slate-900 hover:bg-red-600 text-white font-black text-xs rounded-xl transition-all uppercase tracking-wider shadow-md hover:shadow-red-200">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            <span>Simpan</span>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {{-- Tutup modal saat klik backdrop --}}
+    <script>
+    document.getElementById('modalAddLop').addEventListener('click', function(e) {
+        if (e.target === this) this.classList.add('hidden');
+    });
+    </script>
+    @endif
 </div>
 
 <script>
