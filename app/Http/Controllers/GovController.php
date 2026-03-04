@@ -27,7 +27,6 @@ class GovController extends Controller
 
         $periodOptions = ScallingImport::where('type', 'on-hand')
             ->where('segment', 'government')
-            ->where('status', 'active')
             ->orderBy('periode', 'desc')
             ->get()
             ->pluck('periode')
@@ -37,7 +36,6 @@ class GovController extends Controller
 
         $latestImport = ScallingImport::with(['data.funnel.todayProgress'])
             ->where('type', 'on-hand')
-            ->where('status', 'active')
             ->where('segment', 'government')
             ->where('periode', $currentPeriodeDate)
             ->latest()
@@ -53,7 +51,6 @@ class GovController extends Controller
 
         $periodOptions = ScallingImport::where('type', 'koreksi')
             ->where('segment', 'government')
-            ->where('status', 'active')
             ->orderBy('periode', 'desc')
             ->get()
             ->pluck('periode')
@@ -63,7 +60,6 @@ class GovController extends Controller
 
         $latestImport = ScallingImport::with(['data.funnel.todayProgress'])
             ->where('type', 'koreksi')
-            ->where('status', 'active')
             ->where('segment', 'government')
             ->where('periode', $currentPeriodeDate)
             ->latest()
@@ -79,7 +75,6 @@ class GovController extends Controller
 
         $periodOptions = ScallingImport::where('type', 'qualified')
             ->where('segment', 'government')
-            ->where('status', 'active')
             ->orderBy('periode', 'desc')
             ->get()
             ->pluck('periode')
@@ -89,14 +84,13 @@ class GovController extends Controller
 
         $latestImport = ScallingImport::with(['data.funnel.todayProgress'])
             ->where('type', 'qualified')
-            ->where('status', 'active')
             ->where('segment', 'government')
             ->where('periode', $currentPeriodeDate)
             ->latest()
             ->first();
-        
+
         // Get admin note
-        
+
         return view('dashboard.gov.lop-qualified', compact('latestImport', 'currentPeriode', 'periodOptions'));
     }
 
@@ -107,7 +101,6 @@ class GovController extends Controller
 
         $periodOptions = ScallingImport::where('type', 'initiate')
             ->where('segment', 'government')
-            ->where('status', 'active')
             ->orderBy('periode', 'desc')
             ->get()
             ->pluck('periode')
@@ -127,7 +120,6 @@ class GovController extends Controller
 
         $latestImport = ScallingImport::with(['data.funnel.todayProgress'])
             ->where('type', 'initiate')
-            ->where('status', 'active')
             ->where('segment', 'government')
             ->where('periode', $currentPeriodeDate)
             ->latest()
@@ -277,6 +269,17 @@ class GovController extends Controller
             'value'        => 'required',
             'est_nilai_bc' => 'nullable',
         ]);
+
+        $scallingData = \App\Models\ScallingData::find($request->data_id);
+            if ($scallingData) {
+            $import = $scallingData->scallingImport;
+            if ($import && ($import->status ?? 'active') !== 'active') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Data ini sedang dikunci oleh admin dan tidak dapat diubah.',
+                ], 403);
+            }
+        }
 
         $value  = filter_var($request->value, FILTER_VALIDATE_BOOLEAN);
         $rawEst = $request->est_nilai_bc ?? null;

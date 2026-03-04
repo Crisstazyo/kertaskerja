@@ -26,7 +26,6 @@ class SoeController extends Controller
         // produce list of available periods (YYYY-MM) from past imports
         $periodOptions = ScallingImport::where('type', 'on-hand')
             ->where('segment', 'soe')
-            ->where('status', 'active')
             ->orderBy('periode', 'desc')
             ->get()
             ->pluck('periode')
@@ -37,15 +36,14 @@ class SoeController extends Controller
 
         $latestImport = ScallingImport::with(['data.funnel.todayProgress'])
             ->where('type', 'on-hand')
-            ->where('status', 'active')
             ->where('segment', 'soe')
             ->where('periode', $currentPeriodeDate)
             ->latest()
             ->first();
             // dd($latestImport);
-        
+
         // Get admin note
-        
+
         return view('dashboard.soe.lop-on-hand', compact('latestImport', 'currentPeriode', 'periodOptions'));
     }
 
@@ -59,7 +57,6 @@ class SoeController extends Controller
         // produce list of available periods (YYYY-MM) from past imports
         $periodOptions = ScallingImport::where('type', 'koreksi')
             ->where('segment', 'soe')
-            ->where('status', 'active')
             ->orderBy('periode', 'desc')
             ->get()
             ->pluck('periode')
@@ -69,14 +66,13 @@ class SoeController extends Controller
 
         $latestImport = ScallingImport::with(['data.funnel.todayProgress'])
             ->where('type', 'koreksi')
-            ->where('status', 'active')
             ->where('segment', 'soe')
             ->where('periode', $currentPeriodeDate)
             ->latest()
             ->first();
-        
+
         // Get admin note
-        
+
         return view('dashboard.soe.lop-koreksi', compact('latestImport', 'currentPeriode', 'periodOptions'));
     }
 
@@ -90,7 +86,6 @@ class SoeController extends Controller
         // produce list of available periods (YYYY-MM) from past imports
         $periodOptions = ScallingImport::where('type', 'qualified')
             ->where('segment', 'soe')
-            ->where('status', 'active')
             ->orderBy('periode', 'desc')
             ->get()
             ->pluck('periode')
@@ -100,14 +95,13 @@ class SoeController extends Controller
 
         $latestImport = ScallingImport::with(['data.funnel.todayProgress'])
             ->where('type', 'qualified')
-            ->where('status', 'active')
             ->where('segment', 'soe')
             ->where('periode', $currentPeriodeDate)
             ->latest()
             ->first();
-        
+
         // Get admin note
-        
+
         return view('dashboard.soe.lop-qualified', compact('latestImport', 'currentPeriode', 'periodOptions'));
     }
 
@@ -118,7 +112,6 @@ class SoeController extends Controller
 
         $periodOptions = ScallingImport::where('type', 'initiate')
             ->where('segment', 'soe')
-            ->where('status', 'active')
             ->orderBy('periode', 'desc')
             ->get()
             ->pluck('periode')
@@ -138,7 +131,6 @@ class SoeController extends Controller
 
         $latestImport = ScallingImport::with(['data.funnel.todayProgress'])
             ->where('type', 'initiate')
-            ->where('status', 'active')
             ->where('segment', 'soe')
             ->where('periode', $currentPeriodeDate)
             ->latest()
@@ -182,12 +174,23 @@ class SoeController extends Controller
             'value' => 'required',
             'est_nilai_bc' => 'nullable',
         ]);
-        
+
+        $scallingData = \App\Models\ScallingData::find($request->data_id);
+        if ($scallingData) {
+            $import = $scallingData->scallingImport;
+            if ($import && ($import->status ?? 'active') !== 'active') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Data ini sedang dikunci oleh admin dan tidak dapat diubah.',
+                ], 403);
+            }
+        }
+
         // Convert value to boolean (handles both true/false and "true"/"false")
         $value = filter_var($request->value, FILTER_VALIDATE_BOOLEAN);
         // note: est_nilai_bc may come as formatted string; keep raw for later calculation
         $rawEst = $request->est_nilai_bc ?? null;
-        
+
         // Find or create the funnel tracking record
         $funnel = \App\Models\FunnelTracking::firstOrCreate(
             [
@@ -223,7 +226,7 @@ class SoeController extends Controller
         }
 
         $funnel->save();
-        
+
         // Find or create today's task progress for this user
         $taskProgress = \App\Models\TaskProgress::firstOrCreate(
             [
@@ -232,7 +235,7 @@ class SoeController extends Controller
                 'tanggal' => today(),
             ]
         );
-        
+
         // Update the checkbox field in task_progress
         $taskProgress->{$request->field} = $value;
 
@@ -251,7 +254,7 @@ class SoeController extends Controller
         }
 
         $taskProgress->save();
-        
+
         // Calculate total for all billing complete values in this data type for today
         $total = \App\Models\TaskProgress::whereHas('task', function($q) use ($request) {
                 $q->where('data_type', $request->data_type);
@@ -261,7 +264,7 @@ class SoeController extends Controller
             ->where('delivery_billing_complete', true)
             ->whereNotNull('delivery_nilai_billcomp')
             ->sum('delivery_nilai_billcomp');
-        
+
         return response()->json([
             'success' => true,
             'nilai_billcomp' => $taskProgress->delivery_nilai_billcomp,

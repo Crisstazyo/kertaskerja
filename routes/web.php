@@ -182,6 +182,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/scalling/sme/qualified/{scallingImport}', [ScallingController::class, 'show'])->name('admin.scalling.sme.qualified.show');
         Route::delete('/scalling/sme/qualified/{scallingImport}', [ScallingController::class, 'destroy'])->name('admin.scalling.sme.qualified.destroy');
 
+        Route::patch('/scalling/{id}/toggle-status', [ScallingController::class, 'toggleStatus'])
+        ->name('admin.scalling.toggle-status');
+
     });
 
     // Government dashboard (role: gov)
