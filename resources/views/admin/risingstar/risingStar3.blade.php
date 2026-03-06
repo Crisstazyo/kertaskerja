@@ -79,7 +79,7 @@
                         <div>
                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">
                                 Periode
-                                <span class="text-slate-400 font-medium normal-case tracking-normal ml-1">(default: bulan ini)</span>
+                                <span class="text-slate-400 font-medium normal-case tracking-normal ml-1"></span>
                             </label>
                             <input type="month" name="periode" value="{{ old('periode', now()->format('Y-m')) }}"
                                 class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors">
@@ -112,14 +112,14 @@
                         {{-- Commitment --}}
                         <div>
                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Commitment</label>
-                            <input type="text" name="commitment" value="{{ old('commitment') }}" placeholder="cth: Target Value"
+                            <input type="number" step="0.01" name="commitment" value="{{ old('commitment') }}" placeholder="cth: 98.50"
                                 class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors">
                         </div>
 
                         {{-- Real Ratio --}}
                         <div>
                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Real Ratio (%)</label>
-                            <input type="text" name="real_ratio" value="{{ old('real_ratio') }}" placeholder="cth: 95.50"
+                            <input type="number" step="0.01" name="real_ratio" value="{{ old('real_ratio') }}" placeholder="cth: 95.50"
                                 class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors">
                         </div>
 
