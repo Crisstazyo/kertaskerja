@@ -132,7 +132,7 @@
                     <h2 class="text-base font-black text-slate-900 uppercase tracking-wide">Data Collections</h2>
                 </div>
                 <div class="grid grid-cols-5 gap-3">
-                    <div>
+                    <!-- <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Filter User</label>
                         <select id="filterUser" onchange="filterTable()"
                             class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-semibold text-slate-700 focus:outline-none focus:border-red-400 bg-white">
@@ -150,7 +150,7 @@
                             <option value="active">Active</option>
                             <option value="inactive">Inactive</option>
                         </select>
-                    </div>
+                    </div> -->
                     <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Periode</label>
                         <input type="month" name="periode" required
@@ -184,9 +184,9 @@
                             <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">User</th>
                             <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Tipe</th>
                             <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
-                            <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Segment</th>
-                            <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Commitment</th>
-                            <th class="px-6 py-3 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">Real Ratio</th>
+                            <!-- <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Segment</th> -->
+                            <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Commitment</th>
+                            <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Real Ratio</th>
                             <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Periode</th>
                         </tr>
                     </thead>
@@ -216,9 +216,9 @@
                                     </button>
                                 </form>
                             </td>
-                            <td class="px-6 py-4 text-sm text-slate-700">{{ $item->segment ?? '—' }}</td>
-                            <td class="px-6 py-4 text-sm text-slate-700">{{ $item->commitment ?? '—' }}</td>
-                            <td class="px-6 py-4 text-right text-sm font-black text-slate-800">{{ $item->real_ratio ?? '—' }}</td>
+                            <!-- <td class="px-6 py-4 text-sm text-slate-700">{{ $item->segment ?? '—' }}</td> -->
+                            <td class="px-6 py-4 text-center text-sm text-slate-700">{{ $item->commitment ?? '—' }}</td>
+                            <td class="px-6 py-4 text-center text-sm font-black text-slate-800">{{ $item->real_ratio ?? '—' }}</td>
                             <td class="px-6 py-4 text-center text-sm text-slate-400">
                                 {{ $item->periode ? date('d M Y', strtotime($item->periode)) : '—' }}
                             </td>

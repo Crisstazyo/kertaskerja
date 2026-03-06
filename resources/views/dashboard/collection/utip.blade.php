@@ -194,11 +194,11 @@
 
                             @csrf
                             <input type="hidden" name="type" id="type-input" value="{{ $utips->first()->type ?? '' }}">
-                            <input type="hidden" name="commitment_value" id="commitment-input"
-                                value="{{ $utips->first()->commitment ?? 0 }}">
-                            <input type="hidden" name="plan_value" id="plan-input" value="{{ $utips->first()->plan ?? 0 }}">
                             <input type="hidden" name="commitment" id="commitment-input"
-                                value="{{ $utips->first()->commitment ?? '' }}">
+                                value="{{ $utips->first()->commitment ?? 0 }}">
+                            <input type="hidden" name="plan" id="plan-input" value="{{ $utips->first()->plan ?? 0 }}">
+                            <input type="hidden" name="periode" id="periode-input"
+                                value="{{ $utips->first()->periode ?? '' }}">
 
                             <div class="max-w-lg mx-auto space-y-5">
                                 <div>
@@ -251,9 +251,9 @@
                                 <th
                                     class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
                                     Tipe</th>
-                                <th
+                                <!-- <th
                                     class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                                    Segment</th>
+                                    Segment</th> -->
                                 <th
                                     class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
                                     Ratio (Rp)</th>
@@ -268,7 +268,7 @@
                                     <td class="px-6 py-4 text-sm text-center font-semibold text-slate-600">
                                         {{ $activity->updated_at->translatedFormat('d M Y') }}
                                     </td>
-                                    <td class="px-6 py-4 text-center">
+                                    <!-- <td class="px-6 py-4 text-center">
                                         @if(Str::contains($activity->type, 'UTIP'))
                                             <span
                                                 class="text-xs font-bold rounded-md px-2.5 py-1 text-red-700 bg-red-50 border border-red-200">Target
@@ -277,7 +277,7 @@
                                             <span
                                                 class="text-xs font-bold rounded-md px-2.5 py-1 text-green-700 bg-green-50 border border-green-200">Realisasi</span>
                                         @endif
-                                    </td>
+                                    </td> -->
                                     <td
                                         class="px-6 py-4 text-center font-black {{ Str::contains($activity->type, 'UTIP') ? 'text-red-600' : 'text-green-600' }}">
                                         {{ $activity->type }}

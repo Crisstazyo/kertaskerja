@@ -240,17 +240,16 @@ class CollectionController extends Controller
         $currentYear = Carbon::now()->year;
 
         // try to find an existing entry for this user/type in the current month/year
-        $existing = Collection::where('user_id', Auth::id())
-            ->where('type', $request->type)
-            ->whereMonth('updated_at', $currentMonth)
-            ->whereYear('updated_at', $currentYear)
+        $existing = Collection::where('type', $request->type)
+            // ->where('periode', $request->periode)
             ->first();
 
         $data = [
             'user_id' => Auth::id(),
             'type' => $request->type,
-            'plan' => $request->plan_value ?? 0,
-            'commitment' => $request->commitment_value ?? 0,
+            'perioede' => $request->periode,
+            'plan' => $existing->plan ?? 0,
+            'commitment' => $request->commitment ?? 0,
             'real_ratio' => $request->ratio_aktual,
         ];
 
