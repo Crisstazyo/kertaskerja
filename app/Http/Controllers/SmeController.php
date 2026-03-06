@@ -210,7 +210,7 @@ class SmeController extends Controller
             ->where('segment', $request->segment)
             ->first();
 
-        if($log) {   
+        if($log) {
             $data = ScallingData::create([
             'no'                      => $log->data()->count() + 1, // Auto-increment berdasarkan jumlah data yang sudah ada untuk log ini
             'imports_log_id'           => $log->id,
@@ -247,7 +247,7 @@ class SmeController extends Controller
         ]);
         }
 
-        
+
 
         return redirect()->back()->with('success', "Data untuk project \"{$data->project}\" berhasil disimpan.");
     }
@@ -262,14 +262,16 @@ class SmeController extends Controller
             'est_nilai_bc' => 'nullable',
         ]);
 
-        $scallingData = \App\Models\ScallingData::find($request->data_id);
-        if ($scallingData) {
-            $import = $scallingData->scallingImport;
-            if ($import && ($import->status ?? 'active') !== 'active') {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Data ini sedang dikunci oleh admin dan tidak dapat diubah.',
-                ], 403);
+        if (auth()->user()->role !== 'admin') {
+            $scallingData = \App\Models\ScallingData::find($request->data_id);
+            if ($scallingData) {
+               $import = $scallingData->scallingImport;
+                if ($import && ($import->status ?? 'active') !== 'active') {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Data ini sedang dikunci oleh admin dan tidak dapat diubah.',
+                    ], 403);
+                }
             }
         }
 

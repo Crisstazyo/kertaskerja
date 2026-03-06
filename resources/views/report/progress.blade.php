@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Progress — {{ $segmentLabel }} {{ $typeLabel }}')
+@section('title', 'Progress')
 
 @section('content')
 <div class="min-h-screen" style="background:#f1f5f9;">
@@ -47,7 +47,7 @@
 
         @if($import)
 
-        @php $isReadOnly = ($import->status ?? 'active') !== 'active'; @endphp
+        @php $isReadOnly = false; @endphp
 
         {{-- ══ VIEW ONLY BANNER (kalau inactive) ══ --}}
         @if($isReadOnly)
@@ -417,7 +417,7 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    const isReadOnly = {{ isset($import) && ($import->status ?? 'active') !== 'active' ? 'true' : 'false' }};
+    const isReadOnly = false;
     if (isReadOnly) return;
 
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
