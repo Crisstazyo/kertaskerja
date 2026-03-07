@@ -91,15 +91,7 @@
                 @endif
                 <span class="text-[10px] font-black tracking-widest text-orange-700 bg-orange-50 border border-orange-200 rounded-md px-3 py-1 uppercase">QUALIFIED</span>
                 <span class="text-[10px] font-black tracking-widest text-slate-500 bg-white border border-slate-200 rounded-md px-3 py-1 uppercase shadow-sm">SME</span>
-                @if(!$isReadOnly)
-                <button onclick="document.getElementById('modalAddLop').classList.remove('hidden')"
-                    class="flex items-center space-x-2 bg-red-600 hover:bg-red-700 text-white font-black text-xs px-4 py-2 rounded-lg transition-all uppercase tracking-wider shadow-sm">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
-                    </svg>
-                    <span>Add LOP</span>
-                </button>
-                @endif
+                
                 @if($isReadOnly)
                 <span class="text-[12px] font-black tracking-widest text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-3 py-1 uppercase">
                     🔒 Locked

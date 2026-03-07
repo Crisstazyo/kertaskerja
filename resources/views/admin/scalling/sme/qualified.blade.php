@@ -96,6 +96,28 @@
                     </svg>
                 </a>
             </div>
+            <div class="grid grid-cols gap-4 mb-8">
+                <a onclick="document.getElementById('modalAddLop').classList.remove('hidden')"
+                    class="group bg-white rounded-xl border border-slate-200 hover:border-red-300 hover:shadow-md transition-all duration-200 px-6 py-5 flex items-center justify-between">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
+                            style="background:#fff1f2; border:1.5px solid #fecdd3;">
+                            <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="font-black text-slate-900 text-sm">Tambah Project</p>
+                            <p class="text-xs text-slate-400 font-medium mt-0.5">Project yang diupdate admin</p>
+                        </div>
+                    </div>
+                    <svg class="w-4 h-4 text-slate-300 group-hover:text-red-500 transition-colors" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
+                    </svg>
+                </a>
+            </div>
 
             {{-- ══ UPLOAD FILE ══ --}}
             <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-8 mb-8">
@@ -232,42 +254,42 @@
                                             </span>
                                         </td>
                                         <td class="px-6 py-4">
-    <div class="flex items-center justify-center space-x-2">
-        {{-- Toggle Status --}}
-        <form action="{{ route('admin.scalling.toggle-status', $data->id) }}" method="POST">
-            @csrf
-            @method('PATCH')
-            <button type="submit"
-                onclick="return confirm('{{ $isActive ? 'Nonaktifkan file ini? User tidak akan bisa mengedit data.' : 'Aktifkan kembali file ini?' }}')"
-                class="inline-flex items-center space-x-1.5 text-xs font-bold px-3 py-1.5 rounded-lg border transition-all duration-200
-                    {{ $isActive
-                        ? 'text-amber-700 hover:text-white border-amber-200 hover:border-amber-500 bg-amber-50 hover:bg-amber-500'
-                        : 'text-green-700 hover:text-white border-green-200 hover:border-green-500 bg-green-50 hover:bg-green-500' }}">
-                @if($isActive)
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
-                </svg>
-                <span>Nonaktifkan</span>
-                @else
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
-                <span>Aktifkan</span>
-                @endif
-            </button>
-        </form>
+                                            <div class="flex items-center justify-center space-x-2">
+                                                {{-- Toggle Status --}}
+                                                <form action="{{ route('admin.scalling.toggle-status', $data->id) }}" method="POST">
+                                                    @csrf
+                                                    @method('PATCH')
+                                                    <button type="submit"
+                                                        onclick="return confirm('{{ $isActive ? 'Nonaktifkan file ini? User tidak akan bisa mengedit data.' : 'Aktifkan kembali file ini?' }}')"
+                                                        class="inline-flex items-center space-x-1.5 text-xs font-bold px-3 py-1.5 rounded-lg border transition-all duration-200
+                                                            {{ $isActive
+                                                                ? 'text-amber-700 hover:text-white border-amber-200 hover:border-amber-500 bg-amber-50 hover:bg-amber-500'
+                                                                : 'text-green-700 hover:text-white border-green-200 hover:border-green-500 bg-green-50 hover:bg-green-500' }}">
+                                                        @if($isActive)
+                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
+                                                        </svg>
+                                                        <span>Nonaktifkan</span>
+                                                        @else
+                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                                        </svg>
+                                                        <span>Aktifkan</span>
+                                                        @endif
+                                                    </button>
+                                                </form>
 
-        {{-- Preview --}}
-        <button onclick="toggleFilePreview({{ $data->id }})"
-            class="inline-flex items-center space-x-1.5 text-xs font-bold text-slate-600 hover:text-red-600 border border-slate-200 hover:border-red-300 bg-white hover:bg-red-50 px-3 py-1.5 rounded-lg transition-all duration-200">
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-            </svg>
-            <span>Preview</span>
-        </button>
-    </div>
-</td>
+                                                {{-- Preview --}}
+                                                <button onclick="toggleFilePreview({{ $data->id }})"
+                                                    class="inline-flex items-center space-x-1.5 text-xs font-bold text-slate-600 hover:text-red-600 border border-slate-200 hover:border-red-300 bg-white hover:bg-red-50 px-3 py-1.5 rounded-lg transition-all duration-200">
+                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                                    </svg>
+                                                    <span>Preview</span>
+                                                </button>
+                                            </div>
+                                        </td>
                                     </tr>
                                     {{-- Preview Row --}}
                                     <tr id="preview-{{ $data->id }}" class="hidden">
@@ -290,7 +312,7 @@
                                                                 <tr>
                                                                     @php
                                                                         $first = $previewRows->first()->toArray();
-                                                                        $excluded = ['created_at', 'updated_at']; // tambahkan kolom lain kalau perlu
+                                                                        $excluded = ['id', 'imports_log_id', 'created_at', 'updated_at']; // tambahkan kolom lain kalau perlu
                                                                         $headers = array_diff(array_keys($first), $excluded);
                                                                     @endphp
                                                                     @foreach($headers as $header)
@@ -304,7 +326,7 @@
                                                                 @foreach($previewRows as $row)
                                                                     <tr class="hover:bg-slate-50">
                                                                         @foreach($headers as $field)
-                                                                            <td class="px-4 py-2.5 text-slate-700">{{ $row->{$field} }}</td>
+                                                                            <td class="px-4 py-2.5 text-slate-700">{{ $row->{$field} ?? '-' }}</td>
                                                                         @endforeach
                                                                     </tr>
                                                                 @endforeach
@@ -314,7 +336,7 @@
                                                     @if($previewRows->count() > 5)
                                                         <p
                                                             class="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center py-3 border-t border-slate-100">
-                                                            Menampilkan 5 dari {{ $data->scallingData()->count() }} baris
+                                                            Menampilkan {{ $data->scallingData()->count() }} baris
                                                         </p>
                                                     @endif
                                                 @else
@@ -346,8 +368,136 @@
                     </div>
                 @endif
             </div>
-
         </div>
+
+        {{-- Modal Tambah LOP --}}
+    <div id="modalAddLop" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4"
+        style="background: rgba(0,0,0,0.5);">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl relative overflow-hidden">
+
+            {{-- Modal header --}}
+            <div class="absolute top-0 left-0 right-0 h-1" style="background: linear-gradient(90deg, #dc2626, #ef4444, #dc2626);"></div>
+            <div class="px-8 py-6 border-b border-slate-100 flex items-center justify-between">
+                <div>
+                    <h3 class="text-base font-black text-slate-900 uppercase tracking-wide">Tambah LOP Qualified</h3>
+                    <p class="text-xs text-slate-400 font-medium mt-0.5">SME — Scalling Qualified</p>
+                </div>
+                <button onclick="document.getElementById('modalAddLop').classList.add('hidden')"
+                    class="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-100 hover:bg-red-100 hover:text-red-600 text-slate-500 transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+
+            {{-- Modal body --}}
+            <form action="{{ route('admin.scalling.sme.qualified.storeData') }}" method="POST">
+                @csrf
+                <input type="hidden" name="type" value="qualified">
+                <input type="hidden" name="status" value="active">
+                <input type="hidden" name="segment" value="sme">
+                {{-- Kirim periode yang sedang aktif --}}
+                <input type="hidden" name="periode" value="{{ $currentPeriode }}">
+
+                <div class="px-8 py-6 grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[60vh] overflow-y-auto">
+
+                    {{-- Project --}}
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Project Name <span class="text-red-500">*</span></label>
+                        <input type="text" name="project" value="{{ old('project') }}" placeholder="cth: Project ABC"
+                            class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors" required>
+                    </div>
+
+                    {{-- Periode --}}
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Periode <span class="text-red-500">*</span></label>
+                        <input type="month" name="periode" value="{{ date('Y-m') }}" placeholder="cth: 2023-01" required
+                            class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors" required>
+                    </div>
+
+                    {{-- ID LOP --}}
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">ID LOP <span class="text-red-500">*</span></label>
+                        <input type="text" name="id_lop" value="{{ old('id_lop') }}" placeholder="cth: LOP-001"
+                            class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors" required>
+                    </div>
+
+                    {{-- CC --}}
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">CC <span class="text-red-500">*</span></label>
+                        <input type="text" name="cc" value="{{ old('cc') }}" placeholder="cth: Provsu"
+                            class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors" required>
+                    </div>
+
+                    {{-- NIPNAS --}}
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">NIPNAS <span class="text-red-500">*</span></label>
+                        <input type="text" name="nipnas" value="{{ old('nipnas') }}" placeholder="cth: 1234567890"
+                            class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors" required>
+                    </div>
+
+                    {{-- AM --}}
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">AM <span class="text-red-500">*</span></label>
+                        <input type="text" name="am" value="{{ old('am') }}" placeholder="cth: Frengky Hutajulu"
+                            class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors" required>
+                    </div>
+
+                    {{-- Mitra --}}
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Mitra</label>
+                        <input type="text" name="mitra" value="{{ old('mitra') }}" placeholder="cth: Dengan Mitra"
+                            class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors">
+                    </div>
+
+                    {{-- Plan Bulan --}}
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Plan Bulan Bill Comp <span class="text-red-500">*</span></label>
+                        <input type="number" name="plan_bulan_billcomp_2025" value="{{ old('plan_bulan_billcomp_2025') }}"
+                            placeholder="1-12" min="1" max="12"
+                            class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors" required>
+                    </div>
+
+                    {{-- Est Nilai BC --}}
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Estimasi Nilai BC <span class="text-red-500">*</span></label>
+                        <input type="number" name="est_nilai_bc" value="{{ old('est_nilai_bc') }}"
+                            placeholder="cth: 1000000" min="0"
+                            class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors" required>
+                    </div>
+
+                </div>
+
+                {{-- Modal footer --}}
+                <div class="px-8 py-5 border-t border-slate-100 flex items-center justify-between">
+                    <p class="text-xs text-slate-400 font-medium">
+                        <span class="font-black text-slate-600"></span>
+                    </p>
+                    <div class="flex items-center space-x-3">
+                        <button type="button"
+                            onclick="document.getElementById('modalAddLop').classList.add('hidden')"
+                            class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 font-black text-xs rounded-xl transition-all uppercase tracking-wider">
+                            Batal
+                        </button>
+                        <button type="submit"
+                            class="flex items-center space-x-2 px-6 py-2.5 bg-slate-900 hover:bg-red-600 text-white font-black text-xs rounded-xl transition-all uppercase tracking-wider shadow-md hover:shadow-red-200">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            <span>Simpan</span>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {{-- Tutup modal saat klik backdrop --}}
+    <script>
+    document.getElementById('modalAddLop').addEventListener('click', function(e) {
+        if (e.target === this) this.classList.add('hidden');
+    });
+    </script>
     </div>
 
     <script>

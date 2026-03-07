@@ -66,21 +66,25 @@ class ScallingController extends Controller
     {
         $logs     = ScallingImport::where('type', 'on-hand')->where('segment', 'government')->latest()->paginate(10);
         $projects = ScallingData::with('scallingImport')->latest()->paginate(20);
-        return view('admin.scalling.gov.onHand', compact('logs', 'projects'));
+        // dd($projects);
+        $currentPeriode = request()->get('periode', date('Y-m'));
+        return view('admin.scalling.gov.onHand', compact('logs', 'projects', 'currentPeriode'));
     }
 
-    public function koreksiGov()
-    {
-        $logs     = ScallingImport::where('type', 'koreksi')->where('segment', 'government')->latest()->paginate(10);
-        $projects = ScallingData::with('scallingImport')->latest()->paginate(20);
-        return view('admin.scalling.gov.koreksi', compact('logs', 'projects'));
-    }
+    // public function koreksiGov()
+    // {
+    //     $logs     = ScallingImport::where('type', 'koreksi')->where('segment', 'government')->latest()->paginate(10);
+    //     $projects = ScallingData::with('scallingImport')->latest()->paginate(20);
+    //     return view('admin.scalling.gov.koreksi', compact('logs', 'projects'));
+    // }
 
     public function qualifiedGov()
     {
         $logs     = ScallingImport::where('type', 'qualified')->where('segment', 'government')->latest()->paginate(10);
         $projects = ScallingData::with('scallingImport')->latest()->paginate(20);
-        return view('admin.scalling.gov.qualified', compact('logs', 'projects'));
+        $currentPeriode = request()->get('periode', date('Y-m'));
+
+        return view('admin.scalling.gov.qualified', compact('logs', 'projects', 'currentPeriode'));
     }
 
     public function initiateGov()
@@ -110,21 +114,24 @@ class ScallingController extends Controller
     {
         $logs     = ScallingImport::where('type', 'on-hand')->where('segment', 'soe')->latest()->paginate(10);
         $projects = ScallingData::with('scallingImport')->latest()->paginate(20);
-        return view('admin.scalling.soe.onHand', compact('logs', 'projects'));
+        $currentPeriode = request()->get('periode', date('Y-m'));
+
+        return view('admin.scalling.soe.onHand', compact('logs', 'projects', 'currentPeriode'));
     }
 
-    public function koreksiSoe()
-    {
-        $logs     = ScallingImport::where('type', 'koreksi')->where('segment', 'soe')->latest()->paginate(10);
-        $projects = ScallingData::with('scallingImport')->latest()->paginate(20);
-        return view('admin.scalling.soe.koreksi', compact('logs', 'projects'));
-    }
+    // public function koreksiSoe()
+    // {
+    //     $logs     = ScallingImport::where('type', 'koreksi')->where('segment', 'soe')->latest()->paginate(10);
+    //     $projects = ScallingData::with('scallingImport')->latest()->paginate(20);
+    //     return view('admin.scalling.soe.koreksi', compact('logs', 'projects'));
+    // }
 
     public function qualifiedSoe()
     {
         $logs     = ScallingImport::where('type', 'qualified')->where('segment', 'soe')->latest()->paginate(10);
         $projects = ScallingData::with('scallingImport')->latest()->paginate(20);
-        return view('admin.scalling.soe.qualified', compact('logs', 'projects'));
+        $currentPeriode = request()->get('periode', date('Y-m'));
+        return view('admin.scalling.soe.qualified', compact('logs', 'projects', 'currentPeriode'));
     }
 
     public function initiateSoe()
@@ -154,21 +161,23 @@ class ScallingController extends Controller
     {
         $logs     = ScallingImport::where('type', 'on-hand')->where('segment', 'private')->latest()->paginate(10);
         $projects = ScallingData::with('scallingImport')->latest()->paginate(20);
-        return view('admin.scalling.private.onHand', compact('logs', 'projects'));
+        $currentPeriode = request()->get('periode', date('Y-m'));
+        return view('admin.scalling.private.onHand', compact('logs', 'projects', 'currentPeriode'));
     }
 
-    public function koreksiPrivate()
-    {
-        $logs     = ScallingImport::where('type', 'koreksi')->where('segment', 'private')->latest()->paginate(10);
-        $projects = ScallingData::with('scallingImport')->latest()->paginate(20);
-        return view('admin.scalling.private.koreksi', compact('logs', 'projects'));
-    }
+    // public function koreksiPrivate()
+    // {
+    //     $logs     = ScallingImport::where('type', 'koreksi')->where('segment', 'private')->latest()->paginate(10);
+    //     $projects = ScallingData::with('scallingImport')->latest()->paginate(20);
+    //     return view('admin.scalling.private.koreksi', compact('logs', 'projects'));
+    // }
 
     public function qualifiedPrivate()
     {
         $logs     = ScallingImport::where('type', 'qualified')->where('segment', 'private')->latest()->paginate(10);
         $projects = ScallingData::with('scallingImport')->latest()->paginate(20);
-        return view('admin.scalling.private.qualified', compact('logs', 'projects'));
+        $currentPeriode = request()->get('periode', date('Y-m'));
+        return view('admin.scalling.private.qualified', compact('logs', 'projects', 'currentPeriode'));
     }
 
     public function initiatePrivate()
@@ -198,21 +207,23 @@ class ScallingController extends Controller
     {
         $logs     = ScallingImport::where('type', 'on-hand')->where('segment', 'sme')->latest()->paginate(10);
         $projects = ScallingData::with('scallingImport')->latest()->paginate(20);
-        return view('admin.scalling.sme.onHand', compact('logs', 'projects'));
+        $currentPeriode = request()->get('periode', date('Y-m'));
+        return view('admin.scalling.sme.onHand', compact('logs', 'projects', 'currentPeriode'));
     }
 
-    public function koreksiSme()
-    {
-        $logs     = ScallingImport::where('type', 'koreksi')->where('segment', 'sme')->latest()->paginate(10);
-        $projects = ScallingData::with('scallingImport')->latest()->paginate(20);
-        return view('admin.scalling.sme.koreksi', compact('logs', 'projects'));
-    }
+    // public function koreksiSme()
+    // {
+    //     $logs     = ScallingImport::where('type', 'koreksi')->where('segment', 'sme')->latest()->paginate(10);
+    //     $projects = ScallingData::with('scallingImport')->latest()->paginate(20);
+    //     return view('admin.scalling.sme.koreksi', compact('logs', 'projects'));
+    // }
 
     public function qualifiedSme()
     {
         $logs     = ScallingImport::where('type', 'qualified')->where('segment', 'sme')->latest()->paginate(10);
         $projects = ScallingData::with('scallingImport')->latest()->paginate(20);
-        return view('admin.scalling.sme.qualified', compact('logs', 'projects'));
+        $currentPeriode = request()->get('periode', date('Y-m'));
+        return view('admin.scalling.sme.qualified', compact('logs', 'projects', 'currentPeriode'));
     }
 
     public function initiateSme()
@@ -301,7 +312,7 @@ class ScallingController extends Controller
                         'total_rows_imported' => count($rows),
                         'uploaded_by'         => auth()->user()->name ?? $request->ip(),
                     ]);
-
+                    
                     $scallingIds = ScallingData::where('imports_log_id', $log->id)->pluck('id')->toArray();
                     $funnelIds   = FunnelTracking::where('data_id', $log->id)->pluck('id')->toArray();
                     ScallingData::where('imports_log_id', $log->id)->delete();
@@ -408,13 +419,14 @@ class ScallingController extends Controller
         $periodeDate = $request->periode . '-01';
 
         $log = ScallingImport::where('periode', $periodeDate)
-            ->where('type', 'initiate')
+            ->where('type', $request->type)
             ->where('segment', $request->segment)
             ->first();
 
         if($log) {   
             $data = ScallingData::create([
             'imports_log_id'           => $log->id,
+            'no'                       => $log->data()->count() + 1,
             'project'                  => $request->project,
             'id_lop'                   => $request->id_lop,
             'cc'                       => $request->cc,
@@ -428,7 +440,7 @@ class ScallingController extends Controller
             $import = ScallingImport::create([
                 'original_filename'   => 'manual-input',
                 'status'              => $request->status,
-                'type'                => 'initiate',
+                'type'                => $request->type,
                 'segment'             => $request->segment,
                 'periode'             => $periodeDate,
                 'total_rows_imported' => 0,

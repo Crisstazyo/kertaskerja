@@ -89,7 +89,7 @@
                     ],
                     
                     [
-                        'label'   => 'LOP Koreksi',
+                        'label'   => 'Koreksi',
                         'sub'     => 'Manage Koreksi data, upload files, dan lihat progress',
                         'badge'   => 'KOREKSI',
                         'type'    => 'koreksi',

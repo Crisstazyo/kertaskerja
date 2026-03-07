@@ -29,6 +29,12 @@ class ScallingImport extends Model
         // table column is "imports_log_id" (plural) according to the migration
         return $this->hasMany(ScallingData::class, 'imports_log_id');
     }
+    
+    public function koreksi()
+    {
+        // table column is "imports_log_id" (plural) according to the migration
+        return $this->hasMany(Koreksi::class, 'imports_log_id');
+    }
 
     /**
      * Alias for `scallingData` so templates can use `$import->data` like before.

@@ -79,20 +79,20 @@
                         'icon'  => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>',
                     ],
                     [
-                        'key'   => 'koreksi',
-                        'label' => 'LOP Koreksi',
-                        'sub'   => 'Data LOP Koreksi SME',
-                        'badge' => 'KOREKSI',
-                        'route' => route('dashboard.sme.lop-koreksi'),
-                        'icon'  => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>',
-                    ],
-                    [
                         'key'   => 'initiate',
                         'label' => 'LOP Initiate',
                         'sub'   => 'Data LOP Initiate SME',
                         'badge' => 'INITIATE',
                         'route' => route('dashboard.sme.lop-initiate'),
                         'icon'  => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"/>',
+                    ],
+                    [
+                        'key'   => 'koreksi',
+                        'label' => 'Koreksi',
+                        'sub'   => 'Data Koreksi SME',
+                        'badge' => 'KOREKSI',
+                        'route' => route('dashboard.sme.lop-koreksi'),
+                        'icon'  => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>',
                     ],
                 ];
                 @endphp

@@ -279,7 +279,7 @@
                                                         Preview</span>
                                                 </div>
                                                 @php
-                                                    $previewRows = $data->scallingData()->limit(20)->get();
+                                                    $previewRows = $data->koreksi()->limit(20)->get();
                                                     $hasPreview = $previewRows->isNotEmpty();
                                                 @endphp
 
@@ -290,7 +290,7 @@
                                                                 <tr>
                                                                     @php
                                                                         $first = $previewRows->first()->toArray();
-                                                                        $excluded = ['created_at', 'updated_at']; // tambahkan kolom lain kalau perlu
+                                                                        $excluded = ['id', 'imports_log_id', 'created_at', 'updated_at']; // tambahkan kolom lain kalau perlu
                                                                         $headers = array_diff(array_keys($first), $excluded);
                                                                     @endphp
                                                                     @foreach($headers as $header)
@@ -304,7 +304,7 @@
                                                                 @foreach($previewRows as $row)
                                                                     <tr class="hover:bg-slate-50">
                                                                         @foreach($headers as $field)
-                                                                            <td class="px-4 py-2.5 text-slate-700">{{ $row->{$field} }}</td>
+                                                                            <td class="px-4 py-2.5 text-slate-700">{{ $row->{$field}?? '-' }}</td>
                                                                         @endforeach
                                                                     </tr>
                                                                 @endforeach
@@ -314,7 +314,7 @@
                                                     @if($previewRows->count() > 5)
                                                         <p
                                                             class="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center py-3 border-t border-slate-100">
-                                                            Menampilkan 5 dari {{ $data->scallingData()->count() }} baris
+                                                            Menampilkan 5 dari {{ $data->koreksi()->count() }} baris
                                                         </p>
                                                     @endif
                                                 @else

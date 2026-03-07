@@ -232,42 +232,42 @@
                                             </span>
                                         </td>
                                         <td class="px-6 py-4">
-    <div class="flex items-center justify-center space-x-2">
-        {{-- Toggle Status --}}
-        <form action="{{ route('admin.scalling.toggle-status', $data->id) }}" method="POST">
-            @csrf
-            @method('PATCH')
-            <button type="submit"
-                onclick="return confirm('{{ $isActive ? 'Nonaktifkan file ini? User tidak akan bisa mengedit data.' : 'Aktifkan kembali file ini?' }}')"
-                class="inline-flex items-center space-x-1.5 text-xs font-bold px-3 py-1.5 rounded-lg border transition-all duration-200
-                    {{ $isActive
-                        ? 'text-amber-700 hover:text-white border-amber-200 hover:border-amber-500 bg-amber-50 hover:bg-amber-500'
-                        : 'text-green-700 hover:text-white border-green-200 hover:border-green-500 bg-green-50 hover:bg-green-500' }}">
-                @if($isActive)
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
-                </svg>
-                <span>Nonaktifkan</span>
-                @else
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
-                <span>Aktifkan</span>
-                @endif
-            </button>
-        </form>
+                                            <div class="flex items-center justify-center space-x-2">
+                                                {{-- Toggle Status --}}
+                                                <form action="{{ route('admin.scalling.toggle-status', $data->id) }}" method="POST">
+                                                    @csrf
+                                                    @method('PATCH')
+                                                    <button type="submit"
+                                                        onclick="return confirm('{{ $isActive ? 'Nonaktifkan file ini? User tidak akan bisa mengedit data.' : 'Aktifkan kembali file ini?' }}')"
+                                                        class="inline-flex items-center space-x-1.5 text-xs font-bold px-3 py-1.5 rounded-lg border transition-all duration-200
+                                                            {{ $isActive
+                                                                ? 'text-amber-700 hover:text-white border-amber-200 hover:border-amber-500 bg-amber-50 hover:bg-amber-500'
+                                                                : 'text-green-700 hover:text-white border-green-200 hover:border-green-500 bg-green-50 hover:bg-green-500' }}">
+                                                        @if($isActive)
+                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
+                                                        </svg>
+                                                        <span>Nonaktifkan</span>
+                                                        @else
+                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                                        </svg>
+                                                        <span>Aktifkan</span>
+                                                        @endif
+                                                    </button>
+                                                </form>
 
-        {{-- Preview --}}
-        <button onclick="toggleFilePreview({{ $data->id }})"
-            class="inline-flex items-center space-x-1.5 text-xs font-bold text-slate-600 hover:text-red-600 border border-slate-200 hover:border-red-300 bg-white hover:bg-red-50 px-3 py-1.5 rounded-lg transition-all duration-200">
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-            </svg>
-            <span>Preview</span>
-        </button>
-    </div>
-</td>
+                                                {{-- Preview --}}
+                                                <button onclick="toggleFilePreview({{ $data->id }})"
+                                                    class="inline-flex items-center space-x-1.5 text-xs font-bold text-slate-600 hover:text-red-600 border border-slate-200 hover:border-red-300 bg-white hover:bg-red-50 px-3 py-1.5 rounded-lg transition-all duration-200">
+                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                                    </svg>
+                                                    <span>Preview</span>
+                                                </button>
+                                            </div>
+                                        </td>
                                     </tr>
                                     {{-- Preview Row --}}
                                     <tr id="preview-{{ $data->id }}" class="hidden">
@@ -279,7 +279,7 @@
                                                         Preview</span>
                                                 </div>
                                                 @php
-                                                    $previewRows = $data->scallingData()->limit(20)->get();
+                                                    $previewRows = $data->koreksi()->limit(20)->get();
                                                     $hasPreview = $previewRows->isNotEmpty();
                                                 @endphp
 
@@ -290,7 +290,7 @@
                                                                 <tr>
                                                                     @php
                                                                         $first = $previewRows->first()->toArray();
-                                                                        $excluded = ['created_at', 'updated_at']; // tambahkan kolom lain kalau perlu
+                                                                        $excluded = ['id', 'imports_log_id', 'created_at', 'updated_at']; // tambahkan kolom lain kalau perlu
                                                                         $headers = array_diff(array_keys($first), $excluded);
                                                                     @endphp
                                                                     @foreach($headers as $header)
@@ -304,7 +304,7 @@
                                                                 @foreach($previewRows as $row)
                                                                     <tr class="hover:bg-slate-50">
                                                                         @foreach($headers as $field)
-                                                                            <td class="px-4 py-2.5 text-slate-700">{{ $row->{$field} }}</td>
+                                                                            <td class="px-4 py-2.5 text-slate-700">{{ $row->{$field} ?? '-' }}</td>
                                                                         @endforeach
                                                                     </tr>
                                                                 @endforeach
@@ -314,7 +314,7 @@
                                                     @if($previewRows->count() > 5)
                                                         <p
                                                             class="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center py-3 border-t border-slate-100">
-                                                            Menampilkan 5 dari {{ $data->scallingData()->count() }} baris
+                                                            Menampilkan 5 dari {{ $data->koreksi()->count() }} baris
                                                         </p>
                                                     @endif
                                                 @else
