@@ -111,7 +111,7 @@
                             class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors" required>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Real Ratio (%)</label>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Realisasi (%)</label>
                         <input type="number" step="0.01" name="real_ratio" placeholder="cth: 95.50"
                             class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors" required>
                     </div>
@@ -142,48 +142,58 @@
                     <div class="w-1 h-6 bg-red-600 rounded-full"></div>
                     <h2 class="text-base font-black text-slate-900 uppercase tracking-wide">Data Collections</h2>
                 </div>
-                <div class="grid grid-cols-5 gap-3">
-                    <!-- <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Filter User</label>
-                        <select id="filterUser" onchange="filterTable()"
-                            class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-semibold text-slate-700 focus:outline-none focus:border-red-400 bg-white">
-                            <option value="">Semua User</option>
-                            @foreach($users as $user)
-                                <option value="{{ $user->name }}">{{ $user->name }}</option>
-                            @endforeach
-                        </select>
-                    </div> -->
+                <form method="GET" action="{{ route('admin.collection-ratio') }}" class="grid grid-cols-5 gap-3">
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Status</label>
-                        <select id="filterStatus" onchange="filterTable()"
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Segment</label>
+                        <select name="segment" onchange="this.form.submit()"
                             class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-semibold text-slate-700 focus:outline-none focus:border-red-400 bg-white">
-                            <option value="">Semua Status</option>
-                            <option value="active">Active</option>
-                            <option value="inactive">Inactive</option>
+                            <option value="">Semua Segment</option>
+                            @foreach($segments as $seg)
+                                <option value="{{ $seg }}" {{ ($selectedSegment ?? '') == $seg ? 'selected' : '' }}>{{ $seg }}</option>
+                            @endforeach
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Periode</label>
-                        <input type="month" name="periode" required
-                            value="{{ date('Y-m') }}"
-                            class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors bg-white">
-                        @error('periode')
-                            <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
-                        @enderror
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Bulan</label>
+                        <select name="bulan" onchange="this.form.submit()"
+                            class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-semibold text-slate-700 focus:outline-none focus:border-red-400 bg-white">
+                            <option value="">Semua Bulan</option>
+                            @foreach(range(1, 12) as $m)
+                                <option value="{{ $m }}" {{ ($selectedBulan ?? '') == $m ? 'selected' : '' }}>
+                                    {{ \Carbon\Carbon::create()->month($m)->locale('id')->translatedFormat('F') }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Tahun</label>
+                        <select name="tahun" onchange="this.form.submit()"
+                            class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-semibold text-slate-700 focus:outline-none focus:border-red-400 bg-white">
+                            <option value="">Semua Tahun</option>
+                            @foreach($tahuns as $t)
+                                <option value="{{ $t }}" {{ ($selectedTahun ?? '') == $t ? 'selected' : '' }}>{{ $t }}</option>
+                            @endforeach
+                        </select>
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Cari</label>
-                        <input type="text" id="filterSearch" placeholder="Cari..." oninput="filterTable()"
+                        <input type="text" name="cari" value="{{ $selectedCari ?? '' }}" placeholder="Cari..."
                             class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-semibold text-slate-700 focus:outline-none focus:border-red-400">
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5 invisible">Reset</label>
-                        <button onclick="resetFilters()"
-                            class="w-full px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-xs rounded-lg transition-colors uppercase tracking-wider">
-                            Reset Filter
-                        </button>
+                        <div class="flex gap-2">
+                            <button type="submit"
+                                class="flex-1 px-4 py-2 bg-slate-900 hover:bg-red-600 text-white font-bold text-xs rounded-lg transition-colors uppercase tracking-wider">
+                                Cari
+                            </button>
+                            <a href="{{ route('admin.collection-ratio') }}"
+                                class="flex-1 flex items-center justify-center px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-xs rounded-lg transition-colors uppercase tracking-wider">
+                                Reset
+                            </a>
+                        </div>
                     </div>
-                </div>
+                </form>
             </div>
 
             {{-- Table --}}
@@ -191,20 +201,24 @@
                 <table class="min-w-full" id="dataTable">
                     <thead>
                         <tr class="bg-slate-50 border-b border-slate-100">
-                            <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">ID</th>
+                            <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">No</th>
+                            <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Tanggal Input</th>
                             <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">User</th>
                             <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Tipe</th>
                             <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
                             <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Segment</th>
-                            <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Commitment</th>
-                            <th class="px-6 py-3 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">Real Ratio</th>
-                            <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Created At</th>
+                            <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Commitment</th>
+                            <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Realisasi</th>
+                            <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Periode</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
                         @forelse($collections as $item)
                         <tr class="hover:bg-slate-50 transition-colors">
-                            <td class="px-6 py-4 text-sm font-bold text-slate-400">{{ $item->id }}</td>
+                            <td class="px-6 py-4 text-sm font-bold text-slate-400">{{ $collections->firstItem() + $loop->index }}</td>
+                            <td class="px-6 py-4 text-sm text-center font-semibold text-slate-600">
+                                {{ $item->created_at->translatedFormat('d M Y H:i') }}
+                            </td>
                             <td class="px-6 py-4">
                                 <div class="flex items-center space-x-2.5">
                                     <div class="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center flex-shrink-0">
@@ -228,25 +242,52 @@
                                 </form>
                             </td>
                             <td class="px-6 py-4 text-sm text-slate-700">{{ $item->segment ?? '—' }}</td>
-                            <td class="px-6 py-4 text-sm text-slate-700">{{ $item->commitment ?? '—' }}</td>
-                            <td class="px-6 py-4 text-right text-sm font-black text-slate-800">{{ $item->real_ratio ?? '—' }}</td>
+                            <td class="px-6 py-4 text-center font-black text-slate-700">{{ $item->commitment ?? '—' }}</td>
+                            <td class="px-6 py-4 text-center font-black text-red-600">{{ $item->real_ratio ?? '—' }}</td>
                             <td class="px-6 py-4 text-center text-sm text-slate-400">
                                 {{ $item->periode ? date('d M Y', strtotime($item->periode)) : '—' }}
                             </td>
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="8" class="py-16 text-center">
+                            <td colspan="9" class="py-16 text-center">
                                 <svg class="mx-auto w-10 h-10 text-slate-200 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
                                 </svg>
-                                <p class="text-sm font-bold text-slate-400">Belum ada data collection</p>
+                                <p class="text-sm font-bold text-slate-400">Belum Ada Data Collection Ratio</p>
                             </td>
                         </tr>
                         @endforelse
                     </tbody>
                 </table>
             </div>
+        @if($collections->hasPages())
+            <div class="px-8 py-4 border-t border-slate-100 flex items-center justify-between">
+                <p class="text-xs font-semibold text-slate-400">
+                    Menampilkan {{ $collections->firstItem() }}–{{ $collections->lastItem() }} dari {{ $collections->total() }} data
+                </p>
+                <div class="flex items-center gap-1">
+                    @if($collections->onFirstPage())
+                        <span class="px-3 py-1.5 text-xs font-bold text-slate-300 bg-slate-50 border border-slate-200 rounded-lg cursor-not-allowed">‹</span>
+                    @else
+                        <a href="{{ $collections->previousPageUrl() }}" class="px-3 py-1.5 text-xs font-bold text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">‹</a>
+                    @endif
+                    @foreach($collections->getUrlRange(1, $collections->lastPage()) as $page => $url)
+                        @if($page == $collections->currentPage())
+                            <span class="px-3 py-1.5 text-xs font-bold text-white bg-slate-900 border border-slate-900 rounded-lg">{{ $page }}</span>
+                        @else
+                            <a href="{{ $url }}" class="px-3 py-1.5 text-xs font-bold text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">{{ $page }}</a>
+                        @endif
+                    @endforeach
+                    @if($collections->hasMorePages())
+                        <a href="{{ $collections->nextPageUrl() }}" class="px-3 py-1.5 text-xs font-bold text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">›</a>
+                    @else
+                        <span class="px-3 py-1.5 text-xs font-bold text-slate-300 bg-slate-50 border border-slate-200 rounded-lg cursor-not-allowed">›</span>
+                    @endif
+                </div>
+            </div>
+            @endif
+
         </div>
 
     </div>

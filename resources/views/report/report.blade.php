@@ -294,7 +294,7 @@
                     <table class="min-w-full border-collapse border border-gray-400 text-[11px] font-sans">
                         <thead class="bg-[#4a7795] text-white">
                             <tr>
-                                <th rowspan="2" class="border border-gray-300 px-2 py-2 w-8 text-center">Nbr</th>
+                                <th rowspan="2" class="border border-gray-300 px-2 py-2 w-8 text-center">No</th>
                                 <th rowspan="2" class="border border-gray-300 px-2 py-2 text-center">Unit / Scope</th>
                                 <th rowspan="2" class="border border-gray-300 px-2 py-2 text-center">Indicator</th>
                                 <th rowspan="2" class="border border-gray-300 px-2 py-2 w-10 text-center">Denom</th>

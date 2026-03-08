@@ -21,7 +21,7 @@
                             <h1 class="text-2xl font-black tracking-tight text-slate-900 leading-none uppercase">
                                 <span class="text-red-600">Paid</span> CT0
                             </h1>
-                            <p class="text-slate-400 text-xs font-bold mt-1 uppercase tracking-tight">Kelola data Paid CT0
+                            <p class="text-slate-400 text-xs font-bold mt-1 uppercase tracking-tight">Kelola data Paid Pra CT0
                                 semua user</p>
                         </div>
                     </div>
@@ -68,7 +68,7 @@
                 <div class="px-8 py-5 border-b border-slate-100">
                     <div class="flex items-center space-x-3">
                         <div class="w-1.5 h-8 bg-red-600 rounded-full"></div>
-                        <h2 class="text-base font-black text-slate-900 uppercase tracking-wide">Input / Update Data Paid CT0
+                        <h2 class="text-base font-black text-slate-900 uppercase tracking-wide">Input / Update Data Paid Pra CT0
                         </h2>
                     </div>
                 </div>
@@ -98,14 +98,14 @@
                             {{-- Region --}}
                             <div>
                                 <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">
-                                    Region
+                                    Telda
                                 </label>
 
                                 <select name="region" required
                                     class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors bg-white">
 
                                     <option value="" disabled {{ old('region') ? '' : 'selected' }}>
-                                        — Pilih Region —
+                                        — Pilih Telda —
                                     </option>
                                     @php
                                         $regions = [
@@ -142,19 +142,9 @@
                                 </select>
                             </div>
 
-                            {{-- Commitment --}}
+                            {{-- Realisasi --}}
                             <div>
-                                <label
-                                    class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Commitment</label>
-                                <input type="number" step="0.01" name="commitment" value="{{ old('commitment') }}"
-                                    placeholder="cth: 98.50"
-                                    class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors">
-                            </div>
-
-                            {{-- Real Ratio --}}
-                            <div>
-                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Real
-                                    Ratio (%)</label>
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Realisasi (%)</label>
                                 <input type="number" step="0.01" name="real_ratio" value="{{ old('real_ratio') }}"
                                     placeholder="cth: 95.50"
                                     class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors">
@@ -268,10 +258,7 @@
                                     Periode</th>
                                 <th
                                     class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                                    Commitment</th>
-                                <th
-                                    class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                                    Real Ratio</th>
+                                    Realisasi</th>
                                 <th
                                     class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
                                     Status</th>
@@ -310,13 +297,6 @@
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 text-center">
-                                        @if($item->commitment !== null && $item->commitment !== '')
-                                            <span class="text-sm font-black text-slate-800">{{ $item->commitment }}</span>
-                                        @else
-                                            <span class="text-sm text-slate-400">—</span>
-                                        @endif
-                                    </td>
-                                    <td class="px-6 py-4 text-center">
                                         @if($item->real_ratio !== null && $item->real_ratio !== '')
                                             <span class="text-sm font-black text-red-600">{{ $item->real_ratio }}</span>
                                         @else
@@ -344,7 +324,7 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                                                 d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                                         </svg>
-                                        <p class="text-sm font-bold text-slate-400">Belum ada data CT0</p>
+                                        <p class="text-sm font-bold text-slate-400">Belum Ada Data CT0</p>
                                     </td>
                                 </tr>
                             @endforelse

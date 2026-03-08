@@ -21,27 +21,54 @@ class AdminController extends Controller
         return view('admin.index');
     }
 
-    public function collectionRatioTable()
-    {
-        $collections = Collection::with('user')
+    public function collectionRatioTable(Request $request)
+{
+    $query = Collection::with('user')
         ->where('type', 'Collection Ratio')
-        ->orderBy('created_at', 'desc')
-        ->paginate(15)
-        ->withQueryString();
-        $users = User::all();
-        // collect all distinct periode values for Billing Perdana entries
-        $periodes = Collection::where('type', 'Collection Ratio')
-        ->selectRaw("DATE_FORMAT(periode, '%Y-%m') as periode")
-        ->distinct()
-        ->orderBy('periode', 'desc')
-        ->pluck('periode')
-        ->map(function ($item) {
-            return Carbon::createFromFormat('Y-m', $item)
-                ->locale('id')
-                ->translatedFormat('F Y');
-        });
-        return view('admin.collection.collectionRatio', compact('collections', 'users', 'periodes'));
+        ->orderBy('created_at', 'asc');
+
+    if ($request->filled('segment')) {
+        $query->where('segment', $request->segment);
     }
+    if ($request->filled('bulan')) {
+        $query->whereMonth('periode', $request->bulan);
+    }
+    if ($request->filled('tahun')) {
+        $query->whereYear('periode', $request->tahun);
+    }
+    if ($request->filled('cari')) {
+        $query->where(function($q) use ($request) {
+            $q->where('real_ratio', 'like', '%'.$request->cari.'%')
+              ->orWhere('commitment', 'like', '%'.$request->cari.'%')
+              ->orWhere('segment', 'like', '%'.$request->cari.'%');
+        });
+    }
+
+    $collections = $query->paginate(20)->withQueryString();
+
+    $tahuns = Collection::where('type', 'Collection Ratio')
+        ->selectRaw('YEAR(periode) as tahun')
+        ->distinct()
+        ->orderBy('tahun', 'desc')
+        ->pluck('tahun');
+
+    $segments = Collection::where('type', 'Collection Ratio')
+        ->whereNotNull('segment')
+        ->distinct()
+        ->orderBy('segment')
+        ->pluck('segment');
+
+    $users = User::all();
+    $selectedSegment = $request->segment;
+    $selectedBulan   = $request->bulan;
+    $selectedTahun   = $request->tahun;
+    $selectedCari    = $request->cari;
+
+    return view('admin.collection.collectionRatio', compact(
+        'collections', 'users', 'tahuns', 'segments',
+        'selectedSegment', 'selectedBulan', 'selectedTahun', 'selectedCari'
+    ));
+}
 
     public function collectionRatioStore(Request $request)
     {
@@ -54,49 +81,65 @@ class AdminController extends Controller
         ]);
         $periodeDate = $request->periode . '-01';
 
-        // cek/update berdasarkan kombinasi type+segment+periode
-        $attributes = [
-            'type'    => 'Collection Ratio',
-            'segment' => $request->segment,
-            'periode' => $periodeDate,
-        ];
+        $lastCommitment = $request->filled('commitment')
+            ? $request->commitment
+            : Collection::where('type', 'Collection Ratio')
+                ->where('segment', $request->segment)
+                ->where('periode', $periodeDate)
+                ->whereNotNull('commitment')
+                ->orderBy('created_at', 'desc')
+                ->value('commitment');
 
-        $values = [
-            'user_id'    => Auth::id(),          // otomatis user login
+        Collection::create([
+            'user_id'    => Auth::id(),
+            'type'       => 'Collection Ratio',
+            'segment'    => $request->segment,
+            'periode'    => $periodeDate,
             'status'     => $request->status,
-            'commitment' => $request->commitment,
+            'commitment' => $lastCommitment,
             'real_ratio' => $request->real_ratio,
-        ];
+        ]);
 
-        $collection = Collection::updateOrCreate($attributes, $values);
-        $message = $collection->wasRecentlyCreated
-            ? 'Data berhasil disimpan'
-            : 'Data berhasil diperbarui';
-
-        return back()->with('success', $message);
+        return back()->with('success', 'Data berhasil disimpan');
     }
 
-    public function c3mrTable()
-    {
-        $collections = Collection::with('user')
+    public function c3mrTable(Request $request)
+{
+    $query = Collection::with('user')
         ->where('type', 'C3MR')
-        ->orderBy('created_at', 'desc')
-        ->paginate(15)
-        ->withQueryString();
-        $users = User::all();
-        // collect all distinct periode values for Billing Perdana entries
-        $periodes = Collection::where('type', 'C3MR')
-        ->selectRaw("DATE_FORMAT(periode, '%Y-%m') as periode")
-        ->distinct()
-        ->orderBy('periode', 'desc')
-        ->pluck('periode')
-        ->map(function ($item) {
-            return Carbon::createFromFormat('Y-m', $item)
-                ->locale('id')
-                ->translatedFormat('F Y');
-        });
-        return view('admin.collection.c3mr', compact('collections', 'users', 'periodes'));
+        ->orderBy('created_at', 'asc');
+
+    if ($request->filled('bulan')) {
+        $query->whereMonth('periode', $request->bulan);
     }
+    if ($request->filled('tahun')) {
+        $query->whereYear('periode', $request->tahun);
+    }
+    if ($request->filled('cari')) {
+        $query->where(function($q) use ($request) {
+            $q->where('real_ratio', 'like', '%'.$request->cari.'%')
+              ->orWhere('commitment', 'like', '%'.$request->cari.'%');
+        });
+    }
+
+    $collections = $query->paginate(20)->withQueryString();
+
+    $tahuns = Collection::where('type', 'C3MR')
+        ->selectRaw('YEAR(periode) as tahun')
+        ->distinct()
+        ->orderBy('tahun', 'desc')
+        ->pluck('tahun');
+
+    $users = User::all();
+    $selectedBulan = $request->bulan;
+    $selectedTahun = $request->tahun;
+    $selectedCari  = $request->cari;
+
+    return view('admin.collection.c3mr', compact(
+        'collections', 'users', 'tahuns',
+        'selectedBulan', 'selectedTahun', 'selectedCari'
+    ));
+}
 
     public function c3mrStore(Request $request)
     {
@@ -109,26 +152,25 @@ class AdminController extends Controller
         ]);
         $periodeDate = $request->periode . '-01';
 
-        // cek/update berdasarkan kombinasi type+segment+periode
-        $attributes = [
-            'type'    => 'C3MR',
-            'segment' => $request->segment,
-            'periode' => $periodeDate,
-        ];
+        $lastCommitment = $request->filled('commitment')
+            ? $request->commitment
+            : Collection::where('type', 'C3MR')
+                ->where('periode', $periodeDate)
+                ->whereNotNull('commitment')
+                ->orderBy('created_at', 'desc')
+                ->value('commitment');
 
-        $values = [
-            'user_id'    => Auth::id(),          // otomatis user login
+        Collection::create([
+            'user_id'    => Auth::id(),
+            'type'       => 'C3MR',
+            'segment'    => $request->segment,
+            'periode'    => $periodeDate,
             'status'     => $request->status,
-            'commitment' => $request->commitment,
+            'commitment' => $lastCommitment,
             'real_ratio' => $request->real_ratio,
-        ];
+        ]);
 
-        $collection = Collection::updateOrCreate($attributes, $values);
-        $message = $collection->wasRecentlyCreated
-            ? 'Data berhasil disimpan'
-            : 'Data berhasil diperbarui';
-
-        return back()->with('success', $message);
+        return back()->with('success', 'Data berhasil disimpan');
     }
 
     /**
@@ -143,27 +185,43 @@ class AdminController extends Controller
         return back()->with('success', 'Status berhasil diubah');
     }
 
-    public function billingTable()
-    {
-        $collections = Collection::with('user')
-            ->where('type', 'Billing Perdana')
-            ->orderBy('created_at', 'desc')
-            ->paginate(15)
-            ->withQueryString();
-        $users = User::all();
-        // collect all distinct periode values for Billing Perdana entries
-        $periodes = Collection::where('type', 'Billing Perdana')
-            ->selectRaw("DATE_FORMAT(periode, '%Y-%m') as periode")
-            ->distinct()
-            ->orderBy('periode', 'desc')
-            ->pluck('periode')
-            ->map(function ($item) {
-                return Carbon::createFromFormat('Y-m', $item)
-                    ->locale('id')
-                    ->translatedFormat('F Y');
-            });
-        return view('admin.collection.billingPerdana', compact('collections', 'users', 'periodes'));
+    public function billingTable(Request $request)
+{
+    $query = Collection::with('user')
+        ->where('type', 'Billing Perdana')
+        ->orderBy('created_at', 'asc');
+
+    if ($request->filled('bulan')) {
+        $query->whereMonth('periode', $request->bulan);
     }
+    if ($request->filled('tahun')) {
+        $query->whereYear('periode', $request->tahun);
+    }
+    if ($request->filled('cari')) {
+        $query->where(function($q) use ($request) {
+            $q->where('real_ratio', 'like', '%'.$request->cari.'%')
+              ->orWhere('commitment', 'like', '%'.$request->cari.'%');
+        });
+    }
+
+    $collections = $query->paginate(20)->withQueryString();
+
+    $tahuns = Collection::where('type', 'Billing Perdana')
+        ->selectRaw('YEAR(periode) as tahun')
+        ->distinct()
+        ->orderBy('tahun', 'desc')
+        ->pluck('tahun');
+
+    $users = User::all();
+    $selectedBulan = $request->bulan;
+    $selectedTahun = $request->tahun;
+    $selectedCari  = $request->cari;
+
+    return view('admin.collection.billingPerdana', compact(
+        'collections', 'users', 'tahuns',
+        'selectedBulan', 'selectedTahun', 'selectedCari'
+    ));
+}
 
     public function billingStore(Request $request)
     {
@@ -175,47 +233,75 @@ class AdminController extends Controller
         ]);
         $periodeDate = $request->periode . '-01';
 
-        $attributes = [
-            'type'    => 'Billing Perdana',
-            'periode' => $periodeDate,
-        ];
+        $lastCommitment = $request->filled('commitment')
+            ? $request->commitment
+            : Collection::where('type', 'Billing Perdana')
+                ->where('periode', $periodeDate)
+                ->whereNotNull('commitment')
+                ->orderBy('created_at', 'desc')
+                ->value('commitment');
 
-        $values = [
+        Collection::create([
             'user_id'    => Auth::id(),
+            'type'       => 'Billing Perdana',
+            'periode'    => $periodeDate,
             'status'     => $request->status,
-            'commitment' => $request->commitment,
+            'commitment' => $lastCommitment,
             'real_ratio' => $request->real_ratio,
-        ];
+        ]);
 
-        $collection = Collection::updateOrCreate($attributes, $values);
-        $message = $collection->wasRecentlyCreated
-            ? 'Data berhasil disimpan'
-            : 'Data berhasil diperbarui';
-
-        return back()->with('success', $message);
+        return back()->with('success', 'Data berhasil disimpan');
     }
 
-    public function utipTable()
-    {
-        // Show all collections whose type contains 'UTIP'
-        $collections = Collection::with('user')
+    public function utipTable(Request $request)
+{
+    $query = Collection::with('user')
         ->where('type', 'like', '%UTIP%')
-        ->orderBy('created_at', 'desc')
-        ->paginate(15)
-        ->withQueryString();
-        $users = User::all();
-        $periodes = Collection::where('type', 'like', '%UTIP%')
-            ->selectRaw("DATE_FORMAT(periode, '%Y-%m') as periode")
-            ->distinct()
-            ->orderBy('periode', 'desc')
-            ->pluck('periode')
-            ->map(function ($item) {
-            return Carbon::createFromFormat('Y-m', $item)
-                ->locale('id')
-                ->translatedFormat('F Y');
-        });
-        return view('admin.collection.utip', compact('collections', 'users', 'periodes'));
+        ->orderByRaw("CASE WHEN type LIKE '%Corrective%' THEN 0 ELSE 1 END")
+        ->orderBy('created_at', 'asc');
+
+    if ($request->filled('tipe')) {
+        $query->where('type', $request->tipe);
     }
+    if ($request->filled('bulan')) {
+        $query->whereMonth('created_at', $request->bulan);
+    }
+    if ($request->filled('tahun')) {
+        $query->whereYear('created_at', $request->tahun);
+    }
+    if ($request->filled('cari')) {
+        $query->where(function($q) use ($request) {
+            $q->where('type', 'like', '%'.$request->cari.'%')
+              ->orWhere('real_ratio', 'like', '%'.$request->cari.'%')
+              ->orWhere('commitment', 'like', '%'.$request->cari.'%');
+        });
+    }
+
+    $collections = $query->paginate(20)->withQueryString();
+
+    $tahuns = Collection::where('type', 'like', '%UTIP%')
+        ->selectRaw('YEAR(created_at) as tahun')
+        ->distinct()
+        ->orderBy('tahun', 'desc')
+        ->pluck('tahun');
+
+    $tipes = Collection::where('type', 'like', '%UTIP%')
+        ->distinct()
+        ->orderByRaw("CASE WHEN type LIKE '%Corrective%' THEN 0 ELSE 1 END")
+        ->orderBy('type')
+        ->pluck('type');
+
+    $users = User::all();
+    $selectedTipe  = $request->tipe;
+    $selectedBulan = $request->bulan;
+    $selectedTahun = $request->tahun;
+    $selectedCari  = $request->cari;
+
+    return view('admin.collection.utip', compact(
+        'collections', 'users', 'tahuns', 'tipes',
+        'selectedTipe', 'selectedBulan', 'selectedTahun', 'selectedCari'
+    ));
+}
 
     public function utipStore(Request $request)
     {
@@ -229,25 +315,24 @@ class AdminController extends Controller
         ]);
         $periodeDate = $request->periode . '-01';
 
-        // cek/update berdasarkan kombinasi type+periode
-        $attributes = [
-            'type'    => $request->type,
-            'periode' => $periodeDate,
-        ];
-        $values = [
-            'user_id'    => Auth::id(),          // otomatis user login
+        $lastCommitment = $request->filled('commitment')
+            ? $request->commitment
+            : Collection::where('type', $request->type)
+                ->whereNotNull('commitment')
+                ->orderBy('created_at', 'desc')
+                ->value('commitment');
+
+        Collection::create([
+            'user_id'    => Auth::id(),
+            'type'       => $request->type,
+            'periode'    => $periodeDate,
             'status'     => $request->status,
             'plan'       => $request->plan,
-            'commitment' => $request->commitment,
+            'commitment' => $lastCommitment,
             'real_ratio' => $request->real_ratio,
-        ];
+        ]);
 
-        $collection = Collection::updateOrCreate($attributes, $values);
-        $message = $collection->wasRecentlyCreated
-            ? 'Data berhasil disimpan'
-            : 'Data berhasil diperbarui';
-
-        return back()->with('success', $message);
+        return back()->with('success', 'Data berhasil disimpan');
     }
 
     public function ctcTable()

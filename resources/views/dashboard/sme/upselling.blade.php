@@ -60,7 +60,7 @@
                 <div class="absolute top-0 left-0 right-0 h-1" style="background: linear-gradient(90deg, #dc2626, #ef4444);"></div>
                 <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Target Commitment — {{ $periode }}</p>
                 @if($existing && $existing->commitment !== null)
-                    <p class="text-4xl font-black text-slate-900">{{ number_format($existing->commitment, 2) }}<span class="text-2xl text-red-600">%</span></p>
+                    <p class="text-4xl font-black text-slate-900">Rp {{ number_format($existing->commitment, 2) }}<span class="text-2xl text-red-600"></span></p>
                     <p class="text-xs text-slate-400 font-semibold mt-2 uppercase tracking-wide">Ditetapkan oleh Admin</p>
                 @else
                     <p class="text-2xl font-black text-slate-300">—</p>
@@ -73,7 +73,7 @@
                 <div class="absolute top-0 left-0 right-0 h-1 bg-green-500"></div>
                 <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Realisasi Anda — {{ $periode }}</p>
                 @if($existing && $existing->real_ratio !== null)
-                    <p class="text-4xl font-black text-green-600">{{ number_format($existing->real_ratio, 2) }}<span class="text-2xl">%</span></p>
+                    <p class="text-4xl font-black text-green-600">Rp {{ number_format($existing->real_ratio, 2) }}<span class="text-2xl"></span></p>
                     <p class="text-xs text-slate-400 font-semibold mt-2 uppercase tracking-wide">Terakhir diperbarui: {{ $existing->updated_at->format('d M Y H:i') }}</p>
                 @else
                     <p class="text-2xl font-black text-slate-300">—</p>
@@ -108,22 +108,22 @@
                     <input type="hidden" name="type" value="Next Level HSI">
                     <div class="max-w-md mx-auto space-y-5">
                         <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 text-center">Komitmen (%)</label>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 text-center">Komitmen (Rp)</label>
                             <div class="relative">
                                 @if($existing && $existing->commitment !== null)
                                     <input type="hidden" name="commitment" value="{{ $existing->commitment }}">
                                     <input type="number" value="{{ number_format($existing->commitment, 2) }}" disabled
                                         class="w-full px-6 py-5 text-4xl font-black text-slate-400 border-2 border-slate-200 rounded-xl bg-slate-50 text-center focus:outline-none focus:border-slate-300 focus:ring-1 focus:ring-slate-200 transition-colors">
-                                    <div class="absolute inset-y-0 right-0 pr-5 flex items-center pointer-events-none">
-                                        <span class="text-slate-400 font-black text-2xl">%</span>
+                                    <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
+                                        <span class="text-slate-400 font-black text-2xl">Rp</span>
                                     </div>
                                 @else
                                 <input type="number" name="commitment"
                                     value="{{ old('commitment', $existing?->commitment) }}"
                                     placeholder="0.00" min="0" step="0.01" required
                                     class="w-full px-6 py-5 text-4xl font-black text-red-600 border-2 border-slate-200 rounded-xl bg-slate-50 text-center focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors @error('commitment') border-red-400 @enderror">
-                                <div class="absolute inset-y-0 right-0 pr-5 flex items-center pointer-events-none">
-                                    <span class="text-slate-400 font-black text-2xl">%</span>
+                                <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
+                                    <span class="text-slate-400 font-black text-2xl">Rp</span>
                                 </div>
                                 @endif
                             </div>
@@ -132,14 +132,14 @@
                             @enderror
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 text-center">Realisasi (%)</label>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 text-center">Realisasi (Rp)</label>
                             <div class="relative">
                                 <input type="number" name="real_ratio"
                                     value="{{ old('real_ratio', $existing?->real_ratio) }}"
                                     placeholder="0.00" min="0" step="0.01" required
                                     class="w-full px-6 py-5 text-4xl font-black text-red-600 border-2 border-slate-200 rounded-xl bg-slate-50 text-center focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors @error('real_ratio') border-red-400 @enderror">
-                                <div class="absolute inset-y-0 right-0 pr-5 flex items-center pointer-events-none">
-                                    <span class="text-slate-400 font-black text-2xl">%</span>
+                                <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
+                                    <span class="text-slate-400 font-black text-2xl">Rp</span>
                                 </div>
                             </div>
                             @error('real_ratio')
@@ -189,14 +189,14 @@
                             </td>
                             <td class="px-6 py-4 text-center">
                                 @if($item->commitment !== null)
-                                    <span class="text-sm font-black text-slate-700">{{ number_format($item->commitment, 2) }}%</span>
+                                    <span class="text-sm font-black text-slate-700">Rp {{ number_format($item->commitment, 2) }}</span>
                                 @else
                                     <span class="text-slate-400 text-sm">—</span>
                                 @endif
                             </td>
                             <td class="px-6 py-4 text-center">
                                 @if($item->real_ratio !== null)
-                                    <span class="text-sm font-black text-red-600">{{ number_format($item->real_ratio, 2) }}%</span>
+                                    <span class="text-sm font-black text-red-600">Rp {{ number_format($item->real_ratio, 2) }}</span>
                                 @else
                                     <span class="text-xs font-semibold text-slate-400 bg-slate-50 border border-slate-200 rounded-md px-2 py-0.5">Belum diisi</span>
                                 @endif

@@ -98,12 +98,12 @@
                             {{-- Segment --}}
                             <div>
                                 <label
-                                    class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Segment</label>
+                                    class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Indikator</label>
                                 <select name="segment" required
                                     class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors bg-white">
-                                    <option value="" disabled selected>— Pilih Segment —</option>
+                                    <option value="" disabled selected>— Pilih Indikator —</option>
                                     <option value="CT0" {{ old('segment') === 'CT0' ? 'selected' : '' }}>CT0</option>
-                                    <option value="Sales Hsi (all)" {{ old('segment') === 'Sales Hsi (all)' ? 'selected' : '' }}>Sales Hsi (all)</option>
+                                    <option value="Sales HSI (all)" {{ old('segment') === 'Sales HSI (all)' ? 'selected' : '' }}>Sales HSI (all)</option>
                                     <option value="Churn" {{ old('segment') === 'Churn' ? 'selected' : '' }}>Churn</option>
                                     <option value="Winback" {{ old('segment') === 'Winback' ? 'selected' : '' }}>Winback
                                     </option>
@@ -127,17 +127,16 @@
                             <div>
                                 <label
                                     class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Commitment</label>
-                                <input type="number" step="0.01" name="commitment" value="{{ old('commitment') }}"
-                                    placeholder="cth: 98.50"
+                                <input type="number" name="commitment" value="{{ old('commitment') }}"
+                                    placeholder="cth: 98"
                                     class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors">
                             </div>
 
-                            {{-- Real Ratio --}}
+                            {{-- Realisasi --}}
                             <div>
-                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Real
-                                    Ratio (%)</label>
-                                <input type="number" step="0.01" name="real_ratio" value="{{ old('real_ratio') }}"
-                                    placeholder="cth: 95.50"
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Realisasi (ssl)</label>
+                                <input type="number" name="real_ratio" value="{{ old('real_ratio') }}"
+                                    placeholder="cth: 95"
                                     class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors">
                             </div>
 
@@ -203,7 +202,7 @@
                                 class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-semibold text-slate-700 focus:outline-none focus:border-red-400 bg-white">
                                 <option value="">Semua Segment</option>
                                 <option value="CT0">CT0</option>
-                                <option value="Sales Hsi (all)">Sales Hsi (all)</option>
+                                <option value="Sales HSI (all)">Sales HSI (all)</option>
                                 <option value="Churn">Churn</option>
                                 <option value="Winback">Winback</option>
                             </select>
@@ -238,7 +237,7 @@
                                     User</th>
                                 <th
                                     class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                                    Segment</th>
+                                    Indikator</th>
                                 <th
                                     class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
                                     Periode</th>
@@ -247,7 +246,7 @@
                                     Commitment</th>
                                 <th
                                     class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                                    Real Ratio</th>
+                                    Realisasi</th>
                                 <th
                                     class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
                                     Status</th>
@@ -320,7 +319,7 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                                                 d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                                         </svg>
-                                        <p class="text-sm font-bold text-slate-400">Belum ada data Combat The Churn</p>
+                                        <p class="text-sm font-bold text-slate-400">Belum Ada Data Combat The Churn</p>
                                     </td>
                                 </tr>
                             @endforelse

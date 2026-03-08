@@ -69,28 +69,28 @@
                         $scalingCards = [
                             [
                                 'label' => 'Government',
-                                'sub' => 'Pemerintah Scaling Project',
+                                'sub' => 'Scaling Government',
                                 'badge' => 'GOV',
                                 'route' => route('admin.scalling.gov'),
                                 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 21h18M3 10h18M3 7l9-4 9 4M4 10h1v11H4zm6 0h1v11h-1zm5 0h1v11h-1zm5 0h1v11h-1z"/>'
                             ],
                             [
                                 'label' => 'Private',
-                                'sub' => 'Swasta Scaling Project',
+                                'sub' => 'Scaling Private',
                                 'badge' => 'PVT',
                                 'route' => route('admin.scalling.private'),
                                 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>'
                             ],
                             [
                                 'label' => 'SOE',
-                                'sub' => 'BUMN Scaling Project',
+                                'sub' => 'Scaling OE',
                                 'badge' => 'SOE',
                                 'route' => route('admin.scalling.soe'),
                                 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>'
                             ],
                             [
                                 'label' => 'SME',
-                                'sub' => 'UKM Scaling Project',
+                                'sub' => 'Scaling SME',
                                 'badge' => 'SME',
                                 'route' => route('admin.scalling.sme'),
                                 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>'
@@ -260,7 +260,7 @@
                     @php
                         $ctcCards = [
                             [
-                                'label' => 'Paid CT0',
+                                'label' => 'Paid Pra CT0',
                                 'sub' => 'Payment Tracking & Management',
                                 'badge' => 'CT0',
                                 'route' => route('admin.ct0'),
@@ -356,12 +356,6 @@
                                 <div class="flex mb-3">
                                     @for($s = 0; $s < $i; $s++)
                                         <svg class="w-4 h-4 fill-red-500" viewBox="0 0 20 20">
-                                            <path
-                                                d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                                        </svg>
-                                    @endfor
-                                    @for($s = $i; $s < 4; $s++)
-                                        <svg class="w-4 h-4 fill-slate-200" viewBox="0 0 20 20">
                                             <path
                                                 d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                                         </svg>

@@ -73,10 +73,10 @@
                         @error('periode')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Pilih Segmen</label>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Pilih Status</label>
                         <select name="segment" required
                             class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors bg-white">
-                            <option value="">— Pilih Segmen —</option>
+                            <option value="">— Pilih Status —</option>
                             <option value="nc_step14"      {{ old('segment') === 'nc_step14'       ? 'selected' : '' }}>Not Close Step 1-4</option>
                             <option value="nc_step5"       {{ old('segment') === 'nc_step5'        ? 'selected' : '' }}>Not Close Step 5</option>
                             <option value="nc_konfirmasi"  {{ old('segment') === 'nc_konfirmasi'   ? 'selected' : '' }}>Not Close Konfirmasi</option>
@@ -98,12 +98,12 @@
                         <div class="space-y-4">
                             <div>
                                 <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Commitment (Order)</label>
-                                <input type="number" name="comm_ssl" step="0.01" placeholder="cth: 150.50" value="{{ old('comm_ssl') }}"
+                                <input type="number" name="comm_ssl" step="0.01" placeholder="cth: 150" value="{{ old('comm_ssl') }}"
                                     class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors bg-white">
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Realisasi (Order)</label>
-                                <input type="number" name="real_ssl" step="0.01" placeholder="cth: 140.75" value="{{ old('real_ssl') }}"
+                                <input type="number" name="real_ssl" step="0.01" placeholder="cth: 140" value="{{ old('real_ssl') }}"
                                     class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors bg-white">
                             </div>
                         </div>
@@ -167,10 +167,10 @@
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
                 <div>
-                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Segmen</label>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Status</label>
                     <select id="masterFilterSegmen"
                         class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-semibold text-slate-700 focus:outline-none focus:border-red-400 bg-white">
-                        <option value="">Semua Segmen</option>
+                        <option value="">Semua Status</option>
                         <option value="Not Close Step 1-4">Not Close Step 1-4</option>
                         <option value="Not Close Step 5">Not Close Step 5</option>
                         <option value="Not Close Konfirmasi">Not Close Konfirmasi</option>
@@ -231,7 +231,7 @@
                     <thead>
                         <tr class="bg-slate-50 border-b border-slate-100">
                             <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Periode</th>
-                            <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Segmen</th>
+                            <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
                             <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">User</th>
                             <th class="px-6 py-3 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">Commitment</th>
                             <th class="px-6 py-3 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">Realisasi</th>
@@ -261,10 +261,10 @@
                                 </div>
                             </td>
                             <td class="px-6 py-4 text-right text-sm font-black text-slate-800">
-                                {{ $psak->comm_ssl !== null ? number_format($psak->comm_ssl, 2, ',', '.') . ' SSL' : '—' }}
+                                {{ $psak->comm_ssl !== null ? number_format($psak->comm_ssl, 0, ',', '.') . ' SSL' : '—' }}
                             </td>
                             <td class="px-6 py-4 text-right text-sm font-black text-slate-800">
-                                {{ $psak->real_ssl !== null ? number_format($psak->real_ssl, 2, ',', '.') . ' SSL' : '—' }}
+                                {{ $psak->real_ssl !== null ? number_format($psak->real_ssl, 0, ',', '.') . ' SSL' : '—' }}
                             </td>
                             <td class="px-6 py-4 text-center text-xs text-slate-400">
                                 {{ $psak->updated_at->format('d M Y H:i') }}
@@ -293,7 +293,7 @@
                     <thead>
                         <tr class="bg-slate-50 border-b border-slate-100">
                             <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Periode</th>
-                            <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Segmen</th>
+                            <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
                             <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">User</th>
                             <th class="px-6 py-3 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">Commitment</th>
                             <th class="px-6 py-3 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">Realisasi</th>
