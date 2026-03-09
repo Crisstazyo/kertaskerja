@@ -73,10 +73,10 @@
                         @error('periode')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Pilih Status</label>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Pilih Kategori</label>
                         <select name="segment" required
                             class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors bg-white">
-                            <option value="">— Pilih Status —</option>
+                            <option value="">— Pilih Kategori —</option>
                             <option value="nc_step14"      {{ old('segment') === 'nc_step14'       ? 'selected' : '' }}>Not Close Step 1-4</option>
                             <option value="nc_step5"       {{ old('segment') === 'nc_step5'        ? 'selected' : '' }}>Not Close Step 5</option>
                             <option value="nc_konfirmasi"  {{ old('segment') === 'nc_konfirmasi'   ? 'selected' : '' }}>Not Close Konfirmasi</option>
@@ -157,245 +157,144 @@
         ];
         @endphp
 
-        @if($pvts->count() > 0)
+        {{-- ══ TABEL HISTORY ══ --}}
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
 
-        {{-- FILTER --}}
-        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 mb-6">
-            <div class="flex items-center space-x-3 mb-4">
-                <div class="w-1.5 h-8 bg-red-600 rounded-full"></div>
-                <h3 class="text-base font-black text-slate-900 uppercase tracking-wide">Filter & Pencarian</h3>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Status</label>
-                    <select id="masterFilterSegmen"
-                        class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-semibold text-slate-700 focus:outline-none focus:border-red-400 bg-white">
-                        <option value="">Semua Status</option>
-                        <option value="Not Close Step 1-4">Not Close Step 1-4</option>
-                        <option value="Not Close Step 5">Not Close Step 5</option>
-                        <option value="Not Close Konfirmasi">Not Close Konfirmasi</option>
-                        <option value="Not Close Split Bill">Not Close Split Bill</option>
-                        <option value="Not Close CR Variable">Not Close CR Variable</option>
-                        <option value="Not Close Unidentified KB">Not Close Unidentified KB</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Bulan</label>
-                    <select id="masterFilterBulan"
-                        class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-semibold text-slate-700 focus:outline-none focus:border-red-400 bg-white">
-                        <option value="">Semua Bulan</option>
-                        <option value="Jan">Januari</option><option value="Feb">Februari</option>
-                        <option value="Mar">Maret</option><option value="Apr">April</option>
-                        <option value="May">Mei</option><option value="Jun">Juni</option>
-                        <option value="Jul">Juli</option><option value="Aug">Agustus</option>
-                        <option value="Sep">September</option><option value="Oct">Oktober</option>
-                        <option value="Nov">November</option><option value="Dec">Desember</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Tahun</label>
-                    <select id="masterFilterTahun"
-                        class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-semibold text-slate-700 focus:outline-none focus:border-red-400 bg-white">
-                        <option value="">Semua Tahun</option>
-                        @for($y = date('Y'); $y >= date('Y') - 3; $y--)
-                            <option value="{{ $y }}">{{ $y }}</option>
-                        @endfor
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Cari</label>
-                    <input type="text" id="masterFilterText" placeholder="Cari user, periode, segmen..."
-                        class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-semibold text-slate-700 focus:outline-none focus:border-red-400">
-                </div>
-            </div>
-            <div class="flex items-center space-x-3">
-                <button onclick="resetMasterFilter()"
-                    class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-xs rounded-lg transition-colors uppercase tracking-wider">
-                    Reset Filter
-                </button>
-                <span id="filterResultCount" class="text-xs font-bold text-slate-400"></span>
-            </div>
-        </div>
-
-        {{-- TABEL ORDER --}}
-        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-6">
-            <div class="px-8 py-5 border-b border-slate-100 flex items-center justify-between">
-                <div class="flex items-center space-x-3">
+            <div class="px-8 py-5 border-b border-slate-100">
+                <div class="flex items-center space-x-3 mb-5">
                     <div class="w-1.5 h-8 bg-red-600 rounded-full"></div>
-                    <h2 class="text-base font-black text-slate-900 uppercase tracking-wide">Data PSAK — Format Order</h2>
+                    <h2 class="text-base font-black text-slate-900 uppercase tracking-wide">Riwayat Data PSAK Private</h2>
                 </div>
-                <span class="text-[10px] font-black tracking-widest text-red-600 bg-red-50 border border-red-100 rounded-md px-2 py-0.5">ORDER</span>
+                <form method="GET" action="{{ route('admin.psak.private') }}" class="grid grid-cols-4 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Kategori</label>
+                        <select name="segment" onchange="this.form.submit()"
+                            class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-semibold text-slate-700 focus:outline-none focus:border-red-400 bg-white">
+                            <option value="">Semua Kategori</option>
+                            @foreach($segmentNames as $val => $label)
+                                <option value="{{ $val }}" {{ ($selectedSegment ?? '') === $val ? 'selected' : '' }}>{{ $label }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Bulan</label>
+                        <select name="bulan" onchange="this.form.submit()"
+                            class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-semibold text-slate-700 focus:outline-none focus:border-red-400 bg-white">
+                            <option value="">Semua Bulan</option>
+                            @foreach(range(1, 12) as $m)
+                                <option value="{{ $m }}" {{ ($selectedBulan ?? '') == $m ? 'selected' : '' }}>
+                                    {{ \Carbon\Carbon::create()->month($m)->locale('id')->translatedFormat('F') }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Tahun</label>
+                        <select name="tahun" onchange="this.form.submit()"
+                            class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-semibold text-slate-700 focus:outline-none focus:border-red-400 bg-white">
+                            <option value="">Semua Tahun</option>
+                            @foreach($tahuns as $t)
+                                <option value="{{ $t }}" {{ ($selectedTahun ?? '') == $t ? 'selected' : '' }}>{{ $t }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5 invisible">Reset</label>
+                        <a href="{{ route('admin.psak.private') }}"
+                            class="flex items-center justify-center w-full px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-xs rounded-lg transition-colors uppercase tracking-wider">
+                            Reset
+                        </a>
+                    </div>
+                </form>
             </div>
+
             <div class="overflow-x-auto">
-                <table class="min-w-full" id="tableOrder">
+                <table class="min-w-full">
                     <thead>
                         <tr class="bg-slate-50 border-b border-slate-100">
+                            <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">No</th>
+                            <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Tanggal Input</th>
                             <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Periode</th>
-                            <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
-                            <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">User</th>
-                            <th class="px-6 py-3 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">Commitment</th>
-                            <th class="px-6 py-3 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">Realisasi</th>
-                            <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Diperbarui</th>
+                            <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Kategori</th>
+                            <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Comm (Order)</th>
+                            <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Real (Order)</th>
+                            <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Comm (Rp)</th>
+                            <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Real (Rp)</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
-                        @foreach($pvts as $psak)
+                        @forelse($pvts as $psak)
                         <tr class="hover:bg-slate-50 transition-colors">
-                            <td class="px-6 py-4">
+                            <td class="px-6 py-4 text-sm font-bold text-slate-400">{{ $pvts->firstItem() + $loop->index }}</td>
+                            <td class="px-6 py-4 text-sm font-semibold text-slate-500 whitespace-nowrap">
+                                {{ $psak->created_at->translatedFormat('d M Y H:i') }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
                                 <span class="text-xs font-bold text-red-600 bg-red-50 border border-red-100 rounded-md px-2.5 py-1">
-                                    {{ \Carbon\Carbon::parse($psak->periode)->format('F Y') }}
+                                    {{ \Carbon\Carbon::parse($psak->periode)->translatedFormat('F Y') }}
                                 </span>
                             </td>
                             <td class="px-6 py-4">
-                                <span class="text-xs font-bold text-slate-600 bg-slate-100 border border-slate-200 rounded-md px-2.5 py-1">
+                                <span class="text-xs font-bold text-slate-600 bg-slate-100 border border-slate-200 rounded-md px-2.5 py-1 whitespace-nowrap">
                                     {{ $segmentNames[$psak->segment] ?? $psak->segment }}
                                 </span>
                             </td>
-                            <td class="px-6 py-4">
-                                <div class="flex items-center space-x-2.5">
-                                    <div class="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0"
-                                        style="background:#fff1f2; border:1px solid #fecdd3;">
-                                        <span class="text-[10px] font-black text-red-600">{{ substr($psak->user->name ?? 'U', 0, 1) }}</span>
-                                    </div>
-                                    <span class="text-sm font-semibold text-slate-700">{{ $psak->user->name ?? 'Unknown' }}</span>
-                                </div>
+                            <td class="px-6 py-4 text-center text-sm font-black text-slate-800">
+                                {{ $psak->comm_ssl !== null ? number_format($psak->comm_ssl, 0, ',', '.') : '—' }}
                             </td>
-                            <td class="px-6 py-4 text-right text-sm font-black text-slate-800">
-                                {{ $psak->comm_ssl !== null ? number_format($psak->comm_ssl, 0, ',', '.') . ' SSL' : '—' }}
+                            <td class="px-6 py-4 text-center text-sm font-black text-red-600">
+                                {{ $psak->real_ssl !== null ? number_format($psak->real_ssl, 0, ',', '.') : '—' }}
                             </td>
-                            <td class="px-6 py-4 text-right text-sm font-black text-slate-800">
-                                {{ $psak->real_ssl !== null ? number_format($psak->real_ssl, 0, ',', '.') . ' SSL' : '—' }}
+                            <td class="px-6 py-4 text-center text-sm font-black text-slate-800">
+                                {{ $psak->comm_rp !== null ? 'Rp'.number_format($psak->comm_rp, 0, ',', '.') : '—' }}
                             </td>
-                            <td class="px-6 py-4 text-center text-xs text-slate-400">
-                                {{ $psak->updated_at->format('d M Y H:i') }}
+                            <td class="px-6 py-4 text-center text-sm font-black text-red-600">
+                                {{ $psak->real_rp !== null ? 'Rp'.number_format($psak->real_rp, 0, ',', '.') : '—' }}
                             </td>
                         </tr>
-                        @endforeach
+                        @empty
+                        <tr>
+                            <td colspan="8" class="py-16 text-center">
+                                <svg class="mx-auto w-10 h-10 text-slate-200 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                                </svg>
+                                <p class="text-sm font-bold text-slate-400">Belum ada data PSAK Private</p>
+                            </td>
+                        </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>
-            @if($pvts->hasPages())
-            <div class="px-8 py-4 border-t border-slate-100">{{ $pvts->links() }}</div>
-            @endif
-        </div>
 
-        {{-- TABEL RUPIAH --}}
-        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-6">
-            <div class="px-8 py-5 border-b border-slate-100 flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <div class="w-1.5 h-8 bg-red-600 rounded-full"></div>
-                    <h2 class="text-base font-black text-slate-900 uppercase tracking-wide">Data PSAK — Format Rupiah</h2>
+            @if($pvts->hasPages())
+            <div class="px-8 py-4 border-t border-slate-100 flex items-center justify-between">
+                <p class="text-xs font-semibold text-slate-400">
+                    Menampilkan {{ $pvts->firstItem() }}–{{ $pvts->lastItem() }} dari {{ $pvts->total() }} data
+                </p>
+                <div class="flex items-center gap-1">
+                    @if($pvts->onFirstPage())
+                        <span class="px-3 py-1.5 text-xs font-bold text-slate-300 bg-slate-50 border border-slate-200 rounded-lg cursor-not-allowed">‹</span>
+                    @else
+                        <a href="{{ $pvts->previousPageUrl() }}" class="px-3 py-1.5 text-xs font-bold text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">‹</a>
+                    @endif
+                    @foreach($pvts->getUrlRange(1, $pvts->lastPage()) as $page => $url)
+                        @if($page == $pvts->currentPage())
+                            <span class="px-3 py-1.5 text-xs font-bold text-white bg-slate-900 border border-slate-900 rounded-lg">{{ $page }}</span>
+                        @else
+                            <a href="{{ $url }}" class="px-3 py-1.5 text-xs font-bold text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">{{ $page }}</a>
+                        @endif
+                    @endforeach
+                    @if($pvts->hasMorePages())
+                        <a href="{{ $pvts->nextPageUrl() }}" class="px-3 py-1.5 text-xs font-bold text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">›</a>
+                    @else
+                        <span class="px-3 py-1.5 text-xs font-bold text-slate-300 bg-slate-50 border border-slate-200 rounded-lg cursor-not-allowed">›</span>
+                    @endif
                 </div>
-                <span class="text-[10px] font-black tracking-widest text-red-600 bg-red-50 border border-red-100 rounded-md px-2 py-0.5">RP</span>
             </div>
-            <div class="overflow-x-auto">
-                <table class="min-w-full" id="tableRupiah">
-                    <thead>
-                        <tr class="bg-slate-50 border-b border-slate-100">
-                            <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Periode</th>
-                            <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
-                            <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">User</th>
-                            <th class="px-6 py-3 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">Commitment</th>
-                            <th class="px-6 py-3 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">Realisasi</th>
-                            <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Diperbarui</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-100">
-                        @foreach($pvts as $psak)
-                        <tr class="hover:bg-slate-50 transition-colors">
-                            <td class="px-6 py-4">
-                                <span class="text-xs font-bold text-red-600 bg-red-50 border border-red-100 rounded-md px-2.5 py-1">
-                                    {{ \Carbon\Carbon::parse($psak->periode)->format('F Y') }}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4">
-                                <span class="text-xs font-bold text-slate-600 bg-slate-100 border border-slate-200 rounded-md px-2.5 py-1">
-                                    {{ $segmentNames[$psak->segment] ?? $psak->segment }}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4">
-                                <div class="flex items-center space-x-2.5">
-                                    <div class="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0"
-                                        style="background:#fff1f2; border:1px solid #fecdd3;">
-                                        <span class="text-[10px] font-black text-red-600">{{ substr($psak->user->name ?? 'U', 0, 1) }}</span>
-                                    </div>
-                                    <span class="text-sm font-semibold text-slate-700">{{ $psak->user->name ?? 'Unknown' }}</span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 text-right text-sm font-black text-slate-800">
-                                {{ $psak->comm_rp !== null ? 'Rp ' . number_format($psak->comm_rp, 0, ',', '.') : '—' }}
-                            </td>
-                            <td class="px-6 py-4 text-right text-sm font-black text-slate-800">
-                                {{ $psak->real_rp !== null ? 'Rp ' . number_format($psak->real_rp, 0, ',', '.') : '—' }}
-                            </td>
-                            <td class="px-6 py-4 text-center text-xs text-slate-400">
-                                {{ $psak->updated_at->format('d M Y H:i') }}
-                            </td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-            @if($pvts->hasPages())
-            <div class="px-8 py-4 border-t border-slate-100">{{ $pvts->links() }}</div>
             @endif
-        </div>
 
-        @else
-        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-16 text-center">
-            <svg class="mx-auto w-10 h-10 text-slate-200 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-            </svg>
-            <p class="text-sm font-bold text-slate-400">Belum ada data PSAK untuk Private</p>
-            <p class="text-xs text-slate-300 mt-1">Silakan input commitment terlebih dahulu</p>
         </div>
-        @endif
 
     </div>
 </div>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    ['masterFilterSegmen','masterFilterBulan','masterFilterTahun','masterFilterText'].forEach(function(id) {
-        const el = document.getElementById(id);
-        if (el) { el.addEventListener('change', applyMasterFilter); el.addEventListener('keyup', applyMasterFilter); }
-    });
-});
-
-function applyMasterFilter() {
-    const segmenVal = (document.getElementById('masterFilterSegmen')?.value || '').toLowerCase();
-    const bulanVal  = (document.getElementById('masterFilterBulan')?.value  || '').toLowerCase();
-    const tahunVal  = (document.getElementById('masterFilterTahun')?.value  || '').toLowerCase();
-    const textVal   = (document.getElementById('masterFilterText')?.value   || '').toLowerCase();
-    let totalVisible = 0;
-    ['tableOrder','tableRupiah'].forEach(function(tableId) {
-        const table = document.getElementById(tableId);
-        if (!table) return;
-        const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
-        for (let i = 0; i < rows.length; i++) {
-            const cells = rows[i].getElementsByTagName('td');
-            if (cells.length < 3) continue;
-            const periodeText = (cells[0].textContent || '').trim().toLowerCase();
-            const segmenText  = (cells[1].textContent || '').trim().toLowerCase();
-            const rowFull     = (rows[i].textContent  || '').trim().toLowerCase();
-            const show = (!segmenVal || segmenText.includes(segmenVal))
-                      && (!bulanVal  || periodeText.includes(bulanVal))
-                      && (!tahunVal  || periodeText.includes(tahunVal))
-                      && (!textVal   || rowFull.includes(textVal));
-            rows[i].style.display = show ? '' : 'none';
-            if (show) totalVisible++;
-        }
-    });
-    const countEl = document.getElementById('filterResultCount');
-    if (countEl) countEl.textContent = (segmenVal || bulanVal || tahunVal || textVal) ? 'Menampilkan ' + totalVisible + ' baris' : '';
-}
-
-function resetMasterFilter() {
-    ['masterFilterSegmen','masterFilterBulan','masterFilterTahun'].forEach(function(id) {
-        const el = document.getElementById(id); if (el) el.value = '';
-    });
-    const t = document.getElementById('masterFilterText'); if (t) t.value = '';
-    applyMasterFilter();
-}
-</script>
 @endsection

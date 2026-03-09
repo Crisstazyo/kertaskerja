@@ -54,57 +54,145 @@ class Admin2Controller extends Controller
 
     // ══ Rising Star Tables ══
 
-    public function risingStar1Table()
-    {
-        $types  = RisingStarType::where('type', '1')->get();
-        $rstars = RisingStar::with(['type', 'user'])
-            ->mainType(1)
-            ->orderBy('periode', 'desc')
-            ->orderBy('updated_at', 'desc')
-            ->paginate(15);
+    public function risingStar1Table(Request $request)
+{
+    $types = RisingStarType::where('type', '1')->get();
 
-        $users = User::all();
-        return view('admin.risingstar.risingStar1', compact('rstars', 'types', 'users'));
+    $query = RisingStar::with(['type', 'user'])
+        ->mainType(1)
+        ->orderBy('created_at', 'desc');
+
+    if ($request->filled('bulan')) {
+        $query->whereMonth('periode', $request->bulan);
+    }
+    if ($request->filled('tahun')) {
+        $query->whereYear('periode', $request->tahun);
+    }
+    if ($request->filled('type_id')) {
+        $query->where('type_id', $request->type_id);
     }
 
-    public function risingStar2Table()
-    {
-        $types  = RisingStarType::where('type', '2')->get();
-        $rstars = RisingStar::with(['type', 'user'])
-            ->mainType(2)
-            ->orderBy('periode', 'desc')
-            ->orderBy('updated_at', 'desc')
-            ->paginate(15);
+    $rstars = $query->paginate(15)->withQueryString();
 
-        $users = User::all();
-        return view('admin.risingstar.risingStar2', compact('rstars', 'types', 'users'));
+    $tahuns = RisingStar::mainType(1)
+        ->selectRaw('YEAR(periode) as tahun')
+        ->distinct()->orderBy('tahun', 'desc')->pluck('tahun');
+
+    $users         = User::all();
+    $selectedBulan = $request->bulan;
+    $selectedTahun = $request->tahun;
+    $selectedType  = $request->type_id;
+
+    return view('admin.risingstar.risingStar1', compact(
+        'rstars', 'types', 'users', 'tahuns',
+        'selectedBulan', 'selectedTahun', 'selectedType'
+    ));
+}
+
+    public function risingStar2Table(Request $request)
+{
+    $types = RisingStarType::where('type', '2')->get();
+
+    $query = RisingStar::with(['type', 'user'])
+        ->mainType(2)
+        ->orderBy('created_at', 'desc');
+
+    if ($request->filled('bulan')) {
+        $query->whereMonth('periode', $request->bulan);
+    }
+    if ($request->filled('tahun')) {
+        $query->whereYear('periode', $request->tahun);
+    }
+    if ($request->filled('type_id')) {
+        $query->where('type_id', $request->type_id);
     }
 
-    public function risingStar3Table()
-    {
-        $types  = RisingStarType::where('type', '3')->get();
-        $rstars = RisingStar::with(['type', 'user'])
-            ->mainType(3)
-            ->orderBy('periode', 'desc')
-            ->orderBy('updated_at', 'desc')
-            ->paginate(15);
+    $rstars = $query->paginate(15)->withQueryString();
 
-        $users = User::all();
-        return view('admin.risingstar.risingStar3', compact('rstars', 'types', 'users'));
+    $tahuns = RisingStar::mainType(2)
+        ->selectRaw('YEAR(periode) as tahun')
+        ->distinct()->orderBy('tahun', 'desc')->pluck('tahun');
+
+    $users         = User::all();
+    $selectedBulan = $request->bulan;
+    $selectedTahun = $request->tahun;
+    $selectedType  = $request->type_id;
+
+    return view('admin.risingstar.risingStar2', compact(
+        'rstars', 'types', 'users', 'tahuns',
+        'selectedBulan', 'selectedTahun', 'selectedType'
+    ));
+}
+
+    public function risingStar3Table(Request $request)
+{
+    $types = RisingStarType::where('type', '3')->get();
+
+    $query = RisingStar::with(['type', 'user'])
+        ->mainType(3)
+        ->orderBy('created_at', 'desc');
+
+    if ($request->filled('bulan')) {
+        $query->whereMonth('periode', $request->bulan);
+    }
+    if ($request->filled('tahun')) {
+        $query->whereYear('periode', $request->tahun);
+    }
+    if ($request->filled('type_id')) {
+        $query->where('type_id', $request->type_id);
     }
 
-    public function risingStar4Table()
-    {
-        $types  = RisingStarType::where('type', '4')->get();
-        $rstars = RisingStar::with(['type', 'user'])
-            ->mainType(4)
-            ->orderBy('periode', 'desc')
-            ->orderBy('updated_at', 'desc')
-            ->paginate(15);
+    $rstars = $query->paginate(15)->withQueryString();
 
-        $users = User::all();
-        return view('admin.risingstar.risingStar4', compact('rstars', 'types', 'users'));
+    $tahuns = RisingStar::mainType(3)
+        ->selectRaw('YEAR(periode) as tahun')
+        ->distinct()->orderBy('tahun', 'desc')->pluck('tahun');
+
+    $users         = User::all();
+    $selectedBulan = $request->bulan;
+    $selectedTahun = $request->tahun;
+    $selectedType  = $request->type_id;
+
+    return view('admin.risingstar.risingStar3', compact(
+        'rstars', 'types', 'users', 'tahuns',
+        'selectedBulan', 'selectedTahun', 'selectedType'
+    ));
+}
+
+    public function risingStar4Table(Request $request)
+{
+    $types = RisingStarType::where('type', '4')->get();
+
+    $query = RisingStar::with(['type', 'user'])
+        ->mainType(4)
+        ->orderBy('created_at', 'desc');
+
+    if ($request->filled('bulan')) {
+        $query->whereMonth('periode', $request->bulan);
     }
+    if ($request->filled('tahun')) {
+        $query->whereYear('periode', $request->tahun);
+    }
+    if ($request->filled('type_id')) {
+        $query->where('type_id', $request->type_id);
+    }
+
+    $rstars = $query->paginate(15)->withQueryString();
+
+    $tahuns = RisingStar::mainType(4)
+        ->selectRaw('YEAR(periode) as tahun')
+        ->distinct()->orderBy('tahun', 'desc')->pluck('tahun');
+
+    $users         = User::all();
+    $selectedBulan = $request->bulan;
+    $selectedTahun = $request->tahun;
+    $selectedType  = $request->type_id;
+
+    return view('admin.risingstar.risingStar4', compact(
+        'rstars', 'types', 'users', 'tahuns',
+        'selectedBulan', 'selectedTahun', 'selectedType'
+    ));
+}
 
     // ══ Rising Star Store ══
     // Upsert per (user_id, type_id, periode) — tidak buat baris baru jika periode sama.
@@ -148,18 +236,34 @@ class Admin2Controller extends Controller
             $values['real_ratio'] = $request->real_ratio;
         }
 
-        $this->upsertRisingStar(
-            typeId:  (int) $request->type_id,
-            userId:  $userId,
-            values:  $values,
-            periode: $periode,
-        );
+        $existing = RisingStar::where('user_id', $userId)
+            ->where('type_id', (int) $request->type_id)
+            ->where('periode', $periode)
+            ->orderBy('updated_at', 'desc')
+            ->first();
+
+        $commitment = isset($values['commitment']) && $values['commitment'] !== null
+            ? $values['commitment']
+            : ($existing->commitment ?? null);
+
+        $realRatio = isset($values['real_ratio']) && $values['real_ratio'] !== null
+            ? $values['real_ratio']
+            : ($existing->real_ratio ?? null);
+
+        RisingStar::create([
+            'user_id'    => $userId,
+            'type_id'    => (int) $request->type_id,
+            'periode'    => $periode,
+            'status'     => $values['status'] ?? 'active',
+            'commitment' => $commitment,
+            'real_ratio' => $realRatio,
+        ]);
 
         return back()->with(
             'success',
             "Data Rising Star periode " .
             Carbon::parse($periode)->format('F Y') .
-            " berhasil disimpan / diperbarui."
+            " berhasil disimpan."
         );
     }
 

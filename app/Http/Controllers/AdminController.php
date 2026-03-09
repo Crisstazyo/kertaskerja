@@ -335,110 +335,177 @@ class AdminController extends Controller
         return back()->with('success', 'Data berhasil disimpan');
     }
 
-    public function ctcTable()
-    {
-        $collections = Ctc::with('user')   // sesuaikan nama model
-            ->orderBy('periode', 'desc')
-            ->orderBy('updated_at', 'desc')
-            ->paginate(15)
-            ->withQueryString();
-        $users = User::all();
-        return view('admin.ctc.ctc', compact('collections', 'users'));
+    public function ctcTable(Request $request)
+{
+    $query = Ctc::with('user')->orderBy('created_at', 'desc');
+
+    if ($request->filled('bulan')) {
+        $query->whereMonth('periode', $request->bulan);
+    }
+    if ($request->filled('tahun')) {
+        $query->whereYear('periode', $request->tahun);
+    }
+    if ($request->filled('segment')) {
+        $query->where('segment', $request->segment);
     }
 
+    $collections = $query->paginate(15)->withQueryString();
+
+    $tahuns = Ctc::selectRaw('YEAR(periode) as tahun')
+        ->distinct()->orderBy('tahun', 'desc')->pluck('tahun');
+
+    $users           = User::all();
+    $selectedBulan   = $request->bulan;
+    $selectedTahun   = $request->tahun;
+    $selectedSegment = $request->segment;
+
+    return view('admin.ctc.ctc', compact(
+        'collections', 'users', 'tahuns',
+        'selectedBulan', 'selectedTahun', 'selectedSegment'
+    ));
+}
     public function ctcStore(Request $request)
-    {
-        $request->validate([
-            'status'     => 'required|in:active,inactive',
-            'segment'    => 'required|string',
-            'periode'    => 'nullable|string',
-            'commitment' => 'nullable|string',
-            'real_ratio' => 'nullable|string',
-        ]);
+{
+    $request->validate([
+        'status'     => 'required|in:active,inactive',
+        'segment'    => 'required|string',
+        'periode'    => 'nullable|string',
+        'commitment' => 'nullable|integer',
+        'real_ratio' => 'nullable|integer',
+    ]);
 
-        $periode = $request->filled('periode')
-            ? Carbon::parse($request->periode . '-01')->format('Y-m-d')
-            : Carbon::now()->format('Y-m-01');
+    $periode = $request->filled('periode')
+        ? Carbon::parse($request->periode . '-01')->format('Y-m-d')
+        : Carbon::now()->format('Y-m-01');
 
-        Ctc::updateOrCreate(   // sesuaikan nama model
-            [
-                'user_id' => Auth::id(),
-                'segment' => $request->segment,
-                'periode' => $periode,
-            ],
-            [
-                'status'     => $request->status,
-                'commitment' => $request->commitment,
-                'real_ratio' => $request->real_ratio,
-            ]
-        );
+    $existing = Ctc::where('user_id', Auth::id())
+        ->where('segment', $request->segment)
+        ->where('periode', $periode)
+        ->orderBy('updated_at', 'desc')
+        ->first();
 
-        return back()->with('success', 'Data CTC periode ' . Carbon::parse($periode)->format('F Y') . ' berhasil disimpan / diperbarui.');
+    $commitment = $request->filled('commitment')
+        ? $request->commitment
+        : ($existing->commitment ?? null);
+
+    $realRatio = $request->filled('real_ratio')
+        ? $request->real_ratio
+        : ($existing->real_ratio ?? null);
+
+    Ctc::create([
+        'user_id'    => Auth::id(),
+        'segment'    => $request->segment,
+        'periode'    => $periode,
+        'status'     => $request->status,
+        'commitment' => $commitment,
+        'real_ratio' => $realRatio,
+    ]);
+
+    return back()->with('success', 'Data CTC periode ' . Carbon::parse($periode)->format('F Y') . ' berhasil disimpan.');
+}
+
+    public function ct0Table(Request $request)
+{
+    $query = Ct0::with('user')
+        ->orderBy('created_at', 'desc');
+
+    if ($request->filled('bulan')) {
+        $query->whereMonth('periode', $request->bulan);
+    }
+    if ($request->filled('tahun')) {
+        $query->whereYear('periode', $request->tahun);
+    }
+    if ($request->filled('region')) {
+        $query->where('region', $request->region);
     }
 
-    public function ct0Table()
-    {
-        $collections = Ct0::with('user')
-            ->orderBy('periode', 'desc')
-            ->orderBy('updated_at', 'desc')
-            ->paginate(15)
-            ->withQueryString();
-        $users = User::all();
-        return view('admin.ctc.ct0', compact('collections', 'users'));
-    }
+    $collections = $query->paginate(15)->withQueryString();
+
+    $tahuns = Ct0::selectRaw('YEAR(periode) as tahun')
+        ->distinct()->orderBy('tahun', 'desc')->pluck('tahun');
+
+    $users           = User::all();
+    $selectedBulan   = $request->bulan;
+    $selectedTahun   = $request->tahun;
+    $selectedRegion  = $request->region;
+
+    return view('admin.ctc.ct0', compact(
+        'collections', 'users', 'tahuns',
+        'selectedBulan', 'selectedTahun', 'selectedRegion'
+    ));
+}
 
     public function ct0Store(Request $request)
-    {
-        $request->validate([
-            'status'     => 'required|in:active,inactive',
-            'region'     => 'required|string',
-            'periode'    => 'nullable|string',
-            'commitment' => 'nullable|string',
-            'real_ratio' => 'nullable|string',
-        ]);
+{
+    $request->validate([
+        'status'     => 'required|in:active,inactive',
+        'region'     => 'required|string',
+        'periode'    => 'nullable|string',
+        'commitment' => 'nullable|numeric',
+        'real_ratio' => 'nullable|numeric',
+    ]);
 
-        $periode = $request->filled('periode')
-            ? Carbon::parse($request->periode . '-01')->format('Y-m-d')
-            : Carbon::now()->format('Y-m-01');
+    $periode = $request->filled('periode')
+        ? Carbon::parse($request->periode . '-01')->format('Y-m-d')
+        : Carbon::now()->format('Y-m-01');
 
-        Ct0::updateOrCreate(
-            [
-                'user_id' => Auth::id(),
-                'region'  => $request->region,
-                'periode' => $periode,
-            ],
-            [
-                'status'     => $request->status,
-                'commitment' => $request->commitment,
-                'real_ratio' => $request->real_ratio,
-            ]
-        );
+    $existing = Ct0::where('user_id', Auth::id())
+        ->where('region', $request->region)
+        ->where('periode', $periode)
+        ->orderBy('updated_at', 'desc')
+        ->first();
 
-        return back()->with('success', 'Data CT0 periode ' . Carbon::parse($periode)->format('F Y') . ' berhasil disimpan / diperbarui.');
-    }
+    $commitment = $request->filled('commitment')
+        ? $request->commitment
+        : ($existing->commitment ?? null);
 
-        public function psakGov(Request $request)
+    $realRatio = $request->filled('real_ratio')
+        ? $request->real_ratio
+        : ($existing->real_ratio ?? null);
+
+    Ct0::create([
+        'user_id'    => Auth::id(),
+        'region'     => $request->region,
+        'periode'    => $periode,
+        'status'     => $request->status,
+        'commitment' => $commitment,
+        'real_ratio' => $realRatio,
+    ]);
+
+    return back()->with('success', 'Data CT0 periode ' . Carbon::parse($periode)->format('F Y') . ' berhasil disimpan.');
+}
+
+    public function psakGov(Request $request)
     {
         $query = Psak::with('user')
-            ->where('type', 'Government');
+            ->where('type', 'Government')
+            ->orderBy('created_at', 'desc');
 
-        if ($request->filled('filter_month')) {
-            $query->whereMonth('periode', $request->filter_month);
+        if ($request->filled('segment')) {
+            $query->where('segment', $request->segment);
         }
-        if ($request->filled('filter_year')) {
-            $query->whereYear('periode', $request->filter_year);
+        if ($request->filled('bulan')) {
+            $query->whereMonth('periode', $request->bulan);
         }
-           if ($request->filled('segmen')) {
-            $query->where('segment', $request->segmen);
+        if ($request->filled('tahun')) {
+            $query->whereYear('periode', $request->tahun);
         }
 
-        $govs = $query
-            ->orderBy('periode', 'desc')
-            ->paginate(15)
-            ->withQueryString();
+        $govs = $query->paginate(20)->withQueryString();
 
-        $users = User::all();
-        return view('admin.psak.gov', compact('govs', 'users'));
+        $tahuns = Psak::where('type', 'Government')
+            ->selectRaw('YEAR(periode) as tahun')
+            ->distinct()->orderBy('tahun', 'desc')->pluck('tahun');
+
+        $users           = User::all();
+        $selectedSegment = $request->segment;
+        $selectedBulan   = $request->bulan;
+        $selectedTahun   = $request->tahun;
+
+        return view('admin.psak.gov', compact(
+            'govs', 'users', 'tahuns',
+            'selectedSegment', 'selectedBulan', 'selectedTahun'
+        ));
     }
 
     public function psakGovStore(Request $request)
@@ -452,47 +519,59 @@ class AdminController extends Controller
             'real_rp'  => 'nullable|numeric',
         ]);
 
-           $periode = $request->periode . '-01';
+        $periode = $request->periode . '-01';
 
-        $psak = Psak::firstOrNew([
-            'user_id' => Auth::id(),
-            'type'    => 'Government',
-            'segment' => $request->segment,
-            'periode' => $periode,
+        $existing = Psak::where('type', 'Government')
+            ->where('segment', $request->segment)
+            ->where('periode', $periode)
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        Psak::create([
+            'user_id'  => Auth::id(),
+            'type'     => 'Government',
+            'segment'  => $request->segment,
+            'periode'  => $periode,
+            'comm_ssl' => $request->filled('comm_ssl') ? $request->comm_ssl : ($existing->comm_ssl ?? null),
+            'comm_rp'  => $request->filled('comm_rp')  ? $request->comm_rp  : ($existing->comm_rp  ?? null),
+            'real_ssl' => $request->filled('real_ssl') ? $request->real_ssl : ($existing->real_ssl ?? null),
+            'real_rp'  => $request->filled('real_rp')  ? $request->real_rp  : ($existing->real_rp  ?? null),
         ]);
 
-        if ($request->filled('comm_ssl')) $psak->comm_ssl = $request->comm_ssl;
-        if ($request->filled('comm_rp'))  $psak->comm_rp  = $request->comm_rp;
-        if ($request->filled('real_ssl')) $psak->real_ssl = $request->real_ssl;
-        if ($request->filled('real_rp'))  $psak->real_rp  = $request->real_rp;
-
-        $psak->save();
-
-        return back()->with('success', 'Data PSAK Government berhasil disimpan.');
+        return back()->with('success', 'Data PSAK Government periode ' . Carbon::parse($periode)->translatedFormat('F Y') . ' berhasil disimpan.');
     }
 
     public function psakPrivate(Request $request)
     {
         $query = Psak::with('user')
-            ->where('type', 'Private');
+            ->where('type', 'Private')
+            ->orderBy('created_at', 'desc');
 
-        if ($request->filled('filter_month')) {
-            $query->whereMonth('periode', $request->filter_month);
+        if ($request->filled('segment')) {
+            $query->where('segment', $request->segment);
         }
-        if ($request->filled('filter_year')) {
-            $query->whereYear('periode', $request->filter_year);
+        if ($request->filled('bulan')) {
+            $query->whereMonth('periode', $request->bulan);
         }
-           if ($request->filled('segmen')) {
-            $query->where('segment', $request->segmen);
+        if ($request->filled('tahun')) {
+            $query->whereYear('periode', $request->tahun);
         }
 
-        $pvts = $query
-            ->orderBy('periode', 'desc')
-            ->paginate(15)
-            ->withQueryString();
+        $pvts = $query->paginate(20)->withQueryString();
 
-        $users = User::all();
-        return view('admin.psak.private', compact('pvts', 'users'));
+        $tahuns = Psak::where('type', 'Private')
+            ->selectRaw('YEAR(periode) as tahun')
+            ->distinct()->orderBy('tahun', 'desc')->pluck('tahun');
+
+        $users           = User::all();
+        $selectedSegment = $request->segment;
+        $selectedBulan   = $request->bulan;
+        $selectedTahun   = $request->tahun;
+
+        return view('admin.psak.private', compact(
+            'pvts', 'users', 'tahuns',
+            'selectedSegment', 'selectedBulan', 'selectedTahun'
+        ));
     }
 
     public function psakPrivateStore(Request $request)
@@ -506,47 +585,59 @@ class AdminController extends Controller
             'real_rp'  => 'nullable|numeric',
         ]);
 
-           $periode = $request->periode . '-01';
+        $periode = $request->periode . '-01';
 
-        $psak = Psak::firstOrNew([
-            'user_id' => Auth::id(),
-            'type'    => 'Private',
-            'segment' => $request->segment,
-            'periode' => $periode,
+        $existing = Psak::where('type', 'Private')
+            ->where('segment', $request->segment)
+            ->where('periode', $periode)
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        Psak::create([
+            'user_id'  => Auth::id(),
+            'type'     => 'Private',
+            'segment'  => $request->segment,
+            'periode'  => $periode,
+            'comm_ssl' => $request->filled('comm_ssl') ? $request->comm_ssl : ($existing->comm_ssl ?? null),
+            'comm_rp'  => $request->filled('comm_rp')  ? $request->comm_rp  : ($existing->comm_rp  ?? null),
+            'real_ssl' => $request->filled('real_ssl') ? $request->real_ssl : ($existing->real_ssl ?? null),
+            'real_rp'  => $request->filled('real_rp')  ? $request->real_rp  : ($existing->real_rp  ?? null),
         ]);
 
-        if ($request->filled('comm_ssl')) $psak->comm_ssl = $request->comm_ssl;
-        if ($request->filled('comm_rp'))  $psak->comm_rp  = $request->comm_rp;
-        if ($request->filled('real_ssl')) $psak->real_ssl = $request->real_ssl;
-        if ($request->filled('real_rp'))  $psak->real_rp  = $request->real_rp;
-
-        $psak->save();
-
-        return back()->with('success', 'Data PSAK Private berhasil disimpan.');
+        return back()->with('success', 'Data PSAK Private periode ' . Carbon::parse($periode)->translatedFormat('F Y') . ' berhasil disimpan.');
     }
 
     public function psakSoe(Request $request)
     {
         $query = Psak::with('user')
-            ->where('type', 'SOE');
+            ->where('type', 'SOE')
+            ->orderBy('created_at', 'desc');
 
-        if ($request->filled('filter_month')) {
-            $query->whereMonth('periode', $request->filter_month);
+        if ($request->filled('segment')) {
+            $query->where('segment', $request->segment);
         }
-        if ($request->filled('filter_year')) {
-            $query->whereYear('periode', $request->filter_year);
+        if ($request->filled('bulan')) {
+            $query->whereMonth('periode', $request->bulan);
         }
-           if ($request->filled('segmen')) {
-            $query->where('segment', $request->segmen);
+        if ($request->filled('tahun')) {
+            $query->whereYear('periode', $request->tahun);
         }
 
-        $soes = $query
-            ->orderBy('periode', 'desc')
-            ->paginate(15)
-            ->withQueryString();
+        $soes = $query->paginate(20)->withQueryString();
 
-        $users = User::all();
-        return view('admin.psak.soe', compact('soes', 'users'));
+        $tahuns = Psak::where('type', 'SOE')
+            ->selectRaw('YEAR(periode) as tahun')
+            ->distinct()->orderBy('tahun', 'desc')->pluck('tahun');
+
+        $users           = User::all();
+        $selectedSegment = $request->segment;
+        $selectedBulan   = $request->bulan;
+        $selectedTahun   = $request->tahun;
+
+        return view('admin.psak.soe', compact(
+            'soes', 'users', 'tahuns',
+            'selectedSegment', 'selectedBulan', 'selectedTahun'
+        ));
     }
 
     public function psakSoeStore(Request $request)
@@ -560,47 +651,59 @@ class AdminController extends Controller
             'real_rp'  => 'nullable|numeric',
         ]);
 
-           $periode = $request->periode . '-01';
+        $periode = $request->periode . '-01';
 
-        $psak = Psak::firstOrNew([
-            'user_id' => Auth::id(),
-            'type'    => 'SOE',
-            'segment' => $request->segment,
-            'periode' => $periode,
+        $existing = Psak::where('type', 'SOE')
+            ->where('segment', $request->segment)
+            ->where('periode', $periode)
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        Psak::create([
+            'user_id'  => Auth::id(),
+            'type'     => 'SOE',
+            'segment'  => $request->segment,
+            'periode'  => $periode,
+            'comm_ssl' => $request->filled('comm_ssl') ? $request->comm_ssl : ($existing->comm_ssl ?? null),
+            'comm_rp'  => $request->filled('comm_rp')  ? $request->comm_rp  : ($existing->comm_rp  ?? null),
+            'real_ssl' => $request->filled('real_ssl') ? $request->real_ssl : ($existing->real_ssl ?? null),
+            'real_rp'  => $request->filled('real_rp')  ? $request->real_rp  : ($existing->real_rp  ?? null),
         ]);
 
-        if ($request->filled('comm_ssl')) $psak->comm_ssl = $request->comm_ssl;
-        if ($request->filled('comm_rp'))  $psak->comm_rp  = $request->comm_rp;
-        if ($request->filled('real_ssl')) $psak->real_ssl = $request->real_ssl;
-        if ($request->filled('real_rp'))  $psak->real_rp  = $request->real_rp;
-
-        $psak->save();
-
-        return back()->with('success', 'Data PSAK SOE berhasil disimpan.');
+        return back()->with('success', 'Data PSAK SOE periode ' . Carbon::parse($periode)->translatedFormat('F Y') . ' berhasil disimpan.');
     }
 
-        public function psakSme(Request $request)
+    public function psakSme(Request $request)
     {
         $query = Psak::with('user')
-            ->where('type', 'SME');
+            ->where('type', 'SME')
+            ->orderBy('created_at', 'desc');
 
-        if ($request->filled('filter_month')) {
-            $query->whereMonth('periode', $request->filter_month);
+        if ($request->filled('segment')) {
+            $query->where('segment', $request->segment);
         }
-        if ($request->filled('filter_year')) {
-            $query->whereYear('periode', $request->filter_year);
+        if ($request->filled('bulan')) {
+            $query->whereMonth('periode', $request->bulan);
         }
-           if ($request->filled('segmen')) {
-            $query->where('segment', $request->segmen);
+        if ($request->filled('tahun')) {
+            $query->whereYear('periode', $request->tahun);
         }
 
-        $smes = $query
-            ->orderBy('periode', 'desc')
-            ->paginate(15)
-            ->withQueryString();
+        $smes = $query->paginate(20)->withQueryString();
 
-        $users = User::all();
-        return view('admin.psak.sme', compact('smes', 'users'));
+        $tahuns = Psak::where('type', 'SME')
+            ->selectRaw('YEAR(periode) as tahun')
+            ->distinct()->orderBy('tahun', 'desc')->pluck('tahun');
+
+        $users           = User::all();
+        $selectedSegment = $request->segment;
+        $selectedBulan   = $request->bulan;
+        $selectedTahun   = $request->tahun;
+
+        return view('admin.psak.sme', compact(
+            'smes', 'users', 'tahuns',
+            'selectedSegment', 'selectedBulan', 'selectedTahun'
+        ));
     }
 
     public function psakSmeStore(Request $request)
@@ -614,23 +717,26 @@ class AdminController extends Controller
             'real_rp'  => 'nullable|numeric',
         ]);
 
-           $periode = $request->periode . '-01';
+        $periode = $request->periode . '-01';
 
-        $psak = Psak::firstOrNew([
-            'user_id' => Auth::id(),
-            'type'    => 'SME',
-            'segment' => $request->segment,
-            'periode' => $periode,
+        $existing = Psak::where('type', 'SME')
+            ->where('segment', $request->segment)
+            ->where('periode', $periode)
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        Psak::create([
+            'user_id'  => Auth::id(),
+            'type'     => 'SME',
+            'segment'  => $request->segment,
+            'periode'  => $periode,
+            'comm_ssl' => $request->filled('comm_ssl') ? $request->comm_ssl : ($existing->comm_ssl ?? null),
+            'comm_rp'  => $request->filled('comm_rp')  ? $request->comm_rp  : ($existing->comm_rp  ?? null),
+            'real_ssl' => $request->filled('real_ssl') ? $request->real_ssl : ($existing->real_ssl ?? null),
+            'real_rp'  => $request->filled('real_rp')  ? $request->real_rp  : ($existing->real_rp  ?? null),
         ]);
 
-        if ($request->filled('comm_ssl')) $psak->comm_ssl = $request->comm_ssl;
-        if ($request->filled('comm_rp'))  $psak->comm_rp  = $request->comm_rp;
-        if ($request->filled('real_ssl')) $psak->real_ssl = $request->real_ssl;
-        if ($request->filled('real_rp'))  $psak->real_rp  = $request->real_rp;
-
-        $psak->save();
-
-        return back()->with('success', 'Data PSAK SME berhasil disimpan.');
+        return back()->with('success', 'Data PSAK SME periode ' . Carbon::parse($periode)->translatedFormat('F Y') . ' berhasil disimpan.');
     }
 
     public function risingStar1Table()
