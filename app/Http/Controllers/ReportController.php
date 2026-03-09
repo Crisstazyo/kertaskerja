@@ -32,26 +32,23 @@ class ReportController extends Controller
             }
         };
 
-        $avgCol = function (string $type, string $col, ?string $segment = null) use ($filterPeriode) {
-            return Collection::where('type', $type)
+        // $toFloat didefinisikan di sini agar tersedia untuk semua query di bawah
+        $toFloat = fn($v) => floatval(str_replace(',', '.', $v ?? 0));
+
+        $latestVal = function (string $type, string $col, ?string $segment = null) use ($filterPeriode) {
+            $row = Collection::where('type', $type)
                 ->when($segment, fn($q) => $q->where('segment', $segment))
                 ->tap($filterPeriode)
-                ->selectRaw('AVG(CAST(REPLACE(' . $col . ', \',\', \'.\') AS DECIMAL(10,2))) as result')
-                ->value('result') ?? 0;
+                ->orderBy('created_at', 'desc')
+                ->first();
+            return $row ? (float) str_replace(',', '.', $row->{$col} ?? 0) : 0;
         };
 
-        $sumCol = function (string $type, string $col) use ($filterPeriode) {
-            return Collection::where('type', $type)
-                ->tap($filterPeriode)
-                ->selectRaw('SUM(CAST(REPLACE(' . $col . ', \',\', \'.\') AS DECIMAL(15,2))) as result')
-                ->value('result') ?? 0;
-        };
+        $c3mrKomitmen  = $latestVal('C3MR', 'commitment');
+        $c3mrRealisasi = $latestVal('C3MR', 'real_ratio');
 
-        $c3mrKomitmen  = $avgCol('C3MR', 'commitment');
-        $c3mrRealisasi = $avgCol('C3MR', 'real_ratio');
-
-        $bilperKomitmen  = $avgCol('Billing Perdana', 'commitment');
-        $bilperRealisasi = $avgCol('Billing Perdana', 'real_ratio');
+        $bilperKomitmen  = $latestVal('Billing Perdana', 'commitment');
+        $bilperRealisasi = $latestVal('Billing Perdana', 'real_ratio');
 
         $crData = [];
         $segmentMap = [
@@ -62,65 +59,64 @@ class ReportController extends Controller
         ];
         foreach ($segmentMap as $key => $dbSegment) {
             $crData[$key] = [
-                'komitmen'  => $avgCol('Collection Ratio', 'commitment', $dbSegment),
-                'realisasi' => $avgCol('Collection Ratio', 'real_ratio', $dbSegment),
+                'komitmen'  => $latestVal('Collection Ratio', 'commitment', $dbSegment),
+                'realisasi' => $latestVal('Collection Ratio', 'real_ratio', $dbSegment),
             ];
         }
 
+        // UTIP Corrective — ambil record terbaru dalam periode filter
+        $utipCorRow = Collection::where('type', 'UTIP Corrective')
+            ->tap($filterPeriode)
+            ->orderBy('created_at', 'desc')
+            ->first();
+
         $utipCorrective = [
             'label'    => 'UTIP Corrective',
-            'planRp'   => $sumCol('UTIP Corrective', 'plan'),
-            'commitRp' => $sumCol('UTIP Corrective', 'commitment'),
-            'realRp'   => $sumCol('UTIP Corrective', 'real_ratio'),
+            'planRp'   => $utipCorRow ? $toFloat($utipCorRow->plan)       : 0,
+            'commitRp' => $utipCorRow ? $toFloat($utipCorRow->commitment) : 0,
+            'realRp'   => $utipCorRow ? $toFloat($utipCorRow->real_ratio) : 0,
         ];
-
-        $newUtipAll = Collection::where('type', 'like', 'New UTIP%')
-            ->tap($filterPeriode)
-            ->get();
 
         $periodes = [
-            ['bulan' => 7,  'tahun' => 2025, 'label' => 'New UTIP Jul 2025'],
-            ['bulan' => 8,  'tahun' => 2025, 'label' => 'New UTIP Aug 2025'],
-            ['bulan' => 9,  'tahun' => 2025, 'label' => 'New UTIP Sep 2025'],
-            ['bulan' => 10, 'tahun' => 2025, 'label' => 'New UTIP Okt 2025'],
-            ['bulan' => 11, 'tahun' => 2025, 'label' => 'New UTIP Nov 2025'],
-            ['bulan' => 12, 'tahun' => 2025, 'label' => 'New UTIP Des 2025'],
-            ['bulan' => 1,  'tahun' => 2026, 'label' => 'New UTIP Jan 2026'],
-            ['bulan' => 2,  'tahun' => 2026, 'label' => 'New UTIP Feb 2026'],
-            ['bulan' => 3,  'tahun' => 2026, 'label' => 'New UTIP Mar 2026'],
-            ['bulan' => 4,  'tahun' => 2026, 'label' => 'New UTIP Apr 2026'],
-            ['bulan' => 5,  'tahun' => 2026, 'label' => 'New UTIP May 2026'],
-            ['bulan' => 6,  'tahun' => 2026, 'label' => 'New UTIP Jun 2026'],
-            ['bulan' => 7,  'tahun' => 2026, 'label' => 'New UTIP Jul 2026'],
-            ['bulan' => 8,  'tahun' => 2026, 'label' => 'New UTIP Aug 2026'],
-            ['bulan' => 9,  'tahun' => 2026, 'label' => 'New UTIP Sep 2026'],
-            ['bulan' => 10, 'tahun' => 2026, 'label' => 'New UTIP Okt 2026'],
-            ['bulan' => 11, 'tahun' => 2026, 'label' => 'New UTIP Nov 2026'],
-            ['bulan' => 12, 'tahun' => 2026, 'label' => 'New UTIP Des 2026'],
+            ['bulan' => 7,  'tahun' => 2025, 'label' => 'New UTIP Jul 2025', 'type' => 'New UTIP Jul 2025'],
+            ['bulan' => 8,  'tahun' => 2025, 'label' => 'New UTIP Aug 2025', 'type' => 'New UTIP Aug 2025'],
+            ['bulan' => 9,  'tahun' => 2025, 'label' => 'New UTIP Sep 2025', 'type' => 'New UTIP Sep 2025'],
+            ['bulan' => 10, 'tahun' => 2025, 'label' => 'New UTIP Okt 2025', 'type' => 'New UTIP Okt 2025'],
+            ['bulan' => 11, 'tahun' => 2025, 'label' => 'New UTIP Nov 2025', 'type' => 'New UTIP Nov 2025'],
+            ['bulan' => 12, 'tahun' => 2025, 'label' => 'New UTIP Des 2025', 'type' => 'New UTIP Des 2025'],
+            ['bulan' => 1,  'tahun' => 2026, 'label' => 'New UTIP Jan 2026', 'type' => 'New UTIP Jan 2026'],
+            ['bulan' => 2,  'tahun' => 2026, 'label' => 'New UTIP Feb 2026', 'type' => 'New UTIP Feb 2026'],
+            ['bulan' => 3,  'tahun' => 2026, 'label' => 'New UTIP Mar 2026', 'type' => 'New UTIP Mar 2026'],
+            ['bulan' => 4,  'tahun' => 2026, 'label' => 'New UTIP Apr 2026', 'type' => 'New UTIP Apr 2026'],
+            ['bulan' => 5,  'tahun' => 2026, 'label' => 'New UTIP May 2026', 'type' => 'New UTIP May 2026'],
+            ['bulan' => 6,  'tahun' => 2026, 'label' => 'New UTIP Jun 2026', 'type' => 'New UTIP Jun 2026'],
+            ['bulan' => 7,  'tahun' => 2026, 'label' => 'New UTIP Jul 2026', 'type' => 'New UTIP Jul 2026'],
+            ['bulan' => 8,  'tahun' => 2026, 'label' => 'New UTIP Aug 2026', 'type' => 'New UTIP Aug 2026'],
+            ['bulan' => 9,  'tahun' => 2026, 'label' => 'New UTIP Sep 2026', 'type' => 'New UTIP Sep 2026'],
+            ['bulan' => 10, 'tahun' => 2026, 'label' => 'New UTIP Okt 2026', 'type' => 'New UTIP Okt 2026'],
+            ['bulan' => 11, 'tahun' => 2026, 'label' => 'New UTIP Nov 2026', 'type' => 'New UTIP Nov 2026'],
+            ['bulan' => 12, 'tahun' => 2026, 'label' => 'New UTIP Des 2026', 'type' => 'New UTIP Des 2026'],
         ];
 
+        // New UTIP — exact match by type, ambil record terbaru
         $newUtipPeriodes = [];
         foreach ($periodes as $p) {
             if ($filtered && $filterBulan && $filterBulan != $p['bulan']) continue;
             if ($filtered && $filterTahun && $filterTahun != $p['tahun']) continue;
 
-            $rows = $newUtipAll->filter(fn($row) =>
-                Carbon::parse($row->periode)->month == $p['bulan'] &&
-                Carbon::parse($row->periode)->year  == $p['tahun']
-            );
+            $row = Collection::where('type', $p['type'])
+                ->orderBy('created_at', 'desc')
+                ->first();
 
-            if (!$filtered || $rows->isNotEmpty()) {
-                $toFloat = fn($v) => floatval(str_replace(',', '.', $v ?? 0));
+            if (!$filtered || $row) {
                 $newUtipPeriodes[] = [
                     'label'    => $p['label'],
-                    'planRp'   => $rows->sum(fn($r) => $toFloat($r->plan)),
-                    'commitRp' => $rows->sum(fn($r) => $toFloat($r->commitment)),
-                    'realRp'   => $rows->sum(fn($r) => $toFloat($r->real_ratio)),
+                    'planRp'   => $row ? $toFloat($row->plan)       : 0,
+                    'commitRp' => $row ? $toFloat($row->commitment) : 0,
+                    'realRp'   => $row ? $toFloat($row->real_ratio) : 0,
                 ];
             }
         }
-
-        $toFloat = fn($v) => floatval(str_replace(',', '.', $v ?? 0));
 
         $filterPeriodeCt0 = function ($q) use ($filtered, $filterBulan, $filterTahun) {
             if ($filtered && $filterBulan) $q->whereMonth('periode', $filterBulan);
@@ -147,9 +143,9 @@ class ReportController extends Controller
 
         $ct0Data = [];
         foreach ($ct0Regions as $region) {
-            $rows = Ct0::where('region', $region)->tap($filterPeriodeCt0)->get();
-            $commit = $rows->sum(fn($r) => $toFloat($r->commitment));
-            $real   = $rows->sum(fn($r) => $toFloat($r->real_ratio));
+            $row    = Ct0::where('region', $region)->tap($filterPeriodeCt0)->orderBy('created_at', 'desc')->first();
+            $commit = $row ? $toFloat($row->commitment) : 0;
+            $real   = $row ? $toFloat($row->real_ratio) : 0;
             $ct0Data[] = [
                 'label'  => $ct0RegionLabels[$region] ?? $region,
                 'commit' => $commit,
@@ -162,15 +158,15 @@ class ReportController extends Controller
         $ct0TotalReal   = array_sum(array_column($ct0Data, 'real'));
         $ct0Score       = $ct0TotalCommit == 0 ? '-' : number_format(($ct0TotalReal / $ct0TotalCommit) * 100, 1) . '%';
 
-        $ctcCt0Real = Ctc::where('segment', 'CT0')->tap($filterPeriodeCt0)
-            ->get()->sum(fn($r) => $toFloat($r->commitment));
+        $ctcCt0Row  = Ctc::where('segment', 'CT0')->tap($filterPeriodeCt0)->orderBy('created_at', 'desc')->first();
+        $ctcCt0Real = $ctcCt0Row ? $toFloat($ctcCt0Row->commitment) : 0;
 
         $ctcSegments = ['Sales HSI (all)', 'Churn', 'Winback'];
         $ctcData = [];
         foreach ($ctcSegments as $seg) {
-            $rows   = Ctc::where('segment', $seg)->tap($filterPeriodeCt0)->get();
-            $commit = $rows->sum(fn($r) => $toFloat($r->commitment));
-            $real   = $rows->sum(fn($r) => $toFloat($r->real_ratio));
+            $row    = Ctc::where('segment', $seg)->tap($filterPeriodeCt0)->orderBy('created_at', 'desc')->first();
+            $commit = $row ? $toFloat($row->commitment) : 0;
+            $real   = $row ? $toFloat($row->real_ratio) : 0;
             if ($seg === 'Churn') {
                 $ach = $real == 0 ? '-' : number_format(($commit / $real) * 100, 1) . '%';
             } else {
@@ -189,10 +185,11 @@ class ReportController extends Controller
             if ($filtered && $filterTahun) $q->whereYear('periode', $filterTahun);
         };
 
-        $rsRows = function (int $typeId) use ($filterPeriodeRs) {
+        $rsLatest = function (int $typeId) use ($filterPeriodeRs) {
             return RisingStar::where('type_id', $typeId)
                 ->tap($filterPeriodeRs)
-                ->get();
+                ->orderBy('created_at', 'desc')
+                ->first();
         };
 
         $b1TypeIds = [2, 1, 3];
@@ -200,9 +197,9 @@ class ReportController extends Controller
         $b1Data = [];
         $b1AchSum = 0; $b1AchCount = 0;
         foreach ($b1TypeIds as $tid) {
-            $rows   = $rsRows($tid);
-            $commit = $rows->sum(fn($r) => $toFloat($r->commitment));
-            $real   = $rows->sum(fn($r) => $toFloat($r->real_ratio));
+            $row    = $rsLatest($tid);
+            $commit = $row ? $toFloat($row->commitment) : 0;
+            $real   = $row ? $toFloat($row->real_ratio) : 0;
             $ratio  = $commit > 0 ? ($real / $commit) * 100 : 0;
             if ($commit > 0) { $b1AchSum += $ratio; $b1AchCount++; }
             $b1Data[$tid] = [
@@ -219,9 +216,9 @@ class ReportController extends Controller
         $b2Data = [];
         $b2AchSum = 0; $b2AchCount = 0;
         foreach ($b2TypeIds as $tid) {
-            $rows   = $rsRows($tid);
-            $commit = $rows->sum(fn($r) => $toFloat($r->commitment));
-            $real   = $rows->sum(fn($r) => $toFloat($r->real_ratio));
+            $row    = $rsLatest($tid);
+            $commit = $row ? $toFloat($row->commitment) : 0;
+            $real   = $row ? $toFloat($row->real_ratio) : 0;
             $ratio  = $commit > 0 ? ($real / $commit) * 100 : 0;
             if ($commit > 0) { $b2AchSum += $ratio; $b2AchCount++; }
             $b2Data[$tid] = [
@@ -233,17 +230,17 @@ class ReportController extends Controller
         }
         $b2Score = $b2AchCount == 0 ? '-' : number_format($b2AchSum / $b2AchCount, 1) . '%';
 
-        $b3Rows   = $rsRows(6);
-        $b3Commit = $b3Rows->sum(fn($r) => $toFloat($r->commitment));
-        $b3Real   = $b3Rows->sum(fn($r) => $toFloat($r->real_ratio));
+        $b3Row    = $rsLatest(6);
+        $b3Commit = $b3Row ? $toFloat($b3Row->commitment) : 0;
+        $b3Real   = $b3Row ? $toFloat($b3Row->real_ratio) : 0;
         $b3Score  = $b3Commit > 0 ? number_format($b3Real, 1) . '%' : '-';
 
-        $b4Rows7   = $rsRows(7);
-        $b4Rows8   = $rsRows(8);
-        $b4Commit7 = $b4Rows7->sum(fn($r) => $toFloat($r->commitment));
-        $b4Real7   = $b4Rows7->sum(fn($r) => $toFloat($r->real_ratio));
-        $b4Commit8 = $b4Rows8->sum(fn($r) => $toFloat($r->commitment));
-        $b4Real8   = $b4Rows8->sum(fn($r) => $toFloat($r->real_ratio));
+        $b4Row7    = $rsLatest(7);
+        $b4Row8    = $rsLatest(8);
+        $b4Commit7 = $b4Row7 ? $toFloat($b4Row7->commitment) : 0;
+        $b4Real7   = $b4Row7 ? $toFloat($b4Row7->real_ratio) : 0;
+        $b4Commit8 = $b4Row8 ? $toFloat($b4Row8->commitment) : 0;
+        $b4Real8   = $b4Row8 ? $toFloat($b4Row8->real_ratio) : 0;
         $b4RpMillion = (0.30 * $b4Real7) + (0.70 * $b4Real8);
         $b4Score = number_format($b4RpMillion, 1) . '%';
 
@@ -270,20 +267,21 @@ class ReportController extends Controller
 
         $psakData = [];
         foreach ($psakSegments as $typeKey => $typeLabel) {
-            $rows = Psak::where('type', $typeKey)
-                ->tap($filterPeriodePsak)
-                ->get();
-
             $indicators  = [];
             $totalCommRp = 0;
             $totalRealRp = 0;
 
             foreach ($psakIndicators as $segKey => $segLabel) {
-                $filtered_rows = $rows->where('segment', $segKey);
-                $commSsl = $filtered_rows->sum(fn($r) => $toFloat($r->comm_ssl));
-                $commRp  = $filtered_rows->sum(fn($r) => $toFloat($r->comm_rp));
-                $realSsl = $filtered_rows->sum(fn($r) => $toFloat($r->real_ssl));
-                $realRp  = $filtered_rows->sum(fn($r) => $toFloat($r->real_rp));
+                $row = Psak::where('type', $typeKey)
+                    ->where('segment', $segKey)
+                    ->tap($filterPeriodePsak)
+                    ->orderBy('created_at', 'desc')
+                    ->first();
+
+                $commSsl = $row ? $toFloat($row->comm_ssl) : 0;
+                $commRp  = $row ? $toFloat($row->comm_rp)  : 0;
+                $realSsl = $row ? $toFloat($row->real_ssl) : 0;
+                $realRp  = $row ? $toFloat($row->real_rp)  : 0;
                 $ach     = $commRp == 0 ? '-' : number_format(($realRp / $commRp) * 100, 1) . '%';
 
                 $totalCommRp += $commRp;
@@ -420,6 +418,7 @@ class ReportController extends Controller
         $hsiAgencyRow = Hsi::where('type', 'Sales HSI Non AM Non Telda')
             ->whereYear('periode', $scalingTahun)
             ->whereMonth('periode', $scalingBulan)
+            ->orderBy('created_at', 'desc')
             ->first();
 
         $hsiData = [
@@ -444,6 +443,7 @@ class ReportController extends Controller
             $record = Telda::where('region', $regionKey)
                 ->whereYear('periode', $scalingTahun)
                 ->whereMonth('periode', $scalingBulan)
+                ->orderBy('created_at', 'desc')
                 ->first();
 
             $teldaData[$regionKey] = [
@@ -456,6 +456,7 @@ class ReportController extends Controller
         $upsellingRow = Hsi::where('type', 'Next Level HSI')
             ->whereYear('periode', $scalingTahun)
             ->whereMonth('periode', $scalingBulan)
+            ->orderBy('created_at', 'desc')
             ->first();
 
         $upsellingData = [

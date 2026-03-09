@@ -352,21 +352,35 @@ class AdminController extends Controller
         ]);
         $periodeDate = $request->periode . '-01';
 
-        $lastCommitment = $request->filled('commitment')
+        $plan = $request->filled('plan')
+            ? $request->plan
+            : Collection::where('type', $request->type)
+                ->whereNotNull('plan')
+                ->orderBy('created_at', 'desc')
+                ->value('plan');
+
+        $commitment = $request->filled('commitment')
             ? $request->commitment
             : Collection::where('type', $request->type)
                 ->whereNotNull('commitment')
                 ->orderBy('created_at', 'desc')
                 ->value('commitment');
 
+        $realRatio = $request->filled('real_ratio')
+            ? $request->real_ratio
+            : Collection::where('type', $request->type)
+                ->whereNotNull('real_ratio')
+                ->orderBy('created_at', 'desc')
+                ->value('real_ratio');
+
         Collection::create([
             'user_id'    => Auth::id(),
             'type'       => $request->type,
             'periode'    => $periodeDate,
             'status'     => $request->status,
-            'plan'       => $request->plan,
-            'commitment' => $lastCommitment,
-            'real_ratio' => $request->real_ratio,
+            'plan'       => $plan,
+            'commitment' => $commitment,
+            'real_ratio' => $realRatio,
         ]);
 
         return back()->with('success', 'Data berhasil disimpan');

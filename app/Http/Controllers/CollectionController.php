@@ -293,6 +293,7 @@ class CollectionController extends Controller
         ->whereHas('user', function ($query) {
             $query->where('role', 'admin');
         })
+        ->orderBy('created_at', 'desc')
         ->get()
         ->unique('type')
         ->values();
@@ -360,17 +361,27 @@ class CollectionController extends Controller
             ->orderBy('created_at', 'desc')
             ->value('commitment');
 
-        $lastRecord = Collection::where('type', $request->type)
+        $lastPlan = Collection::where('type', $request->type)
+            ->whereNotNull('plan')
+            ->orderBy('created_at', 'desc')
+            ->value('plan');
+
+        $lastCommitment = Collection::where('type', $request->type)
             ->whereNotNull('commitment')
             ->orderBy('created_at', 'desc')
-            ->first();
+            ->value('commitment');
+
+        $lastPeriode = Collection::where('type', $request->type)
+            ->whereNotNull('periode')
+            ->orderBy('created_at', 'desc')
+            ->value('periode');
 
         Collection::create([
             'user_id'    => Auth::id(),
             'type'       => $request->type,
-            'periode'    => $lastRecord->periode ?? null,
-            'plan'       => $lastRecord->plan ?? null,
-            'commitment' => $lastRecord->commitment ?? null,
+            'periode'    => $lastPeriode,
+            'plan'       => $lastPlan,
+            'commitment' => $lastCommitment,
             'real_ratio' => $request->ratio_aktual,
         ]);
 
