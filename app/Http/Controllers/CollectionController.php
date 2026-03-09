@@ -32,8 +32,11 @@ class CollectionController extends Controller
         ->exists();
 
     $comm = Collection::where('type', 'C3MR')
-        ->orderBy('updated_at', 'asc')
-        ->get();
+        ->whereYear('periode', $currentDate->year)
+        ->whereMonth('periode', $currentDate->month)
+        ->whereNotNull('commitment')
+        ->orderBy('updated_at', 'desc')
+        ->first();
 
     $periode = Collection::where('type', 'C3MR')
         ->orderBy('updated_at', 'asc')
@@ -59,7 +62,7 @@ class CollectionController extends Controller
         });
     }
 
-    $activities = $query->paginate(20)->withQueryString();
+    $activities = $query->paginate(10)->withQueryString();
 
     $tahuns = Collection::where('type', 'C3MR')
         ->selectRaw('YEAR(periode) as tahun')
@@ -115,8 +118,11 @@ class CollectionController extends Controller
         ->exists();
 
     $bill = Collection::where('type', 'Billing Perdana')
-        ->orderBy('updated_at', 'asc')
-        ->get();
+        ->whereYear('periode', $currentDate->year)
+        ->whereMonth('periode', $currentDate->month)
+        ->whereNotNull('commitment')
+        ->orderBy('updated_at', 'desc')
+        ->first();
 
     $periode = Collection::where('type', 'Billing Perdana')
         ->orderBy('updated_at', 'asc')
@@ -142,7 +148,7 @@ class CollectionController extends Controller
         });
     }
 
-    $activities = $query->paginate(20)->withQueryString();
+    $activities = $query->paginate(10)->withQueryString();
 
     $tahuns = Collection::where('type', 'Billing Perdana')
         ->selectRaw('YEAR(periode) as tahun')
@@ -208,7 +214,7 @@ class CollectionController extends Controller
         });
     }
 
-    $collections = $query->paginate(20)->withQueryString();
+    $collections = $query->paginate(10)->withQueryString();
 
     $segments = Collection::where('type', 'Collection Ratio')
         ->whereNotNull('segment')
@@ -283,8 +289,8 @@ class CollectionController extends Controller
         ->values();
 
     $query = Collection::where('type', 'like', '%UTIP%')
-    ->orderByRaw("CASE WHEN type LIKE '%Corrective%' THEN 0 ELSE 1 END")
-    ->orderBy('updated_at', 'asc');
+        ->orderByRaw("CASE WHEN type LIKE '%Corrective%' THEN 0 ELSE 1 END")
+        ->orderBy('created_at', 'desc');
 
     if ($request->filled('tipe')) {
         $query->where('type', $request->tipe);
@@ -306,7 +312,7 @@ class CollectionController extends Controller
         });
     }
 
-    $activities = $query->paginate(20)->withQueryString();
+    $activities = $query->paginate(10)->withQueryString();
 
     $tahuns = Collection::where('type', 'like', '%UTIP%')
         ->selectRaw('YEAR(updated_at) as tahun')

@@ -72,109 +72,77 @@
         </div>
         @endif
 
-        {{-- ══ TAB FORM ══ --}}
-        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-8">
-
-            {{-- Tab Headers --}}
-            <div class="flex border-b border-slate-100">
-                <button onclick="switchTab('komitmen')" id="tab-komitmen"
-                    class="flex-1 flex items-center justify-center space-x-2 py-4 text-sm font-black uppercase tracking-wider text-red-600 border-b-2 border-red-600 transition-all">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-                    </svg>
-                    <span>Form Komitmen (Bulanan)</span>
-                </button>
-                <button onclick="switchTab('realisasi')" id="tab-realisasi"
-                    class="flex-1 flex items-center justify-center space-x-2 py-4 text-sm font-black uppercase tracking-wider text-slate-400 border-b-2 border-transparent hover:text-slate-600 transition-all">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                    <span>Form Realisasi (Harian)</span>
-                </button>
+        {{-- ══ STATUS CARDS ══ --}}
+        @php $periodeLabel = now()->translatedFormat('F Y'); @endphp
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-8">
+            <div class="bg-white rounded-2xl border-2 border-slate-100 p-6 relative overflow-hidden">
+                <div class="absolute top-0 left-0 right-0 h-1" style="background: linear-gradient(90deg, #dc2626, #ef4444);"></div>
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Target Commitment — {{ $periodeLabel }}</p>
+                @if($comm && $comm->commitment !== null)
+                    <p class="text-4xl font-black text-slate-900">{{ number_format($comm->commitment, 2) }}<span class="text-2xl text-red-600">%</span></p>
+                    <p class="text-xs text-slate-400 font-semibold mt-2 uppercase tracking-wide">Ditetapkan oleh Admin</p>
+                @else
+                    <p class="text-2xl font-black text-slate-300">—</p>
+                    <p class="text-xs text-slate-400 font-semibold mt-2">Belum ada target dari admin untuk periode ini</p>
+                @endif
             </div>
+            <div class="bg-white rounded-2xl border-2 border-slate-100 p-6 relative overflow-hidden">
+                <div class="absolute top-0 left-0 right-0 h-1 bg-green-500"></div>
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Realisasi Terakhir — {{ $periodeLabel }}</p>
+                @php
+                    $latestReal = $activities->first();
+                @endphp
+                @if($latestReal && $latestReal->real_ratio !== null)
+                    <p class="text-4xl font-black text-green-600">{{ number_format($latestReal->real_ratio, 2) }}<span class="text-2xl">%</span></p>
+                    <p class="text-xs text-slate-400 font-semibold mt-2 uppercase tracking-wide">Terakhir diperbarui: {{ $latestReal->created_at->translatedFormat('d M Y H:i') }}</p>
+                @else
+                    <p class="text-2xl font-black text-slate-300">—</p>
+                    <p class="text-xs text-slate-400 font-semibold mt-2">Belum ada realisasi untuk periode ini</p>
+                @endif
+            </div>
+        </div>
 
-            <div class="p-8">
-
-                {{-- ── Komitmen ── --}}
-                <div id="content-komitmen" class="space-y-6">
-                    <div class="flex items-center justify-between pb-4 border-b border-slate-100">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-1.5 h-8 bg-red-600 rounded-full"></div>
-                            <div>
-                                <h2 class="text-base font-black text-slate-900 uppercase tracking-wide">Komitmen Bulanan</h2>
-                                <p class="text-xs text-slate-400 font-semibold mt-0.5">Target penagihan Anda untuk bulan ini.</p>
-                            </div>
-                        </div>
-                        <span class="text-[10px] font-black tracking-widest text-red-600 bg-red-50 border border-red-100 rounded-md px-3 py-1 uppercase">
-                            Periode: {{ now()->translatedFormat('F Y') }}
-                        </span>
-                    </div>
-
-                    {{-- Locked notice --}}
-                    <div class="flex items-start space-x-4 bg-amber-50 border border-amber-200 rounded-xl px-5 py-4">
-                        <svg class="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                        <div>
-                            <p class="text-sm font-black text-amber-800">Target Sudah Terkunci</p>
-                            <p class="text-xs text-amber-700 mt-0.5">
-                                Target ratio untuk periode <strong>{{ now()->translatedFormat('F Y') }}</strong> telah ditambahkan. Input baru hanya tersedia di bulan depan.
-                            </p>
-                        </div>
-                    </div>
-
+        {{-- ══ FORM REALISASI ══ --}}
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-8">
+            <div class="px-8 py-5 border-b border-slate-100 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-1.5 h-8 bg-red-600 rounded-full"></div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 text-center">Target Ratio C3MR</label>
-                        <div class="relative max-w-sm mx-auto">
-                            <input type="text" value="{{ $comm->first()->commitment ?? 0 }}" readonly
-                                class="w-full px-6 py-5 text-4xl font-black text-red-600 border-2 border-slate-200 rounded-xl bg-slate-50 text-center focus:outline-none">
-                            <div class="absolute inset-y-0 right-0 pr-5 flex items-center pointer-events-none">
-                                <span class="text-slate-400 font-black text-2xl">%</span>
-                            </div>
-                        </div>
-                        <p class="text-xs text-center text-slate-400 font-semibold mt-2">Target tetap untuk periode ini</p>
+                        <h2 class="text-base font-black text-slate-900 uppercase tracking-wide">Input Realisasi C3MR</h2>
+                        <p class="text-xs text-slate-400 font-semibold mt-0.5">Catat realisasi ratio harian.</p>
                     </div>
                 </div>
-
-                {{-- ── Realisasi ── --}}
-                <div id="content-realisasi" class="hidden space-y-6">
-                    <div class="flex items-center justify-between pb-4 border-b border-slate-100">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-1.5 h-8 bg-red-600 rounded-full"></div>
-                            <div>
-                                <h2 class="text-base font-black text-slate-900 uppercase tracking-wide">Input Realisasi C3MR</h2>
-                                <p class="text-xs text-slate-400 font-semibold mt-0.5">Catat realisasi ratio harian.</p>
-                            </div>
-                        </div>
-                        <span class="text-[10px] font-black tracking-widest text-green-700 bg-green-50 border border-green-200 rounded-md px-3 py-1 uppercase">Harian</span>
-                    </div>
-
-                    <form action="{{ route('collection.c3mr.storeRealisasi') }}" method="POST" class="max-w-lg mx-auto space-y-5">
-                        @csrf
-                        <input type="hidden" name="periode" value="{{$periode->periode ?? date('Y-m')}}">
+                <span class="text-[10px] font-black tracking-widest text-red-600 bg-red-50 border border-red-100 rounded-md px-3 py-1 uppercase">
+                    {{ $periodeLabel }}
+                </span>
+            </div>
+            <div class="p-8">
+                <form action="{{ route('collection.c3mr.storeRealisasi') }}" method="POST">
+                    @csrf
+                    <input type="hidden" name="periode" value="{{ $periode->periode ?? date('Y-m') }}">
+                    <div class="max-w-md mx-auto space-y-5">
                         <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Realisasi C3MR (%)</label>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 text-center">Realisasi C3MR (%)</label>
                             <div class="relative">
                                 <input type="number" step="0.01" name="ratio_aktual" required
-                                    class="w-full px-6 py-4 text-2xl font-black text-slate-800 border-2 border-slate-200 rounded-xl focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors"
-                                    placeholder="0.00">
+                                    placeholder="0.00" min="0"
+                                    class="w-full px-6 py-5 text-4xl font-black text-red-600 border-2 border-slate-200 rounded-xl bg-slate-50 text-center focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors">
                                 <div class="absolute inset-y-0 right-0 pr-5 flex items-center pointer-events-none">
-                                    <span class="text-slate-400 font-black text-xl">%</span>
+                                    <span class="text-slate-400 font-black text-2xl">%</span>
                                 </div>
                             </div>
                         </div>
-                        <div class="flex justify-center">
-                             <button type="submit"
-                                    class="flex items-center space-x-2 bg-slate-900 hover:bg-red-600 text-white font-bold text-xs px-6 py-3 rounded-xl transition-all duration-200 uppercase tracking-wider shadow-md hover:shadow-lg hover:shadow-red-200">
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                                    </svg>
-                                    <span>Simpan Realisasi</span>
-                                </button>
+                        <div class="flex items-center justify-center pt-2">
+                            <button type="submit"
+                                class="flex items-center space-x-2 bg-slate-900 hover:bg-red-600 text-white font-bold text-xs px-6 py-3 rounded-xl transition-all duration-200 uppercase tracking-wider shadow-md hover:shadow-lg hover:shadow-red-200">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                </svg>
+                                <span>Simpan Realisasi</span>
+                            </button>
                         </div>
-                    </form>
-                </div>
-
+                    </div>
+                </form>
             </div>
         </div>
 
@@ -235,9 +203,9 @@
                 <table class="min-w-full">
                     <thead>
                         <tr class="bg-slate-50 border-b border-slate-100">
-                            <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Tanggal Input</th>
+                            <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">No</th>
+                            <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Tanggal Input</th>
                             <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Periode</th>
-                            <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Tipe</th>
                             <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Komitmen (%)</th>
                             <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Realisasi (%)</th>
                         </tr>
@@ -245,18 +213,12 @@
                     <tbody class="divide-y divide-slate-100">
                         @forelse($activities as $activity)
                         <tr class="hover:bg-slate-50 transition-colors">
-                            <td class="px-6 py-4 text-sm text-center font-semibold text-slate-600">
-                                {{ $activity->updated_at->translatedFormat('d M Y H:i') }}
+                            <td class="px-6 py-4 text-sm font-bold text-slate-400">{{ $activities->firstItem() + $loop->index }}</td>
+                            <td class="px-6 py-4 text-sm font-semibold text-slate-500">
+                                {{ $activity->created_at->translatedFormat('d M Y H:i') }}
                             </td>
                             <td class="px-6 py-4 text-sm text-center font-semibold text-slate-600">
                                 {{ $activity->periode ? date('M Y', strtotime($activity->periode)) : '—' }}
-                            </td>
-                            <td class="px-6 py-4 text-center">
-                                @if($activity->type == 'C3MR')
-                                    <span class="text-xs font-bold rounded-md px-2.5 py-1 text-red-700 bg-red-50 border border-red-200">Target Bulanan</span>
-                                @else
-                                    <span class="text-xs font-bold rounded-md px-2.5 py-1 text-green-700 bg-green-50 border border-green-200">Realisasi</span>
-                                @endif
                             </td>
                             <td class="px-6 py-4 text-center font-black text-slate-700">
                                 {{ number_format($activity->commitment ?? 0, 2) }}%
@@ -273,7 +235,7 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                                                 d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                                         </svg>
-                                <p class="text-sm font-bold text-slate-400">Belum ada data C3MR</p>
+                                <p class="text-sm font-bold text-slate-400">Belum Ada Data C3MR</p>
                             </td>
                         </tr>
                         @endforelse
@@ -312,29 +274,4 @@
 
     </div>
 </div>
-
-<script>
-function switchTab(tab) {
-    const kTab     = document.getElementById('tab-komitmen');
-    const rTab     = document.getElementById('tab-realisasi');
-    const kContent = document.getElementById('content-komitmen');
-    const rContent = document.getElementById('content-realisasi');
-
-    if (tab === 'komitmen') {
-        kTab.classList.add('text-red-600', 'border-red-600');
-        kTab.classList.remove('text-slate-400', 'border-transparent');
-        rTab.classList.add('text-slate-400', 'border-transparent');
-        rTab.classList.remove('text-red-600', 'border-red-600');
-        kContent.classList.remove('hidden');
-        rContent.classList.add('hidden');
-    } else {
-        rTab.classList.add('text-red-600', 'border-red-600');
-        rTab.classList.remove('text-slate-400', 'border-transparent');
-        kTab.classList.add('text-slate-400', 'border-transparent');
-        kTab.classList.remove('text-red-600', 'border-red-600');
-        rContent.classList.remove('hidden');
-        kContent.classList.add('hidden');
-    }
-}
-</script>
 @endsection

@@ -108,30 +108,6 @@
                     <input type="hidden" name="type" value="Next Level HSI">
                     <div class="max-w-md mx-auto space-y-5">
                         <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 text-center">Komitmen (Rp)</label>
-                            <div class="relative">
-                                @if($existing && $existing->commitment !== null)
-                                    <input type="hidden" name="commitment" value="{{ $existing->commitment }}">
-                                    <input type="number" value="{{ number_format($existing->commitment, 2) }}" disabled
-                                        class="w-full px-6 py-5 text-4xl font-black text-slate-400 border-2 border-slate-200 rounded-xl bg-slate-50 text-center focus:outline-none focus:border-slate-300 focus:ring-1 focus:ring-slate-200 transition-colors">
-                                    <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
-                                        <span class="text-slate-400 font-black text-2xl">Rp</span>
-                                    </div>
-                                @else
-                                <input type="number" name="commitment"
-                                    value="{{ old('commitment', $existing?->commitment) }}"
-                                    placeholder="0.00" min="0" step="0.01" required
-                                    class="w-full px-6 py-5 text-4xl font-black text-red-600 border-2 border-slate-200 rounded-xl bg-slate-50 text-center focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors @error('commitment') border-red-400 @enderror">
-                                <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
-                                    <span class="text-slate-400 font-black text-2xl">Rp</span>
-                                </div>
-                                @endif
-                            </div>
-                            @error('commitment')
-                            <p class="text-xs text-red-600 font-semibold mt-1.5 text-center">{{ $message }}</p>
-                            @enderror
-                        </div>
-                        <div>
                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 text-center">Realisasi (Rp)</label>
                             <div class="relative">
                                 <input type="number" name="real_ratio"
