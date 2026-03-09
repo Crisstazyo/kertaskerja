@@ -143,6 +143,7 @@
                             <th colspan="3" class="px-3 py-2 text-center text-[10px] font-black text-white border-r border-slate-100 bg-emerald-700">DELIVERY</th>
                             <th rowspan="2" class="px-3 py-2 text-center text-[10px] font-black text-white border-r border-slate-100 bg-indigo-600">BILLING<br>COMPLETE</th>
                             <th rowspan="2" class="px-3 py-2 text-center text-[10px] font-black text-white bg-violet-600 min-w-[100px]">NILAI BILL COMP</th>
+                            <th rowspan="2" class="px-3 py-2 text-center text-[10px] font-black text-white bg-red-600 min-w-[100px]">CANCEL</th>
                         </tr>
                         <tr class="border-b border-slate-200">
                             <th class="px-2 py-1.5 text-center text-[10px] font-black text-blue-700 bg-blue-50 border-r border-slate-100">Inisiasi</th>
@@ -170,10 +171,11 @@
                         @foreach($dataRows as $row)
                         @php
                             $funnel      = $funnelMap->get($row->id);
-                            $denganMitra = strtolower(trim($row->mitra ?? '')) === 'dengan mitra';
+                            $denganMitra = strtolower(trim($row->mitra ?? ''));
                             $checked     = fn($field) => $funnel && ($funnel->{$field} ?? false);
+                            
                         @endphp
-                        <tr class="hover:bg-slate-50 transition-colors">
+                        <tr class="hover:bg-slate-50 transition-colors" data-row-id="{{ $row->id }}" data-cancelled="{{ $checked('cancel') ? 'true' : 'false' }}">
                             <td class="px-3 py-2.5 whitespace-nowrap font-bold text-slate-700 border-r border-slate-100 text-center">{{ $row->no }}</td>
                             <td class="px-4 py-2.5 text-slate-600 border-r border-slate-100 font-medium">{{ $row->project }}</td>
                             <td class="px-4 py-2.5 whitespace-nowrap text-slate-700 border-r border-slate-100 bg-emerald-50 font-bold">{{ $row->id_lop }}</td>
@@ -186,14 +188,14 @@
                             {{-- F0 --}}
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-blue-50">
                                 <input type="checkbox" class="funnel-checkbox w-4 h-4 text-blue-600 rounded {{ $isReadOnly ? 'cursor-not-allowed opacity-60' : 'cursor-pointer' }}"
-                                    data-field="f0_inisiasi_solusi" data-data-type="on_hand" data-data-id="{{ $row->id }}"
+                                    data-field="f0_inisiasi_solusi" data-data-type="{{$type}}" data-data-id="{{ $row->id }}"
                                     {{ $checked('f0_inisiasi_solusi') ? 'checked' : '' }}
                                     {{ $isReadOnly ? 'disabled' : '' }}>
                             </td>
                             {{-- F1 --}}
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-purple-50">
                                 <input type="checkbox" class="funnel-checkbox w-4 h-4 text-purple-600 rounded {{ $isReadOnly ? 'cursor-not-allowed opacity-60' : 'cursor-pointer' }}"
-                                    data-field="f1_tech_budget" data-data-type="on_hand" data-data-id="{{ $row->id }}"
+                                    data-field="f1_tech_budget" data-data-type="{{$type}}" data-data-id="{{ $row->id }}"
                                     {{ $checked('f1_tech_budget') ? 'checked' : '' }}
                                     {{ $isReadOnly ? 'disabled' : '' }}>
                             </td>
@@ -201,7 +203,7 @@
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-pink-50">
                                 @if($denganMitra)
                                 <input type="checkbox" class="funnel-checkbox w-4 h-4 text-pink-600 rounded {{ $isReadOnly ? 'cursor-not-allowed opacity-60' : 'cursor-pointer' }}"
-                                    data-field="f2_p0_p1" data-data-type="on_hand" data-data-id="{{ $row->id }}"
+                                    data-field="f2_p0_p1" data-data-type="{{$type}}" data-data-id="{{ $row->id }}"
                                     {{ $checked('f2_p0_p1') ? 'checked' : '' }}
                                     {{ $isReadOnly ? 'disabled' : '' }}>
                                 @else<span class="text-slate-300 font-bold">—</span>@endif
@@ -210,7 +212,7 @@
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-pink-50">
                                 @if($denganMitra)
                                 <input type="checkbox" class="funnel-checkbox w-4 h-4 text-pink-600 rounded {{ $isReadOnly ? 'cursor-not-allowed opacity-60' : 'cursor-pointer' }}"
-                                    data-field="f2_p2" data-data-type="on_hand" data-data-id="{{ $row->id }}"
+                                    data-field="f2_p2" data-data-type="{{$type}}" data-data-id="{{ $row->id }}"
                                     {{ $checked('f2_p2') ? 'checked' : '' }}
                                     {{ $isReadOnly ? 'disabled' : '' }}>
                                 @else<span class="text-slate-300 font-bold">—</span>@endif
@@ -219,7 +221,7 @@
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-pink-50">
                                 @if($denganMitra)
                                 <input type="checkbox" class="funnel-checkbox w-4 h-4 text-pink-600 rounded {{ $isReadOnly ? 'cursor-not-allowed opacity-60' : 'cursor-pointer' }}"
-                                    data-field="f2_p3" data-data-type="on_hand" data-data-id="{{ $row->id }}"
+                                    data-field="f2_p3" data-data-type="{{$type}}" data-data-id="{{ $row->id }}"
                                     {{ $checked('f2_p3') ? 'checked' : '' }}
                                     {{ $isReadOnly ? 'disabled' : '' }}>
                                 @else<span class="text-slate-300 font-bold">—</span>@endif
@@ -228,7 +230,7 @@
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-pink-50">
                                 @if($denganMitra)
                                 <input type="checkbox" class="funnel-checkbox w-4 h-4 text-pink-600 rounded {{ $isReadOnly ? 'cursor-not-allowed opacity-60' : 'cursor-pointer' }}"
-                                    data-field="f2_p4" data-data-type="on_hand" data-data-id="{{ $row->id }}"
+                                    data-field="f2_p4" data-data-type="{{$type}}" data-data-id="{{ $row->id }}"
                                     {{ $checked('f2_p4') ? 'checked' : '' }}
                                     {{ $isReadOnly ? 'disabled' : '' }}>
                                 @else<span class="text-slate-300 font-bold">—</span>@endif
@@ -237,7 +239,7 @@
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-pink-50">
                                 @if($denganMitra)
                                 <input type="checkbox" class="funnel-checkbox w-4 h-4 text-pink-600 rounded {{ $isReadOnly ? 'cursor-not-allowed opacity-60' : 'cursor-pointer' }}"
-                                    data-field="f2_offering" data-data-type="on_hand" data-data-id="{{ $row->id }}"
+                                    data-field="f2_offering" data-data-type="{{$type}}" data-data-id="{{ $row->id }}"
                                     {{ $checked('f2_offering') ? 'checked' : '' }}
                                     {{ $isReadOnly ? 'disabled' : '' }}>
                                 @else<span class="text-slate-300 font-bold">—</span>@endif
@@ -246,7 +248,7 @@
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-pink-50">
                                 @if($denganMitra)
                                 <input type="checkbox" class="funnel-checkbox w-4 h-4 text-pink-600 rounded {{ $isReadOnly ? 'cursor-not-allowed opacity-60' : 'cursor-pointer' }}"
-                                    data-field="f2_p5" data-data-type="on_hand" data-data-id="{{ $row->id }}"
+                                    data-field="f2_p5" data-data-type="{{$type}}" data-data-id="{{ $row->id }}"
                                     {{ $checked('f2_p5') ? 'checked' : '' }}
                                     {{ $isReadOnly ? 'disabled' : '' }}>
                                 @else<span class="text-slate-300 font-bold">—</span>@endif
@@ -254,7 +256,7 @@
                             {{-- F2 Proposal --}}
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-pink-50">
                                 <input type="checkbox" class="funnel-checkbox w-4 h-4 text-pink-600 rounded {{ $isReadOnly ? 'cursor-not-allowed opacity-60' : 'cursor-pointer' }}"
-                                    data-field="f2_proposal" data-data-type="on_hand" data-data-id="{{ $row->id }}"
+                                    data-field="f2_proposal" data-data-type="{{$type}}" data-data-id="{{ $row->id }}"
                                     {{ $checked('f2_proposal') ? 'checked' : '' }}
                                     {{ $isReadOnly ? 'disabled' : '' }}>
                             </td>
@@ -262,7 +264,7 @@
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-orange-50">
                                 @if($denganMitra)
                                 <input type="checkbox" class="funnel-checkbox w-4 h-4 text-orange-600 rounded {{ $isReadOnly ? 'cursor-not-allowed opacity-60' : 'cursor-pointer' }}"
-                                    data-field="f3_p6" data-data-type="on_hand" data-data-id="{{ $row->id }}"
+                                    data-field="f3_p6" data-data-type="{{$type}}" data-data-id="{{ $row->id }}"
                                     {{ $checked('f3_p6') ? 'checked' : '' }}
                                     {{ $isReadOnly ? 'disabled' : '' }}>
                                 @else<span class="text-slate-300 font-bold">—</span>@endif
@@ -271,7 +273,7 @@
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-orange-50">
                                 @if($denganMitra)
                                 <input type="checkbox" class="funnel-checkbox w-4 h-4 text-orange-600 rounded {{ $isReadOnly ? 'cursor-not-allowed opacity-60' : 'cursor-pointer' }}"
-                                    data-field="f3_p7" data-data-type="on_hand" data-data-id="{{ $row->id }}"
+                                    data-field="f3_p7" data-data-type="{{$type}}" data-data-id="{{ $row->id }}"
                                     {{ $checked('f3_p7') ? 'checked' : '' }}
                                     {{ $isReadOnly ? 'disabled' : '' }}>
                                 @else<span class="text-slate-300 font-bold">—</span>@endif
@@ -279,14 +281,14 @@
                             {{-- F3 Submit --}}
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-orange-50">
                                 <input type="checkbox" class="funnel-checkbox w-4 h-4 text-orange-600 rounded {{ $isReadOnly ? 'cursor-not-allowed opacity-60' : 'cursor-pointer' }}"
-                                    data-field="f3_submit" data-data-type="on_hand" data-data-id="{{ $row->id }}"
+                                    data-field="f3_submit" data-data-type="{{$type}}" data-data-id="{{ $row->id }}"
                                     {{ $checked('f3_submit') ? 'checked' : '' }}
                                     {{ $isReadOnly ? 'disabled' : '' }}>
                             </td>
                             {{-- F4 Negosiasi --}}
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-teal-50">
                                 <input type="checkbox" class="funnel-checkbox w-4 h-4 text-teal-600 rounded {{ $isReadOnly ? 'cursor-not-allowed opacity-60' : 'cursor-pointer' }}"
-                                    data-field="f4_negosiasi" data-data-type="on_hand" data-data-id="{{ $row->id }}"
+                                    data-field="f4_negosiasi" data-data-type="{{$type}}" data-data-id="{{ $row->id }}"
                                     {{ $checked('f4_negosiasi') ? 'checked' : '' }}
                                     {{ $isReadOnly ? 'disabled' : '' }}>
                             </td>
@@ -294,7 +296,7 @@
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-green-50">
                                 @if($denganMitra)
                                 <input type="checkbox" class="funnel-checkbox w-4 h-4 text-green-600 rounded {{ $isReadOnly ? 'cursor-not-allowed opacity-60' : 'cursor-pointer' }}"
-                                    data-field="f5_sk_mitra" data-data-type="on_hand" data-data-id="{{ $row->id }}"
+                                    data-field="f5_sk_mitra" data-data-type="{{$type}}" data-data-id="{{ $row->id }}"
                                     {{ $checked('f5_sk_mitra') ? 'checked' : '' }}
                                     {{ $isReadOnly ? 'disabled' : '' }}>
                                 @else<span class="text-slate-300 font-bold">—</span>@endif
@@ -302,7 +304,7 @@
                             {{-- F5 TTD Kontrak --}}
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-green-50">
                                 <input type="checkbox" class="funnel-checkbox w-4 h-4 text-green-600 rounded {{ $isReadOnly ? 'cursor-not-allowed opacity-60' : 'cursor-pointer' }}"
-                                    data-field="f5_ttd_kontrak" data-data-type="on_hand" data-data-id="{{ $row->id }}"
+                                    data-field="f5_ttd_kontrak" data-data-type="{{$type}}" data-data-id="{{ $row->id }}"
                                     {{ $checked('f5_ttd_kontrak') ? 'checked' : '' }}
                                     {{ $isReadOnly ? 'disabled' : '' }}>
                             </td>
@@ -310,7 +312,7 @@
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-green-50">
                                 @if($denganMitra)
                                 <input type="checkbox" class="funnel-checkbox w-4 h-4 text-green-600 rounded {{ $isReadOnly ? 'cursor-not-allowed opacity-60' : 'cursor-pointer' }}"
-                                    data-field="f5_p8" data-data-type="on_hand" data-data-id="{{ $row->id }}"
+                                    data-field="f5_p8" data-data-type="{{$type}}" data-data-id="{{ $row->id }}"
                                     {{ $checked('f5_p8') ? 'checked' : '' }}
                                     {{ $isReadOnly ? 'disabled' : '' }}>
                                 @else<span class="text-slate-300 font-bold">—</span>@endif
@@ -318,7 +320,7 @@
                             {{-- DELIVERY Kontrak --}}
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-emerald-50">
                                 <input type="checkbox" class="funnel-checkbox w-4 h-4 text-emerald-600 rounded {{ $isReadOnly ? 'cursor-not-allowed opacity-60' : 'cursor-pointer' }}"
-                                    data-field="delivery_kontrak" data-data-type="on_hand" data-data-id="{{ $row->id }}"
+                                    data-field="delivery_kontrak" data-data-type="{{$type}}" data-data-id="{{ $row->id }}"
                                     {{ $checked('delivery_kontrak') ? 'checked' : '' }}
                                     {{ $isReadOnly ? 'disabled' : '' }}>
                             </td>
@@ -335,7 +337,7 @@
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-emerald-50">
                                 @if($denganMitra)
                                 <input type="checkbox" class="funnel-checkbox w-4 h-4 text-emerald-600 rounded {{ $isReadOnly ? 'cursor-not-allowed opacity-60' : 'cursor-pointer' }}"
-                                    data-field="delivery_baso" data-data-type="koreksi" data-data-id="{{ $row->id }}"
+                                    data-field="delivery_baso" data-data-type="{{$type}}" data-data-id="{{ $row->id }}"
                                     {{ $checked('delivery_baso') ? 'checked' : '' }}
                                     {{ $isReadOnly ? 'disabled' : '' }}>
                                 @else<span class="text-slate-300 font-bold">—</span>@endif
@@ -343,7 +345,7 @@
                             {{-- BILLING COMPLETE --}}
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-indigo-50">
                                 <input type="checkbox" class="billing-checkbox w-4 h-4 text-indigo-600 rounded {{ $isReadOnly ? 'cursor-not-allowed opacity-60' : 'cursor-pointer' }}"
-                                    data-field="delivery_billing_complete" data-data-type="on_hand" data-data-id="{{ $row->id }}"
+                                    data-field="delivery_billing_complete" data-data-type="{{$type}}" data-data-id="{{ $row->id }}"
                                     data-est-nilai="{{ $row->est_nilai_bc }}"
                                     {{ $checked('delivery_billing_complete') ? 'checked' : '' }}
                                     {{ $isReadOnly ? 'disabled' : '' }}>
@@ -365,6 +367,13 @@
                                         }
                                     @endphp
                                 </span>
+                            </td>
+                            {{-- CANCEL --}}
+                            <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-red-50">
+                                <input type="checkbox" class="cancel-checkbox w-4 h-4 text-red-600 rounded {{ $isReadOnly ? 'cursor-not-allowed opacity-60' : 'cursor-pointer' }}"
+                                    data-field="cancel" data-data-type="{{ $type }}" data-data-id="{{ $row->id }}"
+                                    {{ $checked('cancel') ? 'checked' : '' }}
+                                    {{ $isReadOnly ? 'disabled' : '' }}>
                             </td>
                         </tr>
                         @endforeach
@@ -423,31 +432,127 @@ document.addEventListener('DOMContentLoaded', function () {
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
     if (!csrfToken) return;
 
+    const updateUrl = '{{ route("admin.progress.funnel.update", ["segment" => $segment, "type" => $type]) }}';
+
     function formatNumber(num) {
         if (!num) return '-';
         return Math.round(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
     }
 
-    document.querySelectorAll('.funnel-checkbox').forEach(checkbox => {
+    // ══ DISABLE/ENABLE ROW ══
+    function setRowDisabled(row, disabled) {
+        row.querySelectorAll('.funnel-checkbox, .billing-checkbox').forEach(cb => {
+            cb.disabled = disabled;
+            if (disabled) {
+                cb.classList.add('opacity-40', 'cursor-not-allowed');
+                cb.classList.remove('cursor-pointer');
+            } else {
+                cb.classList.remove('opacity-40', 'cursor-not-allowed');
+                cb.classList.add('cursor-pointer');
+            }
+        });
+        if (disabled) {
+            row.classList.add('bg-red-50', 'opacity-70');
+            row.classList.remove('hover:bg-slate-50');
+        } else {
+            row.classList.remove('bg-red-50', 'opacity-70');
+            row.classList.add('hover:bg-slate-50');
+        }
+    }
+
+    // ══ INISIALISASI STATE CANCEL SAAT PAGE LOAD ══
+    document.querySelectorAll('tr[data-cancelled="true"]').forEach(row => {
+        setRowDisabled(row, true);
+    });
+
+    // ══ CANCEL CHECKBOX HANDLER ══
+    document.querySelectorAll('.cancel-checkbox').forEach(checkbox => {
         checkbox.addEventListener('change', function () {
-            this.parentElement.classList.add('bg-yellow-100');
-            saveChange(this.dataset.dataId, this.dataset.dataType, this.dataset.field, this.checked, null, this.parentElement);
+            const rowId = this.dataset.dataId;
+            const cancelled = this.checked;
+            const row = this.closest('tr');
+
+            setRowDisabled(row, cancelled);
+            row.dataset.cancelled = cancelled ? 'true' : 'false';
+
+            fetch(updateUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    data_type: '{{ $type }}',
+                    data_id: rowId,
+                    field: 'cancel',
+                    value: cancelled
+                })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (!data.success) {
+                    this.checked = !cancelled;
+                    setRowDisabled(row, !cancelled);
+                    row.dataset.cancelled = (!cancelled) ? 'true' : 'false';
+                    alert('Gagal menyimpan status cancel.');
+                }
+            })
+            .catch(() => {
+                this.checked = !cancelled;
+                setRowDisabled(row, !cancelled);
+                row.dataset.cancelled = (!cancelled) ? 'true' : 'false';
+                alert('Error menyimpan status cancel.');
+            });
         });
     });
 
+    // ══ FUNNEL CHECKBOXES ══
+    document.querySelectorAll('.funnel-checkbox').forEach(checkbox => {
+        checkbox.addEventListener('change', function () {
+            const row = this.closest('tr');
+            if (row && row.dataset.cancelled === 'true') {
+                this.checked = !this.checked;
+                return;
+            }
+            this.parentElement.classList.add('bg-yellow-100');
+            saveChange(this.dataset.dataId, this.dataset.dataType, this.dataset.field, this.checked, null, this.parentElement);
+            if (this.checked) cascadeBackwards(this);
+        });
+    });
+
+    // ══ BILLING CHECKBOXES ══
     document.querySelectorAll('.billing-checkbox').forEach(checkbox => {
         checkbox.addEventListener('change', function () {
+            const row = this.closest('tr');
+            if (row && row.dataset.cancelled === 'true') {
+                this.checked = !this.checked;
+                return;
+            }
             this.parentElement.classList.add('bg-yellow-100');
             saveChange(this.dataset.dataId, this.dataset.dataType, this.dataset.field, this.checked, this.dataset.estNilai || '0', this.parentElement);
         });
     });
 
+    function cascadeBackwards(changedCheckbox) {
+        const row = changedCheckbox.closest('tr');
+        if (!row) return;
+        const boxes = Array.from(row.querySelectorAll('.funnel-checkbox, .billing-checkbox'));
+        const idx = boxes.indexOf(changedCheckbox);
+        if (idx === -1) return;
+        const laterChecked = boxes.slice(idx + 1).some(cb => cb.checked);
+        if (!laterChecked) return;
+        boxes.slice(0, idx).forEach(cb => {
+            if (!cb.checked) {
+                cb.checked = true;
+                saveChange(cb.dataset.dataId, cb.dataset.dataType, cb.dataset.field, true, null, cb.parentElement);
+            }
+        });
+    }
+
     function saveChange(rowId, dataType, field, value, estNilaiBc, container) {
         const payload = { data_type: dataType, data_id: rowId, field: field, value: value };
         if (field === 'delivery_billing_complete') payload.est_nilai_bc = estNilaiBc || '0';
-
-        // Gunakan route funnel update sesuai segment
-        const updateUrl = '{{ route("admin.progress.funnel.update", ["segment" => $segment, "type" => $type]) }}';
 
         fetch(updateUrl, {
             method: 'POST',
@@ -473,6 +578,23 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (data.total) {
                     const totalCell = document.getElementById('total-nilai-billcomp');
                     if (totalCell) totalCell.querySelector('span').textContent = data.total;
+                }
+                if (data.auto_fields && data.auto_fields.length) {
+                    const fields = Array.isArray(data.auto_fields) ? data.auto_fields : [data.auto_fields];
+                    const targetVal = data.auto_value === true || data.auto_value === 'true';
+                    const row = container.closest('tr');
+                    const firstInput = row?.querySelector('input[data-data-id]');
+                    const currentRowId = firstInput?.dataset.dataId;
+                    const currentRowType = firstInput?.dataset.dataType;
+                    fields.forEach(fld => {
+                        const sibling = document.querySelector(
+                            `.funnel-checkbox[data-field="${fld}"][data-data-id="${currentRowId}"][data-data-type="${currentRowType}"]`
+                        );
+                        if (sibling && sibling.checked !== targetVal) {
+                            sibling.checked = targetVal;
+                            saveChange(currentRowId, currentRowType, fld, targetVal, null, sibling.parentElement);
+                        }
+                    });
                 }
             } else {
                 container.classList.remove('bg-yellow-100');

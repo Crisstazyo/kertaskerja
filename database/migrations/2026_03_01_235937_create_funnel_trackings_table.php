@@ -50,6 +50,9 @@ return new class extends Migration
             $table->string('delivery_billing_complete')->nullable();
             $table->string('delivery_nilai_billcomp')->nullable();
             
+            //CANCEL
+            $table->boolean('cancel')->default(false);
+            
             $table->timestamps();
             
             // Index untuk query lebih cepat

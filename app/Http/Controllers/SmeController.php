@@ -141,7 +141,7 @@ class SmeController extends Controller
         $totalEstNilai = $rows->sum(fn($item) => floatval($item->est_nilai_bc ?? 0));
 
         $totalBillComp = $rows->sum(function ($item) {
-            $funnel        = $item->funnel;
+            $funnel        = $item->first()->funnel;
             $master        = $funnel;
             $todayProgress = $funnel?->todayProgress;
 
@@ -255,7 +255,7 @@ class SmeController extends Controller
     public function updateFunnelCheckbox(Request $request)
     {
         $request->validate([
-            'data_type' => 'required|in:on_hand,qualified,koreksi,initiate',
+            'data_type' => 'required|in:on-hand,qualified,koreksi,initiate',
             'data_id' => 'required|integer',
             'field' => 'required|string',
             'value' => 'required',
@@ -344,12 +344,17 @@ class SmeController extends Controller
 
         $taskProgress->save();
 
-        // Calculate total for all billing complete values in this data type for today
-        $total = \App\Models\TaskProgress::whereHas('task', function($q) use ($request) {
-                $q->where('data_type', $request->data_type);
-            })
-            ->where('user_id', auth()->id())
-            ->whereDate('tanggal', today())
+        $dataId   = $request->data_id;
+        $funnel   = \App\Models\FunnelTracking::where('data_id', $dataId)->first();
+        $periodeImport = \App\Models\ScallingData::find($dataId)?->scallingImport;
+
+        $dataIdsInPeriode = collect();
+        if ($periodeImport) {
+            $dataIdsInPeriode = \App\Models\ScallingData::where('imports_log_id', $periodeImport->id)
+                ->pluck('id');
+        }
+
+        $total = \App\Models\FunnelTracking::whereIn('data_id', $dataIdsInPeriode)
             ->where('delivery_billing_complete', true)
             ->whereNotNull('delivery_nilai_billcomp')
             ->sum('delivery_nilai_billcomp');

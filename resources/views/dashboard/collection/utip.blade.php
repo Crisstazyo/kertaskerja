@@ -204,6 +204,7 @@
                                 <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">No</th>
                                 <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Tanggal Input</th>
                                 <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Tipe</th>
+                                <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Plan</th>
                                 <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Komitmen (Rp)</th>
                                 <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Realisasi (Rp)</th>
                             </tr>
@@ -217,6 +218,9 @@
                                     </td>
                                     <td class="px-6 py-4">
                                          <span class="text-xs font-bold rounded-md px-2.5 py-1 text-red-700 bg-red-50 border border-red-200">{{ $activity->type }}</span>
+                                    </td>
+                                    <td class="px-6 py-4 text-center font-black text-slate-700">
+                                        {{ $activity->plan !== null ? 'Rp'.number_format($activity->plan, 0, ',', '.') : '—' }}
                                     </td>
                                     <td class="px-6 py-4 text-center font-black text-slate-700">
                                         {{ $activity->commitment !== null ? 'Rp'.number_format($activity->commitment, 0, ',', '.') : '—' }}

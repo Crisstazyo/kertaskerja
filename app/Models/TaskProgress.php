@@ -43,6 +43,7 @@ class TaskProgress extends Model
         'delivery_baso',
         'delivery_billing_complete',
         'delivery_nilai_billcomp',
+        'cancel',
     ];
 
     protected $casts = [
@@ -73,6 +74,8 @@ class TaskProgress extends Model
         'delivery_kontrak' => 'boolean',
         'delivery_billing_complete' => 'boolean',
         'delivery_nilai_billcomp' => 'decimal:2',
+        //CANCEL
+        'cancel' => 'boolean',
     ];
 
     /**

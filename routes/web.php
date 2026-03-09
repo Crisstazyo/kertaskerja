@@ -101,7 +101,7 @@ Route::middleware('auth')->group(function () {
         // on-hand upload listing and actions
         Route::get('/scalling/gov/on-hand', [ScallingController::class, 'onHandGov'])->name('admin.scalling.gov.on-hand');
         Route::post('/scalling/gov/on-hand', [ScallingController::class, 'import'])->name('admin.scalling.gov.on-hand.store');
-        Route::post('/scalling/gov/on-hand', [ScallingController::class, 'storeData'])->name('admin.scalling.gov.on-hand.storeData');
+        Route::post('/scalling/gov/on-hand/update', [ScallingController::class, 'storeData'])->name('admin.scalling.gov.on-hand.storeData');
         Route::get('/scalling/gov/on-hand/{scallingImport}', [ScallingController::class, 'show'])->name('admin.scalling.gov.on-hand.show');
         Route::delete('/scalling/gov/on-hand/{scallingImport}', [ScallingController::class, 'destroy'])->name('admin.scalling.gov.on-hand.destroy');
 
@@ -114,7 +114,7 @@ Route::middleware('auth')->group(function () {
         // qualified upload listing and actions
         Route::get('/scalling/gov/qualified', [ScallingController::class, 'qualifiedGov'])->name('admin.scalling.gov.qualified');
         Route::post('/scalling/gov/qualified', [ScallingController::class, 'import'])->name('admin.scalling.gov.qualified.store');
-        Route::post('/scalling/gov/qualified', [ScallingController::class, 'storeData'])->name('admin.scalling.gov.qualified.storeData');
+        Route::post('/scalling/gov/qualified/update', [ScallingController::class, 'storeData'])->name('admin.scalling.gov.qualified.storeData');
         Route::get('/scalling/gov/qualified/{scallingImport}', [ScallingController::class, 'show'])->name('admin.scalling.gov.qualified.show');
         Route::delete('/scalling/gov/qualified/{scallingImport}', [ScallingController::class, 'destroy'])->name('admin.scalling.gov.qualified.destroy');
 
@@ -132,7 +132,7 @@ Route::middleware('auth')->group(function () {
         // on-hand upload listing and actions
         Route::get('/scalling/private/on-hand', [ScallingController::class, 'onHandPrivate'])->name('admin.scalling.private.on-hand');
         Route::post('/scalling/private/on-hand', [ScallingController::class, 'import'])->name('admin.scalling.private.on-hand.store');
-        Route::post('/scalling/private/on-hand', [ScallingController::class, 'storeData'])->name('admin.scalling.private.on-hand.storeData');
+        Route::post('/scalling/private/on-hand/update', [ScallingController::class, 'storeData'])->name('admin.scalling.private.on-hand.storeData');
         Route::get('/scalling/private/on-hand/{scallingImport}', [ScallingController::class, 'show'])->name('admin.scalling.private.on-hand.show');
         Route::delete('/scalling/private/on-hand/{scallingImport}', [ScallingController::class, 'destroy'])->name('admin.scalling.private.on-hand.destroy');
 
@@ -145,7 +145,7 @@ Route::middleware('auth')->group(function () {
         // qualified upload listing and actions
         Route::get('/scalling/private/qualified', [ScallingController::class, 'qualifiedPrivate'])->name('admin.scalling.private.qualified');
         Route::post('/scalling/private/qualified', [ScallingController::class, 'import'])->name('admin.scalling.private.qualified.store');
-        Route::post('/scalling/private/qualified', [ScallingController::class, 'storeData'])->name('admin.scalling.private.qualified.storeData');
+        Route::post('/scalling/private/qualified/update', [ScallingController::class, 'storeData'])->name('admin.scalling.private.qualified.storeData');
         Route::get('/scalling/private/qualified/{scallingImport}', [ScallingController::class, 'show'])->name('admin.scalling.private.qualified.show');
         Route::delete('/scalling/private/qualified/{scallingImport}', [ScallingController::class, 'destroy'])->name('admin.scalling.private.qualified.destroy');
 
@@ -153,7 +153,7 @@ Route::middleware('auth')->group(function () {
         // on-hand upload listing and actions
         Route::get('/scalling/soe/on-hand', [ScallingController::class, 'onHandSoe'])->name('admin.scalling.soe.on-hand');
         Route::post('/scalling/soe/on-hand', [ScallingController::class, 'import'])->name('admin.scalling.soe.on-hand.store');
-        Route::post('/scalling/soe/on-hand', [ScallingController::class, 'storeData'])->name('admin.scalling.soe.on-hand.storeData');
+        Route::post('/scalling/soe/on-hand/update', [ScallingController::class, 'storeData'])->name('admin.scalling.soe.on-hand.storeData');
         Route::get('/scalling/soe/on-hand/{scallingImport}', [ScallingController::class, 'show'])->name('admin.scalling.soe.on-hand.show');
         Route::delete('/scalling/soe/on-hand/{scallingImport}', [ScallingController::class, 'destroy'])->name('admin.scalling.soe.on-hand.destroy');
 
@@ -166,7 +166,7 @@ Route::middleware('auth')->group(function () {
         // qualified upload listing and actions
         Route::get('/scalling/soe/qualified', [ScallingController::class, 'qualifiedSoe'])->name('admin.scalling.soe.qualified');
         Route::post('/scalling/soe/qualified', [ScallingController::class, 'import'])->name('admin.scalling.soe.qualified.store');
-        Route::post('/scalling/soe/qualified', [ScallingController::class, 'storeData'])->name('admin.scalling.soe.qualified.storeData');
+        Route::post('/scalling/soe/qualified/update', [ScallingController::class, 'storeData'])->name('admin.scalling.soe.qualified.storeData');
         Route::get('/scalling/soe/qualified/{scallingImport}', [ScallingController::class, 'show'])->name('admin.scalling.soe.qualified.show');
         Route::delete('/scalling/soe/qualified/{scallingImport}', [ScallingController::class, 'destroy'])->name('admin.scalling.soe.qualified.destroy');
 
@@ -174,7 +174,7 @@ Route::middleware('auth')->group(function () {
         // on-hand upload listing and actions
         Route::get('/scalling/sme/on-hand', [ScallingController::class, 'onHandSme'])->name('admin.scalling.sme.on-hand');
         Route::post('/scalling/sme/on-hand', [ScallingController::class, 'import'])->name('admin.scalling.sme.on-hand.store');
-        Route::post('/scalling/sme/on-hand', [ScallingController::class, 'storeData'])->name('admin.scalling.sme.on-hand.storeData');
+        Route::post('/scalling/sme/on-hand/update', [ScallingController::class, 'storeData'])->name('admin.scalling.sme.on-hand.storeData');
         Route::get('/scalling/sme/on-hand/{scallingImport}', [ScallingController::class, 'show'])->name('admin.scalling.sme.on-hand.show');
         Route::delete('/scalling/sme/on-hand/{scallingImport}', [ScallingController::class, 'destroy'])->name('admin.scalling.sme.on-hand.destroy');
 
@@ -187,7 +187,7 @@ Route::middleware('auth')->group(function () {
         // qualified upload listing and actions
         Route::get('/scalling/sme/qualified', [ScallingController::class, 'qualifiedSme'])->name('admin.scalling.sme.qualified');
         Route::post('/scalling/sme/qualified', [ScallingController::class, 'import'])->name('admin.scalling.sme.qualified.store');
-        Route::post('/scalling/sme/qualified', [ScallingController::class, 'storeData'])->name('admin.scalling.sme.qualified.storeData');
+        Route::post('/scalling/sme/qualified/update', [ScallingController::class, 'storeData'])->name('admin.scalling.sme.qualified.storeData');
         Route::get('/scalling/sme/qualified/{scallingImport}', [ScallingController::class, 'show'])->name('admin.scalling.sme.qualified.show');
         Route::delete('/scalling/sme/qualified/{scallingImport}', [ScallingController::class, 'destroy'])->name('admin.scalling.sme.qualified.destroy');
 

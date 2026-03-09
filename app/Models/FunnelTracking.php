@@ -42,6 +42,7 @@ class FunnelTracking extends Model
         'delivery_baso',
         'delivery_billing_complete',
         'delivery_nilai_billcomp',
+        'cancel',
     ];
 
     protected $casts = [
@@ -73,6 +74,7 @@ class FunnelTracking extends Model
         'delivery_baso' => 'boolean',
         'delivery_billing_complete' => 'boolean',
         'delivery_nilai_billcomp' => 'decimal:2',
+        'cancel' => 'boolean',
     ];
 
     /**

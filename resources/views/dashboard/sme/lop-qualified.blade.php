@@ -134,6 +134,7 @@
                             <th colspan="3" class="px-3 py-2 text-center text-[10px] font-black text-white border-r border-slate-100 bg-emerald-700">DELIVERY</th>
                             <th rowspan="2" class="px-3 py-2 text-center text-[10px] font-black text-white border-r border-slate-100 bg-indigo-600">BILLING<br>COMPLETE</th>
                             <th rowspan="2" class="px-3 py-2 text-center text-[10px] font-black text-white bg-violet-600 min-w-[100px]">NILAI BILL COMP</th>
+                            <th rowspan="2" class="px-3 py-2 text-center text-[10px] font-black text-white bg-red-600 min-w-[100px]">CANCEL</th>
                         </tr>
                         <tr class="border-b border-slate-200">
                             <th class="px-2 py-1.5 text-center text-[10px] font-black text-blue-700 bg-blue-50 border-r border-slate-100">Inisiasi</th>
@@ -172,7 +173,7 @@
                                 continue;
                             }
                         @endphp
-                        <tr class="hover:bg-slate-50 transition-colors">
+                        <tr class="hover:bg-slate-50 transition-colors" data-row-id="{{ $row->id }}" data-cancelled="{{ $checked('cancel') ? 'true' : 'false' }}">
                             <td class="px-3 py-2.5 whitespace-nowrap font-bold text-slate-700 border-r border-slate-100 text-center">{{ $row->no }}</td>
                             <td class="px-4 py-2.5 text-slate-600 border-r border-slate-100 font-medium">{{ $row->project }}</td>
                             <td class="px-4 py-2.5 whitespace-nowrap text-slate-700 border-r border-slate-100 bg-emerald-50 font-bold">{{ $row->id_lop }}</td>
@@ -366,6 +367,13 @@
                                     @endphp
                                 </span>
                             </td>
+                            {{-- CANCEL checkbox — ganti class-nya --}}
+                            <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-red-50">
+                                <input type="checkbox" class="cancel-checkbox w-4 h-4 text-red-600 cursor-pointer rounded {{ $isReadOnly ? 'cursor-not-allowed opacity-60' : 'cursor-pointer' }}"
+                                    data-field="cancel" data-data-type="qualified" data-data-id="{{ $row->id }}"
+                                    {{ $checked('cancel') ? 'checked' : '' }}
+                                    {{ $isReadOnly ? 'disabled' : '' }}>
+                            </td>
                         </tr>
                         @endforeach
                     </tbody>
@@ -391,14 +399,16 @@
                             <td colspan="20" class="border-r border-slate-100"></td>
                             <td class="px-4 py-3 text-center font-black text-violet-700 bg-violet-50" id="total-nilai-billcomp">
                                 @php
-                                    $totalBillComp = \App\Models\TaskProgress::whereHas('task', function($query) {
-                                            $query->where('data_type', 'qualified');
-                                        })
-                                        ->where('user_id', auth()->id())
-                                        ->whereDate('tanggal', today())
+                                    // Ambil semua data_id dari import periode yang aktif
+                                    $dataIdsOnPeriode = $latestImport->data
+                                        ->filter(fn($item) => strtoupper(trim($item->no ?? '')) !== 'TOTAL')
+                                        ->pluck('id');
+
+                                    $totalBillComp = \App\Models\FunnelTracking::whereIn('data_id', $dataIdsOnPeriode)
                                         ->where('delivery_billing_complete', true)
                                         ->whereNotNull('delivery_nilai_billcomp')
                                         ->sum('delivery_nilai_billcomp');
+
                                     $totalBillComp = (float) $totalBillComp;
                                 @endphp
                                 <span>{{ number_format($totalBillComp, 0, ',', '.') }}</span>
@@ -609,100 +619,122 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-     const isReadOnly = {{ $latestImport && ($latestImport->status ?? 'active') !== 'active' ? 'true' : 'false' }};
+    const isReadOnly = {{ $latestImport && ($latestImport->status ?? 'active') !== 'active' ? 'true' : 'false' }};
     if (isReadOnly) return;
+
     const csrfTokenMeta = document.querySelector('meta[name="csrf-token"]');
-
-    if (!csrfTokenMeta) {
-        console.error('❌ CSRF token meta tag not found! AJAX requests will fail.');
-        console.error('Please add this to your layout <head>: <meta name="csrf-token" content="{{ csrf_token() }}">');
-        return;
-    }
-
+    if (!csrfTokenMeta) { console.error('❌ CSRF token not found!'); return; }
     const csrfToken = csrfTokenMeta.getAttribute('content');
-    console.log('✅ CSRF token loaded:', csrfToken ? 'YES' : 'NO');
 
     function formatNumber(num) {
         if (!num) return '-';
         return Math.round(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
     }
 
-    const funnelCheckboxes = document.querySelectorAll('.funnel-checkbox');
-    const billingCheckboxes = document.querySelectorAll('.billing-checkbox');
-    console.log(`✅ Found ${funnelCheckboxes.length} funnel checkboxes`);
-    console.log(`✅ Found ${billingCheckboxes.length} billing checkboxes`);
-
-    funnelCheckboxes.forEach(checkbox => {
-        checkbox.addEventListener('change', function() {
-            const rowId = this.dataset.dataId;
-            const dataType = this.dataset.dataType;
-            const field = this.dataset.field;
-            const value = this.checked;
-
-            console.log('🔵 Funnel checkbox changed:', { rowId, dataType, field, value });
-            this.parentElement.classList.add('bg-yellow-100');
-            saveCheckboxChange(rowId, dataType, field, value, null, this.parentElement);
-        });
-    });
-
-    billingCheckboxes.forEach(checkbox => {
-        checkbox.addEventListener('change', function() {
-            const rowId = this.dataset.dataId;
-            const dataType = this.dataset.dataType;
-            const field = this.dataset.field;
-            const value = this.checked;
-            let estNilai = this.dataset.estNilai || '0';
-            console.log('🟣 Billing checkbox changed:', { rowId, dataType, field, value, estNilai });
-            this.parentElement.classList.add('bg-yellow-100');
-            saveCheckboxChange(rowId, dataType, field, value, estNilai, this.parentElement);
-        });
-    });
-
-    const funnelStages = {
-        'f0': ['f0_inisiasi_solusi'],
-        'f1': ['f1_p0_p1'],
-        'f2': ['f1_juskeb', 'f2_p2', 'f1_bod_dm', 'f2_evaluasi', 'f2_taf', 'f2_juskeb', 'f2_bod_dm'],
-        'f3': ['f3_p3_1', 'f3_sph', 'f3_juskeb', 'f3_bod_dm'],
-        'f4': ['f4_p3_2', 'f4_pks', 'f4_bast'],
-        'f5': ['f5_p4', 'f5_p5', 'delivery_baso', 'f5_kontrak_layanan']
-    };
-
-    function getStageFromField(field) {
-        for (const [stage, fields] of Object.entries(funnelStages)) {
-            if (fields.includes(field)) return stage;
-        }
-        return null;
-    }
-
-    function getPreviousStageFields(currentStage) {
-        const stageOrder = ['f0', 'f1', 'f2', 'f3', 'f4', 'f5'];
-        const currentIndex = stageOrder.indexOf(currentStage);
-        if (currentIndex <= 0) return [];
-        let previousFields = [];
-        for (let i = 0; i < currentIndex; i++) {
-            previousFields = previousFields.concat(funnelStages[stageOrder[i]]);
-        }
-        return previousFields;
-    }
-
-    function autoCheckPreviousStages(dataType, dataId, clickedField) {
-        const currentStage = getStageFromField(clickedField);
-        if (!currentStage) return;
-        const previousFields = getPreviousStageFields(currentStage);
-        previousFields.forEach(field => {
-            const checkbox = document.querySelector(
-                `.funnel-checkbox[data-field="${field}"][data-data-id="${dataId}"][data-data-type="${dataType}"]`
-            );
-            if (checkbox && !checkbox.checked) {
-                checkbox.checked = true;
-                fetch('{{ route("dashboard.sme.funnel.update") }}', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
-                    body: JSON.stringify({ data_type: dataType, data_id: dataId, field: field, value: true })
-                }).catch(error => console.error('Auto-check error:', error));
+    // ══ FUNGSI DISABLE/ENABLE ROW ══
+    function setRowDisabled(row, disabled) {
+        row.querySelectorAll('.funnel-checkbox, .billing-checkbox').forEach(cb => {
+            cb.disabled = disabled;
+            if (disabled) {
+                cb.classList.add('opacity-40', 'cursor-not-allowed');
+                cb.classList.remove('cursor-pointer');
+            } else {
+                cb.classList.remove('opacity-40', 'cursor-not-allowed');
+                cb.classList.add('cursor-pointer');
             }
         });
+        if (disabled) {
+            row.classList.add('bg-red-50', 'opacity-70');
+            row.classList.remove('hover:bg-slate-50');
+        } else {
+            row.classList.remove('bg-red-50', 'opacity-70');
+            row.classList.add('hover:bg-slate-50');
+        }
     }
+
+    // ══ INISIALISASI STATE CANCEL SAAT PAGE LOAD ══
+    document.querySelectorAll('tr[data-cancelled="true"]').forEach(row => {
+        setRowDisabled(row, true);
+    });
+
+    // ══ HANDLER CANCEL CHECKBOX ══
+    document.querySelectorAll('.cancel-checkbox').forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const rowId = this.dataset.dataId;
+            const cancelled = this.checked;
+            const row = this.closest('tr');
+
+            // Langsung apply di frontend
+            setRowDisabled(row, cancelled);
+            row.dataset.cancelled = cancelled ? 'true' : 'false';
+
+            // Simpan ke server via funnel update (cancel sudah ada di FunnelTracking)
+            fetch('{{ route("dashboard.sme.funnel.update") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    data_type: 'qualified',
+                    data_id: rowId,
+                    field: 'cancel',
+                    value: cancelled
+                })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (!data.success) {
+                    // Rollback jika gagal
+                    this.checked = !cancelled;
+                    setRowDisabled(row, !cancelled);
+                    row.dataset.cancelled = (!cancelled) ? 'true' : 'false';
+                    alert('Gagal menyimpan status cancel.');
+                }
+            })
+            .catch(() => {
+                this.checked = !cancelled;
+                setRowDisabled(row, !cancelled);
+                row.dataset.cancelled = (!cancelled) ? 'true' : 'false';
+                alert('Error menyimpan status cancel.');
+            });
+        });
+    });
+
+    // ══ FUNNEL CHECKBOXES ══
+    document.querySelectorAll('.funnel-checkbox').forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            // Cek apakah baris ini di-cancel — tolak perubahan
+            const row = this.closest('tr');
+            if (row && row.dataset.cancelled === 'true') {
+                this.checked = !this.checked;
+                return;
+            }
+            this.parentElement.classList.add('bg-yellow-100');
+            saveCheckboxChange(
+                this.dataset.dataId, this.dataset.dataType,
+                this.dataset.field, this.checked, null, this.parentElement
+            );
+        });
+    });
+
+    // ══ BILLING CHECKBOXES ══
+    document.querySelectorAll('.billing-checkbox').forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const row = this.closest('tr');
+            if (row && row.dataset.cancelled === 'true') {
+                this.checked = !this.checked;
+                return;
+            }
+            this.parentElement.classList.add('bg-yellow-100');
+            saveCheckboxChange(
+                this.dataset.dataId, this.dataset.dataType,
+                this.dataset.field, this.checked,
+                this.dataset.estNilai || '0', this.parentElement
+            );
+        });
+    });
 
     function cascadeBackwards(checkbox) {
         const row = checkbox.closest('tr');
@@ -713,153 +745,79 @@ document.addEventListener('DOMContentLoaded', function() {
         const laterChecked = boxes.slice(idx + 1).some(cb => cb.checked);
         if (!laterChecked) return;
         boxes.slice(0, idx).forEach(cb => {
-            if (!cb.checked) { cb.checked = true; updateFunnelCheckbox(cb); }
-        });
-    }
-
-    function updateFunnelCheckbox(checkbox) {
-        const dataType = checkbox.dataset.dataType;
-        const dataId = checkbox.dataset.dataId;
-        const field = checkbox.dataset.field;
-        const value = checkbox.checked;
-        fetch('{{ route("dashboard.sme.funnel.update") }}', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
-            body: JSON.stringify({ data_type: dataType, data_id: dataId, field: field, value: value })
-        })
-        .then(response => response.json())
-        .then(data => {
-            checkbox.style.opacity = '1';
-            checkbox.style.pointerEvents = 'auto';
-            if (data.success) {
-                console.log('✓ Checkbox updated successfully');
-                if (value) { autoCheckPreviousStages(dataType, dataId, field); cascadeBackwards(checkbox); }
-            } else {
-                console.error('Update failed');
-                checkbox.checked = !value;
+            if (!cb.checked) {
+                cb.checked = true;
+                saveCheckboxChange(cb.dataset.dataId, cb.dataset.dataType, cb.dataset.field, true, null, cb.parentElement);
             }
-        })
-        .catch(error => {
-            checkbox.style.opacity = '1';
-            checkbox.style.pointerEvents = 'auto';
-            console.error('Error:', error);
-            checkbox.checked = !value;
-        });
-    }
-
-    function updateBillingComplete(checkbox) {
-        const dataType = checkbox.dataset.dataType;
-        const dataId = checkbox.dataset.dataId;
-        const field = checkbox.dataset.field;
-        const value = checkbox.checked;
-        let estNilai = checkbox.dataset.estNilai;
-        estNilai = estNilai ? estNilai : '0';
-        fetch('{{ route("dashboard.sme.funnel.update") }}', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
-            body: JSON.stringify({ data_type: dataType, data_id: dataId, field: field, value: value, est_nilai_bc: estNilai })
-        })
-        .then(response => response.json())
-        .then(data => {
-            checkbox.style.opacity = '1';
-            checkbox.style.pointerEvents = 'auto';
-            if (data.success) {
-                console.log('✓ Billing complete updated successfully');
-                const nilaiCell = document.querySelector(`.nilai-billcomp-cell[data-row-id="${dataId}"] span`);
-                if (nilaiCell) nilaiCell.textContent = value ? formatNumber(data.nilai_billcomp) : '-';
-                const totalCell = document.getElementById('total-nilai-billcomp');
-                if (totalCell) totalCell.querySelector('span').textContent = data.total;
-                if (data.auto_fields && data.auto_fields.length) {
-                    const fields = Array.isArray(data.auto_fields) ? data.auto_fields : [data.auto_fields];
-                    const targetVal = data.auto_value === true || data.auto_value === 'true';
-                    fields.forEach(fld => {
-                        const sibling = document.querySelector(`.funnel-checkbox[data-field="${fld}"][data-data-id="${dataId}"][data-data-type="${dataType}"]`);
-                        if (sibling && sibling.checked !== targetVal) {
-                            sibling.checked = targetVal;
-                            saveCheckboxChange(dataId, dataType, fld, targetVal, null, sibling.parentElement);
-                        }
-                    });
-                }
-            } else {
-                console.error('Update failed');
-                checkbox.checked = !value;
-            }
-        })
-        .catch(error => {
-            checkbox.style.opacity = '1';
-            checkbox.style.pointerEvents = 'auto';
-            console.error('Error:', error);
-            checkbox.checked = !value;
         });
     }
 
     function saveCheckboxChange(rowId, dataType, field, value, estNilaiBc, checkboxContainer) {
         const payload = { data_type: dataType, data_id: rowId, field: field, value: value };
         if (field === 'delivery_billing_complete') payload.est_nilai_bc = estNilaiBc || '0';
-        console.log('📤 Sending request:', payload);
+
         fetch('{{ route("dashboard.sme.funnel.update") }}', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
             body: JSON.stringify(payload)
         })
-        .then(response => {
-            console.log('📥 Response status:', response.status, response.statusText);
-            if (!response.ok) throw new Error('Network response was not ok: ' + response.status);
-            return response.json();
-        })
+        .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
         .then(data => {
-            console.log('📥 Response data:', data);
             if (data.success) {
-                console.log('✅ Save successful!');
                 checkboxContainer.classList.remove('bg-yellow-100');
                 checkboxContainer.classList.add('bg-green-50');
                 setTimeout(() => checkboxContainer.classList.remove('bg-green-50'), 1500);
+
                 if (field === 'delivery_billing_complete') {
                     const row = checkboxContainer.closest('tr');
-                    const nilaiBillCompCell = row.querySelector('.nilai-billcomp-cell');
-                    if (nilaiBillCompCell) {
-                        if (value && data.nilai_billcomp) {
-                            nilaiBillCompCell.innerHTML = '<span class="font-black text-slate-800">' + formatNumber(data.nilai_billcomp) + '</span>';
-                        } else {
-                            nilaiBillCompCell.innerHTML = '<span class="text-slate-300">—</span>';
-                        }
+                    const nilaiCell = row?.querySelector('.nilai-billcomp-cell');
+                    if (nilaiCell) {
+                        nilaiCell.innerHTML = value && data.nilai_billcomp
+                            ? '<span class="font-black text-slate-800">' + formatNumber(data.nilai_billcomp) + '</span>'
+                            : '<span class="text-slate-300">—</span>';
                     }
-                }
-                if (data.auto_fields && data.auto_fields.length) {
-                    const fields = Array.isArray(data.auto_fields) ? data.auto_fields : [data.auto_fields];
-                    const targetVal = data.auto_value === true || data.auto_value === 'true';
-                    const rowId = checkboxContainer.closest('tr').querySelector('input').dataset.dataId;
-                    const rowType = checkboxContainer.closest('tr').querySelector('input').dataset.dataType;
-                    fields.forEach(fld => {
-                        const sibling = document.querySelector(`.funnel-checkbox[data-field="${fld}"][data-data-id="${rowId}"][data-data-type="${rowType}"]`);
-                        if (sibling && sibling.checked !== targetVal) {
-                            sibling.checked = targetVal;
-                            saveCheckboxChange(rowId, rowType, fld, targetVal, null, sibling.parentElement);
-                        }
-                    });
                 }
                 if (data.total) {
                     const totalCell = document.getElementById('total-nilai-billcomp');
                     if (totalCell) totalCell.querySelector('span').textContent = data.total;
                 }
+                if (data.auto_fields && data.auto_fields.length) {
+                    const fields = Array.isArray(data.auto_fields) ? data.auto_fields : [data.auto_fields];
+                    const targetVal = data.auto_value === true || data.auto_value === 'true';
+                    const row = checkboxContainer.closest('tr');
+                    const firstInput = row?.querySelector('input[data-data-id]');
+                    const currentRowId = firstInput?.dataset.dataId;
+                    const currentRowType = firstInput?.dataset.dataType;
+                    fields.forEach(fld => {
+                        const sibling = document.querySelector(
+                            `.funnel-checkbox[data-field="${fld}"][data-data-id="${currentRowId}"][data-data-type="${currentRowType}"]`
+                        );
+                        if (sibling && sibling.checked !== targetVal) {
+                            sibling.checked = targetVal;
+                            saveCheckboxChange(currentRowId, currentRowType, fld, targetVal, null, sibling.parentElement);
+                        }
+                    });
+                }
+                // Cascade backward untuk funnel
+                const cb = checkboxContainer.querySelector('input[type="checkbox"]');
+                if (cb && value && cb.classList.contains('funnel-checkbox')) cascadeBackwards(cb);
+
             } else {
-                console.error('❌ Save failed:', data);
                 checkboxContainer.classList.remove('bg-yellow-100');
                 checkboxContainer.classList.add('bg-red-50');
                 setTimeout(() => checkboxContainer.classList.remove('bg-red-50'), 1500);
-                const checkbox = checkboxContainer.querySelector('input[type="checkbox"]');
-                if (checkbox) checkbox.checked = !value;
-                alert('Gagal menyimpan perubahan: ' + (data.message || 'Terjadi kesalahan'));
+                const cb = checkboxContainer.querySelector('input[type="checkbox"]');
+                if (cb) cb.checked = !value;
+                alert('Gagal menyimpan: ' + (data.message || 'Terjadi kesalahan'));
             }
         })
-        .catch(error => {
-            console.error('❌ Network/Parse error:', error);
+        .catch(err => {
             checkboxContainer.classList.remove('bg-yellow-100');
             checkboxContainer.classList.add('bg-red-50');
             setTimeout(() => checkboxContainer.classList.remove('bg-red-50'), 1500);
-            const checkbox = checkboxContainer.querySelector('input[type="checkbox"]');
-            if (checkbox) checkbox.checked = !value;
-            alert('Gagal menyimpan perubahan. Silakan coba lagi. Error: ' + error.message);
+            const cb = checkboxContainer.querySelector('input[type="checkbox"]');
+            if (cb) cb.checked = !value;
+            alert('Error: ' + err.message);
         });
     }
 });

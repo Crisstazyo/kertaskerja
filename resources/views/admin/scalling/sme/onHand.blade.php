@@ -127,7 +127,7 @@
                     <h2 class="text-base font-black text-slate-900 uppercase tracking-wide">Upload File</h2>
                 </div>
 
-                <form action="{{ route('admin.scalling.sme.on-hand') }}" method="POST" enctype="multipart/form-data">
+                <form action="{{ route('admin.scalling.sme.on-hand.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
                         <input type="hidden" name="type" value="on-hand">

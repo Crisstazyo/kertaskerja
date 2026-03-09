@@ -45,6 +45,8 @@ return new class extends Migration
             $table->string('delivery_baso')->nullable();
             $table->boolean('delivery_billing_complete')->default(false);
             $table->decimal('delivery_nilai_billcomp', 15, 2)->nullable();
+            //CANCEL
+            $table->boolean('cancel')->default(false);
             
             $table->timestamps();
             
