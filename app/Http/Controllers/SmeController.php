@@ -395,119 +395,237 @@ class SmeController extends Controller
 
     // ══ AOSODOMORO 0-3 Bulan (type_id: 7) ══
 
-    public function aosodomoro03Bulan()
-    {
-        $periode = now()->format('Y-m-01');
+public function aosodomoro03Bulan(Request $request)
+{
+    $periode = now()->format('Y-m-01');
 
-        // Record milik user login di periode ini
-        $existing = RisingStar::where('user_id', auth()->id())
-            ->where('type_id', 7)
-            ->where('periode', $periode)
-            ->first();
+    $existing = RisingStar::where('user_id', auth()->id())
+        ->where('type_id', 7)
+        ->where('periode', $periode)
+        ->orderBy('created_at', 'desc')
+        ->first();
 
-        // History hanya milik user login
-        $history = RisingStar::with(['user', 'type'])
-            ->where('user_id', auth()->id())
-            ->where('type_id', 7)
-            ->orderBy('periode', 'desc')
-            ->orderBy('updated_at', 'desc')
-            ->paginate(15);
+    $query = RisingStar::with(['user', 'type'])
+        ->where('user_id', auth()->id())
+        ->where('type_id', 7)
+        ->orderBy('created_at', 'desc');
 
-        return view('dashboard.sme.aosodomoro-0-3-bulan', compact('history', 'existing'));
+    if ($request->filled('bulan')) {
+        $query->whereMonth('periode', $request->bulan);
+    }
+    if ($request->filled('tahun')) {
+        $query->whereYear('periode', $request->tahun);
+    }
+    if ($request->filled('cari')) {
+        $query->where(function($q) use ($request) {
+            $q->where('commitment', 'like', '%'.$request->cari.'%')
+              ->orWhere('real_ratio', 'like', '%'.$request->cari.'%');
+        });
     }
 
-    public function storeAosodomoro03Bulan(Request $request)
-    {
-        $request->validate([
-            'real_ratio' => 'required|numeric|min:0',
-        ]);
+    $history = $query->paginate(20)->withQueryString();
 
-        $this->upsertRisingStar(7, [
-            'real_ratio' => $request->real_ratio,
-        ]);
+    $tahuns = RisingStar::where('user_id', auth()->id())
+        ->where('type_id', 7)
+        ->selectRaw('YEAR(periode) as tahun')
+        ->distinct()
+        ->orderBy('tahun', 'desc')
+        ->pluck('tahun');
 
-        return redirect()->route('dashboard.sme.aosodomoro-0-3-bulan')
-            ->with('success', 'Data realisasi Aosodomoro 0-3 Bulan berhasil disimpan.');
-    }
+    $selectedBulan = $request->bulan;
+    $selectedTahun = $request->tahun;
+    $selectedCari  = $request->cari;
+
+    return view('dashboard.sme.aosodomoro-0-3-bulan', compact(
+        'history', 'existing', 'tahuns',
+        'selectedBulan', 'selectedTahun', 'selectedCari'
+    ));
+}
+
+public function storeAosodomoro03Bulan(Request $request)
+{
+    $request->validate([
+        'real_ratio' => 'required|numeric|min:0',
+    ]);
+
+    $periode = now()->format('Y-m-01');
+
+    $lastCommitment = RisingStar::where('user_id', auth()->id())
+        ->where('type_id', 7)
+        ->where('periode', $periode)
+        ->whereNotNull('commitment')
+        ->orderBy('created_at', 'desc')
+        ->value('commitment');
+
+    RisingStar::create([
+        'user_id'    => auth()->id(),
+        'type_id'    => 7,
+        'periode'    => $periode,
+        'status'     => 'active',
+        'commitment' => $lastCommitment,
+        'real_ratio' => $request->real_ratio,
+    ]);
+
+    return redirect()->route('dashboard.sme.aosodomoro-0-3-bulan')
+        ->with('success', 'Data realisasi Aosodomoro 0-3 Bulan berhasil disimpan.');
+}
 
     // ══ AOSODOMORO > 3 Bulan (type_id: 8) ══
 
-    public function aosodomoroAbove3Bulan()
-    {
-        $periode = now()->format('Y-m-01');
+    public function aosodomoroAbove3Bulan(Request $request)
+{
+    $periode = now()->format('Y-m-01');
 
-        $existing = RisingStar::where('user_id', auth()->id())
-            ->where('type_id', 8)
-            ->where('periode', $periode)
-            ->first();
+    $existing = RisingStar::where('user_id', auth()->id())
+        ->where('type_id', 8)
+        ->where('periode', $periode)
+        ->orderBy('created_at', 'desc')
+        ->first();
 
-        // History hanya milik user login
-        $history = RisingStar::with(['user', 'type'])
-            ->where('user_id', auth()->id())
-            ->where('type_id', 8)
-            ->orderBy('periode', 'desc')
-            ->orderBy('updated_at', 'desc')
-            ->paginate(15);
+    $query = RisingStar::with(['user', 'type'])
+        ->where('user_id', auth()->id())
+        ->where('type_id', 8)
+        ->orderBy('created_at', 'desc');
 
-        return view('dashboard.sme.aosodomoro-above-3-bulan', compact('history', 'existing'));
+    if ($request->filled('bulan')) {
+        $query->whereMonth('periode', $request->bulan);
     }
+    if ($request->filled('tahun')) {
+        $query->whereYear('periode', $request->tahun);
+    }
+    if ($request->filled('cari')) {
+        $query->where(function($q) use ($request) {
+            $q->where('commitment', 'like', '%'.$request->cari.'%')
+              ->orWhere('real_ratio', 'like', '%'.$request->cari.'%');
+        });
+    }
+
+    $history = $query->paginate(20)->withQueryString();
+
+    $tahuns = RisingStar::where('user_id', auth()->id())
+        ->where('type_id', 8)
+        ->selectRaw('YEAR(periode) as tahun')
+        ->distinct()
+        ->orderBy('tahun', 'desc')
+        ->pluck('tahun');
+
+    $selectedBulan = $request->bulan;
+    $selectedTahun = $request->tahun;
+    $selectedCari  = $request->cari;
+
+    return view('dashboard.sme.aosodomoro-above-3-bulan', compact(
+        'history', 'existing', 'tahuns',
+        'selectedBulan', 'selectedTahun', 'selectedCari'
+    ));
+}
 
     public function storeAosodomoroAbove3Bulan(Request $request)
-    {
-        $request->validate([
-            'real_ratio' => 'required|numeric|min:0',
-        ]);
+{
+    $request->validate([
+        'real_ratio' => 'required|numeric|min:0',
+    ]);
 
-        $this->upsertRisingStar(8, [
-            'real_ratio' => $request->real_ratio,
-        ]);
+    $periode = now()->format('Y-m-01');
 
-        return redirect()->route('dashboard.sme.aosodomoro-above-3-bulan')
-            ->with('success', 'Data realisasi Aosodomoro >3 Bulan berhasil disimpan.');
+    $lastCommitment = RisingStar::where('user_id', auth()->id())
+        ->where('type_id', 8)
+        ->where('periode', $periode)
+        ->whereNotNull('commitment')
+        ->orderBy('created_at', 'desc')
+        ->value('commitment');
+
+    RisingStar::create([
+        'user_id'    => auth()->id(),
+        'type_id'    => 8,
+        'periode'    => $periode,
+        'status'     => 'active',
+        'commitment' => $lastCommitment,
+        'real_ratio' => $request->real_ratio,
+    ]);
+
+    return redirect()->route('dashboard.sme.aosodomoro-above-3-bulan')
+        ->with('success', 'Data realisasi Aosodomoro >3 Bulan berhasil disimpan.');
+}
+
+public function upselling(Request $request)
+{
+    $periode = now()->format('Y-m-01');
+
+    $existing = Hsi::where('user_id', auth()->id())
+        ->where('type', 'Next Level HSI')
+        ->where('periode', $periode)
+        ->orderBy('created_at', 'desc')
+        ->first();
+
+    $query = Hsi::with(['user'])
+        ->where('user_id', auth()->id())
+        ->where('type', 'Next Level HSI')
+        ->orderBy('created_at', 'desc');
+
+    if ($request->filled('bulan')) {
+        $query->whereMonth('periode', $request->bulan);
+    }
+    if ($request->filled('tahun')) {
+        $query->whereYear('periode', $request->tahun);
+    }
+    if ($request->filled('cari')) {
+        $query->where(function($q) use ($request) {
+            $q->where('commitment', 'like', '%'.$request->cari.'%')
+              ->orWhere('real_ratio', 'like', '%'.$request->cari.'%');
+        });
     }
 
-    public function upselling()
-    {
-        $periode = now()->format('Y-m-01');
+    $history = $query->paginate(20)->withQueryString();
 
-        $existing = Hsi::where('user_id', auth()->id())
-            ->where('type', 'Next Level HSI')
-            ->where('periode', $periode)
-            ->first();
+    $tahuns = Hsi::where('user_id', auth()->id())
+        ->where('type', 'Next Level HSI')
+        ->selectRaw('YEAR(periode) as tahun')
+        ->distinct()
+        ->orderBy('tahun', 'desc')
+        ->pluck('tahun');
 
-        // History hanya milik user login
-        $history = Hsi::with(['user'])
-            ->where('user_id', auth()->id())
-            ->where('type', 'Next Level HSI')
-            ->orderBy('periode', 'desc')
-            ->orderBy('updated_at', 'desc')
-            ->paginate(15);
+    $selectedBulan = $request->bulan;
+    $selectedTahun = $request->tahun;
+    $selectedCari  = $request->cari;
 
-        return view('dashboard.sme.upselling', compact('history', 'existing'));
-    }
+    return view('dashboard.sme.upselling', compact(
+        'history', 'existing', 'tahuns',
+        'selectedBulan', 'selectedTahun', 'selectedCari'
+    ));
+}
 
-    public function storeUpselling(Request $request)
-    {
-        $request->validate([
-            'type' => 'required|string',
-            'real_ratio' => 'required|numeric|min:0',
-            'commitment' => 'required|numeric|min:0',
-        ]);
-        $periode = now()->format('Y-m-01');
-        $upselling = Hsi::updateOrCreate(
-            [
-                'user_id' => auth()->id(),
-                'type' => $request->type,
-                'periode' => $periode,
-            ],
-            [
-                'real_ratio' => $request->real_ratio,
-                'commitment' => $request->commitment,
-            ]
-        );
-        return redirect()->route('dashboard.sme.upselling')
-            ->with('success', 'Data realisasi Upselling berhasil disimpan.');
-    }
+public function storeUpselling(Request $request)
+{
+    $request->validate([
+        'type'       => 'required|string',
+        'real_ratio' => 'required|numeric|min:0',
+        'commitment' => 'nullable|numeric|min:0',
+    ]);
+
+    $periode = now()->format('Y-m-01');
+
+    $lastRecord = Hsi::where('user_id', auth()->id())
+        ->where('type', $request->type)
+        ->where('periode', $periode)
+        ->whereNotNull('commitment')
+        ->orderBy('created_at', 'desc')
+        ->first();
+
+    $commitment = $request->filled('commitment') && $request->commitment > 0
+        ? $request->commitment
+        : ($lastRecord->commitment ?? null);
+
+    Hsi::create([
+        'user_id'    => auth()->id(),
+        'type'       => $request->type,
+        'periode'    => $periode,
+        'commitment' => $commitment,
+        'real_ratio' => $request->real_ratio,
+    ]);
+
+    return redirect()->route('dashboard.sme.upselling')
+        ->with('success', 'Data realisasi Upselling berhasil disimpan.');
+}
 
     /**
      * Show the form for creating a new resource.

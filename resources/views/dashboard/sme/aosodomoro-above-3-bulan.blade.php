@@ -137,30 +137,74 @@
 
         {{-- ══ HISTORY TABLE ══ --}}
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-            <div class="px-8 py-5 border-b border-slate-100 flex items-center justify-between">
-                <div class="flex items-center space-x-3">
+            <div class="px-8 py-5 border-b border-slate-100">
+                <div class="flex items-center space-x-3 mb-5">
                     <div class="w-1.5 h-8 bg-red-600 rounded-full"></div>
                     <h2 class="text-base font-black text-slate-900 uppercase tracking-wide">History Realisasi</h2>
                 </div>
-                <span class="text-xs font-bold text-slate-500 bg-white border border-slate-200 rounded-full px-4 py-1.5 shadow-sm">&gt;3 Bulan</span>
+                <form method="GET" action="{{ route('dashboard.sme.aosodomoro-above-3-bulan') }}" class="grid grid-cols-4 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Bulan</label>
+                        <select name="bulan" onchange="this.form.submit()"
+                            class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-semibold text-slate-700 focus:outline-none focus:border-red-400 bg-white">
+                            <option value="">Semua Bulan</option>
+                            @foreach(range(1, 12) as $m)
+                                <option value="{{ $m }}" {{ ($selectedBulan ?? '') == $m ? 'selected' : '' }}>
+                                    {{ \Carbon\Carbon::create()->month($m)->locale('id')->translatedFormat('F') }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Tahun</label>
+                        <select name="tahun" onchange="this.form.submit()"
+                            class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-semibold text-slate-700 focus:outline-none focus:border-red-400 bg-white">
+                            <option value="">Semua Tahun</option>
+                            @foreach($tahuns as $t)
+                                <option value="{{ $t }}" {{ ($selectedTahun ?? '') == $t ? 'selected' : '' }}>{{ $t }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Cari</label>
+                        <input type="text" name="cari" value="{{ $selectedCari ?? '' }}" placeholder="Cari..."
+                            class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-semibold text-slate-700 focus:outline-none focus:border-red-400">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5 invisible">Reset</label>
+                        <div class="flex gap-2">
+                            <button type="submit"
+                                class="flex-1 px-4 py-2 bg-slate-900 hover:bg-red-600 text-white font-bold text-xs rounded-lg transition-colors uppercase tracking-wider">
+                                Cari
+                            </button>
+                            <a href="{{ route('dashboard.sme.aosodomoro-above-3-bulan') }}"
+                                class="flex-1 flex items-center justify-center px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-xs rounded-lg transition-colors uppercase tracking-wider">
+                                Reset
+                            </a>
+                        </div>
+                    </div>
+                </form>
             </div>
             <div class="overflow-x-auto">
                 <table class="min-w-full">
                     <thead>
                         <tr class="bg-slate-50 border-b border-slate-100">
                             <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">No</th>
+                            <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Tanggal Input</th>
                             <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Periode</th>
-                            <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Target (Admin)</th>
+                            <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Komitmen</th>
                             <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Realisasi</th>
-                            <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Terakhir Diperbarui</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
-                        @forelse($history as $index => $item)
+                        @forelse($history as $item)
                         <tr class="hover:bg-slate-50 transition-colors">
-                            <td class="px-6 py-4 text-sm font-bold text-slate-400">{{ $history->firstItem() + $index }}</td>
+                            <td class="px-6 py-4 text-sm font-bold text-slate-400">{{ $history->firstItem() + $loop->index }}</td>
+                            <td class="px-6 py-4 text-sm font-semibold text-slate-500">
+                                {{ $item->created_at->translatedFormat('d M Y H:i') }}
+                            </td>
                             <td class="px-6 py-4 text-sm font-semibold text-slate-600">
-                                {{ $item->periode ? \Carbon\Carbon::parse($item->periode)->format('F Y') : '—' }}
+                                {{ $item->periode ? \Carbon\Carbon::parse($item->periode)->translatedFormat('F Y') : '—' }}
                             </td>
                             <td class="px-6 py-4 text-center">
                                 @if($item->commitment !== null)
@@ -173,11 +217,8 @@
                                 @if($item->real_ratio !== null)
                                     <span class="text-sm font-black text-red-600">{{ number_format($item->real_ratio, 2) }}%</span>
                                 @else
-                                    <span class="text-xs font-semibold text-slate-400 bg-slate-50 border border-slate-200 rounded-md px-2 py-0.5">Belum diisi</span>
+                                    <span class="text-xs font-semibold text-slate-400 bg-slate-50 border border-slate-200 rounded-md px-2 py-0.5">—</span>
                                 @endif
-                            </td>
-                            <td class="px-6 py-4 text-sm text-slate-400 font-medium">
-                                {{ $item->updated_at->format('d M Y H:i') }}
                             </td>
                         </tr>
                         @empty
@@ -186,7 +227,7 @@
                                 <svg class="mx-auto w-10 h-10 text-slate-200 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
                                 </svg>
-                                <p class="text-sm font-bold text-slate-400">Belum ada data realisasi yang diinput</p>
+                                <p class="text-sm font-bold text-slate-400">Belum Ada Data Aosodomoro > 3 Bulan</p>
                             </td>
                         </tr>
                         @endforelse
@@ -194,8 +235,29 @@
                 </table>
             </div>
             @if($history->hasPages())
-            <div class="px-8 py-4 border-t border-slate-100">
-                {{ $history->links() }}
+            <div class="px-8 py-4 border-t border-slate-100 flex items-center justify-between">
+                <p class="text-xs font-semibold text-slate-400">
+                    Menampilkan {{ $history->firstItem() }}–{{ $history->lastItem() }} dari {{ $history->total() }} data
+                </p>
+                <div class="flex items-center gap-1">
+                    @if($history->onFirstPage())
+                        <span class="px-3 py-1.5 text-xs font-bold text-slate-300 bg-slate-50 border border-slate-200 rounded-lg cursor-not-allowed">‹</span>
+                    @else
+                        <a href="{{ $history->previousPageUrl() }}" class="px-3 py-1.5 text-xs font-bold text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">‹</a>
+                    @endif
+                    @foreach($history->getUrlRange(1, $history->lastPage()) as $page => $url)
+                        @if($page == $history->currentPage())
+                            <span class="px-3 py-1.5 text-xs font-bold text-white bg-slate-900 border border-slate-900 rounded-lg">{{ $page }}</span>
+                        @else
+                            <a href="{{ $url }}" class="px-3 py-1.5 text-xs font-bold text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">{{ $page }}</a>
+                        @endif
+                    @endforeach
+                    @if($history->hasMorePages())
+                        <a href="{{ $history->nextPageUrl() }}" class="px-3 py-1.5 text-xs font-bold text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">›</a>
+                    @else
+                        <span class="px-3 py-1.5 text-xs font-bold text-slate-300 bg-slate-50 border border-slate-200 rounded-lg cursor-not-allowed">›</span>
+                    @endif
+                </div>
             </div>
             @endif
         </div>
