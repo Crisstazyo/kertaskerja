@@ -78,7 +78,8 @@
                     <div class="flex items-center space-x-3">
                         <div class="w-1 h-6 bg-red-600 rounded-full"></div>
                         <h2 class="text-base font-black text-slate-900 uppercase tracking-wide">
-                            Input Data Telda — {{ \Carbon\Carbon::createFromFormat('Y-m', $selectedPeriode)->format('F Y') }}
+                            Input Data Telda —
+                            {{ \Carbon\Carbon::createFromFormat('Y-m', $selectedPeriode)->format('F Y') }}
                         </h2>
                     </div>
                     <p class="text-xs text-amber-500 font-medium">
@@ -89,9 +90,9 @@
                 <form action="{{ route('admin.telda.store') }}" method="POST" id="teldaForm">
                     @csrf
                     <div class="mb-6 max-w-xs">
-                        <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Periode</label>
-                        <input type="month" name="periode" required
-                            value="{{ $selectedPeriode }}"
+                        <label
+                            class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Periode</label>
+                        <input type="month" name="periode" required value="{{ $selectedPeriode }}"
                             onchange="window.location.href = '?periode=' + this.value"
                             class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors">
                         @error('periode')
@@ -120,14 +121,16 @@
                                     @endif
                                 </div>
 
-                                <input type="hidden" name="regions[{{ $regionKey }}][region]" value="{{ $regionKey }}">
+                                <input type="hidden" name="regions[{{ $regionKey }}][region]" value="{{ $regionKey }}"
+                                    class="telda-region-key">
                                 <input type="hidden" name="regions[{{ $regionKey }}][status]" value="active">
 
-                                    <label
-                                        class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Commitment</label>
-                                    <input type="number" name="regions[{{ $regionKey }}][commitment]"
+                                <label
+                                    class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Commitment</label>
+                                <input type="number" name="regions[{{ $regionKey }}][commitment]"
                                     id="{{ $regionKey }}_commitment" value="{{ $commitmentVal ?? '' }}"
                                     placeholder="Masukkan target" min="0" step="0.01" data-telda="{{ $regionKey }}"
+                                    data-original="{{ $commitmentVal ?? '' }}"
                                     class="telda-commitment w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors">
 
                                 <div>
@@ -137,6 +140,7 @@
                                         value="{{ $realVal ?? '' }}"
                                         placeholder="{{ $realDisabled ? 'Isi commitment dulu' : 'Masukkan realisasi' }}" min="0"
                                         step="0.01" inputmode="decimal" {{ $realDisabled ? 'disabled' : '' }}
+                                        data-original="{{ $realVal ?? '' }}"
                                         class="telda-real w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors disabled:bg-slate-50 disabled:text-slate-300 disabled:cursor-not-allowed">
                                 </div>
                             </div>
@@ -155,94 +159,175 @@
                 </form>
             </div>
 
-            @if($history->count() > 0)
-                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                    <div class="px-8 py-5 border-b border-slate-100 flex items-center justify-between">
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+
+                <div class="px-8 py-5 border-b border-slate-100">
+                    <div class="flex items-center justify-between mb-5">
                         <div class="flex items-center space-x-3">
                             <div class="w-1 h-6 bg-red-600 rounded-full"></div>
                             <h2 class="text-base font-black text-slate-900 uppercase tracking-wide">Riwayat Data Telda</h2>
                         </div>
                         <span
                             class="text-xs font-bold text-slate-400 bg-slate-50 border border-slate-200 rounded-full px-3 py-1">
-                            {{ $history->count() }} records
+                            {{ $history->total() }} records
                         </span>
                     </div>
 
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full text-sm">
-                            <thead>
-                                <tr class="bg-slate-50 border-b border-slate-100">
-                                    <th
-                                        class="px-4 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">
-                                        Periode</th>
-                                    @foreach($teldas as $regionKey => $label)
-                                        <th class="px-4 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap"
-                                            colspan="2">{{ $label }}</th>
-                                    @endforeach
-                                </tr>
-                                <tr class="bg-slate-50 border-b border-slate-200">
-                                    <th class="px-4 py-2"></th>
-                                    @foreach($teldas as $regionKey => $label)
-                                        <th
-                                            class="px-3 py-2 text-center text-[9px] font-black text-blue-400 uppercase tracking-widest">
-                                            COM</th>
-                                        <th
-                                            class="px-3 py-2 text-center text-[9px] font-black text-green-400 uppercase tracking-widest">
-                                            REAL</th>
-                                    @endforeach
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-100">
-                                @foreach($historyByPeriode as $periode => $rows)
-                                    @php
-                                        $byRegion = $rows->keyBy('region');
-                                    @endphp
-                                    <tr class="hover:bg-slate-50 transition-colors {{ $periode === $selectedPeriode ? 'bg-red-50/40' : '' }}">
-                                        <td class="px-4 py-3 whitespace-nowrap">
-                                            <a href="?periode={{ $periode }}"
-                                                class="text-xs font-bold rounded-md px-2 py-0.5 transition-colors
-                                                    {{ $periode === $selectedPeriode
-                                                        ? 'text-white bg-red-600 border border-red-600'
-                                                        : 'text-red-600 bg-red-50 border border-red-100 hover:bg-red-100' }}">
-                                                {{ \Carbon\Carbon::parse($periode . '-01')->format('M Y') }}
-                                            </a>
-                                        </td>
-                                        @foreach($teldas as $regionKey => $label)
-                                            @php
-                                                $row = $byRegion[$regionKey] ?? null;
-                                                $com = $row ? $row->commitment : null;
-                                                $real = $row ? $row->real_ratio : null;
-                                            @endphp
-                                            <td class="px-3 py-3 text-center font-bold text-slate-700 whitespace-nowrap">
-                                                @if(!is_null($com))
-                                                    {{ number_format($com, 2, ',', '.') }}
-                                                @else
-                                                    <span class="text-slate-300">—</span>
-                                                @endif
-                                            </td>
-                                            <td class="px-3 py-3 text-center whitespace-nowrap">
-                                                @if(!is_null($real) && !is_null($com) && $com > 0)
-                                                    @php $pct = ($real / $com) * 100; @endphp
-                                                    <span
-                                                        class="text-xs font-bold rounded px-1.5 py-0.5
-                                                                                {{ $pct >= 100 ? 'text-green-700 bg-green-50' : ($pct >= 80 ? 'text-yellow-700 bg-yellow-50' : 'text-red-700 bg-red-50') }}">
-                                                        {{ number_format($real, 2, ',', '.') }}
-                                                    </span>
-                                                @elseif(!is_null($real))
-                                                    <span
-                                                        class="text-slate-600 font-bold text-xs">{{ number_format($real, 2, ',', '.') }}</span>
-                                                @else
-                                                    <span class="text-slate-300 text-xs">—</span>
-                                                @endif
-                                            </td>
-                                        @endforeach
-                                    </tr>
+                    <form method="GET" action="{{ route('admin.telda.index') }}" class="grid grid-cols-4 gap-3">
+                        <div>
+                            <label
+                                class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Bulan</label>
+                            <select name="bulan" onchange="this.form.submit()"
+                                class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-semibold text-slate-700 focus:outline-none focus:border-red-400 bg-white">
+                                <option value="">Semua Bulan</option>
+                                @foreach(range(1, 12) as $m)
+                                    <option value="{{ $m }}" {{ ($selectedBulan ?? '') == $m ? 'selected' : '' }}>
+                                        {{ \Carbon\Carbon::create()->month($m)->locale('id')->translatedFormat('F') }}
+                                    </option>
                                 @endforeach
-                            </tbody>
-                        </table>
-                    </div>
+                            </select>
+                        </div>
+                        <div>
+                            <label
+                                class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Tahun</label>
+                            <select name="tahun" onchange="this.form.submit()"
+                                class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-semibold text-slate-700 focus:outline-none focus:border-red-400 bg-white">
+                                <option value="">Semua Tahun</option>
+                                @foreach($tahuns as $t)
+                                    <option value="{{ $t }}" {{ ($selectedTahun ?? '') == $t ? 'selected' : '' }}>{{ $t }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div>
+                            <label
+                                class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Region</label>
+                            <select name="region" onchange="this.form.submit()"
+                                class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-semibold text-slate-700 focus:outline-none focus:border-red-400 bg-white">
+                                <option value="">Semua Region</option>
+                                @foreach($teldas as $key => $label)
+                                    <option value="{{ $key }}" {{ ($selectedRegion ?? '') === $key ? 'selected' : '' }}>
+                                        {{ $label }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div>
+                            <label
+                                class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5 invisible">Reset</label>
+                            <a href="{{ route('admin.telda.index') }}"
+                                class="flex items-center justify-center w-full px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-xs rounded-lg transition-colors uppercase tracking-wider">
+                                Reset Filter
+                            </a>
+                        </div>
+                    </form>
                 </div>
-            @endif
+
+                <div class="overflow-x-auto">
+                    <table class="min-w-full text-sm">
+                        <thead>
+                            <tr class="bg-slate-50 border-b border-slate-100">
+                                <th
+                                    class="px-4 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                    No</th>
+                                <th
+                                    class="px-4 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                    Tanggal Input</th>
+                                <th
+                                    class="px-4 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                    Periode</th>
+                                <th
+                                    class="px-4 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                    Region</th>
+                                <th
+                                    class="px-4 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                    Commitment</th>
+                                <th
+                                    class="px-4 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                    Realisasi</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            @forelse($history as $item)
+                                <tr class="hover:bg-slate-50 transition-colors">
+                                    <td class="px-4 py-3 text-sm font-bold text-slate-400">
+                                        {{ $history->firstItem() + $loop->index }}</td>
+                                    <td class="px-4 py-3 text-sm text-slate-400 whitespace-nowrap">
+                                        {{ $item->created_at->format('d M Y, H:i') }}</td>
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <span
+                                            class="text-xs font-bold text-red-600 bg-red-50 border border-red-100 rounded-md px-2.5 py-1">
+                                            {{ \Carbon\Carbon::parse($item->periode)->format('M Y') }}
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 text-sm font-semibold text-slate-700">
+                                        {{ $teldas[$item->region] ?? $item->region }}</td>
+                                    <td class="px-4 py-3 text-center">
+                                        @if(!is_null($item->commitment))
+                                            <span
+                                                class="text-sm font-black text-slate-800">{{ number_format($item->commitment, 2, ',', '.') }}</span>
+                                        @else
+                                            <span class="text-slate-300">—</span>
+                                        @endif
+                                    </td>
+                                    <td class="px-4 py-3 text-center">
+                                        @if(!is_null($item->real_ratio))
+                                            <span
+                                                class="text-sm font-black text-red-600">{{ number_format($item->real_ratio, 2, ',', '.') }}</span>
+                                        @else
+                                            <span class="text-slate-300">—</span>
+                                        @endif
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="8" class="py-16 text-center">
+                                        <svg class="mx-auto w-10 h-10 text-slate-200 mb-3" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                        </svg>
+                                        <p class="text-sm font-bold text-slate-400">Belum Ada Data Telda</p>
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+
+                @if($history->hasPages())
+                    <div class="px-8 py-4 border-t border-slate-100 flex items-center justify-between">
+                        <p class="text-xs font-semibold text-slate-400">
+                            Menampilkan {{ $history->firstItem() }}–{{ $history->lastItem() }} dari {{ $history->total() }} data
+                        </p>
+                        <div class="flex items-center gap-1">
+                            @if($history->onFirstPage())
+                                <span
+                                    class="px-3 py-1.5 text-xs font-bold text-slate-300 bg-slate-50 border border-slate-200 rounded-lg cursor-not-allowed">‹</span>
+                            @else
+                                <a href="{{ $history->previousPageUrl() }}"
+                                    class="px-3 py-1.5 text-xs font-bold text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">‹</a>
+                            @endif
+                            @foreach($history->getUrlRange(1, $history->lastPage()) as $page => $url)
+                                @if($page == $history->currentPage())
+                                    <span
+                                        class="px-3 py-1.5 text-xs font-bold text-white bg-slate-900 border border-slate-900 rounded-lg">{{ $page }}</span>
+                                @else
+                                    <a href="{{ $url }}"
+                                        class="px-3 py-1.5 text-xs font-bold text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">{{ $page }}</a>
+                                @endif
+                            @endforeach
+                            @if($history->hasMorePages())
+                                <a href="{{ $history->nextPageUrl() }}"
+                                    class="px-3 py-1.5 text-xs font-bold text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">›</a>
+                            @else
+                                <span
+                                    class="px-3 py-1.5 text-xs font-bold text-slate-300 bg-slate-50 border border-slate-200 rounded-lg cursor-not-allowed">›</span>
+                            @endif
+                        </div>
+                    </div>
+                @endif
+
+            </div>
 
         </div>
     </div>
@@ -256,6 +341,29 @@
                 realEl.disabled = !hasVal;
                 realEl.placeholder = hasVal ? 'Masukkan realisasi' : 'Isi commitment dulu';
                 if (!hasVal) realEl.value = '';
+            });
+        });
+
+        document.getElementById('teldaForm').addEventListener('submit', function () {
+            document.querySelectorAll('.telda-commitment').forEach(function (commitEl) {
+                const telda = commitEl.getAttribute('data-telda');
+                const realEl = document.getElementById(telda + '_real');
+                const commitVal = commitEl.value.trim();
+                const realVal = realEl.value.trim();
+                const commitOrig = commitEl.getAttribute('data-original').trim();
+                const realOrig = realEl.getAttribute('data-original').trim();
+
+                const commitChanged = commitVal !== commitOrig;
+                const realChanged = realVal !== realOrig;
+
+                if (!commitChanged && !realChanged) {
+                    commitEl.disabled = true;
+                    realEl.disabled = true;
+                    const regionInput = document.querySelector(`input[name="regions[${telda}][region]"]`);
+                    const statusInput = document.querySelector(`input[name="regions[${telda}][status]"]`);
+                    if (regionInput) regionInput.disabled = true;
+                    if (statusInput) statusInput.disabled = true;
+                }
             });
         });
     </script>

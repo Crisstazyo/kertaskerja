@@ -150,6 +150,14 @@
                                     class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors">
                             </div>
 
+                            {{-- Komitmen --}}
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Komitmen (%)</label>
+                                <input type="number" step="0.01" name="commitment" value="{{ old('commitment') }}"
+                                    placeholder="cth: 95.50"
+                                    class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors">
+                            </div>
+
                         </div>
 
                         <div class="flex justify-end space-x-3">
@@ -258,6 +266,9 @@
                                     Periode</th>
                                 <th
                                     class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                    Komitmen</th>
+                                <th
+                                    class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
                                     Realisasi</th>
                                 <th
                                     class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
@@ -295,6 +306,15 @@
                                         <span class="text-sm font-semibold text-slate-600">
                                             {{ $item->periode ? \Carbon\Carbon::parse($item->periode)->format('M Y') : '—' }}
                                         </span>
+                                    </td>
+                                    <td class="px-6 py-4 text-center">
+                                        @if($item->commitment !== null && $item->commitment !== '')
+                                            <span class="text-sm font-black text-slate-600">{{ $item->commitment }}</span>
+                                        @else
+                                            <span
+                                                class="text-xs font-semibold text-slate-400 bg-slate-50 border border-slate-200 rounded-md px-2 py-0.5">Belum
+                                                diisi</span>
+                                        @endif
                                     </td>
                                     <td class="px-6 py-4 text-center">
                                         @if($item->real_ratio !== null && $item->real_ratio !== '')
