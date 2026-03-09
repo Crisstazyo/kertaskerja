@@ -146,6 +146,18 @@
                     <form method="GET" action="{{ route('admin.billing') }}" class="grid grid-cols-4 gap-3">
                         <div>
                             <label
+                                class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">User</label>
+                            <select name="user" onchange="this.form.submit()"
+                                class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-semibold text-slate-700 focus:outline-none focus:border-red-400 bg-white">
+                                <option value="">Semua User</option>
+                                @foreach ($users as $user)
+                                    <option value="{{ $user->id }}"
+                                        {{ ($selectedUser ?? '') == $user->id ? 'selected' : '' }}>{{ $user->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div>
+                            <label
                                 class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Bulan</label>
                             <select name="bulan" onchange="this.form.submit()"
                                 class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-semibold text-slate-700 focus:outline-none focus:border-red-400 bg-white">
@@ -252,8 +264,11 @@
                                         {{ $item->commitment ?? '—' }}</td>
                                     <td class="px-6 py-4 text-center font-black text-red-600">
                                         {{ $item->real_ratio ?? '—' }}</td>
+                                        @php $isActive = ($item->status ?? 'active') === 'active'; 
+                                        $isAdmin = ($item->user?->role === 'admin');
+                                        @endphp
+                                        @if($isAdmin)
                                     <td class="px-6 py-4">
-                                        @php $isActive = ($item->status ?? 'active') === 'active'; @endphp
                                         <div class="flex items-center justify-center space-x-2">
                                             @if ($isActive)
                                                 <span
@@ -297,6 +312,9 @@
                                             </form>
                                         </div>
                                     </td>
+                                    @else
+                                    <td class="px-6 py-4 text-center"></td>
+                                    @endif
                                 </tr>
                             @empty
                                 <tr>

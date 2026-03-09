@@ -119,7 +119,7 @@
                         </div>
                         <div>
                             <label
-                                class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Commitment</label>
+                                class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Commitment (%)</label>
                             <input type="number" step="0.01" name="commitment" placeholder="cth: 98.50"
                                 class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors"
                                 required>
@@ -282,9 +282,9 @@
                                     </td>
                                     <td class="px-6 py-4 text-sm text-slate-700">{{ $item->segment ?? '—' }}</td>
                                     <td class="px-6 py-4 text-center font-black text-slate-700">
-                                        {{ $item->commitment ?? '—' }}</td>
+                                        {{ $item->commitment !== null ? $item->commitment . '%' : '—' }}</td>
                                     <td class="px-6 py-4 text-center font-black text-red-600">
-                                        {{ $item->real_ratio ?? '—' }}</td>
+                                        {{ $item->real_ratio !== null ? $item->real_ratio . '%' : '—' }}</td>
                                     <td class="px-6 py-4">
                                         @php $isActive = ($item->status ?? 'active') === 'active'; @endphp
                                         <div class="flex items-center justify-center space-x-2">

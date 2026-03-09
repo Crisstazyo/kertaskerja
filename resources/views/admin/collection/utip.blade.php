@@ -132,20 +132,20 @@
                         </div>
                         <div>
                             <label
-                                class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Plan</label>
-                            <input type="number" step="0.01" name="plan" placeholder="cth: 98.50"
+                                class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Plan (Rp)</label>
+                            <input type="number" step="0.01" name="plan" placeholder="cth: 1000000"
                                 class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors">
                         </div>
                         <div>
                             <label
-                                class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Commitment</label>
-                            <input type="number" step="0.01" name="commitment" placeholder="cth: 97.50"
+                                class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Commitment (Rp)</label>
+                            <input type="number" step="0.01" name="commitment" placeholder="cth: 975000"
                                 class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors">
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Realisasi
-                                (%)</label>
-                            <input type="number" step="0.01" name="real_ratio" placeholder="cth: 95.50"
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Realisasi (Rp)
+                                </label>
+                            <input type="number" step="0.01" name="real_ratio" placeholder="cth: 955000"
                                 class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors">
                         </div>
                     </div>
@@ -177,6 +177,18 @@
                         <h2 class="text-base font-black text-slate-900 uppercase tracking-wide">Data Collections</h2>
                     </div>
                     <form method="GET" action="{{ route('admin.utip') }}" class="grid grid-cols-5 gap-3">
+                        <div>
+                            <label
+                                class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">User</label>
+                            <select name="user" onchange="this.form.submit()"
+                                class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-semibold text-slate-700 focus:outline-none focus:border-red-400 bg-white">
+                                <option value="">Semua User</option>
+                                @foreach ($users as $user)
+                                    <option value="{{ $user->id }}"
+                                        {{ ($selectedUser ?? '') == $user->id ? 'selected' : '' }}>{{ $user->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
                         <div>
                             <label
                                 class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Tipe</label>
@@ -255,7 +267,7 @@
                                     User</th>
                                 <th
                                     class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                                    Status</th>
+                                    Periode</th>
                                 <th
                                     class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
                                     Plan</th>
@@ -267,7 +279,7 @@
                                     Realisasi</th>
                                 <th
                                     class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                                    Periode</th>
+                                    Status</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100">
@@ -276,7 +288,7 @@
                                     <td class="px-6 py-4 text-sm font-bold text-slate-400">
                                         {{ $collections->firstItem() + $loop->index }}</td>
                                     <td class="px-6 py-4 text-sm text-center font-semibold text-slate-600">
-                                        {{ $item->created_at->translatedFormat('d M Y H:i') }}
+                                        {{ $item->updated_at->translatedFormat('d M Y H:i') }}
                                     </td>
                                     <td class="px-6 py-4">
                                         <div class="flex items-center space-x-2.5">
@@ -293,8 +305,24 @@
                                                 class="text-sm font-semibold text-slate-700">{{ $item->user->name ?? 'Unknown' }}</span>
                                         </div>
                                     </td>
-                                    <td class="px-6 py-4">
-                                        @php $isActive = ($item->status ?? 'active') === 'active'; @endphp
+                                    <td class="px-6 py-4 text-center text-sm text-slate-400">
+                                        {{ $item->periode ? date('d M Y', strtotime($item->periode)) : '—' }}
+                                    </td>
+                                    <td class="px-6 py-4 text-sm text-center font-black text-slate-700">
+                                        {{ $item->plan !== null ? 'Rp'.number_format($item->plan, 0, ',', '.') : '—' }}
+                                    </td>
+                                    <td class="px-6 py-4 text-center font-black text-slate-700">
+                                        {{ $item->commitment !== null ? 'Rp'.number_format($item->commitment, 0, ',', '.') : '—' }}
+                                    </td>
+                                    <td class="px-6 py-4 text-center font-black text-red-600">
+                                        {{ $item->real_ratio !== null ? 'Rp'.number_format($item->real_ratio, 0, ',', '.') : '—' }}
+                                    </td>
+                                    @php 
+                                        $isActive = ($item->status ?? 'active') === 'active'; 
+                                        $isAdmin = ($item->user?->role === 'admin');
+                                    @endphp
+                                    @if($isAdmin)
+                                    <td class="px-6 py-4 text-center">
                                         <div class="flex items-center justify-center space-x-2">
                                             @if ($isActive)
                                                 <span
@@ -338,14 +366,9 @@
                                             </form>
                                         </div>
                                     </td>
-                                    <td class="px-6 py-4 text-sm text-slate-700">{{ $item->plan ?? '—' }}</td>
-                                    <td class="px-6 py-4 text-center font-black text-slate-700">
-                                        {{ $item->commitment ?? '—' }}</td>
-                                    <td class="px-6 py-4 text-center font-black text-red-600">
-                                        {{ $item->real_ratio ?? '—' }}</td>
-                                    <td class="px-6 py-4 text-center text-sm text-slate-400">
-                                        {{ $item->periode ? date('d M Y', strtotime($item->periode)) : '—' }}
-                                    </td>
+                                    @else
+                                    <td class="px-6 py-4 text-center"></td>
+                                    @endif
                                 </tr>
                             @empty
                                 <tr>

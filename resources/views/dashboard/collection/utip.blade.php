@@ -100,14 +100,17 @@
                 <div class="p-8">
                     <form action="{{ route('collection.utip.storeRealisasi') }}" method="POST">
                         @csrf
-                        <input type="hidden" name="type" id="type-input" value="{{ $utips->first()->type ?? '' }}">
+                        <!-- <input type="hidden" name="type" id="type-input" value="{{ $utips->first()->type ?? '' }}"> -->
                         <div class="max-w-md mx-auto space-y-5">
                             <div>
                                 <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 text-center">Tipe UTIP</label>
                                 <select name="type" required onchange="document.getElementById('type-input').value = this.value"
                                     class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors bg-white">
+                                    @if($utips->isEmpty())
+                                        <option value="" disabled selected>Tipe UTIP belum ditambahkan</option>
+                                    @endif
                                     @foreach($utips as $utip)
-                                        <option value="{{ $utip->type }}">{{ $utip->type }}</option>
+                                        <option value="{{ $utip->type }}" {{ $utip->type == ($utips->first()->type ?? '') ? 'selected' : '' }}>{{ $utip->type }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -204,9 +207,9 @@
                                 <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">No</th>
                                 <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Tanggal Input</th>
                                 <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Tipe</th>
-                                <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Plan</th>
-                                <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Komitmen (Rp)</th>
-                                <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Realisasi (Rp)</th>
+                                <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Plan</th>
+                                <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Komitmen</th>
+                                <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Realisasi </th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100">
@@ -231,7 +234,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" class="py-16 text-center">
+                                    <td colspan="6" class="py-16 text-center">
                                         <svg class="mx-auto w-10 h-10 text-slate-200 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                                                 d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />

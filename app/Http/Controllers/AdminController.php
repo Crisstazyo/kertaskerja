@@ -25,10 +25,13 @@ class AdminController extends Controller
 {
     $query = Collection::with('user')
         ->where('type', 'Collection Ratio')
-        ->orderBy('created_at', 'asc');
+        ->orderBy('created_at', 'desc');
 
     if ($request->filled('segment')) {
         $query->where('segment', $request->segment);
+    }
+    if ($request->filled('user')) {
+        $query->where('user_id', $request->user);
     }
     if ($request->filled('bulan')) {
         $query->whereMonth('periode', $request->bulan);
@@ -58,7 +61,13 @@ class AdminController extends Controller
         ->orderBy('segment')
         ->pluck('segment');
 
-    $users = User::all();
+    $users = Collection::with('user')
+    ->where('type', 'like', '%UTIP%')
+    ->get()
+    ->pluck('user')
+    ->filter()        // buang null
+    ->unique('id')
+    ->values();
     $selectedSegment = $request->segment;
     $selectedBulan   = $request->bulan;
     $selectedTahun   = $request->tahun;
@@ -107,10 +116,13 @@ class AdminController extends Controller
 {
     $query = Collection::with('user')
         ->where('type', 'C3MR')
-        ->orderBy('created_at', 'asc');
+        ->orderBy('created_at', 'desc');
 
     if ($request->filled('bulan')) {
         $query->whereMonth('periode', $request->bulan);
+    }
+    if ($request->filled('user')) {
+        $query->where('user_id', $request->user);
     }
     if ($request->filled('tahun')) {
         $query->whereYear('periode', $request->tahun);
@@ -130,7 +142,13 @@ class AdminController extends Controller
         ->orderBy('tahun', 'desc')
         ->pluck('tahun');
 
-    $users = User::all();
+    $users = Collection::with('user')
+    ->where('type', 'like', '%UTIP%')
+    ->get()
+    ->pluck('user')
+    ->filter()        // buang null
+    ->unique('id')
+    ->values();
     $selectedBulan = $request->bulan;
     $selectedTahun = $request->tahun;
     $selectedCari  = $request->cari;
@@ -189,10 +207,13 @@ class AdminController extends Controller
 {
     $query = Collection::with('user')
         ->where('type', 'Billing Perdana')
-        ->orderBy('created_at', 'asc');
+        ->orderBy('created_at', 'desc');
 
     if ($request->filled('bulan')) {
         $query->whereMonth('periode', $request->bulan);
+    }
+    if ($request->filled('user')) {
+        $query->where('user_id', $request->user);
     }
     if ($request->filled('tahun')) {
         $query->whereYear('periode', $request->tahun);
@@ -212,7 +233,13 @@ class AdminController extends Controller
         ->orderBy('tahun', 'desc')
         ->pluck('tahun');
 
-    $users = User::all();
+    $users = Collection::with('user')
+    ->where('type', 'like', '%UTIP%')
+    ->get()
+    ->pluck('user')
+    ->filter()        // buang null
+    ->unique('id')
+    ->values();
     $selectedBulan = $request->bulan;
     $selectedTahun = $request->tahun;
     $selectedCari  = $request->cari;
@@ -258,8 +285,11 @@ class AdminController extends Controller
     $query = Collection::with('user')
         ->where('type', 'like', '%UTIP%')
         ->orderByRaw("CASE WHEN type LIKE '%Corrective%' THEN 0 ELSE 1 END")
-        ->orderBy('created_at', 'asc');
+        ->orderBy('created_at', 'desc');
 
+    if ($request->filled('user')) {
+        $query->where('user_id', $request->user);
+    }
     if ($request->filled('tipe')) {
         $query->where('type', $request->tipe);
     }
@@ -291,7 +321,14 @@ class AdminController extends Controller
         ->orderBy('type')
         ->pluck('type');
 
-    $users = User::all();
+    $users = Collection::with('user')
+    ->where('type', 'like', '%UTIP%')
+    ->get()
+    ->pluck('user')
+    ->filter()        // buang null
+    ->unique('id')
+    ->values();
+
     $selectedTipe  = $request->tipe;
     $selectedBulan = $request->bulan;
     $selectedTahun = $request->tahun;

@@ -72,7 +72,7 @@
         </div>
         @endif
 
-                {{-- ══ STATUS CARDS ══ --}}
+        {{-- ══ STATUS CARDS ══ --}}
         @php $periodeLabel = now()->translatedFormat('F Y'); @endphp
         <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-8">
             <div class="bg-white rounded-2xl border-2 border-slate-100 p-6 relative overflow-hidden">
@@ -90,9 +90,9 @@
                 <div class="absolute top-0 left-0 right-0 h-1 bg-green-500"></div>
                 <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Realisasi Terakhir — {{ $periodeLabel }}</p>
                 @php $latestReal = $activities->first(); @endphp
-                @if($latestReal && $latestReal->real_ratio !== null)
-                    <p class="text-4xl font-black text-green-600">{{ number_format($latestReal->real_ratio, 2) }}<span class="text-2xl">%</span></p>
-                    <p class="text-xs text-slate-400 font-semibold mt-2 uppercase tracking-wide">Terakhir diperbarui: {{ $latestReal->created_at->translatedFormat('d M Y H:i') }}</p>
+                @if($bill && $bill->real_ratio !== null)
+                    <p class="text-4xl font-black text-green-600">{{ number_format($bill->real_ratio, 2) }}<span class="text-2xl">%</span></p>
+                    <p class="text-xs text-slate-400 font-semibold mt-2 uppercase tracking-wide">Terakhir diperbarui: {{ $bill->created_at->translatedFormat('d M Y H:i') }}</p>
                 @else
                     <p class="text-2xl font-black text-slate-300">—</p>
                     <p class="text-xs text-slate-400 font-semibold mt-2">Belum ada realisasi untuk periode ini</p>

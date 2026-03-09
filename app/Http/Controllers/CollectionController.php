@@ -120,6 +120,10 @@ class CollectionController extends Controller
     $bill = Collection::where('type', 'Billing Perdana')
         ->whereYear('periode', $currentDate->year)
         ->whereMonth('periode', $currentDate->month)
+        ->where('status', 'active')
+        ->whereHas('user', function ($query) {
+            $query->where('role', 'collection');
+        })
         ->whereNotNull('commitment')
         ->orderBy('updated_at', 'desc')
         ->first();
@@ -282,8 +286,13 @@ class CollectionController extends Controller
         ->whereYear('updated_at', $currentYear)
         ->exists();
 
-    $utips = Collection::select('id', 'type', 'commitment')
+    $utips = Collection::select('id', 'type', 'plan', 'commitment', 'status')
+        ->with('user:id,name,role')
         ->where('type', 'like', '%UTIP%')
+        ->where('status', 'active')
+        ->whereHas('user', function ($query) {
+            $query->where('role', 'admin');
+        })
         ->get()
         ->unique('type')
         ->values();
