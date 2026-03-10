@@ -167,6 +167,7 @@
         'koreksi'   => route('report.detail', ['segment' => 'sme',     'type' => 'koreksi',   'periode' => $scalingPeriodeYm]),
     ],
 ];
+    
     @endphp
 
     <div class="min-h-screen" style="background:#f1f5f9;">
@@ -840,30 +841,92 @@
 <style>
     .print-header { display: none; }
     #export-overlay {
-        display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);
-        z-index:9999;align-items:center;justify-content:center;flex-direction:column;gap:14px;
+        display:none;position:fixed;inset:0;background:rgba(0,0,0,0.65);
+        z-index:9999;align-items:center;justify-content:center;flex-direction:column;gap:16px;
     }
     #export-overlay.active { display:flex; }
-    #export-overlay p { color:white;font-weight:900;font-size:13px;letter-spacing:0.1em;text-transform:uppercase; }
-    #export-progress-bar-wrap { width:260px;height:6px;background:rgba(255,255,255,0.2);border-radius:99px;overflow:hidden; }
-    #export-progress-bar { height:100%;background:#ef4444;border-radius:99px;transition:width 0.3s; width:0%; }
+    #export-overlay p { color:white;font-weight:900;font-size:13px;letter-spacing:0.12em;text-transform:uppercase; }
+    #export-progress-bar-wrap { width:280px;height:6px;background:rgba(255,255,255,0.2);border-radius:99px;overflow:hidden; }
+    #export-progress-bar { height:100%;background:#ef4444;border-radius:99px;transition:width 0.3s;width:0%; }
     .export-spinner { width:36px;height:36px;border:4px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:espin 0.8s linear infinite; }
     @keyframes espin { to { transform:rotate(360deg); } }
-    #export-root { position:fixed;left:-99999px;top:0;z-index:-1;background:white; }
-    .export-page { width:794px;background:white;padding:28px 32px 32px;font-family:'Segoe UI',Arial,sans-serif;box-sizing:border-box; }
-    .export-page-header { display:flex;align-items:center;gap:14px;margin-bottom:8px;padding-bottom:8px;border-bottom:3px solid #dc2626; }
-    .export-page-header img { height:32px; }
-    .export-page-header-divider { width:1px;height:32px;background:#e2e8f0; }
-    .export-org { font-size:8px;font-weight:900;letter-spacing:0.3em;color:#dc2626;text-transform:uppercase;margin-bottom:1px; }
-    .export-title { font-size:14px;font-weight:900;text-transform:uppercase;color:#0f172a;line-height:1; }
-    .export-subtitle { font-size:8px;color:#64748b;font-weight:700;margin-top:2px;text-transform:uppercase; }
-    .export-section-badge { display:inline-block;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:#dc2626;background:#fef2f2;border-left:3px solid #dc2626;padding:4px 10px;margin-bottom:8px; }
-    .export-table { width:100%;border-collapse:collapse;font-size:9px; }
-    .export-table th { background:#4a7795;color:white;padding:4px 5px;border:1px solid #94a3b8;text-align:center;font-weight:900;font-size:8px;text-transform:uppercase; }
-    .export-table td { padding:3px 5px;border:1px solid #cbd5e1;font-size:9px;vertical-align:middle; }
-    .export-section-header-row td { background:#1e293b!important;color:white!important;font-weight:900;font-size:9px;text-transform:uppercase;padding:5px 8px; }
-    .export-page-divider { width:794px;height:24px;background:#f1f5f9;display:flex;align-items:center;justify-content:center; }
-    .export-page-divider span { font-size:8px;color:#94a3b8;font-weight:700;letter-spacing:0.2em;text-transform:uppercase; }
+    #export-root {
+        position:fixed;left:-99999px;top:0;z-index:-1;background:white;
+        font-family:'Inter','Noto Sans',Arial,sans-serif!important;
+    }
+    .export-page {
+        width:860px;
+        background:white;
+        padding:32px 36px 36px;
+        font-family:'Inter','Noto Sans',Arial,sans-serif;
+        box-sizing:border-box;
+        -webkit-font-smoothing:antialiased;
+    }
+    .export-page-header {
+        display:flex;align-items:center;gap:16px;
+        margin-bottom:10px;padding-bottom:10px;
+        border-bottom:3px solid #dc2626;
+    }
+    .export-page-header img { height:36px; }
+    .export-page-header-divider { width:1px;height:36px;background:#e2e8f0; }
+    .export-org {
+        font-size:8.5px;font-weight:800;letter-spacing:0.3em;
+        color:#dc2626;text-transform:uppercase;margin-bottom:2px;
+    }
+    .export-title {
+        font-size:15px;font-weight:900;text-transform:uppercase;
+        color:#0f172a;line-height:1;letter-spacing:0.02em;
+    }
+    .export-subtitle {
+        font-size:8px;color:#64748b;font-weight:600;
+        margin-top:3px;text-transform:uppercase;letter-spacing:0.05em;
+    }
+    .export-section-badge {
+        display:inline-block;font-size:9px;font-weight:800;
+        text-transform:uppercase;letter-spacing:0.15em;
+        color:#dc2626;background:#fef2f2;
+        border-left:3px solid #dc2626;padding:4px 12px;margin-bottom:10px;
+    }
+    .export-table {
+        width:100%;border-collapse:collapse;
+        font-family:'Inter','Noto Sans',Arial,sans-serif;
+        font-size:8.5px;
+        table-layout:fixed;
+    }
+    .export-table th {
+        background:#4a7795;color:white;
+        padding:5px 6px;
+        border:1px solid #64748b;
+        text-align:center;
+        font-weight:700;font-size:7.5px;
+        text-transform:uppercase;
+        letter-spacing:0.04em;
+        line-height:1.3;
+        word-break:break-word;
+    }
+    .export-table td {
+        padding:4px 6px;
+        border:1px solid #cbd5e1;
+        font-size:8px;
+        vertical-align:middle;
+        line-height:1.4;
+        word-break:break-word;
+        overflow-wrap:break-word;
+    }
+    .export-section-header-row td {
+        background:#1e293b!important;color:white!important;
+        font-weight:800;font-size:8.5px;
+        text-transform:uppercase;padding:6px 10px;
+        letter-spacing:0.06em;
+    }
+    .export-table .col-no      { width:22px; }
+    .export-table .col-scope   { width:115px; }
+    .export-table .col-ind     { width:140px; }
+    .export-table .col-denom   { width:30px; }
+    .export-table .col-num     { width:65px; }
+    .export-table .col-fair    { width:42px; }
+    .export-table .col-ach     { width:42px; }
+    .export-table .col-score   { width:42px; }
 </style>
 
 <div id="export-overlay">
@@ -957,8 +1020,6 @@
         { no:5, name:'PSAK',             keyword:'PSAK' },
     ];
 
-    var ALL_KEYWORDS = SECTIONS.map(function(s){ return s.keyword; });
-
     function setProgress(pct) { document.getElementById('export-progress-bar').style.width = pct+'%'; }
     function setStatus(txt)   { document.getElementById('export-status').textContent = txt; }
     function showOverlay()    { document.getElementById('export-overlay').classList.add('active'); setProgress(0); }
@@ -988,190 +1049,221 @@
         return '';
     }
 
-    function cloneTrToHtml(tr) {
-        var newTr = '<tr>';
-        tr.querySelectorAll('td, th').forEach(function(td) {
+    // ═══ HELPER: resolve warna cell dari class + inline style ═══
+    function resolveColor(td) {
+        var cls      = td.className || '';
+        var inlineSt = td.getAttribute('style') || '';
+        var spanCls  = (td.querySelector('span') || {}).className || '';
+
+        if (cls.includes('bg-green-500')  || inlineSt.includes('#16a34a')) return 'background:#16a34a;color:white;';
+        if (cls.includes('bg-yellow-300') || inlineSt.includes('#eab308') || inlineSt.includes('#fde047')) return 'background:#fde047;color:#1e293b;';
+        if (cls.includes('bg-red-500')    || inlineSt.includes('#ef4444')) return 'background:#ef4444;color:white;';
+        if (cls.includes('bg-black')      || inlineSt.includes('#000000') || inlineSt.includes('#000;')) return 'background:#000;color:white;';
+        if (cls.includes('bg-gray-50'))   return 'background:#f8fafc;';
+
+        // span-based color (scalingAchColor)
+        if (inlineSt.includes('#16a34a')) return 'background:#16a34a;color:white;';
+        if (inlineSt.includes('#eab308')) return 'background:#eab308;color:#1e293b;';
+        if (inlineSt.includes('#ef4444')) return 'background:#ef4444;color:white;';
+        if (inlineSt.includes('#000000')) return 'background:#000;color:white;';
+
+        return '';
+    }
+
+    function resolveAlign(cls) {
+        var s = '';
+        if (cls.includes('text-right'))   s += 'text-align:right;';
+        else if (cls.includes('text-center')) s += 'text-align:center;';
+        else s += 'text-align:left;';
+        return s;
+    }
+
+    function resolveWeight(cls) {
+        if (cls.includes('font-bold') || cls.includes('font-semibold') || cls.includes('font-black')) return 'font-weight:700;';
+        return 'font-weight:400;';
+    }
+
+    function resolveVAlign(cls) {
+        if (cls.includes('align-top'))    return 'vertical-align:top;';
+        if (cls.includes('align-middle')) return 'vertical-align:middle;';
+        return 'vertical-align:middle;';
+    }
+
+    // ═══ Clone tr → HTML string ═══
+    function cloneTrFull(tr, skipFirstTd) {
+        var tds = Array.from(tr.querySelectorAll('td, th'));
+        if (!tds.length) return '';
+        var startIdx = 0;
+        if (skipFirstTd) {
+            // skip kolom No jika teks kosong atau angka tunggal tanpa colspan
+            var first = tds[0];
+            var firstText = first.textContent.trim();
+            var hasColspan = first.getAttribute('colspan');
+            if (!hasColspan && /^\d*$/.test(firstText)) startIdx = 1;
+        }
+        var html = '<tr>';
+        for (var i = startIdx; i < tds.length; i++) {
+            var td  = tds[i];
             var tag = td.tagName.toLowerCase();
             var rs  = td.getAttribute('rowspan') ? ' rowspan="'+td.getAttribute('rowspan')+'"' : '';
             var cs  = td.getAttribute('colspan') ? ' colspan="'+td.getAttribute('colspan')+'"' : '';
-
-            var style = '';
-
             var cls = td.className || '';
-            if      (cls.includes('bg-green-500'))  style += 'background:#16a34a;color:white;';
-            else if (cls.includes('bg-yellow-300')) style += 'background:#fde047;';
-            else if (cls.includes('bg-red-500'))    style += 'background:#ef4444;color:white;';
-            else if (cls.includes('bg-black'))      style += 'background:#000;color:white;';
 
-            var inlineSt = td.getAttribute('style') || '';
-            if (!style && inlineSt) {
-                if      (inlineSt.includes('#16a34a')) style += 'background:#16a34a;color:white;';
-                else if (inlineSt.includes('#eab308')) style += 'background:#eab308;';
-                else if (inlineSt.includes('#ef4444')) style += 'background:#ef4444;color:white;';
-                else if (inlineSt.includes('#000000') || inlineSt.includes('#000;')) style += 'background:#000;color:white;';
-            }
-
-            var span = td.querySelector('span');
-            if (span && !style) {
-                var spanCls = span.className || '';
-                if (spanCls.includes('text-white')) style += 'color:white;';
-            }
-
-            if      (cls.includes('text-right'))  style += 'text-align:right;';
-            else if (cls.includes('text-center')) style += 'text-align:center;';
-
-            if (cls.includes('font-bold') || cls.includes('font-semibold')) style += 'font-weight:700;';
-
-            if      (cls.includes('align-top'))    style += 'vertical-align:top;';
-            else if (cls.includes('align-middle'))  style += 'vertical-align:middle;';
+            var style = resolveColor(td) + resolveAlign(cls) + resolveWeight(cls) + resolveVAlign(cls);
+            // Padding konsisten
+            style += 'padding:4px 6px;border:1px solid #cbd5e1;font-size:8px;line-height:1.4;word-break:break-word;overflow-wrap:break-word;';
 
             var content = td.textContent.trim();
-
-            newTr += '<'+tag+rs+cs+' style="'+style+'">'+content+'</'+tag+'>';
-        });
-        newTr += '</tr>';
-        return newTr;
+            html += '<'+tag+rs+cs+' style="'+style+'">'+content+'</'+tag+'>';
+        }
+        html += '</tr>';
+        return html;
     }
 
     function getSectionRows(keyword) {
         var allRows = getLiveRows();
         var result  = [];
         var capture = false;
-
         for (var i = 0; i < allRows.length; i++) {
             var tr = allRows[i];
             if (isSectionHeader(tr)) {
                 var kw = getSectionHeaderKeyword(tr);
-                if (kw === keyword) {
-                    capture = true;
-                    continue;
-                } else if (capture) {
-                    break;
-                }
+                if (kw === keyword) { capture = true; continue; }
+                else if (capture)   break;
             }
             if (capture) result.push(tr);
         }
         return result;
     }
 
-    function colHeaderHtml() {
-        return '<tr><th rowspan="2">No</th><th rowspan="2">Unit / Scope</th><th rowspan="2">Indicator</th>'
-             + '<th rowspan="2">Denom</th><th colspan="2">Commitment</th><th colspan="2">Real</th>'
-             + '<th rowspan="2">Fairness</th><th rowspan="2">Ach</th><th rowspan="2">Score</th></tr>'
-             + '<tr><th>Amount</th><th>Rp</th><th>Amount</th><th>Rp</th></tr>';
+    // ═══ Column group untuk fixed layout ═══
+    function colgroupHtml(withNo) {
+        var cols = withNo
+            ? '<col style="width:22px"><col style="width:110px"><col style="width:135px"><col style="width:30px"><col style="width:62px"><col style="width:62px"><col style="width:62px"><col style="width:62px"><col style="width:42px"><col style="width:42px"><col style="width:42px">'
+            : '<col style="width:110px"><col style="width:135px"><col style="width:30px"><col style="width:62px"><col style="width:62px"><col style="width:62px"><col style="width:62px"><col style="width:42px"><col style="width:42px"><col style="width:42px">';
+        return '<colgroup>'+cols+'</colgroup>';
     }
 
-    function sectionHeaderRowHtml(no, name) {
-    return '<tr><td colspan="11" style="background:#ffffff;color:black;font-weight:900;font-size:9px;text-transform:uppercase;padding:5px 8px;">'+no+'. '+name+'</td></tr>';
-}
+    function colHeaderHtml(withNo) {
+        var noTh = withNo ? '<th rowspan="2" style="width:22px">No</th>' : '';
+        return '<tr>'+noTh
+             + '<th rowspan="2">Unit / Scope</th>'
+             + '<th rowspan="2">Indicator</th>'
+             + '<th rowspan="2">Denom</th>'
+             + '<th colspan="2">Commitment</th>'
+             + '<th colspan="2">Real</th>'
+             + '<th rowspan="2">Fairness</th>'
+             + '<th rowspan="2">Ach</th>'
+             + '<th rowspan="2">Score</th>'
+             + '</tr>'
+             + '<tr>'
+             + '<th>Amount</th><th>Rp (Mio)</th>'
+             + '<th>Amount</th><th>Rp (Mio)</th>'
+             + '</tr>';
+    }
 
-    function pageHeaderHtml(subtitleRight) {
+    function sectionHeaderRowHtml(no, name, withNo) {
+        var colspan = withNo ? 11 : 10;
+        return '<tr class="export-section-header-row"><td colspan="'+colspan+'" style="background:#1e293b;color:white;font-weight:800;font-size:8.5px;text-transform:uppercase;padding:6px 10px;letter-spacing:0.06em;border:1px solid #334155;">'+no+'. '+name+'</td></tr>';
+    }
+
+    function pageHeaderHtml(subtitle) {
         return '<div class="export-page-header">'
              +   '<img src="'+logoUrl+'" crossorigin="anonymous">'
              +   '<div class="export-page-header-divider"></div>'
              +   '<div>'
              +     '<div class="export-org">Witel Sumut</div>'
              +     '<div class="export-title">Report Data</div>'
-             +     '<div class="export-subtitle">Periode: '+periodeLabel+(subtitleRight ? ' &nbsp;|&nbsp; '+subtitleRight : '')+'</div>'
+             +     '<div class="export-subtitle">Periode: '+periodeLabel+(subtitle ? ' &nbsp;|&nbsp; '+subtitle : '')+'</div>'
              +   '</div>'
              + '</div>';
     }
 
-    function colHeaderHtmlNoNo() {
-        return '<tr><th rowspan="2">Unit / Scope</th><th rowspan="2">Indicator</th>'
-             + '<th rowspan="2">Denom</th><th colspan="2">Commitment</th><th colspan="2">Real</th>'
-             + '<th rowspan="2">Fairness</th><th rowspan="2">Ach</th><th rowspan="2">Score</th></tr>'
-             + '<tr><th>Amount</th><th>Rp</th><th>Amount</th><th>Rp</th></tr>';
-    }
-
-    function cloneTrToHtmlNoNo(tr) {
-        var tds = Array.from(tr.querySelectorAll('td, th'));
-        if (tds.length === 0) return '';
-        var startIdx = 0;
-        var firstText = tds[0].textContent.trim();
-        if (/^\d*$/.test(firstText) && !tds[0].getAttribute('colspan')) {
-            startIdx = 1;
-        }
-        var newTr = '<tr>';
-        for (var i = startIdx; i < tds.length; i++) {
-            var td  = tds[i];
-            var tag = td.tagName.toLowerCase();
-            var rs  = td.getAttribute('rowspan') ? ' rowspan="'+td.getAttribute('rowspan')+'"' : '';
-            var cs  = td.getAttribute('colspan') ? ' colspan="'+td.getAttribute('colspan')+'"' : '';
-
-            var style = '';
-            var cls   = td.className || '';
-            var inlineSt = td.getAttribute('style') || '';
-            if      (cls.includes('bg-green-500')  || inlineSt.includes('#16a34a')) style += 'background:#16a34a;color:white;';
-            else if (cls.includes('bg-yellow-300') || inlineSt.includes('#eab308')) style += 'background:#fde047;';
-            else if (cls.includes('bg-red-500')    || inlineSt.includes('#ef4444')) style += 'background:#ef4444;color:white;';
-            else if (cls.includes('bg-black')      || inlineSt.includes('#000000') || inlineSt.includes('#000;')) style += 'background:#000;color:white;';
-
-            if      (cls.includes('text-right'))  style += 'text-align:right;';
-            else if (cls.includes('text-center')) style += 'text-align:center;';
-            if (cls.includes('font-bold') || cls.includes('font-semibold')) style += 'font-weight:700;';
-            if      (cls.includes('align-top'))    style += 'vertical-align:top;';
-            else if (cls.includes('align-middle')) style += 'vertical-align:middle;';
-
-            newTr += '<'+tag+rs+cs+' style="'+style+'">'+td.textContent.trim()+'</'+tag+'>';
-        }
-        newTr += '</tr>';
-        return newTr;
-    }
-
+    // ═══ Build per-section page ═══
     function buildSectionPageEl(sec, trElements) {
         var bodyHtml = '';
-        trElements.forEach(function(tr) { bodyHtml += cloneTrToHtmlNoNo(tr); });
+        trElements.forEach(function(tr) { bodyHtml += cloneTrFull(tr, true); });
 
         var div = document.createElement('div');
         div.className = 'export-page';
         div.innerHTML =
             pageHeaderHtml(sec.no+'. '+sec.name)
           + '<div class="export-section-badge">'+sec.no+'. '+sec.name+'</div>'
-          + '<table class="export-table">'
-          +   '<thead>'+colHeaderHtmlNoNo()+'</thead>'
+          + '<table class="export-table" style="table-layout:fixed;width:100%;">'
+          +   colgroupHtml(false)
+          +   '<thead style="background:#4a7795;">'+colHeaderHtml(false)+'</thead>'
           +   '<tbody>'+bodyHtml+'</tbody>'
           + '</table>';
         return div;
     }
 
+    // ═══ Build full report ═══
     function buildFullReportEl() {
         var allBodyHtml = '';
-
         SECTIONS.forEach(function(sec) {
             var trElements = getSectionRows(sec.keyword);
-            allBodyHtml += sectionHeaderRowHtml(sec.no, sec.name);
-            trElements.forEach(function(tr) { allBodyHtml += cloneTrToHtml(tr); });
+            allBodyHtml += sectionHeaderRowHtml(sec.no, sec.name, true);
+            trElements.forEach(function(tr) { allBodyHtml += cloneTrFull(tr, false); });
         });
 
         var wrapper = document.createElement('div');
         wrapper.className = 'export-page';
         wrapper.innerHTML =
             pageHeaderHtml(null)
-          + '<table class="export-table">'
-          +   '<thead>'+colHeaderHtml()+'</thead>'
+          + '<table class="export-table" style="table-layout:fixed;width:100%;">'
+          +   colgroupHtml(true)
+          +   '<thead style="background:#4a7795;">'+colHeaderHtml(true)+'</thead>'
           +   '<tbody>'+allBodyHtml+'</tbody>'
           + '</table>';
         return wrapper;
     }
 
+    // ═══ Render + download ═══
     async function renderToCanvas(el) {
+        // Inject Google Font di dalam export-root
+        var fontLink = document.getElementById('export-font-link');
+        if (!fontLink) {
+            fontLink = document.createElement('link');
+            fontLink.id   = 'export-font-link';
+            fontLink.rel  = 'stylesheet';
+            fontLink.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap';
+            document.head.appendChild(fontLink);
+        }
+
         var root = document.getElementById('export-root');
         root.appendChild(el);
-        await new Promise(r => setTimeout(r, 150));
-        var canvas = await html2canvas(el, { scale:2, useCORS:true, backgroundColor:'#ffffff', logging:false });
+
+        // Tunggu font load
+        await document.fonts.ready;
+        await new Promise(r => setTimeout(r, 200));
+
+        var canvas = await html2canvas(el, {
+            scale: 2.5,
+            useCORS: true,
+            backgroundColor: '#ffffff',
+            logging: false,
+            imageTimeout: 15000,
+            onclone: function(doc) {
+                // Pastikan font tersedia di clone document
+                var s = doc.createElement('style');
+                s.textContent = "@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');"
+                              + "* { font-family: 'Inter', Arial, sans-serif !important; -webkit-font-smoothing:antialiased; }";
+                doc.head.appendChild(s);
+            }
+        });
+
         root.removeChild(el);
         return canvas;
     }
 
     function downloadCanvas(canvas, filename) {
         var a = document.createElement('a');
-        a.href = canvas.toDataURL('image/jpeg', 0.93);
+        a.href = canvas.toDataURL('image/jpeg', 0.95);
         a.download = filename;
         a.click();
     }
 
-    function slugify(str) { return str.toLowerCase().replace(/\s+/g,'-'); }
+    function slugify(str) { return str.toLowerCase().replace(/[\s\/]+/g, '-').replace(/[^a-z0-9\-]/g,''); }
 
     async function doExportSection(no) {
         var sec = SECTIONS.find(function(s){ return s.no === no; });
@@ -1179,17 +1271,15 @@
         showOverlay();
         setStatus('Memproses '+sec.no+'. '+sec.name+'...');
         setProgress(20);
-
         var trElements = getSectionRows(sec.keyword);
         var pageEl     = buildSectionPageEl(sec, trElements);
-        setProgress(60);
-
+        setProgress(55);
+        setStatus('Merender...');
         var canvas = await renderToCanvas(pageEl);
         setProgress(90);
-
         downloadCanvas(canvas, 'report-'+sec.no+'-'+slugify(sec.name)+'-'+slugify(periodeLabel)+'.jpg');
         setProgress(100);
-        await new Promise(r => setTimeout(r, 300));
+        await new Promise(r => setTimeout(r, 400));
         hideOverlay();
     }
 
@@ -1197,17 +1287,14 @@
         showOverlay();
         setStatus('Membangun full report...');
         setProgress(20);
-
         var wrapperEl = buildFullReportEl();
-        setProgress(50);
+        setProgress(45);
         setStatus('Merender gambar...');
-
         var canvas = await renderToCanvas(wrapperEl);
         setProgress(90);
-
         downloadCanvas(canvas, 'report-full-'+slugify(periodeLabel)+'.jpg');
         setProgress(100);
-        await new Promise(r => setTimeout(r, 300));
+        await new Promise(r => setTimeout(r, 400));
         hideOverlay();
     }
 
