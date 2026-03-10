@@ -162,6 +162,18 @@
                     <form method="GET" action="{{ route('admin.collection-ratio') }}" class="grid grid-cols-5 gap-3">
                         <div>
                             <label
+                                class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">User</label>
+                            <select name="user" onchange="this.form.submit()"
+                                class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-semibold text-slate-700 focus:outline-none focus:border-red-400 bg-white">
+                                <option value="">Semua User</option>
+                                @foreach ($users as $user)
+                                    <option value="{{ $user->id }}"
+                                        {{ ($selectedUser ?? '') == $user->id ? 'selected' : '' }}>{{ $user->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div>
+                            <label
                                 class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Segment</label>
                             <select name="segment" onchange="this.form.submit()"
                                 class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-semibold text-slate-700 focus:outline-none focus:border-red-400 bg-white">
@@ -286,49 +298,54 @@
                                     <td class="px-6 py-4 text-center font-black text-red-600">
                                         {{ $item->real_ratio !== null ? $item->real_ratio . '%' : '—' }}</td>
                                     <td class="px-6 py-4">
-                                        @php $isActive = ($item->status ?? 'active') === 'active'; @endphp
-                                        <div class="flex items-center justify-center space-x-2">
-                                            @if ($isActive)
-                                                <span
-                                                    class="text-xs font-bold text-green-700 bg-green-50 border border-green-200 rounded-md px-2.5 py-1">
-                                                    Active
-                                                </span>
-                                            @else
-                                                <span
-                                                    class="text-xs font-bold text-slate-500 bg-slate-100 border border-slate-200 rounded-md px-2.5 py-1">
-                                                    Inactive
-                                                </span>
-                                            @endif
-                                            <form action="{{ route('admin.collection.toggleStatus', $item->id) }}"
-                                                method="POST">
-                                                @csrf
-                                                @method('PATCH')
-                                                <button type="submit"
-                                                    onclick="return confirm('{{ $isActive ? 'Nonaktifkan file ini? User tidak akan bisa mengedit data.' : 'Aktifkan kembali file ini?' }}')"
-                                                    class="inline-flex items-center space-x-1.5 text-xs font-bold px-3 py-1.5 rounded-lg border transition-all duration-200
-                                                            {{ $isActive
-                                                                ? 'text-amber-700 hover:text-white border-amber-200 hover:border-amber-500 bg-amber-50 hover:bg-amber-500'
-                                                                : 'text-green-700 hover:text-white border-green-200 hover:border-green-500 bg-green-50 hover:bg-green-500' }}">
-                                                    @if ($isActive)
-                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
-                                                            viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                                stroke-width="2"
-                                                                d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
-                                                        </svg>
-                                                        <span>Nonaktifkan</span>
-                                                    @else
-                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
-                                                            viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                                stroke-width="2"
-                                                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                        </svg>
-                                                        <span>Aktifkan</span>
-                                                    @endif
-                                                </button>
-                                            </form>
-                                        </div>
+                                        @php $isActive = ($item->status ?? 'active') === 'active'; 
+                                        $isAdmin = ($item->user?->role === 'admin'); @endphp
+                                        @if($isAdmin)
+                                            <div class="flex items-center justify-center space-x-2">
+                                                @if($isActive)
+                                                    <span
+                                                        class="text-xs font-bold text-green-700 bg-green-50 border border-green-200 rounded-md px-2.5 py-1">
+                                                        Active
+                                                    </span>
+                                                @else
+                                                    <span
+                                                        class="text-xs font-bold text-slate-500 bg-slate-100 border border-slate-200 rounded-md px-2.5 py-1">
+                                                        Inactive
+                                                    </span>
+                                                @endif
+                                                <form action="{{ route('admin.collection.toggleStatus', $item->id) }}"
+                                                    method="POST">
+                                                    @csrf
+                                                    @method('PATCH')
+                                                    <button type="submit"
+                                                        onclick="return confirm('{{ $isActive ? 'Nonaktifkan file ini? User tidak akan bisa mengedit data.' : 'Aktifkan kembali file ini?' }}')"
+                                                        class="inline-flex items-center space-x-1.5 text-xs font-bold px-3 py-1.5 rounded-lg border transition-all duration-200
+                                                                {{ $isActive
+                                                                    ? 'text-amber-700 hover:text-white border-amber-200 hover:border-amber-500 bg-amber-50 hover:bg-amber-500'
+                                                                    : 'text-green-700 hover:text-white border-green-200 hover:border-green-500 bg-green-50 hover:bg-green-500' }}">
+                                                        @if ($isActive)
+                                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
+                                                                viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                                    stroke-width="2"
+                                                                    d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                                                            </svg>
+                                                            <span>Nonaktifkan</span>
+                                                        @else
+                                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
+                                                                viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                                    stroke-width="2"
+                                                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                            </svg>
+                                                            <span>Aktifkan</span>
+                                                        @endif
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        @else
+                                            <td class="px-6 py-4 text-center">-</td>
+                                        @endif
                                     </td>
                                 </tr>
                             @empty

@@ -106,7 +106,7 @@
                         </div>
                         <div>
                             <label
-                                class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Commitment</label>
+                                class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Commitment (%)</label>
                             <input type="number" step="0.01" name="commitment" placeholder="cth: 98.50"
                                 class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors">
                         </div>
@@ -144,6 +144,18 @@
                         <h2 class="text-base font-black text-slate-900 uppercase tracking-wide">Data Collections</h2>
                     </div>
                     <form method="GET" action="{{ route('admin.c3mr') }}" class="grid grid-cols-4 gap-3">
+                        <div>
+                            <label
+                                class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">User</label>
+                            <select name="user" onchange="this.form.submit()"
+                                class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-semibold text-slate-700 focus:outline-none focus:border-red-400 bg-white">
+                                <option value="">Semua User</option>
+                                @foreach ($users as $user)
+                                    <option value="{{ $user->id }}"
+                                        {{ ($selectedUser ?? '') == $user->id ? 'selected' : '' }}>{{ $user->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
                         <div>
                             <label
                                 class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Bulan</label>
@@ -249,11 +261,13 @@
                                         {{ $item->periode ? date('d M Y', strtotime($item->periode)) : '—' }}
                                     </td>
                                     <td class="px-6 py-4 text-center font-black text-slate-700">
-                                        {{ $item->commitment ?? '—' }}</td>
+                                        {{ $item->commitment.'%' ?? '—' }}</td>
                                     <td class="px-6 py-4 text-center font-black text-red-600">
-                                        {{ $item->real_ratio ?? '—' }}</td>
+                                        {{ $item->real_ratio.'%' ?? '—' }}</td>
+                                    @php $isActive = ($item->status ?? 'active') === 'active'; 
+                                    $isAdmin = ($item->user?->role === 'admin'); @endphp
+                                    @if($isAdmin)
                                     <td class="px-6 py-4">
-                                        @php $isActive = ($item->status ?? 'active') === 'active'; @endphp
                                         <div class="flex items-center justify-center space-x-2">
                                             @if ($isActive)
                                                 <span
@@ -297,6 +311,9 @@
                                             </form>
                                         </div>
                                     </td>
+                                    @else
+                                    <td class="px-6 py-4 text-center">-</td>
+                                    @endif
                                 </tr>
                             @empty
                                 <tr>

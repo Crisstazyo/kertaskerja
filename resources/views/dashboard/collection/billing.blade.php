@@ -90,13 +90,18 @@
                 <div class="absolute top-0 left-0 right-0 h-1 bg-green-500"></div>
                 <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Realisasi Terakhir — {{ $periodeLabel }}</p>
                 @php $latestReal = $activities->first(); @endphp
-                @if($bill && $bill->real_ratio !== null)
-                    <p class="text-4xl font-black text-green-600">{{ number_format($bill->real_ratio, 2) }}<span class="text-2xl">%</span></p>
-                    <p class="text-xs text-slate-400 font-semibold mt-2 uppercase tracking-wide">Terakhir diperbarui: {{ $bill->created_at->translatedFormat('d M Y H:i') }}</p>
-                @else
+                @if($bill && $bill->commitment !== null)
+                    @if($latestReal && $latestReal->real_ratio !== null)
+                        <p class="text-4xl font-black text-green-600">{{ number_format($latestReal->real_ratio, 2) }}<span class="text-2xl">%</span></p>
+                        <p class="text-xs text-slate-400 font-semibold mt-2 uppercase tracking-wide">Terakhir diperbarui: {{ $latestReal->created_at->translatedFormat('d M Y H:i') }}</p>
+                    @else
+                        <p class="text-2xl font-black text-slate-300">—</p>
+                        <p class="text-xs text-slate-400 font-semibold mt-2">Belum ada realisasi untuk periode ini</p>
+                    @endif
+                @else  
                     <p class="text-2xl font-black text-slate-300">—</p>
                     <p class="text-xs text-slate-400 font-semibold mt-2">Belum ada realisasi untuk periode ini</p>
-                @endif
+                @endif  
             </div>
         </div>
 
@@ -130,15 +135,27 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="flex items-center justify-center pt-2">
-                            <button type="submit"
-                                class="flex items-center space-x-2 bg-slate-900 hover:bg-red-600 text-white font-bold text-xs px-6 py-3 rounded-xl transition-all duration-200 uppercase tracking-wider shadow-md hover:shadow-lg hover:shadow-red-200">
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                                </svg>
-                                <span>Simpan Realisasi</span>
-                            </button>
-                        </div>
+                        @if ($bill && $bill->commitment !== null)
+                            <div class="flex items-center justify-center pt-2">
+                                <button type="submit"
+                                    class="flex items-center space-x-2 bg-slate-900 hover:bg-red-600 text-white font-bold text-xs px-6 py-3 rounded-xl transition-all duration-200 uppercase tracking-wider shadow-md hover:shadow-lg hover:shadow-red-200">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                    </svg>
+                                    <span>Simpan Realisasi</span>
+                                </button>
+                            </div>
+                        @else
+                            <div class="flex items-center justify-center pt-2">
+                                <button type="submit" disabled
+                                    class="flex items-center space-x-2 bg-slate-900 hover:bg-red-600 text-white font-bold text-xs px-6 py-3 rounded-xl transition-all duration-200 uppercase tracking-wider shadow-md hover:shadow-lg hover:shadow-red-200">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                    </svg>
+                                    <span>Simpan Realisasi</span>
+                                </button>
+                            </div>
+                        @endif    
                     </div>
                 </form>
             </div>

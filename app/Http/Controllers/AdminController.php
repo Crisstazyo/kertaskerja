@@ -62,7 +62,7 @@ class AdminController extends Controller
         ->pluck('segment');
 
     $users = Collection::with('user')
-    ->where('type', 'like', '%UTIP%')
+    ->where('type', 'Collection Ratio')
     ->get()
     ->pluck('user')
     ->filter()        // buang null
@@ -143,7 +143,7 @@ class AdminController extends Controller
         ->pluck('tahun');
 
     $users = Collection::with('user')
-    ->where('type', 'like', '%UTIP%')
+    ->where('type', 'C3MR')
     ->get()
     ->pluck('user')
     ->filter()        // buang null
@@ -234,7 +234,7 @@ class AdminController extends Controller
         ->pluck('tahun');
 
     $users = Collection::with('user')
-    ->where('type', 'like', '%UTIP%')
+    ->where('type', 'Billing Perdana')
     ->get()
     ->pluck('user')
     ->filter()        // buang null

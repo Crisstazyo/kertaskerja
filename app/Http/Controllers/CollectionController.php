@@ -34,6 +34,10 @@ class CollectionController extends Controller
     $comm = Collection::where('type', 'C3MR')
         ->whereYear('periode', $currentDate->year)
         ->whereMonth('periode', $currentDate->month)
+        ->where('status', 'active')
+        ->whereHas('user', function ($query) {
+            $query->where('role', 'admin');
+        })
         ->whereNotNull('commitment')
         ->orderBy('updated_at', 'desc')
         ->first();
@@ -45,7 +49,7 @@ class CollectionController extends Controller
         ->first();
 
     $query = Collection::where('type', 'C3MR')
-        ->orderBy('updated_at', 'desc');
+        ->orderBy('updated_at', 'asc');
 
     if ($request->filled('bulan')) {
         $query->whereMonth('periode', $request->bulan);
@@ -122,7 +126,7 @@ class CollectionController extends Controller
         ->whereMonth('periode', $currentDate->month)
         ->where('status', 'active')
         ->whereHas('user', function ($query) {
-            $query->where('role', 'collection');
+            $query->where('role', 'admin');
         })
         ->whereNotNull('commitment')
         ->orderBy('updated_at', 'desc')
@@ -135,7 +139,7 @@ class CollectionController extends Controller
         ->first();
 
     $query = Collection::where('type', 'Billing Perdana')
-        ->orderBy('updated_at', 'desc');
+        ->orderBy('updated_at', 'asc');
 
     if ($request->filled('bulan')) {
         $query->whereMonth('periode', $request->bulan);
@@ -194,54 +198,64 @@ class CollectionController extends Controller
     }
 
     public function cr(Request $request)
-{
-    $query = Collection::where('type', 'Collection Ratio')
-        ->orderBy('created_at', 'desc');
+    {
+        $query = Collection::where('type', 'Collection Ratio')
+            ->orderBy('created_at', 'desc');
 
-    if ($request->filled('segment')) {
-        $query->where('segment', $request->segment);
+        $latestSeg = \App\Models\Collection::where('type', 'Collection Ratio')
+                    ->where('status', 'active')
+                    ->whereHas('user', function ($query) {
+                        $query->where('role', 'admin');
+                    })
+                    ->whereYear('periode', now()->year)
+                    ->whereMonth('periode', now()->month)
+                    ->orderBy('created_at', 'desc')
+                    ->get();
+
+        if ($request->filled('segment')) {
+            $query->where('segment', $request->segment);
+        }
+
+        if ($request->filled('bulan')) {
+        $query->whereMonth('periode', $request->bulan);
+        }
+
+        if ($request->filled('tahun')) {
+            $query->whereYear('periode', $request->tahun);
+        }
+
+        if ($request->filled('cari')) {
+            $query->where(function($q) use ($request) {
+                $q->where('segment', 'like', '%'.$request->cari.'%')
+                ->orWhere('real_ratio', 'like', '%'.$request->cari.'%')
+                ->orWhere('commitment', 'like', '%'.$request->cari.'%');
+            });
+        }
+
+        $collections = $query->paginate(10)->withQueryString();
+
+        $segments = Collection::where('type', 'Collection Ratio')
+            ->whereNotNull('segment')
+            ->distinct()
+            ->orderBy('segment')
+            ->pluck('segment');
+
+        $tahuns = Collection::where('type', 'Collection Ratio')
+            ->selectRaw('YEAR(periode) as tahun')
+            ->distinct()
+            ->orderBy('tahun', 'desc')
+            ->pluck('tahun');
+
+        $selectedSegment = $request->segment;
+        $selectedBulan   = $request->bulan;
+        $selectedTahun   = $request->tahun;
+        $selectedCari    = $request->cari;
+
+        return view('dashboard.collection.collectionRatio', compact(
+            'collections', 'segments', 'tahuns', 'latestSeg',
+            'selectedSegment', 'selectedBulan', 'selectedTahun', 'selectedCari'
+        ));
     }
-
-    if ($request->filled('bulan')) {
-    $query->whereMonth('periode', $request->bulan);
-    }
-
-    if ($request->filled('tahun')) {
-        $query->whereYear('periode', $request->tahun);
-    }
-
-    if ($request->filled('cari')) {
-        $query->where(function($q) use ($request) {
-            $q->where('segment', 'like', '%'.$request->cari.'%')
-            ->orWhere('real_ratio', 'like', '%'.$request->cari.'%')
-            ->orWhere('commitment', 'like', '%'.$request->cari.'%');
-        });
-    }
-
-    $collections = $query->paginate(10)->withQueryString();
-
-    $segments = Collection::where('type', 'Collection Ratio')
-        ->whereNotNull('segment')
-        ->distinct()
-        ->orderBy('segment')
-        ->pluck('segment');
-
-    $tahuns = Collection::where('type', 'Collection Ratio')
-        ->selectRaw('YEAR(periode) as tahun')
-        ->distinct()
-        ->orderBy('tahun', 'desc')
-        ->pluck('tahun');
-
-    $selectedSegment = $request->segment;
-    $selectedBulan   = $request->bulan;
-    $selectedTahun   = $request->tahun;
-    $selectedCari    = $request->cari;
-
-    return view('dashboard.collection.collectionRatio', compact(
-        'collections', 'segments', 'tahuns',
-        'selectedSegment', 'selectedBulan', 'selectedTahun', 'selectedCari'
-    ));
-}
 
     public function storeCrRealisasi(Request $request)
     {

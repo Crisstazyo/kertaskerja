@@ -60,19 +60,14 @@
                 </div>
             @endif
 
-            {{-- ══ STATUS CARDS ══ --}}
+        {{-- ══ STATUS CARDS ══ --}}
         @php $periodeLabel = now()->translatedFormat('F Y'); @endphp
         <div class="grid grid-cols-2 md:grid-cols-4 gap-5 mb-8">
             @foreach(['Government', 'Private', 'SOE', 'SME'] as $seg)
             @php
-                $latestSeg = \App\Models\Collection::where('type', 'Collection Ratio')
-                    ->where('segment', $seg)
-                    ->whereYear('periode', now()->year)
-                    ->whereMonth('periode', now()->month)
-                    ->orderBy('created_at', 'desc')
-                    ->first();
-                $pct = $latestSeg?->real_ratio;
-                $kom = $latestSeg?->commitment;
+                $latest = $latestSeg?->where('segment', $seg)->first();
+                $pct = $collections->where('segment', $seg)->first()?->real_ratio;
+                $kom = $latest?->commitment;
             @endphp
             <div class="bg-white rounded-2xl border-2 border-slate-100 overflow-hidden">
                 <div class="h-1" style="background: linear-gradient(90deg, #dc2626, #ef4444);"></div>
@@ -82,8 +77,12 @@
                         <span class="text-[10px] font-bold text-slate-300 uppercase">{{ $periodeLabel }}</span>
                     </div>
                     <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Realisasi</p>
-                    @if($pct !== null)
-                        <p class="text-4xl font-black text-green-600 leading-none mb-4">{{ number_format($pct, 2) }}<span class="text-xl">%</span></p>
+                    @if($kom !== null)
+                        @if($pct !== null)
+                            <p class="text-4xl font-black text-green-600 leading-none mb-4">{{ number_format($pct, 2) }}<span class="text-xl">%</span></p>
+                        @else
+                            <p class="text-3xl font-black text-slate-200 leading-none mb-4">—</p>
+                        @endif
                     @else
                         <p class="text-3xl font-black text-slate-200 leading-none mb-4">—</p>
                     @endif
@@ -125,11 +124,13 @@
                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 text-center">Segment</label>
                             <select name="segment" required
                                 class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors bg-white">
-                                <option value="">— Pilih Segment —</option>
-                                <option value="Government">Government</option>
-                                <option value="Private">Private</option>
-                                <option value="SOE">SOE</option>
-                                <option value="SME">SME</option>
+                                @if($latestSeg->isEmpty())
+                                        <option value="" disabled selected>Segment belum ditambahkan</option>
+                                @endif
+                                @foreach($latestSeg as $seg)
+                                    <option value="{{ $seg->segment }}" {{ $selectedSegment == $seg->segment ? 'selected' : '' }}>{{ $seg->segment }}
+                                    </option>
+                                @endforeach
                             </select>
                         </div>
                         <input type="hidden" name="periode" value="{{ date('Y-m') }}">

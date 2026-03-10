@@ -264,10 +264,10 @@
                                         {{ $item->commitment ?? '—' }}</td>
                                     <td class="px-6 py-4 text-center font-black text-red-600">
                                         {{ $item->real_ratio ?? '—' }}</td>
-                                        @php $isActive = ($item->status ?? 'active') === 'active'; 
+                                    @php $isActive = ($item->status ?? 'active') === 'active'; 
                                         $isAdmin = ($item->user?->role === 'admin');
-                                        @endphp
-                                        @if($isAdmin)
+                                    @endphp
+                                    @if($isAdmin)
                                     <td class="px-6 py-4">
                                         <div class="flex items-center justify-center space-x-2">
                                             @if ($isActive)
