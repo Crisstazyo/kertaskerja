@@ -71,9 +71,24 @@ class SoeController extends Controller
             ->latest()
             ->first();
 
-        // Get admin note
+        $rows = $latestImport
+        ? \App\Models\Koreksi::where('imports_log_id', $latestImport->id)->get()
+        : collect();
 
-        return view('dashboard.soe.lop-koreksi', compact('latestImport', 'currentPeriode', 'periodOptions'));
+        return view('dashboard.soe.lop-koreksi', compact('latestImport', 'rows', 'currentPeriode', 'periodOptions'));
+    }
+
+    public function updateRealisasiKoreksi(Request $request)
+    {
+        $request->validate([
+            'id'        => 'required|integer|exists:koreksis,id',
+            'realisasi' => 'required|numeric|min:0',
+        ]);
+
+        $koreksi = \App\Models\Koreksi::findOrFail($request->id);
+        $koreksi->update(['realisasi' => $request->realisasi]);
+
+        return response()->json(['success' => true]);
     }
 
     public function lopQualified()

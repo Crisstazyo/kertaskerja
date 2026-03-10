@@ -466,195 +466,270 @@ class ReportController extends Controller
     }
 
     public function detail(Request $request, string $segment, string $type)
-    {
-        $segmentMap = [
-            'gov'     => ['label' => 'Government', 'db' => 'government'],
-            'private' => ['label' => 'Private',    'db' => 'private'],
-            'soe'     => ['label' => 'SOE',         'db' => 'soe'],
-            'sme'     => ['label' => 'SME',         'db' => 'sme'],
-        ];
+{
+    $segmentMap = [
+        'gov'     => ['label' => 'Government', 'db' => 'government'],
+        'private' => ['label' => 'Private',    'db' => 'private'],
+        'soe'     => ['label' => 'SOE',        'db' => 'soe'],
+        'sme'     => ['label' => 'SME',        'db' => 'sme'],
+    ];
 
-        $typeMap = [
-            'on-hand'  => 'On Hand',
-            'qualified' => 'Qualified',
-            'initiate'  => 'Initiate',
-            'koreksi'   => 'Correction',
-        ];
+    $typeMap = [
+        'on-hand'  => 'On Hand',
+        'qualified' => 'Qualified',
+        'initiate'  => 'Initiate',
+        'koreksi'   => 'Correction',
+    ];
 
-        abort_if(!isset($segmentMap[$segment]), 404);
-        abort_if(!isset($typeMap[$type]), 404);
+    abort_if(!isset($segmentMap[$segment]), 404);
+    abort_if(!isset($typeMap[$type]), 404);
 
-        $segmentLabel = $segmentMap[$segment]['label'];
-        $segmentDb    = $segmentMap[$segment]['db'];
-        $typeLabel    = $typeMap[$type];
+    $segmentLabel = $segmentMap[$segment]['label'];
+    $segmentDb    = $segmentMap[$segment]['db'];
+    $typeLabel    = $typeMap[$type];
 
-        $availableImports = \App\Models\ScallingImport::where('segment', $segmentDb)
-            ->where('type', $type)
-            ->where('status', 'active')
-            ->orderByDesc('periode')
-            ->get();
+    $availableImports = \App\Models\ScallingImport::where('segment', $segmentDb)
+        ->where('type', $type)
+        ->where('status', 'active')
+        ->orderByDesc('periode')
+        ->get();
 
-        $periodOptions = $availableImports
-            ->map(fn($i) => \Carbon\Carbon::parse($i->periode)->format('Y-m'))
-            ->unique()
-            ->values()
-            ->toArray();
+    $periodOptions = $availableImports
+        ->map(fn($i) => \Carbon\Carbon::parse($i->periode)->format('Y-m'))
+        ->unique()
+        ->values()
+        ->toArray();
 
-        if ($request->filled('periode')) {
-            $currentPeriode = $request->input('periode');
-        } elseif (count($periodOptions)) {
-            $currentPeriode = $periodOptions[0];
-        } else {
-            $currentPeriode = \Carbon\Carbon::now()->format('Y-m');
-        }
+    if ($request->filled('periode')) {
+        $currentPeriode = $request->input('periode');
+    } elseif (count($periodOptions)) {
+        $currentPeriode = $periodOptions[0];
+    } else {
+        $currentPeriode = \Carbon\Carbon::now()->format('Y-m');
+    }
 
-        if (!$request->filled('periode') && !in_array($currentPeriode, $periodOptions) && count($periodOptions)) {
-            $currentPeriode = $periodOptions[0];
-        }
+    if (!in_array($currentPeriode, $periodOptions) && count($periodOptions)) {
+        $currentPeriode = $periodOptions[0];
+    }
 
-        [$periodeYear, $periodeMonth] = explode('-', $currentPeriode);
-        $periodeLabel = \Carbon\Carbon::createFromDate((int)$periodeYear, (int)$periodeMonth, 1)->format('F Y');
-        $periodeDate  = \Carbon\Carbon::createFromDate((int)$periodeYear, (int)$periodeMonth, 1)->format('Y-m-d');
+    [$periodeYear, $periodeMonth] = explode('-', $currentPeriode);
+    $periodeLabel = \Carbon\Carbon::createFromDate((int)$periodeYear, (int)$periodeMonth, 1)->format('F Y');
+    $periodeDate  = \Carbon\Carbon::createFromDate((int)$periodeYear, (int)$periodeMonth, 1)->format('Y-m-d');
 
+    // ── KOREKSI: data dari tabel Koreksi ──────────────────────────────
+    if ($type === 'koreksi') {
         $import = \App\Models\ScallingImport::where('segment', $segmentDb)
-            ->where('type', $type)
+            ->where('type', 'koreksi')
             ->where('periode', $periodeDate)
             ->where('status', 'active')
             ->first();
 
-        $dataRows  = collect();
-        $funnelMap = collect();
-
-        if ($type === 'initiate') {
-            // Initiate: banyak import per periode, ambil semua
-            $importIds = \App\Models\ScallingImport::where('segment', $segmentDb)
-                ->where('type', $type)
-                ->where('periode', $periodeDate)
-                ->where('status', 'active')
-                ->pluck('id');
-
-            if ($importIds->isNotEmpty()) {
-                // Set $import ke salah satu agar kondisi @if($import) di blade tetap true
-                $import = \App\Models\ScallingImport::find($importIds->first());
-
-                $dataRows = \App\Models\ScallingData::whereIn('imports_log_id', $importIds)
-                    ->get()
-                    ->filter(fn($r) => strtoupper(trim($r->no ?? '')) !== 'TOTAL')
-                    ->values();
-            }
-        } else {
-            if ($import) {
-                $dataRows = \App\Models\ScallingData::where('imports_log_id', $import->id)
-                    ->get()
-                    ->filter(fn($r) => strtoupper(trim($r->no ?? '')) !== 'TOTAL')
-                    ->values();
-            }
-        }
-
-        if ($dataRows->isNotEmpty()) {
-            $dataIds    = $dataRows->pluck('id');
-            $allFunnels = \App\Models\FunnelTracking::whereIn('data_id', $dataIds)->get();
-
-            $funnelMap = $dataIds->mapWithKeys(function ($dataId) use ($allFunnels) {
-                $latest = $allFunnels->where('data_id', $dataId)
-                    ->sortByDesc('updated_at')
-                    ->first();
-                return [$dataId => $latest];
-            });
-        }
+        $koreksiRows = $import
+            ? \App\Models\Koreksi::where('imports_log_id', $import->id)->get()
+            : collect();
 
         return view('report.detail', compact(
             'segment', 'type',
             'segmentLabel', 'typeLabel',
             'periodeLabel', 'currentPeriode',
             'periodOptions',
-            'import', 'dataRows', 'funnelMap'
-        ));
+            'import',
+            'koreksiRows',          // ← khusus koreksi
+        ))->with([
+            'dataRows'  => collect(), // kosong, tidak dipakai
+            'funnelMap' => collect(), // kosong, tidak dipakai
+        ]);
     }
 
-    public function progress(Request $request, string $segment, string $type)
-    {
-        $segmentMap = [
-            'gov'     => ['label' => 'Government', 'db' => 'government'],
-            'private' => ['label' => 'Private',    'db' => 'private'],
-            'soe'     => ['label' => 'SOE',         'db' => 'soe'],
-            'sme'     => ['label' => 'SME',         'db' => 'sme'],
-        ];
+    // ── ON-HAND / QUALIFIED / INITIATE: data dari ScallingData ────────
+    $import = \App\Models\ScallingImport::where('segment', $segmentDb)
+        ->where('type', $type)
+        ->where('periode', $periodeDate)
+        ->where('status', 'active')
+        ->first();
 
-        $typeMap = [
-            'on-hand'  => 'On Hand',
-            'qualified' => 'Qualified',
-            'initiate'  => 'Initiate',
-            'koreksi'   => 'Correction',
-        ];
+    $dataRows  = collect();
+    $funnelMap = collect();
 
-        abort_if(!isset($segmentMap[$segment]), 404);
-        abort_if(!isset($typeMap[$type]), 404);
-
-        $segmentLabel = $segmentMap[$segment]['label'];
-        $segmentDb    = $segmentMap[$segment]['db'];
-        $typeLabel    = $typeMap[$type];
-
-        $availableImports = \App\Models\ScallingImport::where('segment', $segmentDb)
-            ->where('type', $type)
-            ->orderByDesc('periode')
-            ->get();
-
-        $periodOptions = $availableImports
-            ->map(fn($i) => \Carbon\Carbon::parse($i->periode)->format('Y-m'))
-            ->unique()
-            ->values()
-            ->toArray();
-
-        if ($request->filled('periode')) {
-            $currentPeriode = $request->input('periode');
-        } elseif (count($periodOptions)) {
-            $currentPeriode = $periodOptions[0];
-        } else {
-            $currentPeriode = \Carbon\Carbon::now()->format('Y-m');
-        }
-
-        [$periodeYear, $periodeMonth] = explode('-', $currentPeriode);
-        $periodeLabel = \Carbon\Carbon::createFromDate((int)$periodeYear, (int)$periodeMonth, 1)->format('F Y');
-        $periodeDate  = \Carbon\Carbon::createFromDate((int)$periodeYear, (int)$periodeMonth, 1)->format('Y-m-d');
-
-        $import = \App\Models\ScallingImport::where('segment', $segmentDb)
+    if ($type === 'initiate') {
+        $importIds = \App\Models\ScallingImport::where('segment', $segmentDb)
             ->where('type', $type)
             ->where('periode', $periodeDate)
-            ->first();
+            ->where('status', 'active')
+            ->pluck('id');
 
-        $dataRows  = collect();
-        $funnelMap = collect();
-
-        if ($import) {
-            $dataRows = \App\Models\ScallingData::where('imports_log_id', $import->id)
-                ->with(['funnel.todayProgress'])
+        if ($importIds->isNotEmpty()) {
+            $import = \App\Models\ScallingImport::find($importIds->first());
+            $dataRows = \App\Models\ScallingData::whereIn('imports_log_id', $importIds)
                 ->get()
                 ->filter(fn($r) => strtoupper(trim($r->no ?? '')) !== 'TOTAL')
                 ->values();
-
-            $dataIds = $dataRows->pluck('id');
-
-            $allFunnels = \App\Models\FunnelTracking::with('todayProgress')
-                ->whereIn('data_id', $dataIds)
-                ->get();
-
-            $funnelMap = $dataIds->mapWithKeys(function ($dataId) use ($allFunnels) {
-                $latest = $allFunnels->where('data_id', $dataId)
-                    ->sortByDesc('updated_at')
-                    ->first();
-                return [$dataId => $latest];
-            });
         }
+    } else {
+        if ($import) {
+            $dataRows = \App\Models\ScallingData::where('imports_log_id', $import->id)
+                ->get()
+                ->filter(fn($r) => strtoupper(trim($r->no ?? '')) !== 'TOTAL')
+                ->values();
+        }
+    }
+
+    if ($dataRows->isNotEmpty()) {
+        $dataIds    = $dataRows->pluck('id');
+        $allFunnels = \App\Models\FunnelTracking::whereIn('data_id', $dataIds)->get();
+
+        $funnelMap = $dataIds->mapWithKeys(function ($dataId) use ($allFunnels) {
+            $latest = $allFunnels->where('data_id', $dataId)
+                ->sortByDesc('updated_at')
+                ->first();
+            return [$dataId => $latest];
+        });
+    }
+
+    return view('report.detail', compact(
+        'segment', 'type',
+        'segmentLabel', 'typeLabel',
+        'periodeLabel', 'currentPeriode',
+        'periodOptions',
+        'import', 'dataRows', 'funnelMap'
+    ))->with(['koreksiRows' => collect()]);
+}
+
+public function progress(Request $request, string $segment, string $type)
+{
+    $segmentMap = [
+        'gov'     => ['label' => 'Government', 'db' => 'government'],
+        'private' => ['label' => 'Private',    'db' => 'private'],
+        'soe'     => ['label' => 'SOE',        'db' => 'soe'],
+        'sme'     => ['label' => 'SME',        'db' => 'sme'],
+    ];
+
+    $typeMap = [
+        'on-hand'  => 'On Hand',
+        'qualified' => 'Qualified',
+        'initiate'  => 'Initiate',
+        'koreksi'   => 'Correction',
+    ];
+
+    abort_if(!isset($segmentMap[$segment]), 404);
+    abort_if(!isset($typeMap[$type]), 404);
+
+    $segmentLabel = $segmentMap[$segment]['label'];
+    $segmentDb    = $segmentMap[$segment]['db'];
+    $typeLabel    = $typeMap[$type];
+
+    $availableImports = \App\Models\ScallingImport::where('segment', $segmentDb)
+        ->where('type', $type)
+        ->orderByDesc('periode')
+        ->get();
+
+    $periodOptions = $availableImports
+        ->map(fn($i) => \Carbon\Carbon::parse($i->periode)->format('Y-m'))
+        ->unique()
+        ->values()
+        ->toArray();
+
+    if ($request->filled('periode')) {
+        $currentPeriode = $request->input('periode');
+    } elseif (count($periodOptions)) {
+        $currentPeriode = $periodOptions[0];
+    } else {
+        $currentPeriode = \Carbon\Carbon::now()->format('Y-m');
+    }
+
+    [$periodeYear, $periodeMonth] = explode('-', $currentPeriode);
+    $periodeLabel = \Carbon\Carbon::createFromDate((int)$periodeYear, (int)$periodeMonth, 1)->format('F Y');
+    $periodeDate  = \Carbon\Carbon::createFromDate((int)$periodeYear, (int)$periodeMonth, 1)->format('Y-m-d');
+
+    $import = \App\Models\ScallingImport::where('segment', $segmentDb)
+        ->where('type', $type)
+        ->where('periode', $periodeDate)
+        ->first();
+
+    // ── KOREKSI: data dari tabel Koreksi ──────────────────────────────
+    if ($type === 'koreksi') {
+        $koreksiRows = $import
+            ? \App\Models\Koreksi::where('imports_log_id', $import->id)->get()
+            : collect();
+
+        $isReadOnly = $import && ($import->status ?? 'active') !== 'active';
 
         return view('report.progress', compact(
             'segment', 'type',
             'segmentLabel', 'typeLabel',
             'periodeLabel', 'currentPeriode',
             'periodOptions',
-            'import', 'dataRows', 'funnelMap'
-        ));
+            'import',
+            'isReadOnly',
+            'koreksiRows',          // ← khusus koreksi
+        ))->with([
+            'dataRows'  => collect(),
+            'funnelMap' => collect(),
+        ]);
     }
+
+    // ── ON-HAND / QUALIFIED / INITIATE ────────────────────────────────
+    $dataRows  = collect();
+    $funnelMap = collect();
+
+    if ($import) {
+        $dataRows = \App\Models\ScallingData::where('imports_log_id', $import->id)
+            ->with(['funnel.todayProgress'])
+            ->get()
+            ->filter(fn($r) => strtoupper(trim($r->no ?? '')) !== 'TOTAL')
+            ->values();
+
+        $dataIds = $dataRows->pluck('id');
+
+        $allFunnels = \App\Models\FunnelTracking::with('todayProgress')
+            ->whereIn('data_id', $dataIds)
+            ->get();
+
+        $funnelMap = $dataIds->mapWithKeys(function ($dataId) use ($allFunnels) {
+            $latest = $allFunnels->where('data_id', $dataId)
+                ->sortByDesc('updated_at')
+                ->first();
+            return [$dataId => $latest];
+        });
+    }
+
+    return view('report.progress', compact(
+        'segment', 'type',
+        'segmentLabel', 'typeLabel',
+        'periodeLabel', 'currentPeriode',
+        'periodOptions',
+        'import', 'dataRows', 'funnelMap'
+    ))->with(['koreksiRows' => collect(), 'isReadOnly' => false]);
+}
+
+public function progressKoreksiUpdate(Request $request, string $segment)
+{
+    $request->validate([
+        'id'        => 'required|integer|exists:koreksis,id',
+        'realisasi' => 'required|numeric|min:0',
+    ]);
+
+    // ✅ Map segment slug ke nama DB
+    $segmentDbMap = [
+        'gov'     => 'government',
+        'private' => 'private',
+        'soe'     => 'soe',
+        'sme'     => 'sme',
+    ];
+
+    abort_if(!isset($segmentDbMap[$segment]), 404);
+    $segmentDb = $segmentDbMap[$segment];
+
+    $koreksi = \App\Models\Koreksi::findOrFail($request->id);
+
+    // ✅ Bandingkan dengan nama DB, bukan slug URL
+    $import = $koreksi->scallingImport;
+    abort_if(!$import || $import->segment !== $segmentDb, 403);
+
+    $koreksi->update(['realisasi' => $request->realisasi]);
+
+    return response()->json(['success' => true]);
+}
 
     public function progressFunnelUpdate(Request $request, string $segment, string $type)
     {

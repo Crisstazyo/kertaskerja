@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Progress')
+@section('title', 'Progress — ' . $typeLabel . ' ' . $segmentLabel)
 
 @section('content')
 <div class="min-h-screen" style="background:#f1f5f9;">
@@ -23,8 +23,7 @@
                     </div>
                 </div>
                 <div class="flex items-center space-x-4">
-                    {{-- Back ke halaman upload admin --}}
-                    <a href="{{ route('admin.scalling.' . $segment . '.' . str_replace('/', '-', $type === 'on-hand' ? 'on-hand' : $type)) }}"
+                    <a href="{{ route('admin.scalling.' . $segment . '.' . ($type === 'on-hand' ? 'on-hand' : $type)) }}"
                         class="flex items-center space-x-2.5 bg-white border-2 border-slate-900 hover:bg-slate-900 text-slate-900 hover:text-white px-6 py-3 rounded-xl font-black text-xs transition-all duration-300 shadow-sm uppercase tracking-wider group">
                         <svg class="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/>
@@ -45,31 +44,15 @@
             </div>
         </div>
 
-        @if($import)
-
-        @php $isReadOnly = false; @endphp
-
-        {{-- ══ VIEW ONLY BANNER (kalau inactive) ══ --}}
-        @if($isReadOnly)
-        <div class="flex items-center space-x-3 bg-amber-50 border border-amber-200 text-amber-800 px-5 py-3.5 mb-6 rounded-xl">
-            <svg class="w-5 h-5 text-amber-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-            </svg>
-            <div>
-                <p class="text-sm font-black uppercase tracking-wide">File Inactive — Mode View Only</p>
-                <p class="text-xs font-medium mt-0.5">File ini sedang dinonaktifkan. Aktifkan kembali di halaman upload untuk mengizinkan pengeditan.</p>
-            </div>
-        </div>
-        @endif
-
         {{-- ══ META INFO ══ --}}
         <div class="flex items-center justify-between mb-5">
             <div class="flex items-center space-x-3">
                 <div class="w-1.5 h-8 bg-red-600 rounded-full"></div>
-                <h2 class="text-xl font-black text-slate-900 tracking-tight">Progress Data</h2>
+                <h2 class="text-xl font-black text-slate-900 tracking-tight">
+                    {{ $type === 'koreksi' ? 'Progress Realisasi Koreksi' : 'Progress Data' }}
+                </h2>
             </div>
             <div class="flex items-center space-x-3">
-                {{-- Periode selector --}}
                 @if(count($periodOptions))
                 <form method="GET" class="flex items-center">
                     <div class="relative">
@@ -89,38 +72,208 @@
                     </div>
                 </form>
                 @endif
-
                 <span class="text-[12px] font-black tracking-widest text-red-700 bg-red-50 border border-red-200 rounded-md px-3 py-1 uppercase">
                     {{ strtoupper(str_replace('-', ' ', $type)) }}
                 </span>
                 <span class="text-[12px] font-black tracking-widest text-slate-500 bg-white border border-slate-200 rounded-md px-3 py-1 uppercase shadow-sm">
                     {{ strtoupper($segmentLabel) }}
                 </span>
-                @if($isReadOnly)
-                <span class="text-[12px] font-black tracking-widest text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-3 py-1 uppercase">
-                    🔒 Locked
-                </span>
+                @if(isset($isReadOnly) && $isReadOnly)
+                <span class="text-[12px] font-black tracking-widest text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-3 py-1 uppercase">🔒 Locked</span>
                 @else
-                <span class="text-[12px] font-black tracking-widest text-green-700 bg-green-50 border border-green-200 rounded-md px-3 py-1 uppercase">
-                    ✏️ Editable
-                </span>
-                @endif
-
-                @php
-                    $lastUpdate = $dataRows
-                        ->map(fn($row) => $funnelMap->get($row->id)?->updated_at)
-                        ->filter()
-                        ->max();
-                @endphp
-                @if($lastUpdate)
-                <span class="text-[12px] font-black tracking-widest text-slate-500 bg-white border border-slate-200 rounded-md px-3 py-1 shadow-sm">
-                    🕐 {{ \Carbon\Carbon::parse($lastUpdate)->format('d M Y, H:i') }}
-                </span>
+                <span class="text-[12px] font-black tracking-widest text-green-700 bg-green-50 border border-green-200 rounded-md px-3 py-1 uppercase">✏️ Editable</span>
                 @endif
             </div>
         </div>
 
-        {{-- ══ TABLE ══ --}}
+        @if($import)
+
+        {{-- ══════════════════════════════════════════════════════════════
+             TAMPILAN KOREKSI — inline edit realisasi
+        ══════════════════════════════════════════════════════════════ --}}
+        @if($type === 'koreksi')
+
+        @php
+            $isReadOnly     = isset($isReadOnly) ? $isReadOnly : false;
+            $totalKomitmen  = $koreksiRows->sum('nilai_komitmen');
+            $totalRealisasi = $koreksiRows->sum('realisasi');
+            $pctTotal       = $totalKomitmen > 0 ? ($totalRealisasi / $totalKomitmen) * 100 : 0;
+            $sudahRealisasi = $koreksiRows->filter(fn($r) => $r->realisasi > 0)->count();
+        @endphp
+
+        {{-- Summary cards --}}
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm px-5 py-4">
+                <p class="text-[10px] font-black tracking-widest text-slate-400 uppercase mb-1">Total LOP</p>
+                <p class="text-2xl font-black text-slate-900">{{ $koreksiRows->count() }}</p>
+                <p class="text-xs text-slate-400 mt-0.5 font-medium">Data aktif periode ini</p>
+            </div>
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm px-5 py-4">
+                <p class="text-[10px] font-black tracking-widest text-slate-400 uppercase mb-1">Nilai Komitmen</p>
+                <p class="text-lg font-black text-slate-900">{{ number_format($totalKomitmen, 0, ',', '.') }}</p>
+                <p class="text-xs text-slate-400 mt-0.5 font-medium">Total komitmen (Rp)</p>
+            </div>
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm px-5 py-4">
+                <p class="text-[10px] font-black tracking-widest text-slate-400 uppercase mb-1">Total Realisasi</p>
+                <p class="text-lg font-black text-emerald-600" id="summary-total-realisasi">{{ number_format($totalRealisasi, 0, ',', '.') }}</p>
+                <p class="text-xs text-slate-400 mt-0.5 font-medium">{{ $sudahRealisasi }} dari {{ $koreksiRows->count() }} LOP</p>
+            </div>
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm px-5 py-4">
+                <p class="text-[10px] font-black tracking-widest text-slate-400 uppercase mb-1">Pencapaian</p>
+                <p class="text-2xl font-black {{ $pctTotal >= 100 ? 'text-emerald-600' : ($pctTotal >= 50 ? 'text-yellow-500' : 'text-red-500') }}" id="summary-pct">
+                    {{ number_format($pctTotal, 1, ',', '.') }}%
+                </p>
+                <p class="text-xs text-slate-400 mt-0.5 font-medium">Realisasi / Komitmen</p>
+            </div>
+        </div>
+
+        {{-- Tabel koreksi dengan inline edit --}}
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200 text-xs">
+                    <thead>
+                        <tr class="bg-slate-800">
+                            <th class="px-3 py-3 text-center text-[10px] font-black text-slate-300 uppercase tracking-widest border-r border-slate-700 w-10">NO</th>
+                            <th class="px-4 py-3 text-left text-[10px] font-black text-slate-300 uppercase tracking-widest border-r border-slate-700">NAMA PELANGGAN</th>
+                            <th class="px-4 py-3 text-right text-[10px] font-black text-slate-300 uppercase tracking-widest border-r border-slate-700 w-44">NILAI KOMITMEN (Rp)</th>
+                            <th class="px-4 py-3 text-center text-[10px] font-black text-slate-300 uppercase tracking-widest border-r border-slate-700 w-44">PROGRESS</th>
+                            <th class="px-4 py-3 text-right text-[10px] font-black text-emerald-400 uppercase tracking-widest w-56">REALISASI (Rp)</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-slate-100">
+                        @forelse($koreksiRows as $row)
+                        @php
+                            $hasReal  = $row->realisasi !== null && $row->realisasi > 0;
+                            $pctRow   = ($row->nilai_komitmen > 0 && $row->realisasi > 0)
+                                ? ($row->realisasi / $row->nilai_komitmen) * 100 : 0;
+                            $barColor  = $pctRow >= 100 ? '#16a34a' : ($pctRow >= 50 ? '#eab308' : '#ef4444');
+                            $textColor = $pctRow >= 100 ? '#16a34a' : ($pctRow >= 50 ? '#ca8a04' : '#ef4444');
+                        @endphp
+                        <tr class="hover:bg-slate-50 transition-colors koreksi-row"
+                            data-id="{{ $row->id }}"
+                            data-komitmen="{{ $row->nilai_komitmen ?? 0 }}"
+                            data-realisasi="{{ $row->realisasi ?? 0 }}">
+                            <td class="px-3 py-3 text-center font-bold text-slate-500 border-r border-slate-100">{{ $row->no ?? $loop->iteration }}</td>
+                            <td class="px-4 py-3 text-slate-800 border-r border-slate-100 font-semibold">{{ $row->nama_pelanggan }}</td>
+                            <td class="px-4 py-3 text-right font-black text-slate-800 border-r border-slate-100 tabular-nums">
+                                @if($row->nilai_komitmen !== null)
+                                    {{ number_format($row->nilai_komitmen, 0, ',', '.') }}
+                                @else
+                                    <span class="text-slate-300">—</span>
+                                @endif
+                            </td>
+                            <td class="px-4 py-3 border-r border-slate-100">
+                                @if($row->nilai_komitmen > 0)
+                                <div class="flex items-center space-x-2">
+                                    <div class="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
+                                        <div class="h-2 rounded-full transition-all duration-500 realisasi-bar"
+                                            style="width: {{ min(100, $pctRow) }}%; background: {{ $barColor }};"
+                                            data-id="{{ $row->id }}"></div>
+                                    </div>
+                                    <span class="text-[10px] font-black tabular-nums realisasi-pct"
+                                        data-id="{{ $row->id }}"
+                                        style="color: {{ $textColor }}; min-width: 36px;">
+                                        {{ number_format($pctRow, 0) }}%
+                                    </span>
+                                </div>
+                                @else
+                                <span class="text-slate-300 font-bold block text-center">—</span>
+                                @endif
+                            </td>
+                            <td class="px-3 py-2.5 bg-emerald-50 border-l border-emerald-100" id="realisasi-cell-{{ $row->id }}">
+                                @if(!$isReadOnly)
+                                <div class="flex items-center justify-end space-x-2">
+                                    <div class="realisasi-display font-black tabular-nums cursor-pointer transition-colors {{ $hasReal ? 'text-emerald-700 hover:text-emerald-500' : 'text-slate-300 hover:text-slate-400' }}"
+                                        id="realisasi-display-{{ $row->id }}"
+                                        onclick="startEdit({{ $row->id }}, {{ $row->nilai_komitmen ?? 0 }})"
+                                        title="Klik untuk edit">
+                                        @if($hasReal)
+                                            {{ number_format($row->realisasi, 0, ',', '.') }}
+                                        @else
+                                            <span class="text-xs font-bold">— klik untuk isi</span>
+                                        @endif
+                                    </div>
+                                    <div class="realisasi-edit hidden items-center space-x-1" id="realisasi-edit-{{ $row->id }}">
+                                        <input type="number" min="0" step="1"
+                                            id="realisasi-input-{{ $row->id }}"
+                                            value="{{ $row->realisasi > 0 ? $row->realisasi : '' }}"
+                                            placeholder="0"
+                                            class="w-36 px-2 py-1 border-2 border-emerald-400 rounded-lg text-xs font-black text-slate-800 text-right focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-100 tabular-nums"
+                                            onkeydown="handleKey(event, {{ $row->id }}, {{ $row->nilai_komitmen ?? 0 }})">
+                                        <button onclick="saveRealisasi({{ $row->id }}, {{ $row->nilai_komitmen ?? 0 }})"
+                                            class="p-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors flex-shrink-0" title="Simpan (Enter)">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                                            </svg>
+                                        </button>
+                                        <button onclick="cancelEdit({{ $row->id }})"
+                                            class="p-1.5 bg-slate-200 hover:bg-slate-300 text-slate-600 rounded-lg transition-colors flex-shrink-0" title="Batal (Esc)">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                                @else
+                                <div class="text-right">
+                                    @if($hasReal)
+                                        <span class="font-black text-emerald-700 tabular-nums">{{ number_format($row->realisasi, 0, ',', '.') }}</span>
+                                    @else
+                                        <span class="text-slate-300 font-bold">—</span>
+                                    @endif
+                                </div>
+                                @endif
+                            </td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="5" class="px-4 py-12 text-center text-slate-400 font-bold">Tidak ada data.</td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                    <tfoot>
+                        <tr class="border-t-2 border-slate-300 bg-slate-800">
+                            <td colspan="2" class="px-4 py-3 text-right text-xs font-black text-slate-300 uppercase tracking-widest">TOTAL</td>
+                            <td class="px-4 py-3 text-right font-black text-white tabular-nums border-l border-slate-700">
+                                {{ number_format($totalKomitmen, 0, ',', '.') }}
+                            </td>
+                            <td class="px-4 py-3 text-center border-l border-slate-700">
+                                <span class="text-xs font-black tabular-nums" id="footer-pct"
+                                    style="color: {{ $pctTotal >= 100 ? '#4ade80' : ($pctTotal >= 50 ? '#fde047' : '#fca5a5') }}">
+                                    {{ number_format($pctTotal, 1, ',', '.') }}%
+                                </span>
+                            </td>
+                            <td class="px-4 py-3 text-right border-l border-slate-700">
+                                <span class="font-black text-emerald-400 tabular-nums" id="footer-total-realisasi">
+                                    {{ number_format($totalRealisasi, 0, ',', '.') }}
+                                </span>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+        @if(!$isReadOnly)
+        <div class="mt-5 bg-blue-50 border border-blue-200 rounded-xl px-5 py-3 flex items-start space-x-3">
+            <svg class="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <div class="text-xs text-blue-700 leading-relaxed">
+                <span class="font-black">Cara edit:</span>
+                Klik nilai di kolom <span class="font-black text-emerald-700">Realisasi</span> untuk mengisi atau mengubah angka.
+                Tekan <span class="font-black">Enter</span> atau ✓ untuk simpan. Tekan <span class="font-black">Escape</span> atau ✕ untuk batal.
+            </div>
+        </div>
+        @endif
+
+        {{-- ══════════════════════════════════════════════════════════════
+             TAMPILAN NON-KOREKSI (on-hand / qualified / initiate)
+        ══════════════════════════════════════════════════════════════ --}}
+        @else
+
+        @php $isReadOnly = false; @endphp
+
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200 text-xs">
@@ -143,7 +296,7 @@
                             <th colspan="3" class="px-3 py-2 text-center text-[10px] font-black text-white border-r border-slate-100 bg-emerald-700">DELIVERY</th>
                             <th rowspan="2" class="px-3 py-2 text-center text-[10px] font-black text-white border-r border-slate-100 bg-indigo-600">BILLING<br>COMPLETE</th>
                             <th rowspan="2" class="px-3 py-2 text-center text-[10px] font-black text-white bg-violet-600 min-w-[100px]">NILAI BILL COMP</th>
-                            <th rowspan="2" class="px-3 py-2 text-center text-[10px] font-black text-white bg-red-600 min-w-[100px]">CANCEL</th>
+                            <th rowspan="2" class="px-3 py-2 text-center text-[10px] font-black text-white bg-red-600 min-w-[80px]">CANCEL</th>
                         </tr>
                         <tr class="border-b border-slate-200">
                             <th class="px-2 py-1.5 text-center text-[10px] font-black text-blue-700 bg-blue-50 border-r border-slate-100">Inisiasi</th>
@@ -168,12 +321,12 @@
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-slate-100">
+                        @php $typeFormatted = str_replace('-', '_', $type); @endphp
                         @foreach($dataRows as $row)
                         @php
                             $funnel      = $funnelMap->get($row->id);
                             $denganMitra = strtolower(trim($row->mitra ?? ''));
                             $checked     = fn($field) => $funnel && ($funnel->{$field} ?? false);
-                            
                         @endphp
                         <tr class="hover:bg-slate-50 transition-colors" data-row-id="{{ $row->id }}" data-cancelled="{{ $checked('cancel') ? 'true' : 'false' }}">
                             <td class="px-3 py-2.5 whitespace-nowrap font-bold text-slate-700 border-r border-slate-100 text-center">{{ $row->no }}</td>
@@ -184,173 +337,93 @@
                             <td class="px-4 py-2.5 text-slate-700 border-r border-slate-100 bg-emerald-50 font-semibold">{{ $row->mitra }}</td>
                             <td class="px-4 py-2.5 whitespace-nowrap text-slate-600 border-r border-slate-100 text-center">{{ $row->plan_bulan_billcom_p_2025 }}</td>
                             <td class="px-4 py-2.5 whitespace-nowrap font-black text-slate-800 border-r border-slate-100">{{ $row->est_nilai_bc }}</td>
-
                             {{-- F0 --}}
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-blue-50">
-                                <input type="checkbox" class="funnel-checkbox w-4 h-4 text-blue-600 rounded {{ $isReadOnly ? 'cursor-not-allowed opacity-60' : 'cursor-pointer' }}"
-                                    data-field="f0_inisiasi_solusi" data-data-type="{{$type}}" data-data-id="{{ $row->id }}"
-                                    {{ $checked('f0_inisiasi_solusi') ? 'checked' : '' }}
-                                    {{ $isReadOnly ? 'disabled' : '' }}>
+                                <input type="checkbox" class="funnel-checkbox w-4 h-4 text-blue-600 rounded cursor-pointer"
+                                    data-field="f0_inisiasi_solusi" data-data-type="{{ $type }}" data-data-id="{{ $row->id }}"
+                                    {{ $checked('f0_inisiasi_solusi') ? 'checked' : '' }}>
                             </td>
                             {{-- F1 --}}
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-purple-50">
-                                <input type="checkbox" class="funnel-checkbox w-4 h-4 text-purple-600 rounded {{ $isReadOnly ? 'cursor-not-allowed opacity-60' : 'cursor-pointer' }}"
-                                    data-field="f1_tech_budget" data-data-type="{{$type}}" data-data-id="{{ $row->id }}"
-                                    {{ $checked('f1_tech_budget') ? 'checked' : '' }}
-                                    {{ $isReadOnly ? 'disabled' : '' }}>
+                                <input type="checkbox" class="funnel-checkbox w-4 h-4 text-purple-600 rounded cursor-pointer"
+                                    data-field="f1_tech_budget" data-data-type="{{ $type }}" data-data-id="{{ $row->id }}"
+                                    {{ $checked('f1_tech_budget') ? 'checked' : '' }}>
                             </td>
-                            {{-- F2 P0/P1 --}}
+                            {{-- F2 --}}
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-pink-50">
-                                @if($denganMitra)
-                                <input type="checkbox" class="funnel-checkbox w-4 h-4 text-pink-600 rounded {{ $isReadOnly ? 'cursor-not-allowed opacity-60' : 'cursor-pointer' }}"
-                                    data-field="f2_p0_p1" data-data-type="{{$type}}" data-data-id="{{ $row->id }}"
-                                    {{ $checked('f2_p0_p1') ? 'checked' : '' }}
-                                    {{ $isReadOnly ? 'disabled' : '' }}>
+                                @if($denganMitra)<input type="checkbox" class="funnel-checkbox w-4 h-4 text-pink-600 rounded cursor-pointer" data-field="f2_p0_p1" data-data-type="{{ $type }}" data-data-id="{{ $row->id }}" {{ $checked('f2_p0_p1') ? 'checked' : '' }}>
                                 @else<span class="text-slate-300 font-bold">—</span>@endif
                             </td>
-                            {{-- F2 P2 --}}
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-pink-50">
-                                @if($denganMitra)
-                                <input type="checkbox" class="funnel-checkbox w-4 h-4 text-pink-600 rounded {{ $isReadOnly ? 'cursor-not-allowed opacity-60' : 'cursor-pointer' }}"
-                                    data-field="f2_p2" data-data-type="{{$type}}" data-data-id="{{ $row->id }}"
-                                    {{ $checked('f2_p2') ? 'checked' : '' }}
-                                    {{ $isReadOnly ? 'disabled' : '' }}>
+                                @if($denganMitra)<input type="checkbox" class="funnel-checkbox w-4 h-4 text-pink-600 rounded cursor-pointer" data-field="f2_p2" data-data-type="{{ $type }}" data-data-id="{{ $row->id }}" {{ $checked('f2_p2') ? 'checked' : '' }}>
                                 @else<span class="text-slate-300 font-bold">—</span>@endif
                             </td>
-                            {{-- F2 P3 --}}
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-pink-50">
-                                @if($denganMitra)
-                                <input type="checkbox" class="funnel-checkbox w-4 h-4 text-pink-600 rounded {{ $isReadOnly ? 'cursor-not-allowed opacity-60' : 'cursor-pointer' }}"
-                                    data-field="f2_p3" data-data-type="{{$type}}" data-data-id="{{ $row->id }}"
-                                    {{ $checked('f2_p3') ? 'checked' : '' }}
-                                    {{ $isReadOnly ? 'disabled' : '' }}>
+                                @if($denganMitra)<input type="checkbox" class="funnel-checkbox w-4 h-4 text-pink-600 rounded cursor-pointer" data-field="f2_p3" data-data-type="{{ $type }}" data-data-id="{{ $row->id }}" {{ $checked('f2_p3') ? 'checked' : '' }}>
                                 @else<span class="text-slate-300 font-bold">—</span>@endif
                             </td>
-                            {{-- F2 P4 --}}
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-pink-50">
-                                @if($denganMitra)
-                                <input type="checkbox" class="funnel-checkbox w-4 h-4 text-pink-600 rounded {{ $isReadOnly ? 'cursor-not-allowed opacity-60' : 'cursor-pointer' }}"
-                                    data-field="f2_p4" data-data-type="{{$type}}" data-data-id="{{ $row->id }}"
-                                    {{ $checked('f2_p4') ? 'checked' : '' }}
-                                    {{ $isReadOnly ? 'disabled' : '' }}>
+                                @if($denganMitra)<input type="checkbox" class="funnel-checkbox w-4 h-4 text-pink-600 rounded cursor-pointer" data-field="f2_p4" data-data-type="{{ $type }}" data-data-id="{{ $row->id }}" {{ $checked('f2_p4') ? 'checked' : '' }}>
                                 @else<span class="text-slate-300 font-bold">—</span>@endif
                             </td>
-                            {{-- F2 Offering --}}
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-pink-50">
-                                @if($denganMitra)
-                                <input type="checkbox" class="funnel-checkbox w-4 h-4 text-pink-600 rounded {{ $isReadOnly ? 'cursor-not-allowed opacity-60' : 'cursor-pointer' }}"
-                                    data-field="f2_offering" data-data-type="{{$type}}" data-data-id="{{ $row->id }}"
-                                    {{ $checked('f2_offering') ? 'checked' : '' }}
-                                    {{ $isReadOnly ? 'disabled' : '' }}>
+                                @if($denganMitra)<input type="checkbox" class="funnel-checkbox w-4 h-4 text-pink-600 rounded cursor-pointer" data-field="f2_offering" data-data-type="{{ $type }}" data-data-id="{{ $row->id }}" {{ $checked('f2_offering') ? 'checked' : '' }}>
                                 @else<span class="text-slate-300 font-bold">—</span>@endif
                             </td>
-                            {{-- F2 P5 --}}
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-pink-50">
-                                @if($denganMitra)
-                                <input type="checkbox" class="funnel-checkbox w-4 h-4 text-pink-600 rounded {{ $isReadOnly ? 'cursor-not-allowed opacity-60' : 'cursor-pointer' }}"
-                                    data-field="f2_p5" data-data-type="{{$type}}" data-data-id="{{ $row->id }}"
-                                    {{ $checked('f2_p5') ? 'checked' : '' }}
-                                    {{ $isReadOnly ? 'disabled' : '' }}>
+                                @if($denganMitra)<input type="checkbox" class="funnel-checkbox w-4 h-4 text-pink-600 rounded cursor-pointer" data-field="f2_p5" data-data-type="{{ $type }}" data-data-id="{{ $row->id }}" {{ $checked('f2_p5') ? 'checked' : '' }}>
                                 @else<span class="text-slate-300 font-bold">—</span>@endif
                             </td>
-                            {{-- F2 Proposal --}}
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-pink-50">
-                                <input type="checkbox" class="funnel-checkbox w-4 h-4 text-pink-600 rounded {{ $isReadOnly ? 'cursor-not-allowed opacity-60' : 'cursor-pointer' }}"
-                                    data-field="f2_proposal" data-data-type="{{$type}}" data-data-id="{{ $row->id }}"
-                                    {{ $checked('f2_proposal') ? 'checked' : '' }}
-                                    {{ $isReadOnly ? 'disabled' : '' }}>
+                                <input type="checkbox" class="funnel-checkbox w-4 h-4 text-pink-600 rounded cursor-pointer" data-field="f2_proposal" data-data-type="{{ $type }}" data-data-id="{{ $row->id }}" {{ $checked('f2_proposal') ? 'checked' : '' }}>
                             </td>
-                            {{-- F3 P6 --}}
+                            {{-- F3 --}}
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-orange-50">
-                                @if($denganMitra)
-                                <input type="checkbox" class="funnel-checkbox w-4 h-4 text-orange-600 rounded {{ $isReadOnly ? 'cursor-not-allowed opacity-60' : 'cursor-pointer' }}"
-                                    data-field="f3_p6" data-data-type="{{$type}}" data-data-id="{{ $row->id }}"
-                                    {{ $checked('f3_p6') ? 'checked' : '' }}
-                                    {{ $isReadOnly ? 'disabled' : '' }}>
+                                @if($denganMitra)<input type="checkbox" class="funnel-checkbox w-4 h-4 text-orange-600 rounded cursor-pointer" data-field="f3_p6" data-data-type="{{ $type }}" data-data-id="{{ $row->id }}" {{ $checked('f3_p6') ? 'checked' : '' }}>
                                 @else<span class="text-slate-300 font-bold">—</span>@endif
                             </td>
-                            {{-- F3 P7 --}}
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-orange-50">
-                                @if($denganMitra)
-                                <input type="checkbox" class="funnel-checkbox w-4 h-4 text-orange-600 rounded {{ $isReadOnly ? 'cursor-not-allowed opacity-60' : 'cursor-pointer' }}"
-                                    data-field="f3_p7" data-data-type="{{$type}}" data-data-id="{{ $row->id }}"
-                                    {{ $checked('f3_p7') ? 'checked' : '' }}
-                                    {{ $isReadOnly ? 'disabled' : '' }}>
+                                @if($denganMitra)<input type="checkbox" class="funnel-checkbox w-4 h-4 text-orange-600 rounded cursor-pointer" data-field="f3_p7" data-data-type="{{ $type }}" data-data-id="{{ $row->id }}" {{ $checked('f3_p7') ? 'checked' : '' }}>
                                 @else<span class="text-slate-300 font-bold">—</span>@endif
                             </td>
-                            {{-- F3 Submit --}}
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-orange-50">
-                                <input type="checkbox" class="funnel-checkbox w-4 h-4 text-orange-600 rounded {{ $isReadOnly ? 'cursor-not-allowed opacity-60' : 'cursor-pointer' }}"
-                                    data-field="f3_submit" data-data-type="{{$type}}" data-data-id="{{ $row->id }}"
-                                    {{ $checked('f3_submit') ? 'checked' : '' }}
-                                    {{ $isReadOnly ? 'disabled' : '' }}>
+                                <input type="checkbox" class="funnel-checkbox w-4 h-4 text-orange-600 rounded cursor-pointer" data-field="f3_submit" data-data-type="{{ $type }}" data-data-id="{{ $row->id }}" {{ $checked('f3_submit') ? 'checked' : '' }}>
                             </td>
-                            {{-- F4 Negosiasi --}}
+                            {{-- F4 --}}
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-teal-50">
-                                <input type="checkbox" class="funnel-checkbox w-4 h-4 text-teal-600 rounded {{ $isReadOnly ? 'cursor-not-allowed opacity-60' : 'cursor-pointer' }}"
-                                    data-field="f4_negosiasi" data-data-type="{{$type}}" data-data-id="{{ $row->id }}"
-                                    {{ $checked('f4_negosiasi') ? 'checked' : '' }}
-                                    {{ $isReadOnly ? 'disabled' : '' }}>
+                                <input type="checkbox" class="funnel-checkbox w-4 h-4 text-teal-600 rounded cursor-pointer" data-field="f4_negosiasi" data-data-type="{{ $type }}" data-data-id="{{ $row->id }}" {{ $checked('f4_negosiasi') ? 'checked' : '' }}>
                             </td>
-                            {{-- F5 SK Mitra --}}
+                            {{-- F5 --}}
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-green-50">
-                                @if($denganMitra)
-                                <input type="checkbox" class="funnel-checkbox w-4 h-4 text-green-600 rounded {{ $isReadOnly ? 'cursor-not-allowed opacity-60' : 'cursor-pointer' }}"
-                                    data-field="f5_sk_mitra" data-data-type="{{$type}}" data-data-id="{{ $row->id }}"
-                                    {{ $checked('f5_sk_mitra') ? 'checked' : '' }}
-                                    {{ $isReadOnly ? 'disabled' : '' }}>
+                                @if($denganMitra)<input type="checkbox" class="funnel-checkbox w-4 h-4 text-green-600 rounded cursor-pointer" data-field="f5_sk_mitra" data-data-type="{{ $type }}" data-data-id="{{ $row->id }}" {{ $checked('f5_sk_mitra') ? 'checked' : '' }}>
                                 @else<span class="text-slate-300 font-bold">—</span>@endif
                             </td>
-                            {{-- F5 TTD Kontrak --}}
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-green-50">
-                                <input type="checkbox" class="funnel-checkbox w-4 h-4 text-green-600 rounded {{ $isReadOnly ? 'cursor-not-allowed opacity-60' : 'cursor-pointer' }}"
-                                    data-field="f5_ttd_kontrak" data-data-type="{{$type}}" data-data-id="{{ $row->id }}"
-                                    {{ $checked('f5_ttd_kontrak') ? 'checked' : '' }}
-                                    {{ $isReadOnly ? 'disabled' : '' }}>
+                                <input type="checkbox" class="funnel-checkbox w-4 h-4 text-green-600 rounded cursor-pointer" data-field="f5_ttd_kontrak" data-data-type="{{ $type }}" data-data-id="{{ $row->id }}" {{ $checked('f5_ttd_kontrak') ? 'checked' : '' }}>
                             </td>
-                            {{-- F5 P8 --}}
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-green-50">
-                                @if($denganMitra)
-                                <input type="checkbox" class="funnel-checkbox w-4 h-4 text-green-600 rounded {{ $isReadOnly ? 'cursor-not-allowed opacity-60' : 'cursor-pointer' }}"
-                                    data-field="f5_p8" data-data-type="{{$type}}" data-data-id="{{ $row->id }}"
-                                    {{ $checked('f5_p8') ? 'checked' : '' }}
-                                    {{ $isReadOnly ? 'disabled' : '' }}>
+                                @if($denganMitra)<input type="checkbox" class="funnel-checkbox w-4 h-4 text-green-600 rounded cursor-pointer" data-field="f5_p8" data-data-type="{{ $type }}" data-data-id="{{ $row->id }}" {{ $checked('f5_p8') ? 'checked' : '' }}>
                                 @else<span class="text-slate-300 font-bold">—</span>@endif
                             </td>
-                            {{-- DELIVERY Kontrak --}}
+                            {{-- DELIVERY --}}
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-emerald-50">
-                                <input type="checkbox" class="funnel-checkbox w-4 h-4 text-emerald-600 rounded {{ $isReadOnly ? 'cursor-not-allowed opacity-60' : 'cursor-pointer' }}"
-                                    data-field="delivery_kontrak" data-data-type="{{$type}}" data-data-id="{{ $row->id }}"
-                                    {{ $checked('delivery_kontrak') ? 'checked' : '' }}
-                                    {{ $isReadOnly ? 'disabled' : '' }}>
+                                <input type="checkbox" class="funnel-checkbox w-4 h-4 text-emerald-600 rounded cursor-pointer" data-field="delivery_kontrak" data-data-type="{{ $type }}" data-data-id="{{ $row->id }}" {{ $checked('delivery_kontrak') ? 'checked' : '' }}>
                             </td>
-                            {{-- DELIVERY BAUT/BAST --}}
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-emerald-50">
-                                @if($denganMitra)
-                                <input type="checkbox" class="funnel-checkbox w-4 h-4 text-emerald-600 rounded {{ $isReadOnly ? 'cursor-not-allowed opacity-60' : 'cursor-pointer' }}"
-                                    data-field="delivery_baut_bast" data-data-type="koreksi" data-data-id="{{ $row->id }}"
-                                    {{ $checked('delivery_baut_bast') ? 'checked' : '' }}
-                                    {{ $isReadOnly ? 'disabled' : '' }}>
+                                @if($denganMitra)<input type="checkbox" class="funnel-checkbox w-4 h-4 text-emerald-600 rounded cursor-pointer" data-field="delivery_baut_bast" data-data-type="{{ $type }}" data-data-id="{{ $row->id }}" {{ $checked('delivery_baut_bast') ? 'checked' : '' }}>
                                 @else<span class="text-slate-300 font-bold">—</span>@endif
                             </td>
-                            {{-- DELIVERY BASO --}}
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-emerald-50">
-                                @if($denganMitra)
-                                <input type="checkbox" class="funnel-checkbox w-4 h-4 text-emerald-600 rounded {{ $isReadOnly ? 'cursor-not-allowed opacity-60' : 'cursor-pointer' }}"
-                                    data-field="delivery_baso" data-data-type="{{$type}}" data-data-id="{{ $row->id }}"
-                                    {{ $checked('delivery_baso') ? 'checked' : '' }}
-                                    {{ $isReadOnly ? 'disabled' : '' }}>
+                                @if($denganMitra)<input type="checkbox" class="funnel-checkbox w-4 h-4 text-emerald-600 rounded cursor-pointer" data-field="delivery_baso" data-data-type="{{ $type }}" data-data-id="{{ $row->id }}" {{ $checked('delivery_baso') ? 'checked' : '' }}>
                                 @else<span class="text-slate-300 font-bold">—</span>@endif
                             </td>
-                            {{-- BILLING COMPLETE --}}
+                            {{-- BILLING --}}
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-indigo-50">
-                                <input type="checkbox" class="billing-checkbox w-4 h-4 text-indigo-600 rounded {{ $isReadOnly ? 'cursor-not-allowed opacity-60' : 'cursor-pointer' }}"
-                                    data-field="delivery_billing_complete" data-data-type="{{$type}}" data-data-id="{{ $row->id }}"
+                                <input type="checkbox" class="billing-checkbox w-4 h-4 text-indigo-600 rounded cursor-pointer"
+                                    data-field="delivery_billing_complete" data-data-type="{{ $type }}" data-data-id="{{ $row->id }}"
                                     data-est-nilai="{{ $row->est_nilai_bc }}"
-                                    {{ $checked('delivery_billing_complete') ? 'checked' : '' }}
-                                    {{ $isReadOnly ? 'disabled' : '' }}>
+                                    {{ $checked('delivery_billing_complete') ? 'checked' : '' }}>
                             </td>
-                            {{-- NILAI BILL COMP --}}
                             <td class="px-2 py-2.5 text-center bg-violet-50 nilai-billcomp-cell" data-row-id="{{ $row->id }}">
                                 <span class="font-black text-slate-800">
                                     @php
@@ -370,10 +443,9 @@
                             </td>
                             {{-- CANCEL --}}
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-red-50">
-                                <input type="checkbox" class="cancel-checkbox w-4 h-4 text-red-600 rounded {{ $isReadOnly ? 'cursor-not-allowed opacity-60' : 'cursor-pointer' }}"
+                                <input type="checkbox" class="cancel-checkbox w-4 h-4 text-red-600 rounded cursor-pointer"
                                     data-field="cancel" data-data-type="{{ $type }}" data-data-id="{{ $row->id }}"
-                                    {{ $checked('cancel') ? 'checked' : '' }}
-                                    {{ $isReadOnly ? 'disabled' : '' }}>
+                                    {{ $checked('cancel') ? 'checked' : '' }}>
                             </td>
                         </tr>
                         @endforeach
@@ -407,8 +479,9 @@
             </div>
         </div>
 
+        @endif {{-- end koreksi / non-koreksi --}}
+
         @else
-        {{-- ══ EMPTY STATE ══ --}}
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-16 text-center">
             <div class="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-5"
                 style="background: linear-gradient(135deg, #fff1f2, #ffe4e6); border: 2px solid #fecdd3;">
@@ -424,11 +497,157 @@
     </div>
 </div>
 
+{{-- ══ SCRIPTS ══ --}}
+@if($import)
+@if($type === 'koreksi' && !(isset($isReadOnly) && $isReadOnly))
+<script>
+(function () {
+    const CSRF  = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+    const ROUTE = '{{ route("admin.progress.koreksi.update-realisasi", ["segment" => $segment]) }}';
+
+    const origValues = {};
+    document.querySelectorAll('.koreksi-row').forEach(function (tr) {
+        origValues[tr.dataset.id] = parseFloat(tr.dataset.realisasi) || 0;
+    });
+
+    let totalKomitmen = {{ $koreksiRows->sum('nilai_komitmen') }};
+    let totalReal     = {{ $koreksiRows->sum('realisasi') }};
+
+    window.startEdit = function (id, komitmen) {
+        document.querySelectorAll('.realisasi-edit').forEach(function (el) {
+            if (!el.classList.contains('hidden')) {
+                var otherId = el.id.replace('realisasi-edit-', '');
+                cancelEdit(parseInt(otherId));
+            }
+        });
+        var display = document.getElementById('realisasi-display-' + id);
+        var edit    = document.getElementById('realisasi-edit-' + id);
+        var input   = document.getElementById('realisasi-input-' + id);
+        display.classList.add('hidden');
+        edit.classList.remove('hidden');
+        edit.classList.add('flex');
+        input.focus();
+        input.select();
+    };
+
+    window.cancelEdit = function (id) {
+        var display = document.getElementById('realisasi-display-' + id);
+        var edit    = document.getElementById('realisasi-edit-' + id);
+        var input   = document.getElementById('realisasi-input-' + id);
+        edit.classList.add('hidden');
+        edit.classList.remove('flex');
+        display.classList.remove('hidden');
+        input.value = origValues[id] > 0 ? origValues[id] : '';
+    };
+
+    window.handleKey = function (event, id, komitmen) {
+        if (event.key === 'Enter') { event.preventDefault(); saveRealisasi(id, komitmen); }
+        else if (event.key === 'Escape') { cancelEdit(id); }
+    };
+
+    window.saveRealisasi = function (id, komitmen) {
+        var input    = document.getElementById('realisasi-input-' + id);
+        var rawValue = input.value.trim();
+        var newValue = rawValue === '' ? 0 : parseFloat(rawValue);
+        if (isNaN(newValue) || newValue < 0) {
+            input.classList.add('border-red-500');
+            input.focus();
+            setTimeout(function () { input.classList.remove('border-red-500'); }, 1500);
+            return;
+        }
+        var display = document.getElementById('realisasi-display-' + id);
+        var edit    = document.getElementById('realisasi-edit-' + id);
+        display.innerHTML = '<span class="text-slate-400 text-xs font-bold animate-pulse">Menyimpan...</span>';
+        display.classList.remove('hidden');
+        edit.classList.add('hidden');
+        edit.classList.remove('flex');
+        fetch(ROUTE, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' },
+            body: JSON.stringify({ id: id, realisasi: newValue }),
+        })
+        .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+        .then(function (data) {
+            if (!data.success) throw new Error(data.message || 'Gagal');
+            var oldValue   = origValues[id] || 0;
+            origValues[id] = newValue;
+            input.value    = newValue > 0 ? newValue : '';
+            if (newValue > 0) {
+                display.innerHTML = '<span class="font-black text-emerald-700 tabular-nums">' + fmt(newValue) + '</span>';
+            } else {
+                display.innerHTML = '<span class="text-xs font-bold text-slate-300">— klik untuk isi</span>';
+            }
+            display.className = 'realisasi-display font-black tabular-nums cursor-pointer transition-colors ' +
+                (newValue > 0 ? 'text-emerald-700 hover:text-emerald-500' : 'text-slate-300 hover:text-slate-400');
+            display.setAttribute('onclick', 'startEdit(' + id + ', ' + komitmen + ')');
+            updateRowBar(id, komitmen, newValue);
+            totalReal = totalReal - oldValue + newValue;
+            updateFooter();
+            updateSummary();
+            var cell = document.getElementById('realisasi-cell-' + id);
+            cell.style.background = '#d1fae5';
+            setTimeout(function () { cell.style.background = ''; }, 1200);
+        })
+        .catch(function (err) {
+            console.error(err);
+            var val = origValues[id] || 0;
+            display.innerHTML = val > 0
+                ? '<span class="font-black text-emerald-700 tabular-nums">' + fmt(val) + '</span>'
+                : '<span class="text-xs font-bold text-slate-300">— klik untuk isi</span>';
+            display.className = 'realisasi-display font-black tabular-nums cursor-pointer transition-colors ' +
+                (val > 0 ? 'text-emerald-700 hover:text-emerald-500' : 'text-slate-300 hover:text-slate-400');
+            display.setAttribute('onclick', 'startEdit(' + id + ', ' + komitmen + ')');
+            var cell = document.getElementById('realisasi-cell-' + id);
+            cell.style.background = '#fee2e2';
+            setTimeout(function () { cell.style.background = ''; }, 1500);
+            alert('Gagal menyimpan: ' + err.message);
+        });
+    };
+
+    function updateRowBar(id, komitmen, realisasi) {
+        var bar  = document.querySelector('.realisasi-bar[data-id="' + id + '"]');
+        var pctS = document.querySelector('.realisasi-pct[data-id="' + id + '"]');
+        if (!bar || !pctS) return;
+        var pct   = komitmen > 0 ? Math.min(100, (realisasi / komitmen) * 100) : 0;
+        var col   = pct >= 100 ? '#16a34a' : (pct >= 50 ? '#eab308' : '#ef4444');
+        var col2  = pct >= 100 ? '#16a34a' : (pct >= 50 ? '#ca8a04' : '#ef4444');
+        bar.style.width      = pct + '%';
+        bar.style.background = col;
+        pctS.textContent     = Math.round(pct) + '%';
+        pctS.style.color     = col2;
+    }
+
+    function updateFooter() {
+        var pct = totalKomitmen > 0 ? (totalReal / totalKomitmen) * 100 : 0;
+        var elR = document.getElementById('footer-total-realisasi');
+        var elP = document.getElementById('footer-pct');
+        if (elR) elR.textContent = fmt(totalReal);
+        if (elP) {
+            elP.textContent = pct.toFixed(1).replace('.', ',') + '%';
+            elP.style.color = pct >= 100 ? '#4ade80' : (pct >= 50 ? '#fde047' : '#fca5a5');
+        }
+    }
+
+    function updateSummary() {
+        var sr  = document.getElementById('summary-total-realisasi');
+        var sp  = document.getElementById('summary-pct');
+        var pct = totalKomitmen > 0 ? (totalReal / totalKomitmen) * 100 : 0;
+        if (sr) sr.textContent = fmt(totalReal);
+        if (sp) {
+            sp.textContent = pct.toFixed(1).replace('.', ',') + '%';
+            sp.className   = 'text-2xl font-black ' + (pct >= 100 ? 'text-emerald-600' : (pct >= 50 ? 'text-yellow-500' : 'text-red-500'));
+        }
+    }
+
+    function fmt(num) {
+        return Math.round(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    }
+})();
+</script>
+
+@elseif($type !== 'koreksi')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    const isReadOnly = false;
-    if (isReadOnly) return;
-
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
     if (!csrfToken) return;
 
@@ -439,55 +658,29 @@ document.addEventListener('DOMContentLoaded', function () {
         return Math.round(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
     }
 
-    // ══ DISABLE/ENABLE ROW ══
     function setRowDisabled(row, disabled) {
         row.querySelectorAll('.funnel-checkbox, .billing-checkbox').forEach(cb => {
             cb.disabled = disabled;
-            if (disabled) {
-                cb.classList.add('opacity-40', 'cursor-not-allowed');
-                cb.classList.remove('cursor-pointer');
-            } else {
-                cb.classList.remove('opacity-40', 'cursor-not-allowed');
-                cb.classList.add('cursor-pointer');
-            }
+            if (disabled) { cb.classList.add('opacity-40', 'cursor-not-allowed'); cb.classList.remove('cursor-pointer'); }
+            else { cb.classList.remove('opacity-40', 'cursor-not-allowed'); cb.classList.add('cursor-pointer'); }
         });
-        if (disabled) {
-            row.classList.add('bg-red-50', 'opacity-70');
-            row.classList.remove('hover:bg-slate-50');
-        } else {
-            row.classList.remove('bg-red-50', 'opacity-70');
-            row.classList.add('hover:bg-slate-50');
-        }
+        if (disabled) { row.classList.add('bg-red-50', 'opacity-70'); row.classList.remove('hover:bg-slate-50'); }
+        else { row.classList.remove('bg-red-50', 'opacity-70'); row.classList.add('hover:bg-slate-50'); }
     }
 
-    // ══ INISIALISASI STATE CANCEL SAAT PAGE LOAD ══
-    document.querySelectorAll('tr[data-cancelled="true"]').forEach(row => {
-        setRowDisabled(row, true);
-    });
+    document.querySelectorAll('tr[data-cancelled="true"]').forEach(row => setRowDisabled(row, true));
 
-    // ══ CANCEL CHECKBOX HANDLER ══
     document.querySelectorAll('.cancel-checkbox').forEach(checkbox => {
         checkbox.addEventListener('change', function () {
-            const rowId = this.dataset.dataId;
+            const rowId    = this.dataset.dataId;
             const cancelled = this.checked;
-            const row = this.closest('tr');
-
+            const row      = this.closest('tr');
             setRowDisabled(row, cancelled);
             row.dataset.cancelled = cancelled ? 'true' : 'false';
-
             fetch(updateUrl, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken,
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify({
-                    data_type: '{{ $type }}',
-                    data_id: rowId,
-                    field: 'cancel',
-                    value: cancelled
-                })
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
+                body: JSON.stringify({ data_type: '{{ $type }}', data_id: rowId, field: 'cancel', value: cancelled })
             })
             .then(r => r.json())
             .then(data => {
@@ -507,53 +700,40 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    // ══ FUNNEL CHECKBOXES ══
     document.querySelectorAll('.funnel-checkbox').forEach(checkbox => {
         checkbox.addEventListener('change', function () {
             const row = this.closest('tr');
-            if (row && row.dataset.cancelled === 'true') {
-                this.checked = !this.checked;
-                return;
-            }
+            if (row && row.dataset.cancelled === 'true') { this.checked = !this.checked; return; }
             this.parentElement.classList.add('bg-yellow-100');
             saveChange(this.dataset.dataId, this.dataset.dataType, this.dataset.field, this.checked, null, this.parentElement);
             if (this.checked) cascadeBackwards(this);
         });
     });
 
-    // ══ BILLING CHECKBOXES ══
     document.querySelectorAll('.billing-checkbox').forEach(checkbox => {
         checkbox.addEventListener('change', function () {
             const row = this.closest('tr');
-            if (row && row.dataset.cancelled === 'true') {
-                this.checked = !this.checked;
-                return;
-            }
+            if (row && row.dataset.cancelled === 'true') { this.checked = !this.checked; return; }
             this.parentElement.classList.add('bg-yellow-100');
             saveChange(this.dataset.dataId, this.dataset.dataType, this.dataset.field, this.checked, this.dataset.estNilai || '0', this.parentElement);
         });
     });
 
-    function cascadeBackwards(changedCheckbox) {
-        const row = changedCheckbox.closest('tr');
+    function cascadeBackwards(changedCb) {
+        const row = changedCb.closest('tr');
         if (!row) return;
         const boxes = Array.from(row.querySelectorAll('.funnel-checkbox, .billing-checkbox'));
-        const idx = boxes.indexOf(changedCheckbox);
+        const idx = boxes.indexOf(changedCb);
         if (idx === -1) return;
-        const laterChecked = boxes.slice(idx + 1).some(cb => cb.checked);
-        if (!laterChecked) return;
+        if (!boxes.slice(idx + 1).some(cb => cb.checked)) return;
         boxes.slice(0, idx).forEach(cb => {
-            if (!cb.checked) {
-                cb.checked = true;
-                saveChange(cb.dataset.dataId, cb.dataset.dataType, cb.dataset.field, true, null, cb.parentElement);
-            }
+            if (!cb.checked) { cb.checked = true; saveChange(cb.dataset.dataId, cb.dataset.dataType, cb.dataset.field, true, null, cb.parentElement); }
         });
     }
 
     function saveChange(rowId, dataType, field, value, estNilaiBc, container) {
-        const payload = { data_type: dataType, data_id: rowId, field: field, value: value };
+        const payload = { data_type: dataType, data_id: rowId, field, value };
         if (field === 'delivery_billing_complete') payload.est_nilai_bc = estNilaiBc || '0';
-
         fetch(updateUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
@@ -565,7 +745,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 container.classList.remove('bg-yellow-100');
                 container.classList.add('bg-green-50');
                 setTimeout(() => container.classList.remove('bg-green-50'), 1500);
-
                 if (field === 'delivery_billing_complete') {
                     const row = container.closest('tr');
                     const nilaiCell = row?.querySelector('.nilai-billcomp-cell');
@@ -576,23 +755,19 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
                 }
                 if (data.total) {
-                    const totalCell = document.getElementById('total-nilai-billcomp');
-                    if (totalCell) totalCell.querySelector('span').textContent = data.total;
+                    const tc = document.getElementById('total-nilai-billcomp');
+                    if (tc) tc.querySelector('span').textContent = data.total;
                 }
-                if (data.auto_fields && data.auto_fields.length) {
-                    const fields = Array.isArray(data.auto_fields) ? data.auto_fields : [data.auto_fields];
+                if (data.auto_fields?.length) {
+                    const fields    = Array.isArray(data.auto_fields) ? data.auto_fields : [data.auto_fields];
                     const targetVal = data.auto_value === true || data.auto_value === 'true';
-                    const row = container.closest('tr');
-                    const firstInput = row?.querySelector('input[data-data-id]');
-                    const currentRowId = firstInput?.dataset.dataId;
-                    const currentRowType = firstInput?.dataset.dataType;
+                    const row       = container.closest('tr');
+                    const fi        = row?.querySelector('input[data-data-id]');
                     fields.forEach(fld => {
-                        const sibling = document.querySelector(
-                            `.funnel-checkbox[data-field="${fld}"][data-data-id="${currentRowId}"][data-data-type="${currentRowType}"]`
-                        );
-                        if (sibling && sibling.checked !== targetVal) {
-                            sibling.checked = targetVal;
-                            saveChange(currentRowId, currentRowType, fld, targetVal, null, sibling.parentElement);
+                        const sib = document.querySelector(`.funnel-checkbox[data-field="${fld}"][data-data-id="${fi?.dataset.dataId}"][data-data-type="${fi?.dataset.dataType}"]`);
+                        if (sib && sib.checked !== targetVal) {
+                            sib.checked = targetVal;
+                            saveChange(fi.dataset.dataId, fi.dataset.dataType, fld, targetVal, null, sib.parentElement);
                         }
                     });
                 }
@@ -602,7 +777,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 setTimeout(() => container.classList.remove('bg-red-50'), 1500);
                 const cb = container.querySelector('input[type="checkbox"]');
                 if (cb) cb.checked = !value;
-                alert('Gagal menyimpan: ' + (data.message || 'Terjadi kesalahan'));
+                alert('Gagal: ' + (data.message || 'Terjadi kesalahan'));
             }
         })
         .catch(err => {
@@ -616,4 +791,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 </script>
+@endif
+@endif
+
 @endsection

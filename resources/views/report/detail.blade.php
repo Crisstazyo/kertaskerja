@@ -6,6 +6,7 @@
 <div class="min-h-screen" style="background:#f1f5f9;">
     <div class="max-w-7xl mx-auto px-8 py-10">
 
+        {{-- ══ HEADER ══ --}}
         <div class="bg-white rounded-2xl shadow-sm border border-slate-200 px-10 py-7 mb-8 relative overflow-hidden">
             <div class="absolute top-0 left-0 right-0 h-1.5"
                 style="background: linear-gradient(90deg, #dc2626, #ef4444, #dc2626);"></div>
@@ -47,10 +48,13 @@
             </div>
         </div>
 
+        {{-- ══ META BADGES ══ --}}
         <div class="flex items-center justify-between mb-5">
             <div class="flex items-center space-x-3">
                 <div class="w-1.5 h-8 bg-red-600 rounded-full"></div>
-                <h2 class="text-xl font-black text-slate-900 tracking-tight">Data Funnel</h2>
+                <h2 class="text-xl font-black text-slate-900 tracking-tight">
+                    {{ $type === 'koreksi' ? 'Data Koreksi' : 'Data Funnel' }}
+                </h2>
             </div>
             <div class="flex items-center space-x-3 flex-wrap gap-2">
                 <span class="text-[11px] font-black tracking-widest uppercase px-3 py-1 rounded-md border
@@ -58,41 +62,169 @@
                     @elseif($segment === 'private') bg-purple-50 border-purple-200 text-purple-700
                     @elseif($segment === 'soe')    bg-orange-50 border-orange-200 text-orange-700
                     @else                          bg-green-50  border-green-200  text-green-700
-                    @endif">
-                    {{ $segmentLabel }}
-                </span>
+                    @endif">{{ $segmentLabel }}</span>
                 <span class="text-[11px] font-black tracking-widest uppercase px-3 py-1 rounded-md border bg-slate-50 border-slate-200 text-slate-600">
                     {{ $typeLabel }}
                 </span>
                 <span class="text-[11px] font-black tracking-widest uppercase px-3 py-1 rounded-md border bg-red-50 border-red-200 text-red-700">
                     {{ $periodeLabel }}
                 </span>
-
-                <!-- @if(count($periodOptions) > 1)
-                <form method="GET" action="{{ route('report.detail', ['segment' => $segment, 'type' => $type]) }}" class="flex items-center">
-                    <div class="relative">
-                        <select name="periode" onchange="this.form.submit()"
-                            class="appearance-none text-xs font-bold text-slate-700 bg-white border-2 border-slate-200 hover:border-red-400 rounded-lg pl-3 pr-8 py-1.5 shadow-sm focus:outline-none focus:border-red-400 cursor-pointer transition-colors">
-                            @foreach($periodOptions as $p)
-                                <option value="{{ $p }}" {{ $p === $currentPeriode ? 'selected' : '' }}>
-                                    {{ \Carbon\Carbon::createFromFormat('Y-m', $p)->format('F Y') }}
-                                </option>
-                            @endforeach
-                        </select>
-                        <div class="pointer-events-none absolute inset-y-0 right-2 flex items-center">
-                            <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
-                            </svg>
-                        </div>
-                    </div>
-                </form>
-                @endif -->
-
+                @if($type === 'koreksi')
+                <span class="text-[11px] font-black tracking-widest text-slate-500 bg-white border border-slate-200 rounded-md px-3 py-1 shadow-sm">
+                    {{ $koreksiRows->count() }} LOP
+                </span>
+                @else
                 <span class="text-[11px] font-black tracking-widest text-slate-500 bg-white border border-slate-200 rounded-md px-3 py-1 shadow-sm">
                     {{ $dataRows->count() }} LOP
                 </span>
+                @endif
             </div>
         </div>
+
+        {{-- ══════════════════════════════════════════════════════════════
+             TAMPILAN KOREKSI
+        ══════════════════════════════════════════════════════════════ --}}
+        @if($type === 'koreksi')
+
+        @if($import && $koreksiRows->count())
+        @php
+            $totalKomitmen  = $koreksiRows->sum('nilai_komitmen');
+            $totalRealisasi = $koreksiRows->sum('realisasi');
+            $pctTotal       = $totalKomitmen > 0 ? ($totalRealisasi / $totalKomitmen) * 100 : 0;
+            $sudahRealisasi = $koreksiRows->filter(fn($r) => $r->realisasi > 0)->count();
+        @endphp
+
+        {{-- Summary cards --}}
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-5">
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm px-5 py-4">
+                <p class="text-[10px] font-black tracking-widest text-slate-400 uppercase mb-1">Total LOP</p>
+                <p class="text-2xl font-black text-slate-900">{{ $koreksiRows->count() }}</p>
+                <p class="text-xs text-slate-400 mt-0.5 font-medium">Data periode ini</p>
+            </div>
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm px-5 py-4">
+                <p class="text-[10px] font-black tracking-widest text-slate-400 uppercase mb-1">Nilai Komitmen</p>
+                <p class="text-lg font-black text-slate-900">{{ number_format($totalKomitmen, 0, ',', '.') }}</p>
+                <p class="text-xs text-slate-400 mt-0.5 font-medium">Total komitmen (Rp)</p>
+            </div>
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm px-5 py-4">
+                <p class="text-[10px] font-black tracking-widest text-slate-400 uppercase mb-1">Total Realisasi</p>
+                <p class="text-lg font-black text-emerald-600">{{ number_format($totalRealisasi, 0, ',', '.') }}</p>
+                <p class="text-xs text-slate-400 mt-0.5 font-medium">{{ $sudahRealisasi }} dari {{ $koreksiRows->count() }} LOP</p>
+            </div>
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm px-5 py-4">
+                <p class="text-[10px] font-black tracking-widest text-slate-400 uppercase mb-1">Pencapaian</p>
+                <p class="text-2xl font-black {{ $pctTotal >= 100 ? 'text-emerald-600' : ($pctTotal >= 50 ? 'text-yellow-500' : 'text-red-500') }}">
+                    {{ number_format($pctTotal, 1, ',', '.') }}%
+                </p>
+                <p class="text-xs text-slate-400 mt-0.5 font-medium">Realisasi / Komitmen</p>
+            </div>
+        </div>
+
+        {{-- Tabel Koreksi --}}
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-6">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200 text-xs">
+                    <thead>
+                        <tr class="bg-slate-800">
+                            <th class="px-3 py-3 text-center text-[10px] font-black text-slate-300 uppercase tracking-widest border-r border-slate-700 w-10">NO</th>
+                            <th class="px-4 py-3 text-left text-[10px] font-black text-slate-300 uppercase tracking-widest border-r border-slate-700">NAMA PELANGGAN</th>
+                            <th class="px-4 py-3 text-right text-[10px] font-black text-slate-300 uppercase tracking-widest border-r border-slate-700 w-44">NILAI KOMITMEN (Rp)</th>
+                            <th class="px-4 py-3 text-center text-[10px] font-black text-slate-300 uppercase tracking-widest border-r border-slate-700 w-44">PROGRESS</th>
+                            <th class="px-4 py-3 text-right text-[10px] font-black text-emerald-400 uppercase tracking-widest w-44">REALISASI (Rp)</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-slate-100">
+                        @forelse($koreksiRows as $row)
+                        @php
+                            $hasReal  = $row->realisasi !== null && $row->realisasi > 0;
+                            $pctRow   = ($row->nilai_komitmen > 0 && $row->realisasi > 0)
+                                ? ($row->realisasi / $row->nilai_komitmen) * 100 : 0;
+                            $barColor  = $pctRow >= 100 ? '#16a34a' : ($pctRow >= 50 ? '#eab308' : '#ef4444');
+                            $textColor = $pctRow >= 100 ? '#16a34a' : ($pctRow >= 50 ? '#ca8a04' : '#ef4444');
+                        @endphp
+                        <tr class="hover:bg-slate-50 transition-colors">
+                            <td class="px-3 py-3 text-center font-bold text-slate-500 border-r border-slate-100">
+                                {{ $row->no ?? $loop->iteration }}
+                            </td>
+                            <td class="px-4 py-3 text-slate-800 border-r border-slate-100 font-semibold">
+                                {{ $row->nama_pelanggan }}
+                            </td>
+                            <td class="px-4 py-3 text-right font-black text-slate-800 border-r border-slate-100 tabular-nums">
+                                @if($row->nilai_komitmen !== null)
+                                    {{ number_format($row->nilai_komitmen, 0, ',', '.') }}
+                                @else
+                                    <span class="text-slate-300">—</span>
+                                @endif
+                            </td>
+                            <td class="px-4 py-3 border-r border-slate-100">
+                                @if($row->nilai_komitmen > 0)
+                                <div class="flex items-center space-x-2">
+                                    <div class="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
+                                        <div class="h-2 rounded-full" style="width: {{ min(100, $pctRow) }}%; background: {{ $barColor }};"></div>
+                                    </div>
+                                    <span class="text-[10px] font-black tabular-nums" style="color: {{ $textColor }}; min-width: 36px;">
+                                        {{ number_format($pctRow, 0) }}%
+                                    </span>
+                                </div>
+                                @else
+                                <span class="text-slate-300 font-bold block text-center">—</span>
+                                @endif
+                            </td>
+                            <td class="px-4 py-3 text-right bg-emerald-50 border-l border-emerald-100">
+                                @if($hasReal)
+                                    <span class="font-black text-emerald-700 tabular-nums">{{ number_format($row->realisasi, 0, ',', '.') }}</span>
+                                @else
+                                    <span class="text-slate-300 font-bold">—</span>
+                                @endif
+                            </td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="5" class="px-4 py-12 text-center text-slate-400 font-bold">Tidak ada data.</td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                    <tfoot>
+                        <tr class="border-t-2 border-slate-300 bg-slate-800">
+                            <td colspan="2" class="px-4 py-3 text-right text-xs font-black text-slate-300 uppercase tracking-widest">TOTAL</td>
+                            <td class="px-4 py-3 text-right font-black text-white tabular-nums border-l border-slate-700">
+                                {{ number_format($totalKomitmen, 0, ',', '.') }}
+                            </td>
+                            <td class="px-4 py-3 text-center border-l border-slate-700">
+                                <span class="text-xs font-black tabular-nums"
+                                    style="color: {{ $pctTotal >= 100 ? '#4ade80' : ($pctTotal >= 50 ? '#fde047' : '#fca5a5') }}">
+                                    {{ number_format($pctTotal, 1, ',', '.') }}%
+                                </span>
+                            </td>
+                            <td class="px-4 py-3 text-right border-l border-slate-700">
+                                <span class="font-black text-emerald-400 tabular-nums">
+                                    {{ number_format($totalRealisasi, 0, ',', '.') }}
+                                </span>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+        @else
+        {{-- Empty state koreksi --}}
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-16 text-center">
+            <div class="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-5"
+                style="background: linear-gradient(135deg, #fff1f2, #ffe4e6); border: 2px solid #fecdd3;">
+                <svg class="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+            </div>
+            <h3 class="text-lg font-black text-slate-700 mb-2 uppercase tracking-tight">Data Belum Tersedia</h3>
+            <p class="text-sm font-medium text-slate-400">Tidak ada data koreksi untuk periode ini</p>
+        </div>
+        @endif
+
+        {{-- ══════════════════════════════════════════════════════════════
+             TAMPILAN NON-KOREKSI (on-hand / qualified / initiate)
+        ══════════════════════════════════════════════════════════════ --}}
+        @else
 
         @if($import && $dataRows->count())
 
@@ -144,9 +276,13 @@
                     <tbody class="bg-white divide-y divide-slate-100">
                         @foreach($dataRows as $row)
                         @php
-                            $funnel = $funnelMap[$row->id] ?? null;
+                            $funnel      = $funnelMap[$row->id] ?? null;
                             $denganMitra = strtolower(trim($row->mitra ?? '')) === 'dengan mitra';
-                            $val = fn($field) => $funnel && $funnel->{$field};
+                            $val         = fn($field) => $funnel && $funnel->{$field};
+                            $check       = fn($checked) => $checked
+                                ? '<span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-green-500"><svg class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg></span>'
+                                : '<span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-slate-100"><span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span></span>';
+                            $dash = '<span class="text-slate-300 font-bold text-sm">—</span>';
                         @endphp
                         <tr class="hover:bg-slate-50 transition-colors">
                             <td class="px-3 py-2.5 whitespace-nowrap font-bold text-slate-700 border-r border-slate-100 text-center">{{ $row->no }}</td>
@@ -157,83 +293,26 @@
                             <td class="px-4 py-2.5 text-slate-700 border-r border-slate-100 bg-emerald-50 font-semibold">{{ $row->mitra }}</td>
                             <td class="px-4 py-2.5 whitespace-nowrap text-slate-600 border-r border-slate-100 text-center">{{ $row->plan_bulan_billcom_p_2025 }}</td>
                             <td class="px-4 py-2.5 whitespace-nowrap font-black text-slate-800 border-r border-slate-100">{{ $row->est_nilai_bc }}</td>
-
-                            @php
-                                $check = function($checked, $bg = 'bg-slate-50') use ($val) {
-                                    return $checked
-                                        ? '<span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-green-500"><svg class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg></span>'
-                                        : '<span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-slate-100"><span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span></span>';
-                                };
-                                $dash = '<span class="text-slate-300 font-bold text-sm">—</span>';
-                            @endphp
-
-                            <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-blue-50">
-                                {!! $check($val('f0_inisiasi_solusi')) !!}
-                            </td>
-                            <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-purple-50">
-                                {!! $check($val('f1_tech_budget')) !!}
-                            </td>
-
-                            <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-pink-50">
-                                {!! $denganMitra ? $check($val('f2_p0_p1')) : $dash !!}
-                            </td>
-                            <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-pink-50">
-                                {!! $denganMitra ? $check($val('f2_p2')) : $dash !!}
-                            </td>
-                            <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-pink-50">
-                                {!! $denganMitra ? $check($val('f2_p3')) : $dash !!}
-                            </td>
-                            <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-pink-50">
-                                {!! $denganMitra ? $check($val('f2_p4')) : $dash !!}
-                            </td>
-                            <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-pink-50">
-                                {!! $denganMitra ? $check($val('f2_offering')) : $dash !!}
-                            </td>
-                            <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-pink-50">
-                                {!! $denganMitra ? $check($val('f2_p5')) : $dash !!}
-                            </td>
-                            <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-pink-50">
-                                {!! $check($val('f2_proposal')) !!}
-                            </td>
-
-                            <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-orange-50">
-                                {!! $denganMitra ? $check($val('f3_p6')) : $dash !!}
-                            </td>
-                            <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-orange-50">
-                                {!! $denganMitra ? $check($val('f3_p7')) : $dash !!}
-                            </td>
-                            <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-orange-50">
-                                {!! $check($val('f3_submit')) !!}
-                            </td>
-
-                            <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-teal-50">
-                                {!! $check($val('f4_negosiasi')) !!}
-                            </td>
-
-                            <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-green-50">
-                                {!! $denganMitra ? $check($val('f5_sk_mitra')) : $dash !!}
-                            </td>
-                            <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-green-50">
-                                {!! $check($val('f5_ttd_kontrak')) !!}
-                            </td>
-                            <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-green-50">
-                                {!! $denganMitra ? $check($val('f5_p8')) : $dash !!}
-                            </td>
-
-                            <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-emerald-50">
-                                {!! $check($val('delivery_kontrak')) !!}
-                            </td>
-                            <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-emerald-50">
-                                {!! $denganMitra ? $check($val('delivery_baut_bast')) : $dash !!}
-                            </td>
-                            <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-emerald-50">
-                                {!! $denganMitra ? $check($val('delivery_baso')) : $dash !!}
-                            </td>
-
-                            <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-indigo-50">
-                                {!! $check($val('delivery_billing_complete')) !!}
-                            </td>
-
+                            <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-blue-50">{!! $check($val('f0_inisiasi_solusi')) !!}</td>
+                            <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-purple-50">{!! $check($val('f1_tech_budget')) !!}</td>
+                            <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-pink-50">{!! $denganMitra ? $check($val('f2_p0_p1')) : $dash !!}</td>
+                            <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-pink-50">{!! $denganMitra ? $check($val('f2_p2')) : $dash !!}</td>
+                            <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-pink-50">{!! $denganMitra ? $check($val('f2_p3')) : $dash !!}</td>
+                            <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-pink-50">{!! $denganMitra ? $check($val('f2_p4')) : $dash !!}</td>
+                            <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-pink-50">{!! $denganMitra ? $check($val('f2_offering')) : $dash !!}</td>
+                            <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-pink-50">{!! $denganMitra ? $check($val('f2_p5')) : $dash !!}</td>
+                            <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-pink-50">{!! $check($val('f2_proposal')) !!}</td>
+                            <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-orange-50">{!! $denganMitra ? $check($val('f3_p6')) : $dash !!}</td>
+                            <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-orange-50">{!! $denganMitra ? $check($val('f3_p7')) : $dash !!}</td>
+                            <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-orange-50">{!! $check($val('f3_submit')) !!}</td>
+                            <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-teal-50">{!! $check($val('f4_negosiasi')) !!}</td>
+                            <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-green-50">{!! $denganMitra ? $check($val('f5_sk_mitra')) : $dash !!}</td>
+                            <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-green-50">{!! $check($val('f5_ttd_kontrak')) !!}</td>
+                            <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-green-50">{!! $denganMitra ? $check($val('f5_p8')) : $dash !!}</td>
+                            <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-emerald-50">{!! $check($val('delivery_kontrak')) !!}</td>
+                            <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-emerald-50">{!! $denganMitra ? $check($val('delivery_baut_bast')) : $dash !!}</td>
+                            <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-emerald-50">{!! $denganMitra ? $check($val('delivery_baso')) : $dash !!}</td>
+                            <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-indigo-50">{!! $check($val('delivery_billing_complete')) !!}</td>
                             <td class="px-2 py-2.5 text-center bg-violet-50">
                                 @if($funnel && $funnel->delivery_billing_complete)
                                     @php
@@ -255,27 +334,15 @@
                         <tr class="border-t-2 border-red-200 bg-slate-50">
                             <td colspan="7" class="px-4 py-3 text-right text-xs font-black text-slate-700 uppercase tracking-widest border-r border-slate-100">TOTAL:</td>
                             <td class="px-4 py-3 text-center font-black text-emerald-700 border-r border-slate-100 bg-emerald-50">
-                                {{ number_format(
-                                    $dataRows->sum(function ($r) {
-                                        $value = $r->est_nilai_bc ?? '0';
-
-                                        // Jika format Indonesia (ada koma sebagai desimal)
-                                        if (str_contains($value, ',')) {
-                                            $value = str_replace('.', '', $value); // hapus ribuan
-                                            $value = str_replace(',', '.', $value); // ubah desimal
-                                        }
-
-                                        return floatval($value);
-                                    }),
-                                0, ',', '.') }}
+                                {{ number_format($dataRows->sum(function ($r) {
+                                    $v = $r->est_nilai_bc ?? '0';
+                                    if (str_contains($v, ',')) { $v = str_replace('.', '', $v); $v = str_replace(',', '.', $v); }
+                                    return floatval($v);
+                                }), 0, ',', '.') }}
                             </td>
                             <td colspan="20" class="border-r border-slate-100"></td>
                             <td class="px-4 py-3 text-center font-black text-violet-700 bg-violet-50">
-                                {{ number_format(
-                                    $funnelMap
-                                        ->where('delivery_billing_complete', true)
-                                        ->sum('delivery_nilai_billcomp'),
-                                0, ',', '.') }}
+                                {{ number_format($funnelMap->where('delivery_billing_complete', true)->sum('delivery_nilai_billcomp'), 0, ',', '.') }}
                             </td>
                         </tr>
                     </tfoot>
@@ -283,6 +350,7 @@
             </div>
         </div>
 
+        {{-- Stats cards --}}
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
             @php
                 $totalLop      = $dataRows->count();
@@ -312,52 +380,19 @@
             </div>
         </div>
 
+        {{-- Catatan funnel --}}
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
             <div class="flex items-center space-x-3 mb-4">
                 <div class="w-1.5 h-8 bg-red-600 rounded-full"></div>
                 <h4 class="font-black text-slate-900 text-sm uppercase tracking-wide">Catatan Tahapan Funnel</h4>
             </div>
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 text-xs">
-                <div class="bg-blue-50 border border-blue-200 p-3 rounded-xl">
-                    <div class="font-black text-blue-700 mb-1.5">F0</div>
-                    <div class="text-slate-600 space-y-0.5"><div>• Inisiasi</div></div>
-                </div>
-                <div class="bg-purple-50 border border-purple-200 p-3 rounded-xl">
-                    <div class="font-black text-purple-700 mb-1.5">F1</div>
-                    <div class="text-slate-600 space-y-0.5"><div>• Technical & Budget Discussion</div></div>
-                </div>
-                <div class="bg-pink-50 border border-pink-200 p-3 rounded-xl">
-                    <div class="font-black text-pink-700 mb-1.5">F2</div>
-                    <div class="text-slate-600 space-y-0.5">
-                        <div>• P0/P1. Juskeb barang / jasa</div>
-                        <div>• P2. Evaluasi bakal calon mitra</div>
-                        <div>• P3. Permintaan Penawaran Harga</div>
-                        <div>• P4. Rapat Penjelasan</div>
-                        <div>• Offering Harga Mitra</div>
-                        <div>• P5. Evaluasi SPH Mitra</div>
-                        <div>• Proposal Solusi</div>
-                    </div>
-                </div>
-                <div class="bg-orange-50 border border-orange-200 p-3 rounded-xl">
-                    <div class="font-black text-orange-700 mb-1.5">F3</div>
-                    <div class="text-slate-600 space-y-0.5">
-                        <div>• P6. Klarifikasi & Negosiasi</div>
-                        <div>• P7. Penetapan Calon Mitra</div>
-                        <div>• Submit proposal penawaran</div>
-                    </div>
-                </div>
-                <div class="bg-teal-50 border border-teal-200 p-3 rounded-xl">
-                    <div class="font-black text-teal-700 mb-1.5">F4</div>
-                    <div class="text-slate-600 space-y-0.5"><div>• Negosiasi</div></div>
-                </div>
-                <div class="bg-green-50 border border-green-200 p-3 rounded-xl">
-                    <div class="font-black text-green-700 mb-1.5">F5</div>
-                    <div class="text-slate-600 space-y-0.5">
-                        <div>• Surat Kesanggupan Mitra</div>
-                        <div>• Tanda Tangan Kontrak</div>
-                        <div>• P8. Surat Penetapan Mitra</div>
-                    </div>
-                </div>
+                <div class="bg-blue-50 border border-blue-200 p-3 rounded-xl"><div class="font-black text-blue-700 mb-1.5">F0</div><div class="text-slate-600"><div>• Inisiasi</div></div></div>
+                <div class="bg-purple-50 border border-purple-200 p-3 rounded-xl"><div class="font-black text-purple-700 mb-1.5">F1</div><div class="text-slate-600"><div>• Technical & Budget Discussion</div></div></div>
+                <div class="bg-pink-50 border border-pink-200 p-3 rounded-xl"><div class="font-black text-pink-700 mb-1.5">F2</div><div class="text-slate-600 space-y-0.5"><div>• P0/P1. Juskeb</div><div>• P2. Evaluasi mitra</div><div>• P3. PPH</div><div>• P4. Rapat Penjelasan</div><div>• Offering & P5. SPH</div><div>• Proposal Solusi</div></div></div>
+                <div class="bg-orange-50 border border-orange-200 p-3 rounded-xl"><div class="font-black text-orange-700 mb-1.5">F3</div><div class="text-slate-600 space-y-0.5"><div>• P6. Klarifikasi & Negosiasi</div><div>• P7. Penetapan Mitra</div><div>• Submit Proposal</div></div></div>
+                <div class="bg-teal-50 border border-teal-200 p-3 rounded-xl"><div class="font-black text-teal-700 mb-1.5">F4</div><div class="text-slate-600"><div>• Negosiasi</div></div></div>
+                <div class="bg-green-50 border border-green-200 p-3 rounded-xl"><div class="font-black text-green-700 mb-1.5">F5</div><div class="text-slate-600 space-y-0.5"><div>• SK Mitra</div><div>• TTD Kontrak</div><div>• P8. Penetapan Mitra</div></div></div>
             </div>
         </div>
 
@@ -373,6 +408,8 @@
             <p class="text-sm font-medium text-slate-400">Tidak ada data untuk periode ini</p>
         </div>
         @endif
+
+        @endif {{-- end if koreksi --}}
 
     </div>
 </div>

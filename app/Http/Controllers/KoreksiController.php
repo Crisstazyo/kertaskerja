@@ -28,25 +28,29 @@ class KoreksiController extends Controller
     {
         $logs     = ScallingImport::where('type', 'koreksi')->where('segment', 'government')->latest()->paginate(10);
         $projects = Koreksi::with('scallingImport')->latest()->paginate(20);
-        return view('admin.scalling.gov.koreksi', compact('logs', 'projects'));
+        $currentPeriode = request()->get('periode', date('Y-m'));
+        return view('admin.scalling.gov.koreksi', compact('logs', 'projects', 'currentPeriode'));
     }
     public function koreksiPrivate()
     {
         $logs     = ScallingImport::where('type', 'koreksi')->where('segment', 'private')->latest()->paginate(10);
         $projects = Koreksi::with('scallingImport')->latest()->paginate(20);
-        return view('admin.scalling.private.koreksi', compact('logs', 'projects'));
+        $currentPeriode = request()->get('periode', date('Y-m'));
+        return view('admin.scalling.private.koreksi', compact('logs', 'projects', 'currentPeriode'));
     }
     public function koreksiSme()
     {
         $logs     = ScallingImport::where('type', 'koreksi')->where('segment', 'sme')->latest()->paginate(10);
         $projects = Koreksi::with('scallingImport')->latest()->paginate(20);
-        return view('admin.scalling.sme.koreksi', compact('logs', 'projects'));
+        $currentPeriode = request()->get('periode', date('Y-m'));
+        return view('admin.scalling.sme.koreksi', compact('logs', 'projects', 'currentPeriode'));
     }
     public function koreksiSoe()
     {
         $logs     = ScallingImport::where('type', 'koreksi')->where('segment', 'soe')->latest()->paginate(10);
         $projects = Koreksi::with('scallingImport')->latest()->paginate(20);
-        return view('admin.scalling.soe.koreksi', compact('logs', 'projects'));
+        $currentPeriode = request()->get('periode', date('Y-m'));
+        return view('admin.scalling.soe.koreksi', compact('logs', 'projects', 'currentPeriode'));
     }
 
     public function import(Request $request)
@@ -215,5 +219,61 @@ class KoreksiController extends Controller
             if ($value !== null && $value !== '') return false;
         }
         return true;
+    }
+
+    public function storeData(Request $request)
+    {
+        $request->validate([
+            'status'                   => 'required|in:active,inactive',
+            'periode'                  => 'required|date_format:Y-m',
+            'nama_pelanggan'           => 'required|string|max:255',
+            'nilai_komitmen'           => 'required|string|max:100',
+            'realisasi'                => 'required|string|max:100',
+        ], [
+            'status.required'                   => 'Status wajib diisi',
+            'status.in'                         => 'Status harus berupa "active" atau "inactive"',
+            'periode.required'                  => 'Periode wajib diisi',
+            'periode.date_format'               => 'Format periode harus berupa bulan dan tahun (contoh: 2025-03)',
+            'nama_pelanggan.required'           => 'Nama pelanggan wajib diisi',
+            'nilai_komitmen.required'           => 'Nilai komitmen wajib diisi',
+            'realisasi.required'                => 'Realisasi wajib diisi',
+        ]);
+
+        $periodeDate = $request->periode . '-01';
+
+        $log = ScallingImport::where('periode', $periodeDate)
+            ->where('type', $request->type)
+            ->where('segment', $request->segment)
+            ->first();
+
+        if($log) {   
+            $data = Koreksi::create([
+            'imports_log_id'           => $log->id,
+            'no'                       => $log->koreksi()->count() + 1,
+            'nama_pelanggan'           => $request->nama_pelanggan,
+            'nilai_komitmen'           => $request->nilai_komitmen,
+            'realisasi'                => $request->realisasi,
+        ]);
+        } else {
+            $import = ScallingImport::create([
+                'original_filename'   => 'manual-input',
+                'status'              => $request->status,
+                'type'                => $request->type,
+                'segment'             => $request->segment,
+                'periode'             => $periodeDate,
+                'total_rows_imported' => 0,
+                'uploaded_by'         => auth()->user()->name ?? $request->ip(),
+            ]);
+
+            $data = Koreksi::create([
+            'imports_log_id'           => $import->id,
+            'no'                       => 1,
+            'nama_pelanggan'           => $request->nama_pelanggan,
+            'nilai_komitmen'           => $request->nilai_komitmen,
+            'realisasi'                => $request->realisasi,
+        ]);
+        }
+
+        return redirect()->back()->with('success', "Data untuk project \"{$data->project}\" berhasil disimpan.");
     }
 }

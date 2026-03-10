@@ -108,6 +108,7 @@ Route::middleware('auth')->group(function () {
         // koreksi upload listing and actions
         Route::get('/scalling/gov/koreksi', [KoreksiController::class, 'koreksiGov'])->name('admin.scalling.gov.koreksi');
         Route::post('/scalling/gov/koreksi', [KoreksiController::class, 'import'])->name('admin.scalling.gov.koreksi.store');
+        Route::post('/scalling/gov/koreksi/storeData', [KoreksiController::class, 'storeData'])->name('admin.scalling.gov.koreksi.storeData');
         Route::get('/scalling/gov/koreksi/{scallingImport}', [KoreksiController::class, 'show'])->name('admin.scalling.gov.koreksi.show');
         Route::delete('/scalling/gov/koreksi/{scallingImport}', [KoreksiController::class, 'destroy'])->name('admin.scalling.gov.koreksi.destroy');
 
@@ -139,6 +140,7 @@ Route::middleware('auth')->group(function () {
         // koreksi upload listing and actions
         Route::get('/scalling/private/koreksi', [KoreksiController::class, 'koreksiPrivate'])->name('admin.scalling.private.koreksi');
         Route::post('/scalling/private/koreksi', [KoreksiController::class, 'import'])->name('admin.scalling.private.koreksi.store');
+        Route::post('/scalling/private/koreksi/storeData', [KoreksiController::class, 'storeData'])->name('admin.scalling.private.koreksi.storeData');
         Route::get('/scalling/private/koreksi/{scallingImport}', [KoreksiController::class, 'show'])->name('admin.scalling.private.koreksi.show');
         Route::delete('/scalling/private/koreksi/{scallingImport}', [KoreksiController::class, 'destroy'])->name('admin.scalling.private.koreksi.destroy');
 
@@ -160,6 +162,7 @@ Route::middleware('auth')->group(function () {
         // koreksi upload listing and actions
         Route::get('/scalling/soe/koreksi', [KoreksiController::class, 'koreksiSoe'])->name('admin.scalling.soe.koreksi');
         Route::post('/scalling/soe/koreksi', [KoreksiController::class, 'import'])->name('admin.scalling.soe.koreksi.store');
+        Route::post('/scalling/soe/koreksi/storeData', [KoreksiController::class, 'storeData'])->name('admin.scalling.soe.koreksi.storeData');
         Route::get('/scalling/soe/koreksi/{scallingImport}', [KoreksiController::class, 'show'])->name('admin.scalling.soe.koreksi.show');
         Route::delete('/scalling/soe/koreksi/{scallingImport}', [KoreksiController::class, 'destroy'])->name('admin.scalling.soe.koreksi.destroy');
 
@@ -181,6 +184,7 @@ Route::middleware('auth')->group(function () {
         // koreksi upload listing and actions
         Route::get('/scalling/sme/koreksi', [KoreksiController::class, 'koreksiSme'])->name('admin.scalling.sme.koreksi');
         Route::post('/scalling/sme/koreksi', [KoreksiController::class, 'import'])->name('admin.scalling.sme.koreksi.store');
+        Route::post('/scalling/sme/koreksi/storeData', [KoreksiController::class, 'storeData'])->name('admin.scalling.sme.koreksi.storeData');
         Route::get('/scalling/sme/koreksi/{scallingImport}', [KoreksiController::class, 'show'])->name('admin.scalling.sme.koreksi.show');
         Route::delete('/scalling/sme/koreksi/{scallingImport}', [KoreksiController::class, 'destroy'])->name('admin.scalling.sme.koreksi.destroy');
 
@@ -198,6 +202,8 @@ Route::middleware('auth')->group(function () {
         ->name('admin.progress');
         Route::post('/progress/{segment}/{type}/funnel', [ReportController::class, 'progressFunnelUpdate'])
         ->name('admin.progress.funnel.update');
+        Route::post('/progress/{segment}/koreksi/update-realisasi', [ReportController::class, 'progressKoreksiUpdate'])
+        ->name('admin.progress.koreksi.update-realisasi');
 
     });
 
@@ -210,6 +216,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [GovController::class, 'scalling'])->name('dashboard.gov');
         Route::get('/scalling/on-hand', [GovController::class, 'lopOnHand'])->name('dashboard.gov.lop-on-hand');
         Route::get('/scalling/koreksi', [GovController::class, 'lopKoreksi'])->name('dashboard.gov.lop-koreksi');
+        Route::post('/scalling/koreksi/update-realisasi', [GovController::class, 'updateRealisasiKoreksi'])->name('dashboard.gov.koreksi.update-realisasi');
         Route::get('/scalling/qualified', [GovController::class, 'lopQualified'])->name('dashboard.gov.lop-qualified');
         Route::get('/scalling/initiate', [GovController::class, 'lopInitiate'])->name('dashboard.gov.lop-initiate');
         Route::post('/funnel/update', [GovController::class, 'updateFunnelCheckbox'])->name('dashboard.gov.funnel.update');
@@ -230,6 +237,7 @@ Route::middleware('auth')->group(function () {
         })->name('dashboard.soe');
         Route::get('/scalling/on-hand', [SoeController::class, 'lopOnHand'])->name('dashboard.soe.lop-on-hand');
         Route::get('/scalling/koreksi', [SoeController::class, 'lopKoreksi'])->name('dashboard.soe.lop-koreksi');
+        Route::post('/scalling/koreksi/update-realisasi', [SoeController::class, 'updateRealisasiKoreksi'])->name('dashboard.soe.koreksi.update-realisasi');
         Route::get('/scalling/qualified', [SoeController::class, 'lopQualified'])->name('dashboard.soe.lop-qualified');
         Route::get('/scalling/initiate', [SoeController::class, 'lopInitiate'])->name('dashboard.soe.lop-initiate');
         Route::post('/funnel/update', [SoeController::class, 'updateFunnelCheckbox'])->name('dashboard.soe.funnel.update');
@@ -244,6 +252,7 @@ Route::middleware('auth')->group(function () {
         })->name('dashboard.sme');
         Route::get('/scalling/on-hand', [SmeController::class, 'lopOnHand'])->name('dashboard.sme.lop-on-hand');
         Route::get('/scalling/koreksi', [SmeController::class, 'lopKoreksi'])->name('dashboard.sme.lop-koreksi');
+        Route::post('/scalling/koreksi/update-realisasi', [SmeController::class, 'updateRealisasiKoreksi'])->name('dashboard.sme.koreksi.update-realisasi');
         Route::get('/scalling/qualified', [SmeController::class, 'lopQualified'])->name('dashboard.sme.lop-qualified');
         Route::get('/scalling/initiate', [SmeController::class, 'lopInitiate'])->name('dashboard.sme.lop-initiate');
         Route::post('/funnel/update', [SmeController::class, 'updateFunnelCheckbox'])->name('dashboard.sme.funnel.update');
@@ -270,6 +279,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [PrivateController::class, 'scalling'])->name('dashboard.private');
         Route::get('/scalling/on-hand', [PrivateController::class, 'lopOnHand'])->name('dashboard.private.lop-on-hand');
         Route::get('/scalling/koreksi', [PrivateController::class, 'lopKoreksi'])->name('dashboard.private.lop-koreksi');
+        Route::post('/scalling/koreksi/update-realisasi', [PrivateController::class, 'updateRealisasiKoreksi'])->name('dashboard.private.koreksi.update-realisasi');
         Route::get('/scalling/qualified', [PrivateController::class, 'lopQualified'])->name('dashboard.private.lop-qualified');
         Route::get('/scalling/initiate', [PrivateController::class, 'lopInitiate'])->name('dashboard.private.lop-initiate');
         Route::post('/funnel/update', [PrivateController::class, 'updateFunnelCheckbox'])->name('dashboard.private.funnel.update');

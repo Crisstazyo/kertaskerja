@@ -97,6 +97,29 @@
                 </a>
             </div>
 
+            <div class="grid grid-cols gap-4 mb-8">
+                <a onclick="document.getElementById('modalAddLop').classList.remove('hidden')"
+                    class="group bg-white rounded-xl border border-slate-200 hover:border-red-300 hover:shadow-md transition-all duration-200 px-6 py-5 flex items-center justify-between">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
+                            style="background:#fff1f2; border:1.5px solid #fecdd3;">
+                            <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="font-black text-slate-900 text-sm">Tambah Project</p>
+                            <p class="text-xs text-slate-400 font-medium mt-0.5">Project yang diupdate admin</p>
+                        </div>
+                    </div>
+                    <svg class="w-4 h-4 text-slate-300 group-hover:text-red-500 transition-colors" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
+                    </svg>
+                </a>
+            </div>
+
             {{-- ══ UPLOAD FILE ══ --}}
             <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-8 mb-8">
                 <div class="flex items-center space-x-3 mb-6">
@@ -346,8 +369,98 @@
                     </div>
                 @endif
             </div>
-
         </div>
+    {{-- ══ MODAL ADD LOP ══ --}}    
+    <div id="modalAddLop" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4"
+        style="background: rgba(0,0,0,0.5);">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl relative overflow-hidden">
+
+            {{-- Modal header --}}
+            <div class="absolute top-0 left-0 right-0 h-1" style="background: linear-gradient(90deg, #dc2626, #ef4444, #dc2626);"></div>
+            <div class="px-8 py-6 border-b border-slate-100 flex items-center justify-between">
+                <div>
+                    <h3 class="text-base font-black text-slate-900 uppercase tracking-wide">Tambah Koreksi</h3>
+                    <p class="text-xs text-slate-400 font-medium mt-0.5">Private — Scalling Koreksi</p>
+                </div>
+                <button onclick="document.getElementById('modalAddLop').classList.add('hidden')"
+                    class="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-100 hover:bg-red-100 hover:text-red-600 text-slate-500 transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+
+            {{-- Modal body --}}
+            <form action="{{ route('admin.scalling.private.koreksi.storeData') }}" method="POST">
+                @csrf
+                <input type="hidden" name="type" value="koreksi">
+                <input type="hidden" name="status" value="active">
+                <input type="hidden" name="segment" value="private">
+                {{-- Kirim periode yang sedang aktif --}}
+                <input type="hidden" name="periode" value="{{ $currentPeriode }}">
+
+                <div class="px-8 py-6 grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[60vh] overflow-y-auto">
+
+                    {{-- Nama Pelanggan --}}
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Nama Pelanggan <span class="text-red-500">*</span></label>
+                        <input type="text" name="nama_pelanggan" value="{{ old('nama_pelanggan') }}" placeholder="cth: PT. ABC"
+                            class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors" required>
+                    </div>
+
+                    {{-- Periode --}}
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Periode <span class="text-red-500">*</span></label>
+                        <input type="month" name="periode" value="{{ date('Y-m') }}" placeholder="cth: 2023-01" required
+                            class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors" required>
+                    </div>
+
+                    {{-- Nilai Komitmen --}}
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Nilai Komitmen <span class="text-red-500">*</span></label>
+                        <input type="text" name="nilai_komitmen" value="{{ old('nilai_komitmen') }}" placeholder="cth: 1000000"
+                            class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors" required>
+                    </div>
+
+                    {{-- Realisasi --}}
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Realisasi <span class="text-red-500">*</span></label>
+                        <input type="text" name="realisasi" value="{{ old('realisasi') }}" placeholder="cth: 500000"
+                            class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors" required>
+                    </div>
+
+                </div>
+
+                {{-- Modal footer --}}
+                <div class="px-8 py-5 border-t border-slate-100 flex items-center justify-between">
+                    <p class="text-xs text-slate-400 font-medium">
+                        <span class="font-black text-slate-600"></span>
+                    </p>
+                    <div class="flex items-center space-x-3">
+                        <button type="button"
+                            onclick="document.getElementById('modalAddLop').classList.add('hidden')"
+                            class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 font-black text-xs rounded-xl transition-all uppercase tracking-wider">
+                            Batal
+                        </button>
+                        <button type="submit"
+                            class="flex items-center space-x-2 px-6 py-2.5 bg-slate-900 hover:bg-red-600 text-white font-black text-xs rounded-xl transition-all uppercase tracking-wider shadow-md hover:shadow-red-200">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            <span>Simpan</span>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {{-- Tutup modal saat klik backdrop --}}
+    <script>
+    document.getElementById('modalAddLop').addEventListener('click', function(e) {
+        if (e.target === this) this.classList.add('hidden');
+    });
+    </script>
     </div>
 
     <script>
