@@ -275,12 +275,57 @@
                         <div class="w-1.5 h-8 bg-red-600 rounded-full"></div>
                         <h2 class="text-base font-black text-slate-900 uppercase tracking-wide">Report Data — {{ $periodeLabel }}</h2>
                     </div>
-                    <button onclick="window.print()" class="flex items-center space-x-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-xs px-4 py-2 rounded-lg transition-colors uppercase tracking-wider">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
-                        </svg>
-                        <span>Print</span>
-                    </button>
+                    <div class="relative" id="export-dropdown-wrapper">
+                        <button id="btn-export-jpg"
+                            class="flex items-center space-x-1.5 bg-slate-900 hover:bg-red-600 text-white font-bold text-xs px-4 py-2 rounded-lg transition-colors uppercase tracking-wider">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                            </svg>
+                            <span id="export-btn-label">Export JPG</span>
+                            <svg class="w-3 h-3 ml-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </button>
+                        <div id="export-dropdown"
+                            class="hidden absolute right-0 mt-1.5 w-52 bg-white border border-slate-200 rounded-xl shadow-lg overflow-hidden z-50">
+                            <div class="px-3 py-2 border-b border-slate-100">
+                                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Pilih Export</p>
+                            </div>
+                            <button data-export="all"
+                                class="export-option w-full flex items-center space-x-2.5 px-4 py-2.5 hover:bg-red-50 hover:text-red-600 text-slate-700 text-xs font-bold transition-colors text-left">
+                                <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                </svg>
+                                <span>Full Report (1 File)</span>
+                            </button>
+                            <div class="border-t border-slate-100"></div>
+                            <button data-export="1"
+                                class="export-option w-full flex items-center space-x-2.5 px-4 py-2.5 hover:bg-slate-50 text-slate-600 text-xs font-semibold transition-colors text-left">
+                                <span class="w-4 h-4 rounded bg-slate-200 text-slate-700 text-[9px] font-black flex items-center justify-center flex-shrink-0">1</span>
+                                <span>Scaling</span>
+                            </button>
+                            <button data-export="2"
+                                class="export-option w-full flex items-center space-x-2.5 px-4 py-2.5 hover:bg-slate-50 text-slate-600 text-xs font-semibold transition-colors text-left">
+                                <span class="w-4 h-4 rounded bg-slate-200 text-slate-700 text-[9px] font-black flex items-center justify-center flex-shrink-0">2</span>
+                                <span>Collection</span>
+                            </button>
+                            <button data-export="3"
+                                class="export-option w-full flex items-center space-x-2.5 px-4 py-2.5 hover:bg-slate-50 text-slate-600 text-xs font-semibold transition-colors text-left">
+                                <span class="w-4 h-4 rounded bg-slate-200 text-slate-700 text-[9px] font-black flex items-center justify-center flex-shrink-0">3</span>
+                                <span>Combat The Churn</span>
+                            </button>
+                            <button data-export="4"
+                                class="export-option w-full flex items-center space-x-2.5 px-4 py-2.5 hover:bg-slate-50 text-slate-600 text-xs font-semibold transition-colors text-left">
+                                <span class="w-4 h-4 rounded bg-slate-200 text-slate-700 text-[9px] font-black flex items-center justify-center flex-shrink-0">4</span>
+                                <span>Rising Star</span>
+                            </button>
+                            <button data-export="5"
+                                class="export-option w-full flex items-center space-x-2.5 px-4 py-2.5 hover:bg-slate-50 text-slate-600 text-xs font-semibold transition-colors text-left">
+                                <span class="w-4 h-4 rounded bg-slate-200 text-slate-700 text-[9px] font-black flex items-center justify-center flex-shrink-0">5</span>
+                                <span>PSAK</span>
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="p-6 overflow-x-auto">
@@ -793,110 +838,379 @@
     </div>
 
 <style>
-    @media print {
-        .no-print { display: none !important; }
-        * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-        body, .min-h-screen { background: white !important; margin: 0 !important; padding: 0 !important; }
-        .rounded-2xl { border-radius: 0 !important; box-shadow: none !important; border: none !important; }
-        .max-w-7xl { max-width: 100% !important; padding: 0 !important; margin: 0 !important; }
-        .print-header { display: block !important; text-align: center; margin-bottom: 12px; }
-        table { width: 100% !important; font-size: 9px !important; border-collapse: collapse !important; page-break-inside: auto; }
-        th, td { padding: 3px 5px !important; border: 1px solid #555 !important; }
-        thead { display: table-header-group; }
-        tr { page-break-inside: avoid; }
-        .bg-green-500  { background-color: #22c55e !important; color: white !important; }
-        .bg-yellow-300 { background-color: #fde047 !important; }
-        .bg-red-500    { background-color: #ef4444 !important; color: white !important; }
-        .bg-black      { background-color: #000000 !important; color: white !important; }
-        .bg-\[#4a7795\] { background-color: #4a7795 !important; color: white !important; }
-        .bg-gray-50    { background-color: #f9fafb !important; }
-        @page { size: A4 landscape; margin: 10mm 12mm; }
-    }
     .print-header { display: none; }
+    #export-overlay {
+        display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);
+        z-index:9999;align-items:center;justify-content:center;flex-direction:column;gap:14px;
+    }
+    #export-overlay.active { display:flex; }
+    #export-overlay p { color:white;font-weight:900;font-size:13px;letter-spacing:0.1em;text-transform:uppercase; }
+    #export-progress-bar-wrap { width:260px;height:6px;background:rgba(255,255,255,0.2);border-radius:99px;overflow:hidden; }
+    #export-progress-bar { height:100%;background:#ef4444;border-radius:99px;transition:width 0.3s; width:0%; }
+    .export-spinner { width:36px;height:36px;border:4px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:espin 0.8s linear infinite; }
+    @keyframes espin { to { transform:rotate(360deg); } }
+    #export-root { position:fixed;left:-99999px;top:0;z-index:-1;background:white; }
+    .export-page { width:794px;background:white;padding:28px 32px 32px;font-family:'Segoe UI',Arial,sans-serif;box-sizing:border-box; }
+    .export-page-header { display:flex;align-items:center;gap:14px;margin-bottom:8px;padding-bottom:8px;border-bottom:3px solid #dc2626; }
+    .export-page-header img { height:32px; }
+    .export-page-header-divider { width:1px;height:32px;background:#e2e8f0; }
+    .export-org { font-size:8px;font-weight:900;letter-spacing:0.3em;color:#dc2626;text-transform:uppercase;margin-bottom:1px; }
+    .export-title { font-size:14px;font-weight:900;text-transform:uppercase;color:#0f172a;line-height:1; }
+    .export-subtitle { font-size:8px;color:#64748b;font-weight:700;margin-top:2px;text-transform:uppercase; }
+    .export-section-badge { display:inline-block;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:#dc2626;background:#fef2f2;border-left:3px solid #dc2626;padding:4px 10px;margin-bottom:8px; }
+    .export-table { width:100%;border-collapse:collapse;font-size:9px; }
+    .export-table th { background:#4a7795;color:white;padding:4px 5px;border:1px solid #94a3b8;text-align:center;font-weight:900;font-size:8px;text-transform:uppercase; }
+    .export-table td { padding:3px 5px;border:1px solid #cbd5e1;font-size:9px;vertical-align:middle; }
+    .export-section-header-row td { background:#1e293b!important;color:white!important;font-weight:900;font-size:9px;text-transform:uppercase;padding:5px 8px; }
+    .export-page-divider { width:794px;height:24px;background:#f1f5f9;display:flex;align-items:center;justify-content:center; }
+    .export-page-divider span { font-size:8px;color:#94a3b8;font-weight:700;letter-spacing:0.2em;text-transform:uppercase; }
 </style>
 
+<div id="export-overlay">
+    <div class="export-spinner"></div>
+    <p id="export-status">Mempersiapkan...</p>
+    <div id="export-progress-bar-wrap"><div id="export-progress-bar"></div></div>
+</div>
+<div id="export-root"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
 (function () {
-    var rows = [
-        { id: 'scaling-row-gov-on-hand',      href: '{{ $scalingDetailRoutes['gov']['on-hand'] }}' },
-        { id: 'scaling-row-gov-qualified',     href: '{{ $scalingDetailRoutes['gov']['qualified'] }}' },
-        { id: 'scaling-row-gov-initiate',      href: '{{ $scalingDetailRoutes['gov']['initiate'] }}' },
-        { id: 'scaling-row-gov-koreksi',       href: '{{ $scalingDetailRoutes['gov']['koreksi'] }}' },
-        { id: 'scaling-row-private-on-hand',   href: '{{ $scalingDetailRoutes['private']['on-hand'] }}' },
-        { id: 'scaling-row-private-qualified', href: '{{ $scalingDetailRoutes['private']['qualified'] }}' },
-        { id: 'scaling-row-private-initiate',  href: '{{ $scalingDetailRoutes['private']['initiate'] }}' },
-        { id: 'scaling-row-private-koreksi',   href: '{{ $scalingDetailRoutes['private']['koreksi'] }}' },
-        { id: 'scaling-row-soe-on-hand',       href: '{{ $scalingDetailRoutes['soe']['on-hand'] }}' },
-        { id: 'scaling-row-soe-qualified',     href: '{{ $scalingDetailRoutes['soe']['qualified'] }}' },
-        { id: 'scaling-row-soe-initiate',      href: '{{ $scalingDetailRoutes['soe']['initiate'] }}' },
-        { id: 'scaling-row-soe-koreksi',       href: '{{ $scalingDetailRoutes['soe']['koreksi'] }}' },
-        { id: 'scaling-row-sme-on-hand',       href: '{{ $scalingDetailRoutes['sme']['on-hand'] }}' },
-        { id: 'scaling-row-sme-qualified',     href: '{{ $scalingDetailRoutes['sme']['qualified'] }}' },
-        { id: 'scaling-row-sme-initiate',      href: '{{ $scalingDetailRoutes['sme']['initiate'] }}' },
-        { id: 'scaling-row-sme-koreksi',       href: '{{ $scalingDetailRoutes['sme']['koreksi'] }}' },
+
+    var detailRoutes = [
+        { id:'scaling-row-gov-on-hand',      href:'{{ $scalingDetailRoutes['gov']['on-hand'] }}' },
+        { id:'scaling-row-gov-qualified',    href:'{{ $scalingDetailRoutes['gov']['qualified'] }}' },
+        { id:'scaling-row-gov-initiate',     href:'{{ $scalingDetailRoutes['gov']['initiate'] }}' },
+        { id:'scaling-row-gov-koreksi',      href:'{{ $scalingDetailRoutes['gov']['koreksi'] }}' },
+        { id:'scaling-row-private-on-hand',  href:'{{ $scalingDetailRoutes['private']['on-hand'] }}' },
+        { id:'scaling-row-private-qualified',href:'{{ $scalingDetailRoutes['private']['qualified'] }}' },
+        { id:'scaling-row-private-initiate', href:'{{ $scalingDetailRoutes['private']['initiate'] }}' },
+        { id:'scaling-row-private-koreksi',  href:'{{ $scalingDetailRoutes['private']['koreksi'] }}' },
+        { id:'scaling-row-soe-on-hand',      href:'{{ $scalingDetailRoutes['soe']['on-hand'] }}' },
+        { id:'scaling-row-soe-qualified',    href:'{{ $scalingDetailRoutes['soe']['qualified'] }}' },
+        { id:'scaling-row-soe-initiate',     href:'{{ $scalingDetailRoutes['soe']['initiate'] }}' },
+        { id:'scaling-row-soe-koreksi',      href:'{{ $scalingDetailRoutes['soe']['koreksi'] }}' },
+        { id:'scaling-row-sme-on-hand',      href:'{{ $scalingDetailRoutes['sme']['on-hand'] }}' },
+        { id:'scaling-row-sme-qualified',    href:'{{ $scalingDetailRoutes['sme']['qualified'] }}' },
+        { id:'scaling-row-sme-initiate',     href:'{{ $scalingDetailRoutes['sme']['initiate'] }}' },
+        { id:'scaling-row-sme-koreksi',      href:'{{ $scalingDetailRoutes['sme']['koreksi'] }}' },
     ];
 
-    function renderButtons() {
+    function renderDetailButtons() {
         var container = document.getElementById('scaling-detail-btns');
         if (!container) return;
-
         var wrapper = container.closest('.overflow-x-auto');
         if (!wrapper) return;
-
         var table = wrapper.querySelector('table');
         if (!table) return;
-
         container.innerHTML = '';
         container.style.pointerEvents = 'none';
-
         var tableRight = table.offsetWidth + 6;
         var containerTopInScroll = table.offsetTop + table.offsetHeight;
-
-        rows.forEach(function (g) {
+        detailRoutes.forEach(function(g) {
             var tr = document.getElementById(g.id);
             if (!tr) return;
-
-            var trTopInScroll = table.offsetTop + tr.offsetTop;
-            var btnTop = trTopInScroll + (tr.offsetHeight / 2) - 10 - containerTopInScroll;
-
+            var btnTop = table.offsetTop + tr.offsetTop + (tr.offsetHeight/2) - 10 - containerTopInScroll;
             var btn = document.createElement('a');
-            btn.href = g.href;
-            btn.textContent = 'detail';
-            btn.style.cssText = [
-                'position:absolute',
-                'left:' + (tableRight + 6) + 'px',
-                'top:' + btnTop + 'px',
-                'display:inline-flex',
-                'align-items:center',
-                'padding:2px 8px',
-                'background:#1e293b',
-                'color:white',
-                'font-size:10px',
-                'font-weight:900',
-                'border-radius:5px',
-                'text-transform:uppercase',
-                'letter-spacing:0.05em',
-                'text-decoration:none',
-                'white-space:nowrap',
-                'box-shadow:0 1px 3px rgba(0,0,0,.3)',
-                'pointer-events:all',
-                'z-index:50',
-            ].join(';');
-
-            btn.onmouseenter = function () { this.style.background = '#dc2626'; };
-            btn.onmouseleave = function () { this.style.background = '#1e293b'; };
+            btn.href = g.href; btn.textContent = 'detail';
+            btn.style.cssText = 'position:absolute;left:'+(tableRight+6)+'px;top:'+btnTop+'px;display:inline-flex;align-items:center;padding:2px 8px;background:#1e293b;color:white;font-size:10px;font-weight:900;border-radius:5px;text-transform:uppercase;letter-spacing:0.05em;text-decoration:none;white-space:nowrap;box-shadow:0 1px 3px rgba(0,0,0,.3);pointer-events:all;z-index:50;';
+            btn.onmouseenter=function(){this.style.background='#dc2626';};
+            btn.onmouseleave=function(){this.style.background='#1e293b';};
             container.appendChild(btn);
         });
     }
+    function init(){ setTimeout(renderDetailButtons, 80); }
+    if (document.readyState==='loading') document.addEventListener('DOMContentLoaded',init); else init();
+    window.addEventListener('resize', renderDetailButtons);
 
-    function init() { setTimeout(renderButtons, 80); }
+    document.addEventListener('DOMContentLoaded', function() {
+        var btn      = document.getElementById('btn-export-jpg');
+        var dropdown = document.getElementById('export-dropdown');
 
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init);
-    } else {
-        init();
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            dropdown.classList.toggle('hidden');
+        });
+        document.addEventListener('click', function() {
+            dropdown.classList.add('hidden');
+        });
+        dropdown.addEventListener('click', function(e){ e.stopPropagation(); });
+
+        document.querySelectorAll('.export-option').forEach(function(el) {
+            el.addEventListener('click', function() {
+                dropdown.classList.add('hidden');
+                var target = this.getAttribute('data-export');
+                if (target === 'all') doExportFull();
+                else doExportSection(parseInt(target));
+            });
+        });
+    });
+
+    var periodeLabel = @json($periodeLabel);
+    var logoUrl      = '{{ asset('img/Telkom.png') }}';
+
+    var SECTIONS = [
+        { no:1, name:'Scaling',          keyword:'SCALING' },
+        { no:2, name:'Collection',       keyword:'COLLECTION' },
+        { no:3, name:'Combat The Churn', keyword:'COMBAT THE CHURN' },
+        { no:4, name:'Rising Star',      keyword:'RISING STAR' },
+        { no:5, name:'PSAK',             keyword:'PSAK' },
+    ];
+
+    var ALL_KEYWORDS = SECTIONS.map(function(s){ return s.keyword; });
+
+    function setProgress(pct) { document.getElementById('export-progress-bar').style.width = pct+'%'; }
+    function setStatus(txt)   { document.getElementById('export-status').textContent = txt; }
+    function showOverlay()    { document.getElementById('export-overlay').classList.add('active'); setProgress(0); }
+    function hideOverlay()    { document.getElementById('export-overlay').classList.remove('active'); }
+
+    function getLiveRows() {
+        var liveTable = document.querySelector('.min-w-full.border-collapse');
+        if (!liveTable) return [];
+        return Array.from(liveTable.querySelectorAll('tbody tr'));
     }
-    window.addEventListener('resize', renderButtons);
+
+    function isSectionHeader(tr) {
+        var tds = tr.querySelectorAll('td');
+        for (var i = 0; i < tds.length; i++) {
+            if (tds[i].getAttribute('colspan') === '10') return true;
+        }
+        return false;
+    }
+
+    function getSectionHeaderKeyword(tr) {
+        var tds = tr.querySelectorAll('td');
+        for (var i = 0; i < tds.length; i++) {
+            if (tds[i].getAttribute('colspan') === '10') {
+                return tds[i].textContent.trim().toUpperCase();
+            }
+        }
+        return '';
+    }
+
+    function cloneTrToHtml(tr) {
+        var newTr = '<tr>';
+        tr.querySelectorAll('td, th').forEach(function(td) {
+            var tag = td.tagName.toLowerCase();
+            var rs  = td.getAttribute('rowspan') ? ' rowspan="'+td.getAttribute('rowspan')+'"' : '';
+            var cs  = td.getAttribute('colspan') ? ' colspan="'+td.getAttribute('colspan')+'"' : '';
+
+            var style = '';
+
+            var cls = td.className || '';
+            if      (cls.includes('bg-green-500'))  style += 'background:#16a34a;color:white;';
+            else if (cls.includes('bg-yellow-300')) style += 'background:#fde047;';
+            else if (cls.includes('bg-red-500'))    style += 'background:#ef4444;color:white;';
+            else if (cls.includes('bg-black'))      style += 'background:#000;color:white;';
+
+            var inlineSt = td.getAttribute('style') || '';
+            if (!style && inlineSt) {
+                if      (inlineSt.includes('#16a34a')) style += 'background:#16a34a;color:white;';
+                else if (inlineSt.includes('#eab308')) style += 'background:#eab308;';
+                else if (inlineSt.includes('#ef4444')) style += 'background:#ef4444;color:white;';
+                else if (inlineSt.includes('#000000') || inlineSt.includes('#000;')) style += 'background:#000;color:white;';
+            }
+
+            var span = td.querySelector('span');
+            if (span && !style) {
+                var spanCls = span.className || '';
+                if (spanCls.includes('text-white')) style += 'color:white;';
+            }
+
+            if      (cls.includes('text-right'))  style += 'text-align:right;';
+            else if (cls.includes('text-center')) style += 'text-align:center;';
+
+            if (cls.includes('font-bold') || cls.includes('font-semibold')) style += 'font-weight:700;';
+
+            if      (cls.includes('align-top'))    style += 'vertical-align:top;';
+            else if (cls.includes('align-middle'))  style += 'vertical-align:middle;';
+
+            var content = td.textContent.trim();
+
+            newTr += '<'+tag+rs+cs+' style="'+style+'">'+content+'</'+tag+'>';
+        });
+        newTr += '</tr>';
+        return newTr;
+    }
+
+    function getSectionRows(keyword) {
+        var allRows = getLiveRows();
+        var result  = [];
+        var capture = false;
+
+        for (var i = 0; i < allRows.length; i++) {
+            var tr = allRows[i];
+            if (isSectionHeader(tr)) {
+                var kw = getSectionHeaderKeyword(tr);
+                if (kw === keyword) {
+                    capture = true;
+                    continue;
+                } else if (capture) {
+                    break;
+                }
+            }
+            if (capture) result.push(tr);
+        }
+        return result;
+    }
+
+    function colHeaderHtml() {
+        return '<tr><th rowspan="2">No</th><th rowspan="2">Unit / Scope</th><th rowspan="2">Indicator</th>'
+             + '<th rowspan="2">Denom</th><th colspan="2">Commitment</th><th colspan="2">Real</th>'
+             + '<th rowspan="2">Fairness</th><th rowspan="2">Ach</th><th rowspan="2">Score</th></tr>'
+             + '<tr><th>Amount</th><th>Rp</th><th>Amount</th><th>Rp</th></tr>';
+    }
+
+    function sectionHeaderRowHtml(no, name) {
+    return '<tr><td colspan="11" style="background:#ffffff;color:black;font-weight:900;font-size:9px;text-transform:uppercase;padding:5px 8px;">'+no+'. '+name+'</td></tr>';
+}
+
+    function pageHeaderHtml(subtitleRight) {
+        return '<div class="export-page-header">'
+             +   '<img src="'+logoUrl+'" crossorigin="anonymous">'
+             +   '<div class="export-page-header-divider"></div>'
+             +   '<div>'
+             +     '<div class="export-org">Witel Sumut</div>'
+             +     '<div class="export-title">Report Data</div>'
+             +     '<div class="export-subtitle">Periode: '+periodeLabel+(subtitleRight ? ' &nbsp;|&nbsp; '+subtitleRight : '')+'</div>'
+             +   '</div>'
+             + '</div>';
+    }
+
+    function colHeaderHtmlNoNo() {
+        return '<tr><th rowspan="2">Unit / Scope</th><th rowspan="2">Indicator</th>'
+             + '<th rowspan="2">Denom</th><th colspan="2">Commitment</th><th colspan="2">Real</th>'
+             + '<th rowspan="2">Fairness</th><th rowspan="2">Ach</th><th rowspan="2">Score</th></tr>'
+             + '<tr><th>Amount</th><th>Rp</th><th>Amount</th><th>Rp</th></tr>';
+    }
+
+    function cloneTrToHtmlNoNo(tr) {
+        var tds = Array.from(tr.querySelectorAll('td, th'));
+        if (tds.length === 0) return '';
+        var startIdx = 0;
+        var firstText = tds[0].textContent.trim();
+        if (/^\d*$/.test(firstText) && !tds[0].getAttribute('colspan')) {
+            startIdx = 1;
+        }
+        var newTr = '<tr>';
+        for (var i = startIdx; i < tds.length; i++) {
+            var td  = tds[i];
+            var tag = td.tagName.toLowerCase();
+            var rs  = td.getAttribute('rowspan') ? ' rowspan="'+td.getAttribute('rowspan')+'"' : '';
+            var cs  = td.getAttribute('colspan') ? ' colspan="'+td.getAttribute('colspan')+'"' : '';
+
+            var style = '';
+            var cls   = td.className || '';
+            var inlineSt = td.getAttribute('style') || '';
+            if      (cls.includes('bg-green-500')  || inlineSt.includes('#16a34a')) style += 'background:#16a34a;color:white;';
+            else if (cls.includes('bg-yellow-300') || inlineSt.includes('#eab308')) style += 'background:#fde047;';
+            else if (cls.includes('bg-red-500')    || inlineSt.includes('#ef4444')) style += 'background:#ef4444;color:white;';
+            else if (cls.includes('bg-black')      || inlineSt.includes('#000000') || inlineSt.includes('#000;')) style += 'background:#000;color:white;';
+
+            if      (cls.includes('text-right'))  style += 'text-align:right;';
+            else if (cls.includes('text-center')) style += 'text-align:center;';
+            if (cls.includes('font-bold') || cls.includes('font-semibold')) style += 'font-weight:700;';
+            if      (cls.includes('align-top'))    style += 'vertical-align:top;';
+            else if (cls.includes('align-middle')) style += 'vertical-align:middle;';
+
+            newTr += '<'+tag+rs+cs+' style="'+style+'">'+td.textContent.trim()+'</'+tag+'>';
+        }
+        newTr += '</tr>';
+        return newTr;
+    }
+
+    function buildSectionPageEl(sec, trElements) {
+        var bodyHtml = '';
+        trElements.forEach(function(tr) { bodyHtml += cloneTrToHtmlNoNo(tr); });
+
+        var div = document.createElement('div');
+        div.className = 'export-page';
+        div.innerHTML =
+            pageHeaderHtml(sec.no+'. '+sec.name)
+          + '<div class="export-section-badge">'+sec.no+'. '+sec.name+'</div>'
+          + '<table class="export-table">'
+          +   '<thead>'+colHeaderHtmlNoNo()+'</thead>'
+          +   '<tbody>'+bodyHtml+'</tbody>'
+          + '</table>';
+        return div;
+    }
+
+    function buildFullReportEl() {
+        var allBodyHtml = '';
+
+        SECTIONS.forEach(function(sec) {
+            var trElements = getSectionRows(sec.keyword);
+            allBodyHtml += sectionHeaderRowHtml(sec.no, sec.name);
+            trElements.forEach(function(tr) { allBodyHtml += cloneTrToHtml(tr); });
+        });
+
+        var wrapper = document.createElement('div');
+        wrapper.className = 'export-page';
+        wrapper.innerHTML =
+            pageHeaderHtml(null)
+          + '<table class="export-table">'
+          +   '<thead>'+colHeaderHtml()+'</thead>'
+          +   '<tbody>'+allBodyHtml+'</tbody>'
+          + '</table>';
+        return wrapper;
+    }
+
+    async function renderToCanvas(el) {
+        var root = document.getElementById('export-root');
+        root.appendChild(el);
+        await new Promise(r => setTimeout(r, 150));
+        var canvas = await html2canvas(el, { scale:2, useCORS:true, backgroundColor:'#ffffff', logging:false });
+        root.removeChild(el);
+        return canvas;
+    }
+
+    function downloadCanvas(canvas, filename) {
+        var a = document.createElement('a');
+        a.href = canvas.toDataURL('image/jpeg', 0.93);
+        a.download = filename;
+        a.click();
+    }
+
+    function slugify(str) { return str.toLowerCase().replace(/\s+/g,'-'); }
+
+    async function doExportSection(no) {
+        var sec = SECTIONS.find(function(s){ return s.no === no; });
+        if (!sec) return;
+        showOverlay();
+        setStatus('Memproses '+sec.no+'. '+sec.name+'...');
+        setProgress(20);
+
+        var trElements = getSectionRows(sec.keyword);
+        var pageEl     = buildSectionPageEl(sec, trElements);
+        setProgress(60);
+
+        var canvas = await renderToCanvas(pageEl);
+        setProgress(90);
+
+        downloadCanvas(canvas, 'report-'+sec.no+'-'+slugify(sec.name)+'-'+slugify(periodeLabel)+'.jpg');
+        setProgress(100);
+        await new Promise(r => setTimeout(r, 300));
+        hideOverlay();
+    }
+
+    async function doExportFull() {
+        showOverlay();
+        setStatus('Membangun full report...');
+        setProgress(20);
+
+        var wrapperEl = buildFullReportEl();
+        setProgress(50);
+        setStatus('Merender gambar...');
+
+        var canvas = await renderToCanvas(wrapperEl);
+        setProgress(90);
+
+        downloadCanvas(canvas, 'report-full-'+slugify(periodeLabel)+'.jpg');
+        setProgress(100);
+        await new Promise(r => setTimeout(r, 300));
+        hideOverlay();
+    }
+
 })();
 </script>
 
