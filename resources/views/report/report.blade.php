@@ -167,7 +167,7 @@
         'koreksi'   => route('report.detail', ['segment' => 'sme',     'type' => 'koreksi',   'periode' => $scalingPeriodeYm]),
     ],
 ];
-    
+
     @endphp
 
     <div class="min-h-screen" style="background:#f1f5f9;">
@@ -905,19 +905,13 @@
         word-break:break-word;
     }
     .export-table td {
-        padding:4px 6px;
+        padding:3px 6px;
         border:1px solid #cbd5e1;
         font-size:8px;
         vertical-align:middle;
         line-height:1.4;
         word-break:break-word;
         overflow-wrap:break-word;
-    }
-    .export-section-header-row td {
-        background:#1e293b!important;color:white!important;
-        font-weight:800;font-size:8.5px;
-        text-transform:uppercase;padding:6px 10px;
-        letter-spacing:0.06em;
     }
     .export-table .col-no      { width:22px; }
     .export-table .col-scope   { width:115px; }
@@ -989,16 +983,12 @@
     document.addEventListener('DOMContentLoaded', function() {
         var btn      = document.getElementById('btn-export-jpg');
         var dropdown = document.getElementById('export-dropdown');
-
         btn.addEventListener('click', function(e) {
             e.stopPropagation();
             dropdown.classList.toggle('hidden');
         });
-        document.addEventListener('click', function() {
-            dropdown.classList.add('hidden');
-        });
+        document.addEventListener('click', function() { dropdown.classList.add('hidden'); });
         dropdown.addEventListener('click', function(e){ e.stopPropagation(); });
-
         document.querySelectorAll('.export-option').forEach(function(el) {
             el.addEventListener('click', function() {
                 dropdown.classList.add('hidden');
@@ -1049,43 +1039,40 @@
         return '';
     }
 
-    // ═══ HELPER: resolve warna cell dari class + inline style ═══
     function resolveColor(td) {
         var cls      = td.className || '';
         var inlineSt = td.getAttribute('style') || '';
-        var spanCls  = (td.querySelector('span') || {}).className || '';
 
-        if (cls.includes('bg-green-500')  || inlineSt.includes('#16a34a')) return 'background:#16a34a;color:white;';
-        if (cls.includes('bg-yellow-300') || inlineSt.includes('#eab308') || inlineSt.includes('#fde047')) return 'background:#fde047;color:#1e293b;';
-        if (cls.includes('bg-red-500')    || inlineSt.includes('#ef4444')) return 'background:#ef4444;color:white;';
-        if (cls.includes('bg-black')      || inlineSt.includes('#000000') || inlineSt.includes('#000;')) return 'background:#000;color:white;';
-        if (cls.includes('bg-gray-50'))   return 'background:#f8fafc;';
-
-        // span-based color (scalingAchColor)
-        if (inlineSt.includes('#16a34a')) return 'background:#16a34a;color:white;';
-        if (inlineSt.includes('#eab308')) return 'background:#eab308;color:#1e293b;';
-        if (inlineSt.includes('#ef4444')) return 'background:#ef4444;color:white;';
-        if (inlineSt.includes('#000000')) return 'background:#000;color:white;';
+        if (cls.includes('bg-green-500') || inlineSt.includes('#16a34a'))
+            return 'background:#16a34a;color:#ffffff;';
+        if (cls.includes('bg-yellow-300') || inlineSt.includes('#eab308') || inlineSt.includes('#fde047'))
+            return 'background:#fde047;color:#1e293b;';
+        if (cls.includes('bg-red-500') || inlineSt.includes('#ef4444'))
+            return 'background:#ef4444;color:#ffffff;';
+        if (cls.includes('bg-black') || inlineSt.includes('#000000') || inlineSt.includes('#000;'))
+            return 'background:#000000;color:#ffffff;';
+        if (cls.includes('bg-gray-50'))
+            return 'background:#f8fafc;color:#1e293b;';
 
         return '';
     }
 
     function resolveAlign(cls) {
-        var s = '';
-        if (cls.includes('text-right'))   s += 'text-align:right;';
-        else if (cls.includes('text-center')) s += 'text-align:center;';
-        else s += 'text-align:left;';
-        return s;
+        if (cls.includes('text-right'))  return 'text-align:right;';
+        if (cls.includes('text-center')) return 'text-align:center;';
+        return 'text-align:left;';
     }
 
     function resolveWeight(cls) {
-        if (cls.includes('font-bold') || cls.includes('font-semibold') || cls.includes('font-black')) return 'font-weight:700;';
+        if (cls.includes('font-bold') || cls.includes('font-semibold') || cls.includes('font-black'))
+            return 'font-weight:700;';
         return 'font-weight:400;';
     }
 
-    function resolveVAlign(cls) {
+    function resolveVAlign(cls, rowspan) {
         if (cls.includes('align-top'))    return 'vertical-align:top;';
         if (cls.includes('align-middle')) return 'vertical-align:middle;';
+        if (rowspan && parseInt(rowspan) > 1) return 'vertical-align:top;';
         return 'vertical-align:middle;';
     }
 
@@ -1095,23 +1082,39 @@
         if (!tds.length) return '';
         var startIdx = 0;
         if (skipFirstTd) {
-            // skip kolom No jika teks kosong atau angka tunggal tanpa colspan
             var first = tds[0];
             var firstText = first.textContent.trim();
             var hasColspan = first.getAttribute('colspan');
             if (!hasColspan && /^\d*$/.test(firstText)) startIdx = 1;
         }
+
         var html = '<tr>';
         for (var i = startIdx; i < tds.length; i++) {
-            var td  = tds[i];
-            var tag = td.tagName.toLowerCase();
-            var rs  = td.getAttribute('rowspan') ? ' rowspan="'+td.getAttribute('rowspan')+'"' : '';
-            var cs  = td.getAttribute('colspan') ? ' colspan="'+td.getAttribute('colspan')+'"' : '';
-            var cls = td.className || '';
+            var td         = tds[i];
+            var tag        = td.tagName.toLowerCase();
+            var rowspanVal = td.getAttribute('rowspan');
+            var colspanVal = td.getAttribute('colspan');
+            var rs         = rowspanVal ? ' rowspan="'+rowspanVal+'"' : '';
+            var cs         = colspanVal ? ' colspan="'+colspanVal+'"' : '';
+            var cls        = td.className || '';
 
-            var style = resolveColor(td) + resolveAlign(cls) + resolveWeight(cls) + resolveVAlign(cls);
-            // Padding konsisten
-            style += 'padding:4px 6px;border:1px solid #cbd5e1;font-size:8px;line-height:1.4;word-break:break-word;overflow-wrap:break-word;';
+            var isSectionHeaderCell = (colspanVal === '10' || colspanVal === '11');
+
+            var style;
+            if (isSectionHeaderCell) {
+                style = 'background:#f8fafc;color:#1e293b;font-weight:700;font-size:8.5px;'
+                      + 'text-transform:uppercase;padding:5px 8px;letter-spacing:0.04em;'
+                      + 'border:1px solid #d1d5db;'
+                      + 'text-align:left;vertical-align:middle;'
+                      + 'word-break:break-word;overflow-wrap:break-word;line-height:1.4;';
+            } else {
+                style = resolveColor(td)
+                      + resolveAlign(cls)
+                      + resolveWeight(cls)
+                      + resolveVAlign(cls, rowspanVal)
+                      + 'padding:2px 6px 8px 6px;border:1px solid #cbd5e1;font-size:8px;'
+                      + 'line-height:1.4;word-break:break-word;overflow-wrap:break-word;';
+            }
 
             var content = td.textContent.trim();
             html += '<'+tag+rs+cs+' style="'+style+'">'+content+'</'+tag+'>';
@@ -1136,7 +1139,6 @@
         return result;
     }
 
-    // ═══ Column group untuk fixed layout ═══
     function colgroupHtml(withNo) {
         var cols = withNo
             ? '<col style="width:22px"><col style="width:110px"><col style="width:135px"><col style="width:30px"><col style="width:62px"><col style="width:62px"><col style="width:62px"><col style="width:62px"><col style="width:42px"><col style="width:42px"><col style="width:42px">'
@@ -1164,7 +1166,10 @@
 
     function sectionHeaderRowHtml(no, name, withNo) {
         var colspan = withNo ? 11 : 10;
-        return '<tr class="export-section-header-row"><td colspan="'+colspan+'" style="background:#1e293b;color:white;font-weight:800;font-size:8.5px;text-transform:uppercase;padding:6px 10px;letter-spacing:0.06em;border:1px solid #334155;">'+no+'. '+name+'</td></tr>';
+        return '<tr><td colspan="'+colspan+'" style="background:#f8fafc;color:#1e293b;font-weight:700;'
+             + 'font-size:8.5px;text-transform:uppercase;padding:5px 8px;letter-spacing:0.04em;'
+             + 'border:1px solid #d1d5db;'
+             + 'text-align:left;vertical-align:middle;">'+no+'. '+name+'</td></tr>';
     }
 
     function pageHeaderHtml(subtitle) {
@@ -1179,7 +1184,6 @@
              + '</div>';
     }
 
-    // ═══ Build per-section page ═══
     function buildSectionPageEl(sec, trElements) {
         var bodyHtml = '';
         trElements.forEach(function(tr) { bodyHtml += cloneTrFull(tr, true); });
@@ -1197,7 +1201,6 @@
         return div;
     }
 
-    // ═══ Build full report ═══
     function buildFullReportEl() {
         var allBodyHtml = '';
         SECTIONS.forEach(function(sec) {
@@ -1218,9 +1221,7 @@
         return wrapper;
     }
 
-    // ═══ Render + download ═══
     async function renderToCanvas(el) {
-        // Inject Google Font di dalam export-root
         var fontLink = document.getElementById('export-font-link');
         if (!fontLink) {
             fontLink = document.createElement('link');
@@ -1233,9 +1234,8 @@
         var root = document.getElementById('export-root');
         root.appendChild(el);
 
-        // Tunggu font load
         await document.fonts.ready;
-        await new Promise(r => setTimeout(r, 200));
+        await new Promise(function(r){ setTimeout(r, 200); });
 
         var canvas = await html2canvas(el, {
             scale: 2.5,
@@ -1244,10 +1244,40 @@
             logging: false,
             imageTimeout: 15000,
             onclone: function(doc) {
-                // Pastikan font tersedia di clone document
+                Array.from(document.styleSheets).forEach(function(sheet) {
+                    try {
+                        if (sheet.href) {
+                            var link = doc.createElement('link');
+                            link.rel  = 'stylesheet';
+                            link.href = sheet.href;
+                            doc.head.appendChild(link);
+                        } else if (sheet.ownerNode && sheet.ownerNode.tagName === 'STYLE') {
+                            var style = doc.createElement('style');
+                            try {
+                                style.textContent = Array.from(sheet.cssRules)
+                                    .map(function(r){ return r.cssText; }).join('\n');
+                            } catch(e) {
+                                style.textContent = sheet.ownerNode.textContent;
+                            }
+                            doc.head.appendChild(style);
+                        }
+                    } catch(e) {}
+                });
+
                 var s = doc.createElement('style');
-                s.textContent = "@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');"
-                              + "* { font-family: 'Inter', Arial, sans-serif !important; -webkit-font-smoothing:antialiased; }";
+                s.textContent = [
+                    "@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');",
+                    "* { font-family: 'Inter', ui-sans-serif, system-ui, Arial, sans-serif !important; -webkit-font-smoothing: antialiased; }",
+                    ".export-page { background: #ffffff !important; }",
+                    ".bg-green-500  { background-color: #22c55e !important; color: #ffffff !important; }",
+                    ".bg-yellow-300 { background-color: #fde047 !important; color: #1e293b !important; }",
+                    ".bg-red-500    { background-color: #ef4444 !important; color: #ffffff !important; }",
+                    ".bg-black      { background-color: #000000 !important; color: #ffffff !important; }",
+                    ".bg-gray-50    { background-color: #f9fafb !important; }",
+                    ".text-white    { color: #ffffff !important; }",
+                    ".text-slate-400{ color: #94a3b8 !important; }",
+                    ".text-slate-900{ color: #0f172a !important; }",
+                ].join('\n');
                 doc.head.appendChild(s);
             }
         });
@@ -1279,7 +1309,7 @@
         setProgress(90);
         downloadCanvas(canvas, 'report-'+sec.no+'-'+slugify(sec.name)+'-'+slugify(periodeLabel)+'.jpg');
         setProgress(100);
-        await new Promise(r => setTimeout(r, 400));
+        await new Promise(function(r){ setTimeout(r, 400); });
         hideOverlay();
     }
 
@@ -1294,7 +1324,7 @@
         setProgress(90);
         downloadCanvas(canvas, 'report-full-'+slugify(periodeLabel)+'.jpg');
         setProgress(100);
-        await new Promise(r => setTimeout(r, 400));
+        await new Promise(function(r){ setTimeout(r, 400); });
         hideOverlay();
     }
 
