@@ -20,7 +20,13 @@ return new class extends Migration
         DB::table('rising_star_types')->insert([
             [
                 'type' => '1',
-                'name' => 'Visiting AM',
+                'name' => 'Visiting AM Gov',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'type' => '1',
+                'name' => 'Visiting AM SME',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
@@ -38,19 +44,37 @@ return new class extends Migration
             ],
             [
                 'type' => '2',
-                'name' => 'Profilling Maps AM',
+                'name' => 'Profilling Maps AM Gov',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
             [
                 'type' => '2',
-                'name' => 'Profilling Overall HOTD',
+                'name' => 'Profilling Maps AM SME',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'type' => '2',
+                'name' => 'Profilling HOTD LEGS',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'type' => '2',
+                'name' => 'Profilling HOTD SME',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
             [
                 'type' => '3',
-                'name' => 'Kecukupan LOP',
+                'name' => 'Kecukupan LOP Gov',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'type' => '3',
+                'name' => 'Kecukupan LOP SME',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
