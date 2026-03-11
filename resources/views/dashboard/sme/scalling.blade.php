@@ -59,7 +59,7 @@
                 <span class="text-xs font-bold text-slate-500 bg-white border border-slate-200 rounded-full px-4 py-1.5 shadow-sm">LOP SME</span>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
                 @php
                 $scallingCards = [
                     [
@@ -86,14 +86,7 @@
                         'route' => route('dashboard.sme.lop-initiate'),
                         'icon'  => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"/>',
                     ],
-                    [
-                        'key'   => 'koreksi',
-                        'label' => 'Koreksi',
-                        'sub'   => 'Data Koreksi SME',
-                        'badge' => 'KOREKSI',
-                        'route' => route('dashboard.sme.lop-koreksi'),
-                        'icon'  => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>',
-                    ],
+                    
                 ];
                 @endphp
 

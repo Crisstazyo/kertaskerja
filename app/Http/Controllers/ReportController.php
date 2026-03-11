@@ -705,28 +705,40 @@ public function progress(Request $request, string $segment, string $type)
 public function progressKoreksiUpdate(Request $request, string $segment)
 {
     $request->validate([
-        'id'        => 'required|integer|exists:koreksis,id',
-        'realisasi' => 'required|numeric|min:0',
+        'id'              => 'required|integer|exists:koreksis,id',
+        'realisasi'       => 'sometimes|numeric|min:0',
+        'nilai_komitmen'  => 'sometimes|numeric|min:0',
+        'progress'        => 'sometimes|string|in:done,on-progress',
     ]);
 
-    // ✅ Map segment slug ke nama DB
     $segmentDbMap = [
         'gov'     => 'government',
         'private' => 'private',
         'soe'     => 'soe',
         'sme'     => 'sme',
     ];
-
     abort_if(!isset($segmentDbMap[$segment]), 404);
     $segmentDb = $segmentDbMap[$segment];
 
     $koreksi = \App\Models\Koreksi::findOrFail($request->id);
-
-    // ✅ Bandingkan dengan nama DB, bukan slug URL
-    $import = $koreksi->scallingImport;
+    $import  = $koreksi->scallingImport;
     abort_if(!$import || $import->segment !== $segmentDb, 403);
 
-    $koreksi->update(['realisasi' => $request->realisasi]);
+    $updateData = [];
+
+    if ($request->has('nilai_komitmen')) {
+        $updateData['nilai_komitmen'] = $request->nilai_komitmen;
+    }
+    if ($request->has('progress')) {
+        $updateData['progress'] = $request->progress;
+    }
+    if ($request->has('realisasi')) {
+        $updateData['realisasi'] = $request->realisasi;
+    }
+
+    if (!empty($updateData)) {
+        $koreksi->update($updateData);
+    }
 
     return response()->json(['success' => true]);
 }

@@ -18,6 +18,10 @@ class Koreksi extends Model
         'imports_log_id',
     ];
 
+    // protected $casts = [
+    //     'nilai_komitmen' => 'boolean',
+    // ];
+
     public function scallingImport()
     {
         // column name from migration: imports_log_id

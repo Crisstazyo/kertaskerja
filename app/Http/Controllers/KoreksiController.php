@@ -228,7 +228,6 @@ class KoreksiController extends Controller
             'periode'                  => 'required|date_format:Y-m',
             'nama_pelanggan'           => 'required|string|max:255',
             'nilai_komitmen'           => 'required|string|max:100',
-            'realisasi'                => 'required|string|max:100',
         ], [
             'status.required'                   => 'Status wajib diisi',
             'status.in'                         => 'Status harus berupa "active" atau "inactive"',
@@ -236,7 +235,6 @@ class KoreksiController extends Controller
             'periode.date_format'               => 'Format periode harus berupa bulan dan tahun (contoh: 2025-03)',
             'nama_pelanggan.required'           => 'Nama pelanggan wajib diisi',
             'nilai_komitmen.required'           => 'Nilai komitmen wajib diisi',
-            'realisasi.required'                => 'Realisasi wajib diisi',
         ]);
 
         $periodeDate = $request->periode . '-01';

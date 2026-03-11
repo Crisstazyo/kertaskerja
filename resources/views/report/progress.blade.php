@@ -89,7 +89,7 @@
         @if($import)
 
         {{-- ══════════════════════════════════════════════════════════════
-             TAMPILAN KOREKSI — inline edit realisasi
+             KOREKSI
         ══════════════════════════════════════════════════════════════ --}}
         @if($type === 'koreksi')
 
@@ -97,11 +97,10 @@
             $isReadOnly     = isset($isReadOnly) ? $isReadOnly : false;
             $totalKomitmen  = $koreksiRows->sum('nilai_komitmen');
             $totalRealisasi = $koreksiRows->sum('realisasi');
-            $pctTotal       = $totalKomitmen > 0 ? ($totalRealisasi / $totalKomitmen) * 100 : 0;
-            $sudahRealisasi = $koreksiRows->filter(fn($r) => $r->realisasi > 0)->count();
+            $sudahDone      = $koreksiRows->filter(fn($r) => ($r->progress ?? '') === 'done')->count();
         @endphp
 
-        {{-- Summary cards --}}
+        {{-- ── Summary Cards ── --}}
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
             <div class="bg-white rounded-xl border border-slate-200 shadow-sm px-5 py-4">
                 <p class="text-[10px] font-black tracking-widest text-slate-400 uppercase mb-1">Total LOP</p>
@@ -110,119 +109,139 @@
             </div>
             <div class="bg-white rounded-xl border border-slate-200 shadow-sm px-5 py-4">
                 <p class="text-[10px] font-black tracking-widest text-slate-400 uppercase mb-1">Nilai Komitmen</p>
-                <p class="text-lg font-black text-slate-900">{{ number_format($totalKomitmen, 0, ',', '.') }}</p>
+                <p class="text-lg font-black text-slate-900" id="summary-total-komitmen">{{ number_format($totalKomitmen, 0, ',', '.') }}</p>
                 <p class="text-xs text-slate-400 mt-0.5 font-medium">Total komitmen (Rp)</p>
             </div>
             <div class="bg-white rounded-xl border border-slate-200 shadow-sm px-5 py-4">
                 <p class="text-[10px] font-black tracking-widest text-slate-400 uppercase mb-1">Total Realisasi</p>
                 <p class="text-lg font-black text-emerald-600" id="summary-total-realisasi">{{ number_format($totalRealisasi, 0, ',', '.') }}</p>
-                <p class="text-xs text-slate-400 mt-0.5 font-medium">{{ $sudahRealisasi }} dari {{ $koreksiRows->count() }} LOP</p>
+                <p class="text-xs text-slate-400 mt-0.5 font-medium" id="summary-done-count">{{ $sudahDone }} dari {{ $koreksiRows->count() }} LOP done</p>
             </div>
             <div class="bg-white rounded-xl border border-slate-200 shadow-sm px-5 py-4">
-                <p class="text-[10px] font-black tracking-widest text-slate-400 uppercase mb-1">Pencapaian</p>
-                <p class="text-2xl font-black {{ $pctTotal >= 100 ? 'text-emerald-600' : ($pctTotal >= 50 ? 'text-yellow-500' : 'text-red-500') }}" id="summary-pct">
-                    {{ number_format($pctTotal, 1, ',', '.') }}%
+                <p class="text-[10px] font-black tracking-widest text-slate-400 uppercase mb-1">Progress Done</p>
+                <p class="text-2xl font-black {{ $sudahDone === $koreksiRows->count() ? 'text-emerald-600' : ($sudahDone > 0 ? 'text-yellow-500' : 'text-red-500') }}" id="summary-done-pct">
+                    {{ $koreksiRows->count() > 0 ? number_format(($sudahDone / $koreksiRows->count()) * 100, 0) : 0 }}%
                 </p>
-                <p class="text-xs text-slate-400 mt-0.5 font-medium">Realisasi / Komitmen</p>
+                <p class="text-xs text-slate-400 mt-0.5 font-medium">LOP berstatus done</p>
             </div>
         </div>
 
-        {{-- Tabel koreksi dengan inline edit --}}
+        {{-- ── Tabel ── --}}
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200 text-xs">
                     <thead>
-                        <tr class="bg-slate-800">
-                            <th class="px-3 py-3 text-center text-[10px] font-black text-slate-300 uppercase tracking-widest border-r border-slate-700 w-10">NO</th>
-                            <th class="px-4 py-3 text-left text-[10px] font-black text-slate-300 uppercase tracking-widest border-r border-slate-700">NAMA PELANGGAN</th>
-                            <th class="px-4 py-3 text-right text-[10px] font-black text-slate-300 uppercase tracking-widest border-r border-slate-700 w-44">NILAI KOMITMEN (Rp)</th>
-                            <th class="px-4 py-3 text-center text-[10px] font-black text-slate-300 uppercase tracking-widest border-r border-slate-700 w-44">PROGRESS</th>
-                            <th class="px-4 py-3 text-right text-[10px] font-black text-emerald-400 uppercase tracking-widest w-56">REALISASI (Rp)</th>
+                        <tr>
+                            <th class="px-3 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest border-r border-slate-100 bg-slate-50 w-10">NO</th>
+                            <th class="px-4 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest border-r border-slate-100 bg-slate-50">NAMA PELANGGAN</th>
+                            <th class="px-4 py-3 text-right text-[10px] font-black text-blue-600 uppercase tracking-widest border-r border-slate-100 bg-blue-50 w-52">NILAI KOMITMEN (Rp)</th>
+                            <th class="px-4 py-3 text-center text-[10px] font-black text-teal-600 uppercase tracking-widest border-r border-slate-100 bg-teal-50 w-36">PROGRESS</th>
+                            <th class="px-4 py-3 text-right text-[10px] font-black text-emerald-600 uppercase tracking-widest bg-emerald-50 w-52">REALISASI (Rp)</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-slate-100">
                         @forelse($koreksiRows as $row)
                         @php
-                            $hasReal  = $row->realisasi !== null && $row->realisasi > 0;
-                            $pctRow   = ($row->nilai_komitmen > 0 && $row->realisasi > 0)
-                                ? ($row->realisasi / $row->nilai_komitmen) * 100 : 0;
-                            $barColor  = $pctRow >= 100 ? '#16a34a' : ($pctRow >= 50 ? '#eab308' : '#ef4444');
-                            $textColor = $pctRow >= 100 ? '#16a34a' : ($pctRow >= 50 ? '#ca8a04' : '#ef4444');
+                            $isDone  = ($row->progress ?? '') === 'done';
+                            $hasReal = $row->realisasi !== null && $row->realisasi > 0;
                         @endphp
-                        <tr class="hover:bg-slate-50 transition-colors koreksi-row"
+                        <tr class="transition-colors koreksi-row {{ $isDone ? 'bg-emerald-50/40' : 'hover:bg-slate-50' }}"
                             data-id="{{ $row->id }}"
                             data-komitmen="{{ $row->nilai_komitmen ?? 0 }}"
-                            data-realisasi="{{ $row->realisasi ?? 0 }}">
-                            <td class="px-3 py-3 text-center font-bold text-slate-500 border-r border-slate-100">{{ $row->no ?? $loop->iteration }}</td>
-                            <td class="px-4 py-3 text-slate-800 border-r border-slate-100 font-semibold">{{ $row->nama_pelanggan }}</td>
-                            <td class="px-4 py-3 text-right font-black text-slate-800 border-r border-slate-100 tabular-nums">
-                                @if($row->nilai_komitmen !== null)
-                                    {{ number_format($row->nilai_komitmen, 0, ',', '.') }}
-                                @else
-                                    <span class="text-slate-300">—</span>
-                                @endif
-                            </td>
-                            <td class="px-4 py-3 border-r border-slate-100">
-                                @if($row->nilai_komitmen > 0)
-                                <div class="flex items-center space-x-2">
-                                    <div class="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
-                                        <div class="h-2 rounded-full transition-all duration-500 realisasi-bar"
-                                            style="width: {{ min(100, $pctRow) }}%; background: {{ $barColor }};"
-                                            data-id="{{ $row->id }}"></div>
-                                    </div>
-                                    <span class="text-[10px] font-black tabular-nums realisasi-pct"
-                                        data-id="{{ $row->id }}"
-                                        style="color: {{ $textColor }}; min-width: 36px;">
-                                        {{ number_format($pctRow, 0) }}%
-                                    </span>
-                                </div>
-                                @else
-                                <span class="text-slate-300 font-bold block text-center">—</span>
-                                @endif
-                            </td>
-                            <td class="px-3 py-2.5 bg-emerald-50 border-l border-emerald-100" id="realisasi-cell-{{ $row->id }}">
+                            data-realisasi="{{ $row->realisasi ?? 0 }}"
+                            data-done="{{ $isDone ? 'true' : 'false' }}">
+
+                            {{-- NO --}}
+                            <td class="px-3 py-2.5 text-center font-bold text-slate-500 border-r border-slate-100">{{ $row->no ?? $loop->iteration }}</td>
+
+                            {{-- NAMA PELANGGAN --}}
+                            <td class="px-4 py-2.5 text-slate-700 border-r border-slate-100 font-semibold">{{ $row->nama_pelanggan }}</td>
+
+                            {{-- NILAI KOMITMEN — editable inline --}}
+                            <td class="px-3 py-2 border-r border-slate-100 bg-blue-50/60" id="komitmen-cell-{{ $row->id }}">
                                 @if(!$isReadOnly)
-                                <div class="flex items-center justify-end space-x-2">
-                                    <div class="realisasi-display font-black tabular-nums cursor-pointer transition-colors {{ $hasReal ? 'text-emerald-700 hover:text-emerald-500' : 'text-slate-300 hover:text-slate-400' }}"
-                                        id="realisasi-display-{{ $row->id }}"
-                                        onclick="startEdit({{ $row->id }}, {{ $row->nilai_komitmen ?? 0 }})"
-                                        title="Klik untuk edit">
-                                        @if($hasReal)
-                                            {{ number_format($row->realisasi, 0, ',', '.') }}
+                                <div class="flex items-center justify-end space-x-1.5">
+                                    <div class="komitmen-display font-black tabular-nums cursor-pointer transition-colors text-right
+                                        {{ $row->nilai_komitmen ? 'text-slate-800 hover:text-blue-600' : 'text-slate-300 hover:text-slate-400' }}"
+                                        id="komitmen-display-{{ $row->id }}"
+                                        onclick="startEditKomitmen({{ $row->id }})"
+                                        title="Klik untuk edit nilai komitmen">
+                                        @if($row->nilai_komitmen)
+                                            {{ number_format($row->nilai_komitmen, 0, ',', '.') }}
                                         @else
-                                            <span class="text-xs font-bold">— klik untuk isi</span>
+                                            <span class="text-xs font-medium text-slate-300">— isi</span>
                                         @endif
                                     </div>
-                                    <div class="realisasi-edit hidden items-center space-x-1" id="realisasi-edit-{{ $row->id }}">
+                                    <div class="komitmen-edit hidden items-center space-x-1" id="komitmen-edit-{{ $row->id }}">
                                         <input type="number" min="0" step="1"
-                                            id="realisasi-input-{{ $row->id }}"
-                                            value="{{ $row->realisasi > 0 ? $row->realisasi : '' }}"
+                                            id="komitmen-input-{{ $row->id }}"
+                                            value="{{ $row->nilai_komitmen > 0 ? $row->nilai_komitmen : '' }}"
                                             placeholder="0"
-                                            class="w-36 px-2 py-1 border-2 border-emerald-400 rounded-lg text-xs font-black text-slate-800 text-right focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-100 tabular-nums"
-                                            onkeydown="handleKey(event, {{ $row->id }}, {{ $row->nilai_komitmen ?? 0 }})">
-                                        <button onclick="saveRealisasi({{ $row->id }}, {{ $row->nilai_komitmen ?? 0 }})"
-                                            class="p-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors flex-shrink-0" title="Simpan (Enter)">
-                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                                            class="w-32 px-2 py-1 border-2 border-blue-400 rounded-lg text-xs font-black text-slate-800 text-right focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-100 tabular-nums"
+                                            onkeydown="handleKeyKomitmen(event, {{ $row->id }})">
+                                        <button onclick="saveKomitmen({{ $row->id }})"
+                                            class="p-1 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors flex-shrink-0" title="Simpan">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
                                             </svg>
                                         </button>
-                                        <button onclick="cancelEdit({{ $row->id }})"
-                                            class="p-1.5 bg-slate-200 hover:bg-slate-300 text-slate-600 rounded-lg transition-colors flex-shrink-0" title="Batal (Esc)">
-                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+                                        <button onclick="cancelEditKomitmen({{ $row->id }})"
+                                            class="p-1 bg-slate-200 hover:bg-slate-300 text-slate-600 rounded-md transition-colors flex-shrink-0" title="Batal">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/>
                                             </svg>
                                         </button>
                                     </div>
                                 </div>
                                 @else
-                                <div class="text-right">
-                                    @if($hasReal)
-                                        <span class="font-black text-emerald-700 tabular-nums">{{ number_format($row->realisasi, 0, ',', '.') }}</span>
-                                    @else
-                                        <span class="text-slate-300 font-bold">—</span>
-                                    @endif
+                                <div class="text-right font-black tabular-nums text-slate-800">
+                                    {{ $row->nilai_komitmen ? number_format($row->nilai_komitmen, 0, ',', '.') : '—' }}
                                 </div>
                                 @endif
+                            </td>
+
+                            {{-- PROGRESS — checkbox done / on-progress --}}
+                            <td class="px-3 py-2 text-center border-r border-slate-100
+                                {{ $isDone ? 'bg-emerald-50' : 'bg-slate-50' }}"
+                                id="progress-cell-{{ $row->id }}">
+                                @if(!$isReadOnly)
+                                <label class="inline-flex flex-col items-center gap-0.5 cursor-pointer group select-none"
+                                    title="{{ $isDone ? 'Done — klik untuk ubah ke on-progress' : 'On Progress — klik untuk centang done' }}">
+                                    <input type="checkbox" class="progress-checkbox sr-only"
+                                        data-id="{{ $row->id }}"
+                                        {{ $isDone ? 'checked' : '' }}>
+                                    <div class="w-4 h-4 rounded border-2 flex items-center justify-center transition-all duration-150
+                                        {{ $isDone
+                                            ? 'bg-emerald-500 border-emerald-500'
+                                            : 'bg-white border-slate-300 group-hover:border-emerald-400' }}">
+                                        @if($isDone)
+                                        <svg class="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3.5" d="M5 13l4 4L19 7"/>
+                                        </svg>
+                                        @endif
+                                    </div>
+                                    <span class="text-[9px] font-black uppercase tracking-wide leading-none
+                                        {{ $isDone ? 'text-emerald-600' : 'text-slate-400' }}"
+                                        id="progress-label-{{ $row->id }}">
+                                        {{ $isDone ? 'Done' : 'On Prog' }}
+                                    </span>
+                                </label>
+                                @else
+                                <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-black uppercase
+                                    {{ $isDone ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-400' }}">
+                                    @if($isDone)<svg class="w-2 h-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>@endif
+                                    {{ $isDone ? 'Done' : 'On Prog' }}
+                                </span>
+                                @endif
+                            </td>
+
+                            {{-- REALISASI — read-only --}}
+                            <td class="px-4 py-2.5 text-right {{ $isDone ? 'bg-emerald-50' : 'bg-slate-50' }}"
+                                id="realisasi-cell-{{ $row->id }}">
+                                <span class="{{ $isDone && $hasReal ? 'font-black text-emerald-700 tabular-nums' : 'font-medium text-slate-300' }}"
+                                    id="realisasi-display-{{ $row->id }}">
+                                    {{ $isDone && $hasReal ? number_format($row->realisasi, 0, ',', '.') : '—' }}
+                                </span>
                             </td>
                         </tr>
                         @empty
@@ -232,19 +251,18 @@
                         @endforelse
                     </tbody>
                     <tfoot>
-                        <tr class="border-t-2 border-slate-300 bg-slate-800">
-                            <td colspan="2" class="px-4 py-3 text-right text-xs font-black text-slate-300 uppercase tracking-widest">TOTAL</td>
-                            <td class="px-4 py-3 text-right font-black text-white tabular-nums border-l border-slate-700">
+                        <tr class="border-t-2 border-red-200 bg-slate-50">
+                            <td colspan="2" class="px-4 py-3 text-right text-xs font-black text-slate-600 uppercase tracking-widest border-r border-slate-100">TOTAL</td>
+                            <td class="px-4 py-3 text-right font-black text-blue-700 tabular-nums border-r border-slate-100 bg-blue-50" id="footer-total-komitmen">
                                 {{ number_format($totalKomitmen, 0, ',', '.') }}
                             </td>
-                            <td class="px-4 py-3 text-center border-l border-slate-700">
-                                <span class="text-xs font-black tabular-nums" id="footer-pct"
-                                    style="color: {{ $pctTotal >= 100 ? '#4ade80' : ($pctTotal >= 50 ? '#fde047' : '#fca5a5') }}">
-                                    {{ number_format($pctTotal, 1, ',', '.') }}%
+                            <td class="px-4 py-3 text-center border-r border-slate-100 bg-teal-50">
+                                <span class="text-xs font-black tabular-nums text-teal-700" id="footer-done-count">
+                                    {{ $sudahDone }}/{{ $koreksiRows->count() }} done
                                 </span>
                             </td>
-                            <td class="px-4 py-3 text-right border-l border-slate-700">
-                                <span class="font-black text-emerald-400 tabular-nums" id="footer-total-realisasi">
+                            <td class="px-4 py-3 text-right bg-emerald-50">
+                                <span class="font-black text-emerald-700 tabular-nums" id="footer-total-realisasi">
                                     {{ number_format($totalRealisasi, 0, ',', '.') }}
                                 </span>
                             </td>
@@ -259,16 +277,15 @@
             <svg class="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
-            <div class="text-xs text-blue-700 leading-relaxed">
-                <span class="font-black">Cara edit:</span>
-                Klik nilai di kolom <span class="font-black text-emerald-700">Realisasi</span> untuk mengisi atau mengubah angka.
-                Tekan <span class="font-black">Enter</span> atau ✓ untuk simpan. Tekan <span class="font-black">Escape</span> atau ✕ untuk batal.
+            <div class="text-xs text-blue-700 leading-relaxed space-y-0.5">
+                <div><span class="font-black">Kolom Progress:</span> Centang = <span class="font-black text-emerald-600">Done</span> (realisasi otomatis = nilai komitmen). Hilangkan centang = <span class="font-black text-slate-500">On Progress</span>.</div>
+                <div><span class="font-black">Kolom Nilai Komitmen:</span> Klik angka untuk mengedit. Tekan <span class="font-black">Enter</span> atau ✓ untuk simpan, <span class="font-black">Esc</span> atau ✕ untuk batal.</div>
             </div>
         </div>
         @endif
 
         {{-- ══════════════════════════════════════════════════════════════
-             TAMPILAN NON-KOREKSI (on-hand / qualified / initiate)
+             NON-KOREKSI (on-hand / qualified / initiate)
         ══════════════════════════════════════════════════════════════ --}}
         @else
 
@@ -321,7 +338,6 @@
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-slate-100">
-                        @php $typeFormatted = str_replace('-', '_', $type); @endphp
                         @foreach($dataRows as $row)
                         @php
                             $funnel      = $funnelMap->get($row->id);
@@ -335,8 +351,8 @@
                             <td class="px-3 py-2.5 whitespace-nowrap text-slate-600 border-r border-slate-100">{{ $row->cc }}</td>
                             <td class="px-4 py-2.5 text-slate-600 border-r border-slate-100">{{ $row->am }}</td>
                             <td class="px-4 py-2.5 text-slate-700 border-r border-slate-100 bg-emerald-50 font-semibold">{{ $row->mitra }}</td>
-                            <td class="px-4 py-2.5 whitespace-nowrap text-slate-600 border-r border-slate-100 text-center">{{ $row->plan_bulan_billcomp_2025 ?? '-'}}</td>
-                            <td class="px-4 py-2.5 whitespace-nowrap font-black text-slate-800 border-r border-slate-100"> {{ number_format($row->est_nilai_bc, 0, ',', '.') }} </td>
+                            <td class="px-4 py-2.5 whitespace-nowrap text-slate-600 border-r border-slate-100 text-center">{{ $row->plan_bulan_billcom_p_2025 }}</td>
+                            <td class="px-4 py-2.5 whitespace-nowrap font-black text-slate-800 border-r border-slate-100">{{ $row->est_nilai_bc }}</td>
                             {{-- F0 --}}
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-blue-50">
                                 <input type="checkbox" class="funnel-checkbox w-4 h-4 text-blue-600 rounded cursor-pointer"
@@ -417,13 +433,14 @@
                                 @if($denganMitra)<input type="checkbox" class="funnel-checkbox w-4 h-4 text-emerald-600 rounded cursor-pointer" data-field="delivery_baso" data-data-type="{{ $type }}" data-data-id="{{ $row->id }}" {{ $checked('delivery_baso') ? 'checked' : '' }}>
                                 @else<span class="text-slate-300 font-bold">—</span>@endif
                             </td>
-                            {{-- BILLING --}}
+                            {{-- BILLING COMPLETE --}}
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-indigo-50">
                                 <input type="checkbox" class="billing-checkbox w-4 h-4 text-indigo-600 rounded cursor-pointer"
                                     data-field="delivery_billing_complete" data-data-type="{{ $type }}" data-data-id="{{ $row->id }}"
                                     data-est-nilai="{{ $row->est_nilai_bc }}"
                                     {{ $checked('delivery_billing_complete') ? 'checked' : '' }}>
                             </td>
+                            {{-- NILAI BILL COMP --}}
                             <td class="px-2 py-2.5 text-center bg-violet-50 nilai-billcomp-cell" data-row-id="{{ $row->id }}">
                                 <span class="font-black text-slate-800">
                                     @php
@@ -441,7 +458,7 @@
                                     @endphp
                                 </span>
                             </td>
-                            {{-- CANCEL --}}
+                            {{-- CANCEL — class cancel-checkbox, TIDAK masuk funnel-checkbox / billing-checkbox --}}
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-red-50">
                                 <input type="checkbox" class="cancel-checkbox w-4 h-4 text-red-600 rounded cursor-pointer"
                                     data-field="cancel" data-data-type="{{ $type }}" data-data-id="{{ $row->id }}"
@@ -505,48 +522,147 @@
     const CSRF  = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
     const ROUTE = '{{ route("admin.progress.koreksi.update-realisasi", ["segment" => $segment]) }}';
 
-    const origValues = {};
+    // ── State awal per-baris ──
+    const rowState = {}; // { id: { komitmen, realisasi, done } }
     document.querySelectorAll('.koreksi-row').forEach(function (tr) {
-        origValues[tr.dataset.id] = parseFloat(tr.dataset.realisasi) || 0;
+        rowState[tr.dataset.id] = {
+            komitmen  : parseFloat(tr.dataset.komitmen)  || 0,
+            realisasi : parseFloat(tr.dataset.realisasi) || 0,
+            done      : tr.dataset.done === 'true',
+        };
     });
 
+    let totalLOP      = {{ $koreksiRows->count() }};
     let totalKomitmen = {{ $koreksiRows->sum('nilai_komitmen') }};
     let totalReal     = {{ $koreksiRows->sum('realisasi') }};
+    let doneCount     = {{ $koreksiRows->filter(fn($r) => ($r->progress ?? '') === 'done')->count() }};
 
-    window.startEdit = function (id, komitmen) {
-        document.querySelectorAll('.realisasi-edit').forEach(function (el) {
+    /* ════════════════════════════════════════════
+       PROGRESS CHECKBOX — done / on-progress
+    ════════════════════════════════════════════ */
+    document.querySelectorAll('.progress-checkbox').forEach(function (cb) {
+        cb.addEventListener('change', function () {
+            const id    = this.dataset.id;
+            const done  = this.checked;
+            const state = rowState[id];
+            if (!state) return;
+
+            // Update visual checkbox UI langsung
+            const label = this.closest('label');
+            const box   = label.querySelector('div');
+            const lbl   = document.getElementById('progress-label-' + id);
+            const cell  = document.getElementById('progress-cell-' + id);
+            const row   = document.querySelector('.koreksi-row[data-id="' + id + '"]');
+
+            if (done) {
+                box.className = 'w-5 h-5 rounded border-2 flex items-center justify-center transition-all duration-200 bg-emerald-500 border-emerald-500 shadow-sm shadow-emerald-200';
+                box.innerHTML = '<svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>';
+                lbl.textContent = 'Done';
+                lbl.className   = 'text-[10px] font-black uppercase tracking-wider text-emerald-600';
+                cell.classList.remove('bg-slate-50');
+                cell.classList.add('bg-emerald-50');
+                row.classList.remove('hover:bg-slate-50');
+                row.classList.add('bg-emerald-50');
+            } else {
+                box.className = 'w-5 h-5 rounded border-2 flex items-center justify-center transition-all duration-200 bg-white border-slate-300 group-hover:border-emerald-400';
+                box.innerHTML = '';
+                lbl.textContent = 'On Prog';
+                lbl.className   = 'text-[10px] font-black uppercase tracking-wider text-slate-400';
+                cell.classList.remove('bg-emerald-50');
+                cell.classList.add('bg-slate-50');
+                row.classList.remove('bg-emerald-50');
+                row.classList.add('hover:bg-slate-50');
+            }
+
+            // Hitung realisasi baru: done → komitmen, on-progress → 0
+            const newRealisasi = done ? state.komitmen : 0;
+            const oldRealisasi = state.realisasi;
+
+            // Tampilkan realisasi di kolom
+            const realCell    = document.getElementById('realisasi-cell-' + id);
+            const realDisplay = document.getElementById('realisasi-display-' + id);
+            if (done && newRealisasi > 0) {
+                realCell.className    = 'px-4 py-3 text-right border-l border-emerald-100 bg-emerald-50';
+                realDisplay.className = 'font-black text-emerald-700 tabular-nums';
+                realDisplay.textContent = fmt(newRealisasi);
+            } else {
+                realCell.className    = 'px-4 py-3 text-right border-l border-emerald-100 bg-slate-50';
+                realDisplay.className = 'font-bold text-slate-300';
+                realDisplay.textContent = '—';
+            }
+
+            // Update state lokal
+            state.realisasi = newRealisasi;
+            state.done      = done;
+            totalReal       = totalReal - oldRealisasi + newRealisasi;
+            doneCount       = doneCount + (done ? 1 : -1);
+            updateFooter();
+            updateSummary();
+
+            // Kirim ke server
+            fetch(ROUTE, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' },
+                body: JSON.stringify({ id: id, progress: done ? 'done' : 'on-progress', realisasi: newRealisasi }),
+            })
+            .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+            .then(function (data) {
+                if (!data.success) throw new Error(data.message || 'Gagal');
+                // Flash hijau
+                row.style.outline = '2px solid #16a34a';
+                setTimeout(function () { row.style.outline = ''; }, 1000);
+            })
+            .catch(function (err) {
+                // Rollback
+                cb.checked      = !done;
+                state.realisasi = oldRealisasi;
+                state.done      = !done;
+                totalReal       = totalReal - newRealisasi + oldRealisasi;
+                doneCount       = doneCount + (done ? -1 : 1);
+                // Kembalikan visual ke sebelumnya
+                cb.dispatchEvent(new Event('_rollback'));
+                updateFooter();
+                updateSummary();
+                alert('Gagal menyimpan progress: ' + err.message);
+            });
+        });
+    });
+
+    /* ════════════════════════════════════════════
+       NILAI KOMITMEN — editable inline
+    ════════════════════════════════════════════ */
+    window.startEditKomitmen = function (id) {
+        // Tutup edit lain yang terbuka
+        document.querySelectorAll('.komitmen-edit').forEach(function (el) {
             if (!el.classList.contains('hidden')) {
-                var otherId = el.id.replace('realisasi-edit-', '');
-                cancelEdit(parseInt(otherId));
+                cancelEditKomitmen(parseInt(el.id.replace('komitmen-edit-', '')));
             }
         });
-        var display = document.getElementById('realisasi-display-' + id);
-        var edit    = document.getElementById('realisasi-edit-' + id);
-        var input   = document.getElementById('realisasi-input-' + id);
-        display.classList.add('hidden');
+        document.getElementById('komitmen-display-' + id).classList.add('hidden');
+        var edit = document.getElementById('komitmen-edit-' + id);
         edit.classList.remove('hidden');
         edit.classList.add('flex');
+        var input = document.getElementById('komitmen-input-' + id);
         input.focus();
         input.select();
     };
 
-    window.cancelEdit = function (id) {
-        var display = document.getElementById('realisasi-display-' + id);
-        var edit    = document.getElementById('realisasi-edit-' + id);
-        var input   = document.getElementById('realisasi-input-' + id);
+    window.cancelEditKomitmen = function (id) {
+        var edit = document.getElementById('komitmen-edit-' + id);
         edit.classList.add('hidden');
         edit.classList.remove('flex');
-        display.classList.remove('hidden');
-        input.value = origValues[id] > 0 ? origValues[id] : '';
+        document.getElementById('komitmen-display-' + id).classList.remove('hidden');
+        var state = rowState[id];
+        document.getElementById('komitmen-input-' + id).value = state && state.komitmen > 0 ? state.komitmen : '';
     };
 
-    window.handleKey = function (event, id, komitmen) {
-        if (event.key === 'Enter') { event.preventDefault(); saveRealisasi(id, komitmen); }
-        else if (event.key === 'Escape') { cancelEdit(id); }
+    window.handleKeyKomitmen = function (event, id) {
+        if (event.key === 'Enter')  { event.preventDefault(); saveKomitmen(id); }
+        else if (event.key === 'Escape') { cancelEditKomitmen(id); }
     };
 
-    window.saveRealisasi = function (id, komitmen) {
-        var input    = document.getElementById('realisasi-input-' + id);
+    window.saveKomitmen = function (id) {
+        var input    = document.getElementById('komitmen-input-' + id);
         var rawValue = input.value.trim();
         var newValue = rawValue === '' ? 0 : parseFloat(rawValue);
         if (isNaN(newValue) || newValue < 0) {
@@ -555,87 +671,107 @@
             setTimeout(function () { input.classList.remove('border-red-500'); }, 1500);
             return;
         }
-        var display = document.getElementById('realisasi-display-' + id);
-        var edit    = document.getElementById('realisasi-edit-' + id);
+        var display = document.getElementById('komitmen-display-' + id);
+        var edit    = document.getElementById('komitmen-edit-' + id);
         display.innerHTML = '<span class="text-slate-400 text-xs font-bold animate-pulse">Menyimpan...</span>';
         display.classList.remove('hidden');
         edit.classList.add('hidden');
         edit.classList.remove('flex');
+
+        var state       = rowState[id];
+        var oldKomitmen = state ? state.komitmen : 0;
+
         fetch(ROUTE, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' },
-            body: JSON.stringify({ id: id, realisasi: newValue }),
+            body: JSON.stringify({ id: id, nilai_komitmen: newValue }),
         })
         .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
         .then(function (data) {
             if (!data.success) throw new Error(data.message || 'Gagal');
-            var oldValue   = origValues[id] || 0;
-            origValues[id] = newValue;
-            input.value    = newValue > 0 ? newValue : '';
-            if (newValue > 0) {
-                display.innerHTML = '<span class="font-black text-emerald-700 tabular-nums">' + fmt(newValue) + '</span>';
-            } else {
-                display.innerHTML = '<span class="text-xs font-bold text-slate-300">— klik untuk isi</span>';
+
+            // Update state komitmen
+            totalKomitmen = totalKomitmen - oldKomitmen + newValue;
+            if (state) state.komitmen = newValue;
+
+            // Jika row ini done, realisasi juga ikut berubah
+            if (state && state.done) {
+                var oldReal  = state.realisasi;
+                totalReal    = totalReal - oldReal + newValue;
+                state.realisasi = newValue;
+                var realDisp = document.getElementById('realisasi-display-' + id);
+                if (realDisp) {
+                    realDisp.textContent = newValue > 0 ? fmt(newValue) : '—';
+                    realDisp.className   = newValue > 0
+                        ? 'font-black text-emerald-700 tabular-nums'
+                        : 'font-bold text-slate-300';
+                }
+                // Simpan realisasi baru ke server juga
+                fetch(ROUTE, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' },
+                    body: JSON.stringify({ id: id, realisasi: newValue }),
+                }).catch(function(){});
             }
-            display.className = 'realisasi-display font-black tabular-nums cursor-pointer transition-colors ' +
-                (newValue > 0 ? 'text-emerald-700 hover:text-emerald-500' : 'text-slate-300 hover:text-slate-400');
-            display.setAttribute('onclick', 'startEdit(' + id + ', ' + komitmen + ')');
-            updateRowBar(id, komitmen, newValue);
-            totalReal = totalReal - oldValue + newValue;
+
+            // Update display komitmen
+            input.value = newValue > 0 ? newValue : '';
+            display.innerHTML = newValue > 0
+                ? fmt(newValue)
+                : '<span class="text-xs font-bold">— klik untuk isi</span>';
+            display.className = 'komitmen-display font-black tabular-nums cursor-pointer transition-colors ' +
+                (newValue > 0 ? 'text-slate-800 hover:text-blue-600' : 'text-slate-300 hover:text-slate-400');
+            display.setAttribute('onclick', 'startEditKomitmen(' + id + ')');
+
+            // Update total footer komitmen
+            var ftK = document.getElementById('footer-total-komitmen');
+            if (ftK) ftK.textContent = fmt(totalKomitmen);
+            var smK = document.getElementById('summary-total-komitmen');
+            if (smK) smK.textContent = fmt(totalKomitmen);
+
             updateFooter();
             updateSummary();
-            var cell = document.getElementById('realisasi-cell-' + id);
-            cell.style.background = '#d1fae5';
+
+            var cell = document.getElementById('komitmen-cell-' + id);
+            cell.style.background = '#dbeafe';
             setTimeout(function () { cell.style.background = ''; }, 1200);
         })
         .catch(function (err) {
-            console.error(err);
-            var val = origValues[id] || 0;
-            display.innerHTML = val > 0
-                ? '<span class="font-black text-emerald-700 tabular-nums">' + fmt(val) + '</span>'
-                : '<span class="text-xs font-bold text-slate-300">— klik untuk isi</span>';
-            display.className = 'realisasi-display font-black tabular-nums cursor-pointer transition-colors ' +
-                (val > 0 ? 'text-emerald-700 hover:text-emerald-500' : 'text-slate-300 hover:text-slate-400');
-            display.setAttribute('onclick', 'startEdit(' + id + ', ' + komitmen + ')');
-            var cell = document.getElementById('realisasi-cell-' + id);
+            if (state) state.komitmen = oldKomitmen;
+            display.innerHTML = oldKomitmen > 0
+                ? fmt(oldKomitmen)
+                : '<span class="text-xs font-bold">— klik untuk isi</span>';
+            display.className = 'komitmen-display font-black tabular-nums cursor-pointer transition-colors ' +
+                (oldKomitmen > 0 ? 'text-slate-800 hover:text-blue-600' : 'text-slate-300 hover:text-slate-400');
+            display.setAttribute('onclick', 'startEditKomitmen(' + id + ')');
+            var cell = document.getElementById('komitmen-cell-' + id);
             cell.style.background = '#fee2e2';
             setTimeout(function () { cell.style.background = ''; }, 1500);
             alert('Gagal menyimpan: ' + err.message);
         });
     };
 
-    function updateRowBar(id, komitmen, realisasi) {
-        var bar  = document.querySelector('.realisasi-bar[data-id="' + id + '"]');
-        var pctS = document.querySelector('.realisasi-pct[data-id="' + id + '"]');
-        if (!bar || !pctS) return;
-        var pct   = komitmen > 0 ? Math.min(100, (realisasi / komitmen) * 100) : 0;
-        var col   = pct >= 100 ? '#16a34a' : (pct >= 50 ? '#eab308' : '#ef4444');
-        var col2  = pct >= 100 ? '#16a34a' : (pct >= 50 ? '#ca8a04' : '#ef4444');
-        bar.style.width      = pct + '%';
-        bar.style.background = col;
-        pctS.textContent     = Math.round(pct) + '%';
-        pctS.style.color     = col2;
-    }
-
+    /* ════════════════════════════════════════════
+       UPDATE FOOTER & SUMMARY
+    ════════════════════════════════════════════ */
     function updateFooter() {
-        var pct = totalKomitmen > 0 ? (totalReal / totalKomitmen) * 100 : 0;
         var elR = document.getElementById('footer-total-realisasi');
-        var elP = document.getElementById('footer-pct');
+        var elD = document.getElementById('footer-done-count');
         if (elR) elR.textContent = fmt(totalReal);
-        if (elP) {
-            elP.textContent = pct.toFixed(1).replace('.', ',') + '%';
-            elP.style.color = pct >= 100 ? '#4ade80' : (pct >= 50 ? '#fde047' : '#fca5a5');
-        }
+        if (elD) elD.textContent = doneCount + '/' + totalLOP + ' done';
     }
 
     function updateSummary() {
         var sr  = document.getElementById('summary-total-realisasi');
-        var sp  = document.getElementById('summary-pct');
-        var pct = totalKomitmen > 0 ? (totalReal / totalKomitmen) * 100 : 0;
+        var sp  = document.getElementById('summary-done-pct');
+        var sd  = document.getElementById('summary-done-count');
+        var pct = totalLOP > 0 ? (doneCount / totalLOP) * 100 : 0;
         if (sr) sr.textContent = fmt(totalReal);
+        if (sd) sd.textContent = doneCount + ' dari ' + totalLOP + ' LOP done';
         if (sp) {
-            sp.textContent = pct.toFixed(1).replace('.', ',') + '%';
-            sp.className   = 'text-2xl font-black ' + (pct >= 100 ? 'text-emerald-600' : (pct >= 50 ? 'text-yellow-500' : 'text-red-500'));
+            sp.textContent = Math.round(pct) + '%';
+            sp.className   = 'text-2xl font-black ' +
+                (pct >= 100 ? 'text-emerald-600' : (pct > 0 ? 'text-yellow-500' : 'text-red-500'));
         }
     }
 
@@ -658,86 +794,92 @@ document.addEventListener('DOMContentLoaded', function () {
         return Math.round(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
     }
 
+    // ── Disable/enable hanya funnel + billing. Cancel TIDAK disentuh. ──
     function setRowDisabled(row, disabled) {
         row.querySelectorAll('.funnel-checkbox, .billing-checkbox').forEach(cb => {
             cb.disabled = disabled;
-            if (disabled) { cb.classList.add('opacity-40', 'cursor-not-allowed'); cb.classList.remove('cursor-pointer'); }
-            else { cb.classList.remove('opacity-40', 'cursor-not-allowed'); cb.classList.add('cursor-pointer'); }
+            if (disabled) {
+                cb.classList.add('opacity-40', 'cursor-not-allowed');
+                cb.classList.remove('cursor-pointer');
+            } else {
+                cb.classList.remove('opacity-40', 'cursor-not-allowed');
+                cb.classList.add('cursor-pointer');
+            }
         });
-        if (disabled) { row.classList.add('bg-red-50', 'opacity-70'); row.classList.remove('hover:bg-slate-50'); }
-        else { row.classList.remove('bg-red-50', 'opacity-70'); row.classList.add('hover:bg-slate-50'); }
+        if (disabled) {
+            row.classList.add('bg-red-50', 'opacity-70');
+            row.classList.remove('hover:bg-slate-50');
+        } else {
+            row.classList.remove('bg-red-50', 'opacity-70');
+            row.classList.add('hover:bg-slate-50');
+        }
     }
 
+    // Init state dari data-cancelled
     document.querySelectorAll('tr[data-cancelled="true"]').forEach(row => setRowDisabled(row, true));
 
+    // ── RECALC TOTAL NILAI BILLCOMP ──
     function recalcTotal() {
-    let total = 0;
-    document.querySelectorAll('tbody tr').forEach(function(tr) {
-        // Skip row yang cancelled
-        if (tr.dataset.cancelled === 'true') return;
-
-        // Cek billing checkbox
-        const billingCb = tr.querySelector('.billing-checkbox');
-        if (!billingCb || !billingCb.checked) return;
-
-        // Ambil nilai dari data-est-nilai di billing checkbox
-        const estNilai = parseFloat(billingCb.dataset.estNilai || '0');
-        if (!isNaN(estNilai) && estNilai > 0) total += estNilai;
-    });
-
-    const tc = document.getElementById('total-nilai-billcomp');
-    if (tc) {
-        const span = tc.querySelector('span');
-        if (span) span.textContent = Math.round(total).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-    }
-}
-
-document.querySelectorAll('.cancel-checkbox').forEach(checkbox => {
-    checkbox.addEventListener('change', function () {
-        const self      = this;
-        const rowId     = this.dataset.dataId;
-        const cancelled = this.checked;
-        const row       = this.closest('tr');
-
-        setRowDisabled(row, cancelled);
-        row.dataset.cancelled = cancelled ? 'true' : 'false';
-
-        if (cancelled) {
-            const billingCb = row.querySelector('.billing-checkbox');
-            if (billingCb) billingCb.checked = false;
-            const nilaiCell = row.querySelector('.nilai-billcomp-cell');
-            if (nilaiCell) nilaiCell.innerHTML = '<span class="text-slate-300">—</span>';
+        let total = 0;
+        document.querySelectorAll('tbody tr').forEach(function (tr) {
+            if (tr.dataset.cancelled === 'true') return;
+            const bc = tr.querySelector('.billing-checkbox');
+            if (!bc || !bc.checked) return;
+            total += parseFloat(bc.dataset.estNilai || '0');
+        });
+        const tc = document.getElementById('total-nilai-billcomp');
+        if (tc) {
+            const span = tc.querySelector('span');
+            if (span) span.textContent = Math.round(total).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
         }
+    }
 
-        recalcTotal();
+    // ── CANCEL CHECKBOX ──
+    document.querySelectorAll('.cancel-checkbox').forEach(checkbox => {
+        checkbox.addEventListener('change', function () {
+            const self      = this;
+            const rowId     = this.dataset.dataId;
+            const cancelled = this.checked;
+            const row       = this.closest('tr');
 
-        fetch(updateUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
-            body: JSON.stringify({ data_type: '{{ $type }}', data_id: rowId, field: 'cancel', value: cancelled })
-        })
-        .then(r => r.json())
-        .then(data => {
-            if (!data.success) {
+            setRowDisabled(row, cancelled);
+            row.dataset.cancelled = cancelled ? 'true' : 'false';
+
+            if (cancelled) {
+                const billingCb = row.querySelector('.billing-checkbox');
+                if (billingCb) billingCb.checked = false;
+                const nilaiCell = row.querySelector('.nilai-billcomp-cell');
+                if (nilaiCell) nilaiCell.innerHTML = '<span class="text-slate-300">—</span>';
+            }
+
+            recalcTotal();
+
+            fetch(updateUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
+                body: JSON.stringify({ data_type: '{{ $type }}', data_id: rowId, field: 'cancel', value: cancelled })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (!data.success) {
+                    self.checked = !cancelled;
+                    setRowDisabled(row, !cancelled);
+                    row.dataset.cancelled = (!cancelled) ? 'true' : 'false';
+                    recalcTotal();
+                    alert('Gagal menyimpan status cancel.');
+                }
+            })
+            .catch(() => {
                 self.checked = !cancelled;
                 setRowDisabled(row, !cancelled);
                 row.dataset.cancelled = (!cancelled) ? 'true' : 'false';
-                if (!cancelled) {
-                    recalcTotal();
-                }
-                alert('Gagal menyimpan status cancel.');
-            }
-        })
-        .catch(() => {
-            self.checked = !cancelled;
-            setRowDisabled(row, !cancelled);
-            row.dataset.cancelled = (!cancelled) ? 'true' : 'false';
-            recalcTotal();
-            alert('Error menyimpan status cancel.');
+                recalcTotal();
+                alert('Error menyimpan status cancel.');
+            });
         });
     });
-});
 
+    // ── FUNNEL CHECKBOXES ──
     document.querySelectorAll('.funnel-checkbox').forEach(checkbox => {
         checkbox.addEventListener('change', function () {
             const row = this.closest('tr');
@@ -748,15 +890,20 @@ document.querySelectorAll('.cancel-checkbox').forEach(checkbox => {
         });
     });
 
+    // ── BILLING CHECKBOXES ──
     document.querySelectorAll('.billing-checkbox').forEach(checkbox => {
         checkbox.addEventListener('change', function () {
             const row = this.closest('tr');
             if (row && row.dataset.cancelled === 'true') { this.checked = !this.checked; return; }
             this.parentElement.classList.add('bg-yellow-100');
             saveChange(this.dataset.dataId, this.dataset.dataType, this.dataset.field, this.checked, this.dataset.estNilai || '0', this.parentElement);
+            // Cascade backward dari billing juga (tanpa cancel)
+            if (this.checked) cascadeBackwards(this);
         });
     });
 
+    // ── CASCADE BACKWARDS ──
+    // Hanya menyentuh .funnel-checkbox dan .billing-checkbox — cancel TIDAK masuk selector ini
     function cascadeBackwards(changedCb) {
         const row = changedCb.closest('tr');
         if (!row) return;
@@ -765,13 +912,20 @@ document.querySelectorAll('.cancel-checkbox').forEach(checkbox => {
         if (idx === -1) return;
         if (!boxes.slice(idx + 1).some(cb => cb.checked)) return;
         boxes.slice(0, idx).forEach(cb => {
-            if (!cb.checked) { cb.checked = true; saveChange(cb.dataset.dataId, cb.dataset.dataType, cb.dataset.field, true, null, cb.parentElement); }
+            // Guard eksplisit: field cancel tidak boleh disentuh
+            if (cb.dataset.field === 'cancel') return;
+            if (!cb.checked) {
+                cb.checked = true;
+                saveChange(cb.dataset.dataId, cb.dataset.dataType, cb.dataset.field, true, null, cb.parentElement);
+            }
         });
     }
 
+    // ── SAVE CHANGE ──
     function saveChange(rowId, dataType, field, value, estNilaiBc, container) {
         const payload = { data_type: dataType, data_id: rowId, field, value };
         if (field === 'delivery_billing_complete') payload.est_nilai_bc = estNilaiBc || '0';
+
         fetch(updateUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
@@ -783,6 +937,7 @@ document.querySelectorAll('.cancel-checkbox').forEach(checkbox => {
                 container.classList.remove('bg-yellow-100');
                 container.classList.add('bg-green-50');
                 setTimeout(() => container.classList.remove('bg-green-50'), 1500);
+
                 if (field === 'delivery_billing_complete') {
                     const row = container.closest('tr');
                     const nilaiCell = row?.querySelector('.nilai-billcomp-cell');
@@ -792,22 +947,30 @@ document.querySelectorAll('.cancel-checkbox').forEach(checkbox => {
                             : '<span class="text-slate-300">—</span>';
                     }
                 }
+
                 if (data.total) {
                     const tc = document.getElementById('total-nilai-billcomp');
                     if (tc) tc.querySelector('span').textContent = data.total;
                 }
-                if (data.auto_fields?.length) {
+
+                // auto_fields: JANGAN pernah menyentuh field 'cancel'
+                if (data.auto_fields && data.auto_fields.length) {
                     const fields    = Array.isArray(data.auto_fields) ? data.auto_fields : [data.auto_fields];
                     const targetVal = data.auto_value === true || data.auto_value === 'true';
                     const row       = container.closest('tr');
                     const fi        = row?.querySelector('input[data-data-id]');
-                    fields.forEach(fld => {
-                        const sib = document.querySelector(`.funnel-checkbox[data-field="${fld}"][data-data-id="${fi?.dataset.dataId}"][data-data-type="${fi?.dataset.dataType}"]`);
-                        if (sib && sib.checked !== targetVal) {
-                            sib.checked = targetVal;
-                            saveChange(fi.dataset.dataId, fi.dataset.dataType, fld, targetVal, null, sib.parentElement);
-                        }
-                    });
+                    if (fi) {
+                        fields.forEach(fld => {
+                            if (fld === 'cancel') return; // ← KUNCI: cancel tidak boleh disentuh auto_fields
+                            const sib = document.querySelector(
+                                `.funnel-checkbox[data-field="${fld}"][data-data-id="${fi.dataset.dataId}"][data-data-type="${fi.dataset.dataType}"]`
+                            );
+                            if (sib && sib.checked !== targetVal) {
+                                sib.checked = targetVal;
+                                saveChange(fi.dataset.dataId, fi.dataset.dataType, fld, targetVal, null, sib.parentElement);
+                            }
+                        });
+                    }
                 }
             } else {
                 container.classList.remove('bg-yellow-100');

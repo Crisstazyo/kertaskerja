@@ -360,7 +360,7 @@
                             <td class="px-2 py-2.5 text-center bg-violet-50 nilai-billcomp-cell" data-row-id="{{ $row->id }}">
                                 <span class="font-black text-slate-800">
                                     @php
-                                        $todayProgress = $funnel ? $funnel->todayProgress : null;
+                                        $todayProgress = $funnel ? $funnel : null;
                                         $masterChecked  = $master && $master->delivery_billing_complete;
                                         if (($todayProgress && $todayProgress->delivery_billing_complete) || $masterChecked) {
                                             $nilaiToShow = $todayProgress->delivery_nilai_billcomp ?? ($masterChecked ? $master->delivery_nilai_billcomp : null);
