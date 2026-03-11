@@ -46,9 +46,11 @@ class ReportController extends Controller
 
         $c3mrKomitmen  = $latestVal('C3MR', 'commitment');
         $c3mrRealisasi = $latestVal('C3MR', 'real_ratio');
+        $c3mrUpdatedAt = Collection::where('type','C3MR')->tap($filterPeriode)->orderBy('created_at','desc')->first()?->updated_at?->translatedFormat('d M Y H:i') ?? '-';
 
         $bilperKomitmen  = $latestVal('Billing Perdana', 'commitment');
         $bilperRealisasi = $latestVal('Billing Perdana', 'real_ratio');
+        $bilperUpdatedAt = Collection::where('type','Billing Perdana')->tap($filterPeriode)->orderBy('created_at','desc')->first()?->updated_at?->translatedFormat('d M Y H:i') ?? '-';
 
         $crData = [];
         $segmentMap = [
@@ -57,11 +59,13 @@ class ReportController extends Controller
             'SME'     => 'SME',
             'SOE'     => 'SOE',
         ];
+        $crUpdatedAt = [];
         foreach ($segmentMap as $key => $dbSegment) {
             $crData[$key] = [
                 'komitmen'  => $latestVal('Collection Ratio', 'commitment', $dbSegment),
                 'realisasi' => $latestVal('Collection Ratio', 'real_ratio', $dbSegment),
             ];
+            $crUpdatedAt[$key] = Collection::where('type','Collection Ratio')->where('segment',$dbSegment)->tap($filterPeriode)->orderBy('created_at','desc')->first()?->updated_at?->translatedFormat('d M Y H:i') ?? '-';
         }
 
         // UTIP Corrective — ambil record terbaru dalam periode filter
@@ -75,6 +79,7 @@ class ReportController extends Controller
             'planRp'   => $utipCorRow ? $toFloat($utipCorRow->plan)       : 0,
             'commitRp' => $utipCorRow ? $toFloat($utipCorRow->commitment) : 0,
             'realRp'   => $utipCorRow ? $toFloat($utipCorRow->real_ratio) : 0,
+            'updated_at' => $utipCorRow?->updated_at?->translatedFormat('d M Y H:i') ?? '-',
         ];
 
         $periodes = [
@@ -114,6 +119,7 @@ class ReportController extends Controller
                     'planRp'   => $row ? $toFloat($row->plan)       : 0,
                     'commitRp' => $row ? $toFloat($row->commitment) : 0,
                     'realRp'   => $row ? $toFloat($row->real_ratio) : 0,
+                    'updated_at' => $row?->updated_at?->translatedFormat('d M Y H:i') ?? '-',
                 ];
             }
         }
@@ -151,6 +157,7 @@ class ReportController extends Controller
                 'commit' => $commit,
                 'real'   => $real,
                 'ach'    => $commit == 0 ? '-' : number_format(($real / $commit) * 100, 1) . '%',
+                'updated_at' => $row?->updated_at?->translatedFormat('d M Y H:i') ?? '-',
             ];
         }
 
@@ -172,13 +179,19 @@ class ReportController extends Controller
             } else {
                 $ach = $commit == 0 ? '-' : number_format(($real / $commit) * 100, 1) . '%';
             }
-            $ctcData[$seg] = ['commit' => $commit, 'real' => $real, 'ach' => $ach];
+            $ctcData[$seg] = [
+                'commit'     => $commit,
+                'real'       => $real,
+                'ach'        => $ach,
+                'updated_at' => $row?->updated_at?->translatedFormat('d M Y H:i') ?? '-',
+            ];
         }
 
         $lossRateDenom = $ctcData['Sales HSI (all)']['real'] + $ctcData['Winback']['real'];
         $lossRateReal  = $lossRateDenom == 0 ? '-'
             : number_format((($ctcCt0Real + $ctcData['Churn']['real']) / $lossRateDenom) * 100, 1) . '%';
         $lossRateAch   = $lossRateReal;
+        $lossRateUpdatedAt = '-';
 
         $filterPeriodeRs = function ($q) use ($filtered, $filterBulan, $filterTahun) {
             if ($filtered && $filterBulan) $q->whereMonth('periode', $filterBulan);
@@ -207,6 +220,7 @@ class ReportController extends Controller
                 'commit' => $commit,
                 'real'   => $real,
                 'ratio'  => $ratio,
+                'updated_at' => $row?->updated_at?->translatedFormat('d M Y H:i') ?? '-',
             ];
         }
         $b1Score = $b1AchCount == 0 ? '-' : number_format($b1AchSum / $b1AchCount, 1) . '%';
@@ -226,6 +240,7 @@ class ReportController extends Controller
                 'commit' => $commit,
                 'real'   => $real,
                 'ratio'  => $ratio,
+                'updated_at' => $row?->updated_at?->translatedFormat('d M Y H:i') ?? '-',
             ];
         }
         $b2Score = $b2AchCount == 0 ? '-' : number_format($b2AchSum / $b2AchCount, 1) . '%';
@@ -234,6 +249,7 @@ class ReportController extends Controller
         $b3Commit = $b3Row ? $toFloat($b3Row->commitment) : 0;
         $b3Real   = $b3Row ? $toFloat($b3Row->real_ratio) : 0;
         $b3Score  = $b3Commit > 0 ? number_format($b3Real, 1) . '%' : '-';
+        $b3UpdatedAt = $b3Row?->updated_at?->translatedFormat('d M Y H:i') ?? '-';
 
         $b4Row7    = $rsLatest(7);
         $b4Row8    = $rsLatest(8);
@@ -243,6 +259,7 @@ class ReportController extends Controller
         $b4Real8   = $b4Row8 ? $toFloat($b4Row8->real_ratio) : 0;
         $b4RpMillion = (0.30 * $b4Real7) + (0.70 * $b4Real8);
         $b4Score = number_format($b4RpMillion, 1) . '%';
+        $b4UpdatedAt = $b4Row7?->updated_at?->translatedFormat('d M Y H:i') ?? ($b4Row8?->updated_at?->translatedFormat('d M Y H:i') ?? '-');
 
         $filterPeriodePsak = function ($q) use ($filtered, $filterBulan, $filterTahun) {
             if ($filtered && $filterBulan) $q->whereMonth('periode', $filterBulan);
@@ -294,6 +311,7 @@ class ReportController extends Controller
                     'realSsl' => $realSsl,
                     'realRp'  => $realRp,
                     'ach'     => $ach,
+                    'updated_at' => $row?->updated_at?->translatedFormat('d M Y H:i') ?? '-',
                 ];
             }
 
@@ -357,9 +375,9 @@ class ReportController extends Controller
                         $koreksiRows = \App\Models\Koreksi::where('imports_log_id', $import->id)->get();
 
                         $commitAmount = $koreksiRows->count();
-                        $commitRp     = (float) $koreksiRows->sum('nilai_komitmen');
+                        $commitRp     = (float) $koreksiRows->sum('nilai_komitmen') / 1000000;
                         $realAmount   = $koreksiRows->whereNotNull('realisasi')->where('realisasi', '>', 0)->count();
-                        $realRp       = (float) $koreksiRows->sum('realisasi');
+                        $realRp       = (float) $koreksiRows->sum('realisasi') / 1000000;
                     }
 
                 } else {
@@ -377,13 +395,24 @@ class ReportController extends Controller
                         $dataRows = ScallingData::where('imports_log_id', $import->id)->get();
 
                         $commitAmount = $dateRows->count();
-                        $commitRp     = (float) $dateRows->sum('est_nilai_bc');
+                        $commitRp     = (float) $dateRows->sum('est_nilai_bc') / 1000000;
 
                         $dataIds  = $dataRows->pluck('id');
                         $funnels  = FunnelTracking::whereIn('data_id', $dataIds)->get();
                         $realAmount = $funnels->where('delivery_billing_complete', true)->count();
-                        $realRp     = (float) $funnels->sum('delivery_nilai_billcomp');
+                        $realRp     = (float) $funnels->sum('delivery_nilai_billcomp') / 1000000;
                     }
+                }
+
+                $funnelUpdatedAt = '-';
+                if ($import && $type !== 'koreksi') {
+                    $dataIds = ScallingData::where('imports_log_id', $import->id)->pluck('id');
+                    $latestFunnel = FunnelTracking::whereIn('data_id', $dataIds)
+                        ->orderBy('updated_at', 'desc')
+                        ->first();
+                    $funnelUpdatedAt = $latestFunnel?->updated_at?->translatedFormat('d M Y H:i') ?? '-';
+                } elseif ($import && $type === 'koreksi') {
+                    $funnelUpdatedAt = $import?->updated_at?->translatedFormat('d M Y H:i') ?? '-';
                 }
 
                 $scallingData[$segKey][$type] = [
@@ -392,6 +421,7 @@ class ReportController extends Controller
                     'commit_rp'     => $commitRp,
                     'real_amount'   => $realAmount,
                     'real_rp'       => $realRp,
+                    'updated_at'    => $funnelUpdatedAt,
                 ];
             }
         }
@@ -405,6 +435,7 @@ class ReportController extends Controller
         $hsiData = [
             'commit_amount' => (float) ($hsiAgencyRow->commitment ?? 0),
             'real_amount'   => (float) ($hsiAgencyRow->real_ratio ?? 0),
+            'updated_at'    => $hsiAgencyRow?->updated_at?->translatedFormat('d M Y H:i') ?? '-',
         ];
 
         $teldaRegions = [
@@ -431,6 +462,7 @@ class ReportController extends Controller
                 'label'     => $regionLabel,
                 'commit_rp' => $record ? (float) $record->commitment : null,
                 'real_rp'   => $record ? (float) $record->real_ratio : null,
+                'updated_at' => $record?->updated_at?->translatedFormat('d M Y H:i') ?? '-',
             ];
         }
 
@@ -443,25 +475,26 @@ class ReportController extends Controller
         $upsellingData = [
             'commit_rp' => (float) ($upsellingRow->commitment ?? 0),
             'real_rp'   => (float) ($upsellingRow->real_ratio ?? 0),
+            'updated_at' => $upsellingRow?->updated_at?->translatedFormat('d M Y H:i') ?? '-',
         ];
 
         return view('report.report', compact(
             'filtered', 'filterBulan', 'filterTahun',
-            'c3mrKomitmen', 'c3mrRealisasi',
-            'bilperKomitmen', 'bilperRealisasi',
-            'crData',
+            'c3mrKomitmen', 'c3mrRealisasi', 'c3mrUpdatedAt',
+            'bilperKomitmen', 'bilperRealisasi', 'bilperUpdatedAt',
+            'crData', 'crUpdatedAt',
             'utipCorrective',
             'newUtipPeriodes',
             'ct0Data', 'ct0Score', 'ct0TotalCommit', 'ct0TotalReal',
             'ctcCt0Real', 'ctcData', 'lossRateReal', 'lossRateAch',
             'b1Data', 'b1Score',
             'b2Data', 'b2Score',
-            'b3Commit', 'b3Real', 'b3Score',
-            'b4Commit7', 'b4Real7', 'b4Commit8', 'b4Real8', 'b4RpMillion', 'b4Score',
+            'b3Commit', 'b3Real', 'b3Score', 'b3UpdatedAt',
+            'b4Commit7', 'b4Real7', 'b4Commit8', 'b4Real8', 'b4RpMillion', 'b4Score', 'b4UpdatedAt',
             'psakData',
             'scallingSegments', 'scallingTypes', 'scallingData',
             'hsiData', 'teldaData', 'teldaRegions', 'upsellingData',
-            'scalingPeriodeYm'
+            'scalingPeriodeYm', 'lossRateUpdatedAt'
         ));
     }
 
