@@ -395,20 +395,25 @@ class GovController extends Controller
             'data_id'   => $request->data_id,
         ]);
 
-        $autoFields         = [];
+        $autoFields = [];
         $funnel->{$request->field} = $value;
 
         if ($request->field === 'delivery_billing_complete') {
             $funnel->delivery_nilai_billcomp = $value && is_numeric($rawEst) ? (float) $rawEst : null;
 
             $autoFields = collect($funnel->getCasts())
-            ->filter(fn($c, $k) => $c === 'boolean' && $k !== 'delivery_billing_complete' && $k !== 'cancel')
-            ->keys()
-            ->toArray();
+                ->filter(fn($c, $k) => $c === 'boolean' && $k !== 'delivery_billing_complete' && $k !== 'cancel')
+                ->keys()
+                ->toArray();
 
             foreach ($autoFields as $fld) {
                 $funnel->{$fld} = $value;
             }
+        }
+
+        if ($request->field === 'cancel' && $value === true) {
+            $funnel->delivery_billing_complete = 0;
+            $funnel->delivery_nilai_billcomp   = null;
         }
 
         $funnel->save();
@@ -429,6 +434,12 @@ class GovController extends Controller
             }
         }
 
+        // ← TAMBAHAN: jika cancel di-set true, reset billing complete dan nilainya
+        if ($request->field === 'cancel' && $value === true) {
+            $taskProgress->delivery_billing_complete = 0;
+            $taskProgress->delivery_nilai_billcomp   = null;
+        }
+
         $taskProgress->save();
 
         $dataId   = $request->data_id;
@@ -443,6 +454,7 @@ class GovController extends Controller
 
         $total = \App\Models\FunnelTracking::whereIn('data_id', $dataIdsInPeriode)
             ->where('delivery_billing_complete', true)
+            ->where('cancel', false)
             ->whereNotNull('delivery_nilai_billcomp')
             ->sum('delivery_nilai_billcomp');
 

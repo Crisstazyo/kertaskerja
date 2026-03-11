@@ -335,8 +335,8 @@
                             <td class="px-3 py-2.5 whitespace-nowrap text-slate-600 border-r border-slate-100">{{ $row->cc }}</td>
                             <td class="px-4 py-2.5 text-slate-600 border-r border-slate-100">{{ $row->am }}</td>
                             <td class="px-4 py-2.5 text-slate-700 border-r border-slate-100 bg-emerald-50 font-semibold">{{ $row->mitra }}</td>
-                            <td class="px-4 py-2.5 whitespace-nowrap text-slate-600 border-r border-slate-100 text-center">{{ $row->plan_bulan_billcom_p_2025 }}</td>
-                            <td class="px-4 py-2.5 whitespace-nowrap font-black text-slate-800 border-r border-slate-100">{{ $row->est_nilai_bc }}</td>
+                            <td class="px-4 py-2.5 whitespace-nowrap text-slate-600 border-r border-slate-100 text-center">{{ $row->plan_bulan_billcomp_2025 ?? '-'}}</td>
+                            <td class="px-4 py-2.5 whitespace-nowrap font-black text-slate-800 border-r border-slate-100"> {{ number_format($row->est_nilai_bc, 0, ',', '.') }} </td>
                             {{-- F0 --}}
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-blue-50">
                                 <input type="checkbox" class="funnel-checkbox w-4 h-4 text-blue-600 rounded cursor-pointer"
@@ -670,35 +670,73 @@ document.addEventListener('DOMContentLoaded', function () {
 
     document.querySelectorAll('tr[data-cancelled="true"]').forEach(row => setRowDisabled(row, true));
 
-    document.querySelectorAll('.cancel-checkbox').forEach(checkbox => {
-        checkbox.addEventListener('change', function () {
-            const rowId    = this.dataset.dataId;
-            const cancelled = this.checked;
-            const row      = this.closest('tr');
-            setRowDisabled(row, cancelled);
-            row.dataset.cancelled = cancelled ? 'true' : 'false';
-            fetch(updateUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
-                body: JSON.stringify({ data_type: '{{ $type }}', data_id: rowId, field: 'cancel', value: cancelled })
-            })
-            .then(r => r.json())
-            .then(data => {
-                if (!data.success) {
-                    this.checked = !cancelled;
-                    setRowDisabled(row, !cancelled);
-                    row.dataset.cancelled = (!cancelled) ? 'true' : 'false';
-                    alert('Gagal menyimpan status cancel.');
-                }
-            })
-            .catch(() => {
-                this.checked = !cancelled;
+    function recalcTotal() {
+    let total = 0;
+    document.querySelectorAll('tbody tr').forEach(function(tr) {
+        // Skip row yang cancelled
+        if (tr.dataset.cancelled === 'true') return;
+
+        // Cek billing checkbox
+        const billingCb = tr.querySelector('.billing-checkbox');
+        if (!billingCb || !billingCb.checked) return;
+
+        // Ambil nilai dari data-est-nilai di billing checkbox
+        const estNilai = parseFloat(billingCb.dataset.estNilai || '0');
+        if (!isNaN(estNilai) && estNilai > 0) total += estNilai;
+    });
+
+    const tc = document.getElementById('total-nilai-billcomp');
+    if (tc) {
+        const span = tc.querySelector('span');
+        if (span) span.textContent = Math.round(total).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    }
+}
+
+document.querySelectorAll('.cancel-checkbox').forEach(checkbox => {
+    checkbox.addEventListener('change', function () {
+        const self      = this;
+        const rowId     = this.dataset.dataId;
+        const cancelled = this.checked;
+        const row       = this.closest('tr');
+
+        setRowDisabled(row, cancelled);
+        row.dataset.cancelled = cancelled ? 'true' : 'false';
+
+        if (cancelled) {
+            const billingCb = row.querySelector('.billing-checkbox');
+            if (billingCb) billingCb.checked = false;
+            const nilaiCell = row.querySelector('.nilai-billcomp-cell');
+            if (nilaiCell) nilaiCell.innerHTML = '<span class="text-slate-300">—</span>';
+        }
+
+        recalcTotal();
+
+        fetch(updateUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
+            body: JSON.stringify({ data_type: '{{ $type }}', data_id: rowId, field: 'cancel', value: cancelled })
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (!data.success) {
+                self.checked = !cancelled;
                 setRowDisabled(row, !cancelled);
                 row.dataset.cancelled = (!cancelled) ? 'true' : 'false';
-                alert('Error menyimpan status cancel.');
-            });
+                if (!cancelled) {
+                    recalcTotal();
+                }
+                alert('Gagal menyimpan status cancel.');
+            }
+        })
+        .catch(() => {
+            self.checked = !cancelled;
+            setRowDisabled(row, !cancelled);
+            row.dataset.cancelled = (!cancelled) ? 'true' : 'false';
+            recalcTotal();
+            alert('Error menyimpan status cancel.');
         });
     });
+});
 
     document.querySelectorAll('.funnel-checkbox').forEach(checkbox => {
         checkbox.addEventListener('change', function () {

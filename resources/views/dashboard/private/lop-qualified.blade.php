@@ -99,7 +99,7 @@
                 @endif
                 <span class="text-[10px] font-black tracking-widest text-orange-700 bg-orange-50 border border-orange-200 rounded-md px-3 py-1 uppercase">QUALIFIED</span>
                 <span class="text-[10px] font-black tracking-widest text-slate-500 bg-white border border-slate-200 rounded-md px-3 py-1 uppercase shadow-sm">PRIVATE</span>
-                
+
                 @if($isReadOnly)
                 <span class="text-[12px] font-black tracking-widest text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-3 py-1 uppercase">
                     🔒 Locked
@@ -189,7 +189,7 @@
                             <td class="px-4 py-2.5 text-slate-600 border-r border-slate-100">{{ $row->am }}</td>
                             <td class="px-4 py-2.5 text-slate-700 border-r border-slate-100 bg-emerald-50 font-semibold">{{ $row->mitra }}</td>
                             <td class="px-4 py-2.5 whitespace-nowrap text-slate-600 border-r border-slate-100 text-center">{{ $row->plan_bulan_billcomp_2025 }}</td>
-                            <td class="px-4 py-2.5 whitespace-nowrap font-black text-slate-800 border-r border-slate-100">{{ $row->est_nilai_bc }}</td>
+                            <td class="px-4 py-2.5 whitespace-nowrap font-black text-slate-800 border-r border-slate-100">{{ number_format($row->est_nilai_bc, 0, ',', '.') }}</td>
 
                             {{-- F0 --}}
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-blue-50">
@@ -668,15 +668,29 @@ document.addEventListener('DOMContentLoaded', function() {
     // ══ HANDLER CANCEL CHECKBOX ══
     document.querySelectorAll('.cancel-checkbox').forEach(checkbox => {
         checkbox.addEventListener('change', function() {
+            const self = this;
             const rowId = this.dataset.dataId;
             const cancelled = this.checked;
             const row = this.closest('tr');
 
-            // Langsung apply di frontend
-            setRowDisabled(row, cancelled);
+            // 1. Uncheck billing dulu
+            if (cancelled) {
+                const billingCb = row.querySelector('.billing-checkbox');
+                if (billingCb) billingCb.checked = false;
+                const nilaiCell = row.querySelector('.nilai-billcomp-cell');
+                if (nilaiCell) nilaiCell.innerHTML = '<span class="text-slate-300">—</span>';
+            }
+
+            // 2. Set cancelled di dataset
             row.dataset.cancelled = cancelled ? 'true' : 'false';
 
-            // Simpan ke server via funnel update (cancel sudah ada di FunnelTracking)
+            // 3. Disable/enable row
+            setRowDisabled(row, cancelled);
+
+            // 4. Hitung ulang total langsung
+            recalcTotal();
+
+            // 5. Kirim ke server
             fetch('{{ route("dashboard.private.funnel.update") }}', {
                 method: 'POST',
                 headers: {
@@ -694,17 +708,26 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(r => r.json())
             .then(data => {
                 if (!data.success) {
-                    // Rollback jika gagal
-                    this.checked = !cancelled;
-                    setRowDisabled(row, !cancelled);
+                    if (cancelled) {
+                        const billingCb = row.querySelector('.billing-checkbox');
+                        if (billingCb) billingCb.checked = true;
+                    }
+                    self.checked = !cancelled;
                     row.dataset.cancelled = (!cancelled) ? 'true' : 'false';
+                    setRowDisabled(row, !cancelled);
+                    recalcTotal();
                     alert('Gagal menyimpan status cancel.');
                 }
             })
             .catch(() => {
-                this.checked = !cancelled;
-                setRowDisabled(row, !cancelled);
+                if (cancelled) {
+                    const billingCb = row.querySelector('.billing-checkbox');
+                    if (billingCb) billingCb.checked = true;
+                }
+                self.checked = !cancelled;
                 row.dataset.cancelled = (!cancelled) ? 'true' : 'false';
+                setRowDisabled(row, !cancelled);
+                recalcTotal();
                 alert('Error menyimpan status cancel.');
             });
         });
@@ -785,10 +808,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             : '<span class="text-slate-300">—</span>';
                     }
                 }
-                if (data.total) {
-                    const totalCell = document.getElementById('total-nilai-billcomp');
-                    if (totalCell) totalCell.querySelector('span').textContent = data.total;
-                }
+                recalcTotal();
                 if (data.auto_fields && data.auto_fields.length) {
                     const fields = Array.isArray(data.auto_fields) ? data.auto_fields : [data.auto_fields];
                     const targetVal = data.auto_value === true || data.auto_value === 'true';
