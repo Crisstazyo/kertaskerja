@@ -58,6 +58,14 @@
             return                    ['bg' => 'background:#000000;', 'text' => 'text-white', 'label' => number_format($ach,1,',','.') . '%'];
         }
 
+        function scalingKoreksiColor($ach) {
+            if ($ach === null) return ['bg' => '', 'text' => 'text-slate-400', 'label' => '-'];
+            if ($ach > 100) return ['bg' => 'background:#000000;', 'text' => 'text-white',      'label' => number_format($ach,1,',','.') . '%'];
+            if ($ach > 80)  return ['bg' => 'background:#ef4444;', 'text' => 'text-white',      'label' => number_format($ach,1,',','.') . '%'];
+            if ($ach > 50)  return ['bg' => 'background:#eab308;', 'text' => 'text-slate-900',  'label' => number_format($ach,1,',','.') . '%'];
+            return                 ['bg' => 'background:#16a34a;', 'text' => 'text-white',      'label' => number_format($ach,1,',','.') . '%'];
+        }
+
         $bulanNames = ['','Januari','Februari','Maret','April','Mei','Juni',
                        'Juli','Agustus','September','Oktober','November','Desember'];
 
@@ -297,7 +305,7 @@
                                 <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                                 </svg>
-                                <span>Full Report (1 File)</span>
+                                <span>Full Report</span>
                             </button>
                             <div class="border-t border-slate-100"></div>
                             <button data-export="1"
@@ -390,7 +398,7 @@
                                         $cRp      = $row['commit_rp'];
                                         $rRp      = $row['real_rp'];
                                         $achVal   = $cRp > 0 ? ($rRp / $cRp) * 100 : null;
-                                        $achC     = scalingAchColor($achVal);
+                                        $achC     = ($typeKey === 'koreksi') ? scalingKoreksiColor($achVal) : scalingAchColor($achVal);
                                         $showScore = ($typeKey === 'on-hand');
                                     @endphp
                                     <tr id="scaling-row-{{ $segKey }}-{{ $typeKey }}">
@@ -864,7 +872,7 @@
     }
     .export-page-header {
         display:flex;align-items:center;gap:16px;
-        margin-bottom:10px;padding-bottom:10px;
+        margin-bottom:4px;padding-bottom:10px;
         border-bottom:3px solid #dc2626;
     }
     .export-page-header img { height:36px; }
@@ -882,10 +890,11 @@
         margin-top:3px;text-transform:uppercase;letter-spacing:0.05em;
     }
     .export-section-badge {
-        display:inline-block;font-size:9px;font-weight:800;
+        display:block;font-size:9px;font-weight:800;
         text-transform:uppercase;letter-spacing:0.15em;
         color:#dc2626;background:#fef2f2;
-        border-left:3px solid #dc2626;padding:4px 12px;margin-bottom:10px;
+        border-left:3px solid #dc2626;padding:2px 12px 10px 12px;;
+        margin-top:6px;margin-bottom:6px;
     }
     .export-table {
         width:100%;border-collapse:collapse;
@@ -896,7 +905,7 @@
     .export-table th {
         background:#4a7795;color:white;
         padding:5px 6px;
-        border:1px solid #64748b;
+        border:1px solid rgba(255,255,255,0.4);
         text-align:center;
         font-weight:700;font-size:7.5px;
         text-transform:uppercase;
@@ -1141,26 +1150,27 @@
 
     function colgroupHtml(withNo) {
         var cols = withNo
-            ? '<col style="width:22px"><col style="width:110px"><col style="width:135px"><col style="width:30px"><col style="width:62px"><col style="width:62px"><col style="width:62px"><col style="width:62px"><col style="width:42px"><col style="width:42px"><col style="width:42px">'
-            : '<col style="width:110px"><col style="width:135px"><col style="width:30px"><col style="width:62px"><col style="width:62px"><col style="width:62px"><col style="width:62px"><col style="width:42px"><col style="width:42px"><col style="width:42px">';
+            ? '<col style="width:22px"><col style="width:105px"><col style="width:130px"><col style="width:42px"><col style="width:60px"><col style="width:60px"><col style="width:60px"><col style="width:60px"><col style="width:52px"><col style="width:42px"><col style="width:42px">'
+            : '<col style="width:105px"><col style="width:130px"><col style="width:42px"><col style="width:60px"><col style="width:60px"><col style="width:60px"><col style="width:60px"><col style="width:52px"><col style="width:42px"><col style="width:42px">';
         return '<colgroup>'+cols+'</colgroup>';
     }
 
     function colHeaderHtml(withNo) {
-        var noTh = withNo ? '<th rowspan="2" style="width:22px">No</th>' : '';
+        var thStyle = 'style="border:1px solid rgba(255,255,255,0.4);padding:2px 6px 9px 6px;background:#4a7795;color:white;font-weight:700;font-size:7.5px;text-transform:uppercase;letter-spacing:0.04em;line-height:1.3;text-align:center;"';
+        var noTh = withNo ? '<th rowspan="2" style="border:1px solid rgba(255,255,255,0.4);padding:9px 6px 2px 6px;background:#4a7795;color:white;font-weight:700;font-size:7.5px;text-transform:uppercase;width:22px;text-align:center;">No</th>' : '';
         return '<tr>'+noTh
-             + '<th rowspan="2">Unit / Scope</th>'
-             + '<th rowspan="2">Indicator</th>'
-             + '<th rowspan="2">Denom</th>'
-             + '<th colspan="2">Commitment</th>'
-             + '<th colspan="2">Real</th>'
-             + '<th rowspan="2">Fairness</th>'
-             + '<th rowspan="2">Ach</th>'
-             + '<th rowspan="2">Score</th>'
+             + '<th rowspan="2" '+thStyle+'>Unit / Scope</th>'
+             + '<th rowspan="2" '+thStyle+'>Indicator</th>'
+             + '<th rowspan="2" '+thStyle+'>Denom</th>'
+             + '<th colspan="2" '+thStyle+'>Commitment</th>'
+             + '<th colspan="2" '+thStyle+'>Real</th>'
+             + '<th rowspan="2" '+thStyle+'>Fairness</th>'
+             + '<th rowspan="2" '+thStyle+'>Ach</th>'
+             + '<th rowspan="2" '+thStyle+'>Score</th>'
              + '</tr>'
              + '<tr>'
-             + '<th>Amount</th><th>Rp (Mio)</th>'
-             + '<th>Amount</th><th>Rp (Mio)</th>'
+             + '<th '+thStyle+'>Amount</th><th '+thStyle+'>Rp (Mio)</th>'
+             + '<th '+thStyle+'>Amount</th><th '+thStyle+'>Rp (Mio)</th>'
              + '</tr>';
     }
 
@@ -1315,15 +1325,21 @@
 
     async function doExportFull() {
         showOverlay();
-        setStatus('Membangun full report...');
-        setProgress(20);
-        var wrapperEl = buildFullReportEl();
-        setProgress(45);
-        setStatus('Merender gambar...');
-        var canvas = await renderToCanvas(wrapperEl);
-        setProgress(90);
-        downloadCanvas(canvas, 'report-full-'+slugify(periodeLabel)+'.jpg');
+        for (var i = 0; i < SECTIONS.length; i++) {
+            var sec = SECTIONS[i];
+            var pct = Math.round(10 + (i / SECTIONS.length) * 80);
+            setProgress(pct);
+            setStatus('Memproses '+sec.no+'. '+sec.name+'... ('+( i+1 )+'/'+SECTIONS.length+')');
+
+            var trElements = getSectionRows(sec.keyword);
+            var pageEl     = buildSectionPageEl(sec, trElements);
+            var canvas     = await renderToCanvas(pageEl);
+            downloadCanvas(canvas, 'report-'+sec.no+'-'+slugify(sec.name)+'-'+slugify(periodeLabel)+'.jpg');
+
+            await new Promise(function(r){ setTimeout(r, 150); });
+        }
         setProgress(100);
+        setStatus('Selesai!');
         await new Promise(function(r){ setTimeout(r, 400); });
         hideOverlay();
     }

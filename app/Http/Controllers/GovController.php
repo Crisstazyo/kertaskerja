@@ -64,7 +64,7 @@ class GovController extends Controller
             ->where('periode', $currentPeriodeDate)
             ->latest()
             ->first();
-        
+
         $rows = $latestImport
         ? \App\Models\Koreksi::where('imports_log_id', $latestImport->id)->get()
         : collect();
@@ -402,9 +402,9 @@ class GovController extends Controller
             $funnel->delivery_nilai_billcomp = $value && is_numeric($rawEst) ? (float) $rawEst : null;
 
             $autoFields = collect($funnel->getCasts())
-                ->filter(fn($c, $k) => $c === 'boolean' && $k !== 'delivery_billing_complete')
-                ->keys()
-                ->toArray();
+            ->filter(fn($c, $k) => $c === 'boolean' && $k !== 'delivery_billing_complete' && $k !== 'cancel')
+            ->keys()
+            ->toArray();
 
             foreach ($autoFields as $fld) {
                 $funnel->{$fld} = $value;

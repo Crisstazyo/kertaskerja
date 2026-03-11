@@ -318,7 +318,7 @@ class SoeController extends Controller
 
             // gather all boolean fields except the billing flag itself
             $autoFields = collect($funnel->getCasts())
-                ->filter(fn($c, $k) => $c === 'boolean' && $k !== 'delivery_billing_complete')
+                ->filter(fn($c, $k) => $c === 'boolean' && $k !== 'delivery_billing_complete' && $k !== 'cancel')
                 ->keys()
                 ->toArray();
 
