@@ -357,6 +357,7 @@
                                 <th rowspan="2" class="border border-gray-300 px-2 py-2 w-14 text-center">Fairness</th>
                                 <th rowspan="2" class="border border-gray-300 px-2 py-2 w-14 text-center">Ach</th>
                                 <th rowspan="2" class="border border-gray-300 px-2 py-2 w-14 text-center">Score</th>
+                                <th rowspan="2" class="border border-gray-300 px-2 py-2 w-28 text-center no-print">Last Update</th>
                             </tr>
                             <tr class="text-center">
                                 <th class="border border-gray-300 px-2 py-1">Amount</th>
@@ -418,13 +419,13 @@
                                             {{ $row['commit_amount'] > 0 ? $row['commit_amount'] : ($cRp > 0 ? '-' : '') }}
                                         </td>
                                         <td class="border border-gray-400 px-2 text-right">
-                                            {{ $cRp > 0 ? number_format($cRp / 1000000, 3, ',', '.') : '' }}
+                                            {{ $cRp > 0 ? number_format($cRp, $cRp >= 1 ? 0 : 1, ',', '.') : '' }}
                                         </td>
                                         <td class="border border-gray-400 px-2 text-right">
                                             {{ $row['real_amount'] > 0 ? $row['real_amount'] : ($rRp > 0 ? '-' : '') }}
                                         </td>
                                         <td class="border border-gray-400 px-2 text-right">
-                                            {{ $rRp > 0 ? number_format($rRp / 1000000, 3, ',', '.') : '' }}
+                                            {{ $rRp > 0 ? number_format($rRp, $rRp >= 1 ? 0 : 1, ',', '.') : '' }}
                                         </td>
 
                                         @if($segKey === 'gov' && $isFirst)
@@ -442,6 +443,7 @@
                                         @elseif($typeKey === 'koreksi')
                                         <td class="border-t border-b border-r border-gray-400"></td>
                                         @endif
+                                        <td class="border border-gray-300 px-2 py-1 text-center text-[10px] no-print">{{ $row['updated_at'] ?? '-' }}</td>
                                     </tr>
                                 @endforeach
                             @endforeach
@@ -467,6 +469,7 @@
                                 <td colspan="2" class="border border-gray-400 text-right font-bold" style="{{ $hsiC['bg'] }}">
                                     <span class="{{ $hsiC['text'] }}">{{ $hsiC['label'] }}</span>
                                 </td>
+                                <td class="border border-gray-300 px-2 py-1 text-center text-[10px] no-print">{{ $hsiData['updated_at'] ?? '-' }}</td>
                             </tr>
 
                             @php
@@ -509,6 +512,7 @@
                                         <span class="{{ $teldaScoreC['text'] }}">{{ $teldaScoreC['label'] }}</span>
                                     </td>
                                     @endif
+                                    <td class="border border-gray-300 px-2 py-1 text-center text-[10px] no-print">{{ $region['updated_at'] ?? '-' }}</td>
                                 </tr>
                             @endforeach
 
@@ -533,6 +537,7 @@
                                 <td colspan="2" class="border border-gray-400 text-right font-bold" style="{{ $upC['bg'] }}">
                                     <span class="{{ $upC['text'] }}">{{ $upC['label'] }}</span>
                                 </td>
+                                <td class="border border-gray-300 px-2 py-1 text-center text-[10px] no-print">{{ $upsellingData['updated_at'] ?? '-' }}</td>
                             </tr>
 
                             <tr class="border-b-2 border-black font-bold">
@@ -553,6 +558,7 @@
                                 <td class="border border-gray-400"></td>
                                 <td class="border border-gray-400 text-center">{{ $fairnessC3mr }}</td>
                                 <td colspan="2" class="border border-gray-400 text-right font-bold {{ $colorC3mr }}">{{ $scoreC3mr }}</td>
+                                <td class="border border-gray-300 px-2 py-1 text-center text-[10px] no-print">{{ $c3mrUpdatedAt }}</td>
                             </tr>
 
                             <tr>
@@ -565,6 +571,7 @@
                                 <td class="border border-gray-400"></td>
                                 <td class="border border-gray-400 text-center">{{ $fairnessBilper }}</td>
                                 <td colspan="2" class="border border-gray-400 text-right font-bold {{ $colorBilper }}">{{ $scoreBilper }}</td>
+                                <td class="border border-gray-300 px-2 py-1 text-center text-[10px] no-print">{{ $bilperUpdatedAt }}</td>
                             </tr>
 
                             @foreach(['GOV', 'SME', 'PRIVATE', 'SOE'] as $si => $seg)
@@ -585,6 +592,7 @@
                                     @if($si === 0)
                                         <td rowspan="4" class="border border-gray-400 text-right font-bold align-middle {{ $colorCRTotal }}">{{ $crTotalPct }}</td>
                                     @endif
+                                    <td class="border border-gray-300 px-2 py-1 text-center text-[10px] no-print">{{ $crUpdatedAt[$seg] ?? '-' }}</td>
                                 </tr>
                             @endforeach
 
@@ -599,6 +607,7 @@
                                 <td rowspan="{{ $utipRowspan }}" class="border border-gray-400 text-center align-middle">{{ $fairnessUTIP }}</td>
                                 <td class="border border-gray-400 text-right font-bold {{ $colorAchCorrective }}">{{ $achCorrective }}</td>
                                 <td rowspan="{{ $utipRowspan }}" class="border border-gray-400 text-right font-bold align-middle {{ $colorScoreUTIP }}">{{ $scoreUTIP }}</td>
+                                <td class="border border-gray-300 px-2 py-1 text-center text-[10px] no-print">{{ $utipCorrective['updated_at'] ?? '-' }}</td>
                             </tr>
 
                             @foreach($newUtipPeriodes as $utip)
@@ -614,6 +623,7 @@
                                     <td class="border border-gray-400"></td>
                                     <td class="border border-gray-400 px-2 text-right">{{ $utip['realRp'] > 0 ? number_format($utip['realRp'], 0, ',', '.') : '' }}</td>
                                     <td class="border border-gray-400 text-right font-bold {{ $colorAchU }}">{{ $achU }}</td>
+                                    <td class="border border-gray-300 px-2 py-1 text-center text-[10px] no-print">{{ $utip['updated_at'] ?? '-' }}</td>
                                 </tr>
                             @endforeach
 
@@ -643,6 +653,7 @@
                                     @if($ri === 0)
                                         <td rowspan="{{ $ct0RowCount }}" class="border border-gray-400 text-right font-bold align-middle {{ $ct0ScoreColor }}">{{ $ct0Score }}</td>
                                     @endif
+                                    <td class="border border-gray-300 px-2 py-1 text-center text-[10px] no-print">{{ $region['updated_at'] ?? '-' }}</td>
                                 </tr>
                             @endforeach
 
@@ -656,6 +667,7 @@
                                 <td class="border border-gray-400"></td>
                                 <td class="border border-gray-400"></td>
                                 <td colspan="2" class="border border-gray-400"></td>
+                                <td class="border border-gray-300 px-2 py-1 text-center text-[10px] no-print">-</td>
                             </tr>
 
                             @foreach(['Sales HSI (all)', 'Churn', 'Winback'] as $seg)
@@ -668,6 +680,7 @@
                                     <td class="border border-gray-400"></td>
                                     <td class="border border-gray-400 text-center">{{ $fairnessCtc }}</td>
                                     <td colspan="2" class="border border-gray-400 text-right font-bold {{ $ctcData[$seg]['achColor'] }}">{{ $ctcData[$seg]['ach'] }}</td>
+                                    <td class="border border-gray-300 px-2 py-1 text-center text-[10px] no-print">{{ $ctcData[$seg]['updated_at'] ?? '-' }}</td>
                                 </tr>
                             @endforeach
 
@@ -680,6 +693,7 @@
                                 <td class="border border-gray-400"></td>
                                 <td class="border border-gray-400 text-center">{{ $fairnessLoss }}</td>
                                 <td colspan="2" class="border border-gray-400 text-right font-bold {{ $lossRateColor }}">{{ $lossRateAch }}</td>
+                                <td class="border border-gray-300 px-2 py-1 text-center text-[10px] no-print">{{ $lossRateUpdatedAt }}</td>
                             </tr>
 
                             @php $rsSectionRows = count($b1Data) + count($b2Data) + 1 + 2; @endphp
@@ -705,6 +719,7 @@
                                         <td rowspan="{{ count($b1Data) }}" class="border border-gray-400 text-center align-middle">{{ $fairnessRs }}</td>
                                         <td rowspan="{{ count($b1Data) }}" colspan="2" class="border border-gray-400 text-center font-bold align-middle {{ $b1ScoreColor }}">{{ $b1Score }}</td>
                                     @endif
+                                    <td class="border border-gray-300 px-2 py-1 text-center text-[10px] no-print">{{ $row['updated_at'] ?? '-' }}</td>
                                 </tr>
                             @endforeach
 
@@ -723,6 +738,7 @@
                                         <td rowspan="{{ count($b2Data) }}" class="border border-gray-400 text-center align-middle">{{ $fairnessRs }}</td>
                                         <td rowspan="{{ count($b2Data) }}" colspan="2" class="border border-gray-400 text-center font-bold align-middle {{ $b2ScoreColor }}">{{ $b2Score }}</td>
                                     @endif
+                                    <td class="border border-gray-300 px-2 py-1 text-center text-[10px] no-print">{{ $row['updated_at'] ?? '-' }}</td>
                                 </tr>
                             @endforeach
 
@@ -736,6 +752,7 @@
                                 <td class="border border-gray-400"></td>
                                 <td class="border border-gray-400 text-center">{{ $fairnessRs }}</td>
                                 <td colspan="2" class="border border-gray-400 text-center font-bold {{ $b3ScoreColor }}">{{ $b3Score }}</td>
+                                <td class="border border-gray-300 px-2 py-1 text-center text-[10px] no-print">{{ $b3UpdatedAt }}</td>
                             </tr>
 
                             <tr>
@@ -748,6 +765,7 @@
                                 <td rowspan="2" class="border border-gray-400 px-2 text-right align-middle">{{ $b4RpMillion > 0 ? number_format($b4RpMillion, 1) : '' }}</td>
                                 <td rowspan="2" class="border border-gray-400 text-center align-middle">{{ $fairnessB4 }}</td>
                                 <td rowspan="2" colspan="2" class="border border-gray-400 text-center font-bold align-middle {{ $b4ScoreColor }}">{{ $b4Score }}</td>
+                                <td rowspan="2" class="border border-gray-300 px-2 py-1 text-center text-slate-600 text-[10px] no-print">{{ $b4UpdatedAt }}</td>
                             </tr>
                             <tr>
                                 <td class="border border-gray-400 px-2 py-1">AOSODOMORO &gt;3 Bulan</td>
@@ -808,6 +826,7 @@
                                         @if($idx === 0)
                                             <td rowspan="{{ $indCount }}" class="border border-gray-400 text-right font-bold align-middle {{ $scoreColor }}">{{ $typeData['score'] }}</td>
                                         @endif
+                                        <td class="border border-gray-300 px-2 py-1 text-center text-[10px] no-print">{{ $ind['updated_at'] ?? '-' }}</td>
                                     </tr>
                                 @endforeach
                             @endforeach
@@ -848,6 +867,7 @@
 
 <style>
     .print-header { display: none; }
+    @media print { .no-print { display: none !important; } }
     #export-overlay {
         display:none;position:fixed;inset:0;background:rgba(0,0,0,0.65);
         z-index:9999;align-items:center;justify-content:center;flex-direction:column;gap:16px;
@@ -1087,7 +1107,9 @@
 
     // ═══ Clone tr → HTML string ═══
     function cloneTrFull(tr, skipFirstTd) {
-        var tds = Array.from(tr.querySelectorAll('td, th'));
+        var tds = Array.from(tr.querySelectorAll('td, th')).filter(function(td) {
+            return !td.classList.contains('no-print');
+        });
         if (!tds.length) return '';
         var startIdx = 0;
         if (skipFirstTd) {
