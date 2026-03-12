@@ -289,25 +289,48 @@ class GovController extends Controller
 
     // ══ AOSODOMORO 0-3 Bulan (type_id: 7) ══
 
-    public function aosodomoro03Bulan()
+    public function aosodomoro03Bulan(Request $request)
     {
         $periode = now()->format('Y-m-01');
 
         // Record milik user login di periode ini
         $existing = RisingStar::where('user_id', auth()->id())
-            ->where('type_id', 7)
+            ->where('type_id', 11)
             ->where('periode', $periode)
             ->first();
 
-        // History hanya milik user login
-        $history = RisingStar::with(['user', 'type'])
+        $query = RisingStar::with(['user', 'type'])
             ->where('user_id', auth()->id())
-            ->where('type_id', 7)
-            ->orderBy('periode', 'desc')
-            ->orderBy('updated_at', 'desc')
-            ->paginate(15);
+            ->where('type_id', 11)
+            ->orderBy('created_at', 'desc');
 
-        return view('dashboard.gov.aosodomoro-0-3-bulan', compact('history', 'existing'));
+        if ($request->filled('bulan')) {
+            $query->whereMonth('periode', $request->bulan);
+        }
+        if ($request->filled('tahun')) {
+            $query->whereYear('periode', $request->tahun);
+        }
+        if ($request->filled('cari')) {
+            $query->where(function($q) use ($request) {
+                $q->where('commitment', 'like', '%'.$request->cari.'%')
+                ->orWhere('real_ratio', 'like', '%'.$request->cari.'%');
+            });
+        }
+
+        $history = $query->paginate(20)->withQueryString();
+
+        $tahuns = RisingStar::where('user_id', auth()->id())
+            ->where('type_id', 11)
+            ->selectRaw('YEAR(periode) as tahun')
+            ->distinct()
+            ->orderBy('tahun', 'desc')
+            ->pluck('tahun');
+
+        $selectedBulan = $request->bulan;
+        $selectedTahun = $request->tahun;
+        $selectedCari  = $request->cari;
+
+        return view('dashboard.gov.aosodomoro-0-3-bulan', compact('history', 'existing', 'tahuns', 'selectedBulan', 'selectedTahun', 'selectedCari'));
     }
 
     public function storeAosodomoro03Bulan(Request $request)
@@ -316,7 +339,7 @@ class GovController extends Controller
             'real_ratio' => 'required|numeric|min:0',
         ]);
 
-        $this->upsertRisingStar(7, [
+        $this->upsertRisingStar(11, [
             'real_ratio' => $request->real_ratio,
         ]);
 
@@ -326,24 +349,48 @@ class GovController extends Controller
 
     // ══ AOSODOMORO > 3 Bulan (type_id: 8) ══
 
-    public function aosodomoroAbove3Bulan()
+    public function aosodomoroAbove3Bulan(Request $request)
     {
         $periode = now()->format('Y-m-01');
 
         $existing = RisingStar::where('user_id', auth()->id())
-            ->where('type_id', 8)
+            ->where('type_id', 12)
             ->where('periode', $periode)
+            ->orderBy('created_at', 'desc')
             ->first();
 
-        // History hanya milik user login
-        $history = RisingStar::with(['user', 'type'])
+        $query = RisingStar::with(['user', 'type'])
             ->where('user_id', auth()->id())
-            ->where('type_id', 8)
-            ->orderBy('periode', 'desc')
-            ->orderBy('updated_at', 'desc')
-            ->paginate(15);
+            ->where('type_id', 12)
+            ->orderBy('created_at', 'desc');
 
-        return view('dashboard.gov.aosodomoro-above-3-bulan', compact('history', 'existing'));
+        if ($request->filled('bulan')) {
+            $query->whereMonth('periode', $request->bulan);
+        }
+        if ($request->filled('tahun')) {
+            $query->whereYear('periode', $request->tahun);
+        }
+        if ($request->filled('cari')) {
+            $query->where(function($q) use ($request) {
+                $q->where('commitment', 'like', '%'.$request->cari.'%')
+                ->orWhere('real_ratio', 'like', '%'.$request->cari.'%');
+            });
+        }
+
+        $history = $query->paginate(20)->withQueryString();
+
+        $tahuns = RisingStar::where('user_id', auth()->id())
+            ->where('type_id', 12)
+            ->selectRaw('YEAR(periode) as tahun')
+            ->distinct()
+            ->orderBy('tahun', 'desc')
+            ->pluck('tahun');
+
+        $selectedBulan = $request->bulan;
+        $selectedTahun = $request->tahun;
+        $selectedCari  = $request->cari;
+
+        return view('dashboard.gov.aosodomoro-above-3-bulan', compact('history', 'existing', 'tahuns', 'selectedBulan', 'selectedTahun', 'selectedCari'));
     }
 
     public function storeAosodomoroAbove3Bulan(Request $request)
@@ -352,7 +399,7 @@ class GovController extends Controller
             'real_ratio' => 'required|numeric|min:0',
         ]);
 
-        $this->upsertRisingStar(8, [
+        $this->upsertRisingStar(12, [
             'real_ratio' => $request->real_ratio,
         ]);
 

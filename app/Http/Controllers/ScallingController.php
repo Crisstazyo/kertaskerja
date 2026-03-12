@@ -22,7 +22,6 @@ class ScallingController extends Controller
 
     // ── MAPPING HEADER EXCEL → KOLOM DATABASE ────────────────────────────────
     private array $columnMap = [
-        'NO'                       => 'no',
         'PROJECT'                  => 'project',
         'ID LOP'                   => 'id_lop',
         'CC'                       => 'cc',
@@ -312,14 +311,18 @@ class ScallingController extends Controller
                         'total_rows_imported' => count($rows),
                         'uploaded_by'         => auth()->user()->name ?? $request->ip(),
                     ]);
-                    
-                    $scallingIds = ScallingData::where('imports_log_id', $log->id)->pluck('id')->toArray();
-                    $funnelIds   = FunnelTracking::where('data_id', $log->id)->pluck('id')->toArray();
-                    ScallingData::where('imports_log_id', $log->id)->delete();
 
-                    if (!empty($scallingIds)) {
-                        FunnelTracking::whereIn('data_id', $scallingIds)->delete();
-                        TaskProgress::whereIn('task_id', $funnelIds)->delete();
+                    // ✅ Hanya hapus data dari import Excel sebelumnya, biarkan data manual tetap ada
+                    $importedIds = ScallingData::where('imports_log_id', $log->id)
+                        ->where('is_manual', false)
+                        ->pluck('id');
+
+                    if ($importedIds->isNotEmpty()) {
+                        FunnelTracking::whereIn('data_id', $importedIds)->each(function ($ft) {
+                            TaskProgress::where('task_id', $ft->id)->delete();
+                        });
+                        FunnelTracking::whereIn('data_id', $importedIds)->delete();
+                        ScallingData::whereIn('id', $importedIds)->delete();
                     }
                 } else {
                     $log = ScallingImport::create([
@@ -336,12 +339,28 @@ class ScallingController extends Controller
                 $timestamp  = now();
                 $insertRows = array_map(fn($row) => array_merge($row, [
                     'imports_log_id' => $log->id,
+                    'is_manual'      => false,
                     'created_at'     => $timestamp,
                     'updated_at'     => $timestamp,
                 ]), $rows);
 
                 foreach (array_chunk($insertRows, 500) as $chunk) {
                     ScallingData::insert($chunk);
+                }
+
+                 // ✅ SETELAH FOREACH — update total dan renumber no
+                $log->update([
+                    'total_rows_imported' => ScallingData::where('imports_log_id', $log->id)->count(),
+                ]);
+
+                // Renumber: data manual duluan, lalu data import urut by id
+                $allRows = ScallingData::where('imports_log_id', $log->id)
+                    ->orderBy('is_manual', 'desc')
+                    ->orderBy('id', 'asc')
+                    ->get();
+
+                foreach ($allRows as $index => $row) {
+                    $row->update(['no' => $index + 1]);
                 }
             });
 
@@ -426,6 +445,7 @@ class ScallingController extends Controller
         if($log) {   
             $data = ScallingData::create([
             'imports_log_id'           => $log->id,
+            'is_manual'                => true,
             'no'                       => $log->data()->count() + 1,
             'project'                  => $request->project,
             'id_lop'                   => $request->id_lop,
@@ -449,6 +469,8 @@ class ScallingController extends Controller
 
             $data = ScallingData::create([
             'imports_log_id'           => $import->id,
+            'is_manual'                => true,
+            'no'                       => 1,
             'project'                  => $request->project,
             'id_lop'                   => $request->id_lop,
             'cc'                       => $request->cc,
@@ -503,11 +525,11 @@ class ScallingController extends Controller
             }
         }
 
-        if (!in_array('NO', $foundHeaders) || !in_array('PROJECT', $foundHeaders)) {
+        if ( !in_array('PROJECT', $foundHeaders)) {
             $found = implode(', ', $foundHeaders) ?: '(tidak ada)';
             throw new \Exception(
                 "Header tidak ditemukan di baris ke-" . self::HEADER_ROW . ". " .
-                "Kolom terbaca: {$found}. Pastikan header NO dan PROJECT ada di baris " . self::HEADER_ROW . "."
+                "Kolom terbaca: {$found}. Pastikan header PROJECT ada di baris " . self::HEADER_ROW . "."
             );
         }
 

@@ -799,11 +799,11 @@
                                 @endphp
                                 <td class="border border-gray-400 px-2 text-right font-bold {{ $b4RowColor }}">{{ $b4row['real'] > 0 ? number_format($b4row['real'], 1) : '' }}</td>
                                 @if($loop->first)
-                                    <td rowspan="{{ count($b4Data) }}" class="border border-gray-400 px-2 text-right align-middle">{{ $b4RpMillion > 0 ? $b4RpDisplay : '' }}%</td>
+                                    <td rowspan="{{ count($b4Data) }}" class="border border-gray-400 px-2 text-right align-middle">{{ $b4RpMillion > 0 ? $b4RpDisplay : '' }}</td>
                                     <td rowspan="{{ count($b4Data) }}" class="border border-gray-400 text-center align-middle">{{ $fairnessB4 }}</td>
                                     <td rowspan="{{ count($b4Data) }}" colspan="2" class="border border-gray-400 text-center font-bold align-middle {{ $b4ScoreColor }}">{{ $b4Score }}</td>
-                                    <td rowspan="{{ count($b4Data) }}" class="border border-gray-300 px-2 py-1 text-center text-[10px] no-print">{{ $b4UpdatedAt }}</td>
                                 @endif
+                                <td class="border border-gray-300 px-2 py-1 text-center text-[10px] no-print">{{ $b4row['updated_at'] ?? '-' }}</td>
                             </tr>
                         @endforeach
 

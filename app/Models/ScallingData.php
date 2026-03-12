@@ -19,6 +19,7 @@ class ScallingData extends Model
         'mitra',
         'plan_bulan_billcomp_2025',
         'est_nilai_bc',
+        'is_manual',
         'imports_log_id',
     ];
 

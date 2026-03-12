@@ -658,6 +658,22 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    function recalcTotal() {
+        let total = 0;
+        document.querySelectorAll('tbody tr').forEach(function(tr) {
+            if (tr.dataset.cancelled === 'true') return;
+            const billingCb = tr.querySelector('.billing-checkbox');
+            if (!billingCb || !billingCb.checked) return;
+            const estNilai = parseFloat(billingCb.dataset.estNilai || '0');
+            if (!isNaN(estNilai) && estNilai > 0) total += estNilai;
+        });
+        const tc = document.getElementById('total-nilai-billcomp');
+        if (tc) {
+            const span = tc.querySelector('span');
+            if (span) span.textContent = Math.round(total).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+        }
+    }
+
     // ══ INISIALISASI STATE CANCEL SAAT PAGE LOAD ══
     document.querySelectorAll('tr[data-cancelled="true"]').forEach(row => {
         setRowDisabled(row, true);

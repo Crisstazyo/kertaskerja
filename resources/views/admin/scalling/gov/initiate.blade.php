@@ -346,7 +346,7 @@
                                                                 <tr>
                                                                     @php
                                                                         $first = $previewRows->first()->toArray();
-                                                                        $excluded = ['created_at', 'updated_at']; // tambahkan kolom lain kalau perlu
+                                                                        $excluded = ['id', 'total_row_imports', 'created_at', 'updated_at' , 'imports_log_id','is_manual'];
                                                                         $headers = array_diff(array_keys($first), $excluded);
                                                                     @endphp
                                                                     @foreach($headers as $header)
@@ -360,7 +360,13 @@
                                                                 @foreach($previewRows as $row)
                                                                     <tr class="hover:bg-slate-50">
                                                                         @foreach($headers as $field)
-                                                                            <td class="px-4 py-2.5 text-slate-700">{{ $row->{$field} }}</td>
+                                                                            @if($field === 'est_nilai_bc')
+                                                                            <td class="px-4 py-2.5 text-slate-700 font-bold">
+                                                                                {{ number_format($row->est_nilai_bc, 0, ',', '.') }}
+                                                                            </td>
+                                                                            @else
+                                                                                <td class="px-4 py-2.5 text-slate-700">{{ $row->{$field} }}</td>
+                                                                            @endif
                                                                         @endforeach
                                                                     </tr>
                                                                 @endforeach

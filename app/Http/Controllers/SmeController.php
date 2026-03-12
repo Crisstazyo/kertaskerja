@@ -270,10 +270,10 @@ class SmeController extends Controller
     public function updateFunnelCheckbox(Request $request)
     {
         $request->validate([
-            'data_type' => 'required|in:on-hand,qualified,koreksi,initiate',
-            'data_id' => 'required|integer',
-            'field' => 'required|string',
-            'value' => 'required',
+            'data_type'    => 'required|in:on-hand,qualified,koreksi,initiate',
+            'data_id'      => 'required|integer',
+            'field'        => 'required|string',
+            'value'        => 'required',
             'est_nilai_bc' => 'nullable',
         ]);
 
@@ -290,71 +290,57 @@ class SmeController extends Controller
             }
         }
 
-        // Convert value to boolean (handles both true/false and "true"/"false")
-        $value = filter_var($request->value, FILTER_VALIDATE_BOOLEAN);
-        // note: est_nilai_bc may come as formatted string; keep raw for later calculation
+        $value  = filter_var($request->value, FILTER_VALIDATE_BOOLEAN);
         $rawEst = $request->est_nilai_bc ?? null;
 
-        // Find or create the funnel tracking record
-        $funnel = \App\Models\FunnelTracking::firstOrCreate(
-            [
-                'data_type' => $request->data_type,
-                'data_id' => $request->data_id,
-            ]
-        );
+        $funnel = \App\Models\FunnelTracking::firstOrCreate([
+            'data_type' => $request->data_type,
+            'data_id'   => $request->data_id,
+        ]);
 
-        // when billing checkbox flips we may need to toggle every other boolean field
         $autoFields = [];
-
-        // mirror the requested checkbox on master
         $funnel->{$request->field} = $value;
 
         if ($request->field === 'delivery_billing_complete') {
-            // set billcomp value or clear it
-            if ($value) {
-                $funnel->delivery_nilai_billcomp = is_numeric($rawEst) ? (float) $rawEst : null;
-            } else {
-                $funnel->delivery_nilai_billcomp = null;
-            }
+            $funnel->delivery_nilai_billcomp = $value && is_numeric($rawEst) ? (float) $rawEst : null;
 
-            // gather all boolean fields except the billing flag itself
             $autoFields = collect($funnel->getCasts())
                 ->filter(fn($c, $k) => $c === 'boolean' && $k !== 'delivery_billing_complete' && $k !== 'cancel')
                 ->keys()
                 ->toArray();
 
-            // apply the same check/uncheck to each of them
             foreach ($autoFields as $fld) {
                 $funnel->{$fld} = $value;
             }
         }
 
+        if ($request->field === 'cancel' && $value === true) {
+            $funnel->delivery_billing_complete = 0;
+            $funnel->delivery_nilai_billcomp   = null;
+        }
+
         $funnel->save();
 
-        // Find or create today's task progress for this user
-        $taskProgress = \App\Models\TaskProgress::firstOrCreate(
-            [
-                'task_id' => $funnel->id,
-                'user_id' => auth()->id(),
-                'tanggal' => today(),
-            ]
-        );
+        $taskProgress = \App\Models\TaskProgress::firstOrCreate([
+            'task_id' => $funnel->id,
+            'user_id' => auth()->id(),
+            'tanggal' => today(),
+        ]);
 
-        // Update the checkbox field in task_progress
         $taskProgress->{$request->field} = $value;
 
-        // billing complete uses the raw est value - compute only here
         if ($request->field === 'delivery_billing_complete') {
-            if ($value) {
-                $taskProgress->delivery_nilai_billcomp = is_numeric($rawEst) ? (float) $rawEst : null;
-            } else {
-                $taskProgress->delivery_nilai_billcomp = null;
-            }
+            $taskProgress->delivery_nilai_billcomp = $value && is_numeric($rawEst) ? (float) $rawEst : null;
 
-            // mirror the same boolean toggle on progress row
             foreach ($autoFields as $fld) {
                 $taskProgress->{$fld} = $value;
             }
+        }
+
+        // ← TAMBAHAN: jika cancel di-set true, reset billing complete dan nilainya
+        if ($request->field === 'cancel' && $value === true) {
+            $taskProgress->delivery_billing_complete = 0;
+            $taskProgress->delivery_nilai_billcomp   = null;
         }
 
         $taskProgress->save();
@@ -371,16 +357,16 @@ class SmeController extends Controller
 
         $total = \App\Models\FunnelTracking::whereIn('data_id', $dataIdsInPeriode)
             ->where('delivery_billing_complete', true)
+            ->where('cancel', false)
             ->whereNotNull('delivery_nilai_billcomp')
             ->sum('delivery_nilai_billcomp');
 
         return response()->json([
-            'success' => true,
+            'success'        => true,
             'nilai_billcomp' => $taskProgress->delivery_nilai_billcomp,
-            'total' => number_format((float) $total, 0, ',', '.'),
-            // let frontend know which other fields to toggle and what value to apply
-            'auto_fields' => $autoFields,
-            'auto_value' => $request->field === 'delivery_billing_complete' ? $value : null,
+            'total'          => number_format((float) $total, 0, ',', '.'),
+            'auto_fields'    => $autoFields,
+            'auto_value'     => $request->field === 'delivery_billing_complete' ? $value : null,
         ]);
     }
 
@@ -420,14 +406,14 @@ public function aosodomoro03Bulan(Request $request)
     $periode = now()->format('Y-m-01');
 
     $existing = RisingStar::where('user_id', auth()->id())
-        ->where('type_id', 7)
+        ->where('type_id', 11)
         ->where('periode', $periode)
         ->orderBy('created_at', 'desc')
         ->first();
 
     $query = RisingStar::with(['user', 'type'])
         ->where('user_id', auth()->id())
-        ->where('type_id', 7)
+        ->where('type_id', 11)
         ->orderBy('created_at', 'desc');
 
     if ($request->filled('bulan')) {
@@ -446,7 +432,7 @@ public function aosodomoro03Bulan(Request $request)
     $history = $query->paginate(20)->withQueryString();
 
     $tahuns = RisingStar::where('user_id', auth()->id())
-        ->where('type_id', 7)
+        ->where('type_id', 11)
         ->selectRaw('YEAR(periode) as tahun')
         ->distinct()
         ->orderBy('tahun', 'desc')
@@ -471,7 +457,7 @@ public function storeAosodomoro03Bulan(Request $request)
     $periode = now()->format('Y-m-01');
 
     $lastCommitment = RisingStar::where('user_id', auth()->id())
-        ->where('type_id', 7)
+        ->where('type_id', 11)
         ->where('periode', $periode)
         ->whereNotNull('commitment')
         ->orderBy('created_at', 'desc')
@@ -479,7 +465,7 @@ public function storeAosodomoro03Bulan(Request $request)
 
     RisingStar::create([
         'user_id'    => auth()->id(),
-        'type_id'    => 7,
+        'type_id'    => 11,
         'periode'    => $periode,
         'status'     => 'active',
         'commitment' => $lastCommitment,
@@ -497,14 +483,14 @@ public function storeAosodomoro03Bulan(Request $request)
     $periode = now()->format('Y-m-01');
 
     $existing = RisingStar::where('user_id', auth()->id())
-        ->where('type_id', 8)
+        ->where('type_id', 12)
         ->where('periode', $periode)
         ->orderBy('created_at', 'desc')
         ->first();
 
     $query = RisingStar::with(['user', 'type'])
         ->where('user_id', auth()->id())
-        ->where('type_id', 8)
+        ->where('type_id', 12)
         ->orderBy('created_at', 'desc');
 
     if ($request->filled('bulan')) {
@@ -523,7 +509,7 @@ public function storeAosodomoro03Bulan(Request $request)
     $history = $query->paginate(20)->withQueryString();
 
     $tahuns = RisingStar::where('user_id', auth()->id())
-        ->where('type_id', 8)
+        ->where('type_id', 12)
         ->selectRaw('YEAR(periode) as tahun')
         ->distinct()
         ->orderBy('tahun', 'desc')
@@ -548,7 +534,7 @@ public function storeAosodomoro03Bulan(Request $request)
     $periode = now()->format('Y-m-01');
 
     $lastCommitment = RisingStar::where('user_id', auth()->id())
-        ->where('type_id', 8)
+        ->where('type_id', 12)
         ->where('periode', $periode)
         ->whereNotNull('commitment')
         ->orderBy('created_at', 'desc')
@@ -556,7 +542,7 @@ public function storeAosodomoro03Bulan(Request $request)
 
     RisingStar::create([
         'user_id'    => auth()->id(),
-        'type_id'    => 8,
+        'type_id'    => 12,
         'periode'    => $periode,
         'status'     => 'active',
         'commitment' => $lastCommitment,
