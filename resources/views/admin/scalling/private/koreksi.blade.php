@@ -105,12 +105,12 @@
                             style="background:#fff1f2; border:1.5px solid #fecdd3;">
                             <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                    d="M12 4v16m8-8H4" />
                             </svg>
                         </div>
                         <div>
                             <p class="font-black text-slate-900 text-sm">Tambah Project</p>
-                            <p class="text-xs text-slate-400 font-medium mt-0.5">Project yang diupdate admin</p>
+                            <p class="text-xs text-slate-400 font-medium mt-0.5">Tambah data project baru</p>
                         </div>
                     </div>
                     <svg class="w-4 h-4 text-slate-300 group-hover:text-red-500 transition-colors" fill="none"
@@ -370,7 +370,7 @@
                 @endif
             </div>
         </div>
-    {{-- ══ MODAL ADD LOP ══ --}}    
+    {{-- ══ MODAL ADD LOP ══ --}}
     <div id="modalAddLop" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4"
         style="background: rgba(0,0,0,0.5);">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl relative overflow-hidden">

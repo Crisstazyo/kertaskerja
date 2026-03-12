@@ -121,7 +121,7 @@
                         {{-- Commitment --}}
                         <div>
                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Commitment (%)</label>
-                            <input type="number" name="commitment" step="0.01" min="0" max="100"
+                            <input type="number" name="commitment" step="0.01" min="0"
                                 value="{{ old('commitment') }}"
                                 placeholder="cth: 98.50"
                                 class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors">

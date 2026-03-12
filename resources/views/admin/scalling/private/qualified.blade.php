@@ -304,7 +304,13 @@
                                                                 @foreach($previewRows as $row)
                                                                     <tr class="hover:bg-slate-50">
                                                                         @foreach($headers as $field)
-                                                                            <td class="px-4 py-2.5 text-slate-700">{{ $row->{$field} ?? '-' }}</td>
+                                                                            @if($field === 'est_nilai_bc')
+                                                                            <td class="px-4 py-2.5 text-slate-700 font-bold">
+                                                                                {{ number_format($row->est_nilai_bc, 0, ',', '.') }}
+                                                                            </td>
+                                                                            @else
+                                                                                <td class="px-4 py-2.5 text-slate-700">{{ $row->{$field} }}</td>
+                                                                            @endif
                                                                         @endforeach
                                                                     </tr>
                                                                 @endforeach

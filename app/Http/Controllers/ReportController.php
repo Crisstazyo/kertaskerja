@@ -166,7 +166,7 @@ class ReportController extends Controller
         $ct0Score       = $ct0TotalCommit == 0 ? '-' : number_format(($ct0TotalReal / $ct0TotalCommit) * 100, 1) . '%';
 
         $ctcCt0Row  = Ctc::where('segment', 'CT0')->tap($filterPeriodeCt0)->orderBy('created_at', 'desc')->first();
-        $ctcCt0Real = $ctcCt0Row ? $toFloat($ctcCt0Row->commitment) : 0;
+        $ctcCt0Real = $ctcCt0Row ? $toFloat($ctcCt0Row->real_ratio) : 0;
 
         $ctcSegments = ['Sales HSI (all)', 'Churn', 'Winback'];
         $ctcData = [];
@@ -205,8 +205,8 @@ class ReportController extends Controller
                 ->first();
         };
 
-        $b1TypeIds = [2, 1, 3];
-        $b1Labels  = [1 => 'Visiting AM', 2 => 'Visiting GM', 3 => 'Visiting HOTD'];
+        $b1TypeIds = [3, 1, 2, 4];
+        $b1Labels  = [1 => 'Visiting AM Gov', 2 => 'Visiting AM SME', 3 => 'Visiting GM', 4 => 'Visiting HOTD'];
         $b1Data = [];
         $b1AchSum = 0; $b1AchCount = 0;
         foreach ($b1TypeIds as $tid) {
@@ -223,10 +223,15 @@ class ReportController extends Controller
                 'updated_at' => $row?->updated_at?->translatedFormat('d M Y H:i') ?? '-',
             ];
         }
-        $b1Score = $b1AchCount == 0 ? '-' : number_format($b1AchSum / $b1AchCount, 1) . '%';
+        $gmRatio   = $b1Data[3]['commit'] > 0 ? $b1Data[3]['real'] / $b1Data[3]['commit'] : 0;
+        $govRatio  = $b1Data[1]['commit'] > 0 ? $b1Data[1]['real'] / $b1Data[1]['commit'] : 0;
+        $smeRatio  = $b1Data[2]['commit'] > 0 ? $b1Data[2]['real'] / $b1Data[2]['commit'] : 0;
+        $hotdRatio = $b1Data[4]['commit'] > 0 ? $b1Data[4]['real'] / $b1Data[4]['commit'] : 0;
+        $b1Ach    = ($gmRatio * 0.40) + ((($govRatio + $smeRatio + $hotdRatio) / 3) * 0.60);
+        $b1Score  = number_format($b1Ach * 100, 1) . '%';
 
-        $b2TypeIds = [4, 5];
-        $b2Labels  = [4 => 'Profiling MAPS AM', 5 => 'Profiling Overall HOTD'];
+        $b2TypeIds = [5, 6, 7, 8];
+        $b2Labels  = [5 => 'Profiling MAPS AM Gov', 6 => 'Profiling MAPS AM SME', 7 => 'Profiling HOTD: LEGS', 8 => 'Profiling HOTD: SME'];
         $b2Data = [];
         $b2AchSum = 0; $b2AchCount = 0;
         foreach ($b2TypeIds as $tid) {
@@ -243,23 +248,77 @@ class ReportController extends Controller
                 'updated_at' => $row?->updated_at?->translatedFormat('d M Y H:i') ?? '-',
             ];
         }
-        $b2Score = $b2AchCount == 0 ? '-' : number_format($b2AchSum / $b2AchCount, 1) . '%';
+        $mapsReal   = $b2Data[5]['real']   + $b2Data[6]['real'];
+        $mapsCommit = $b2Data[5]['commit'] + $b2Data[6]['commit'];
+        $mapsRatio  = $mapsCommit > 0 ? $mapsReal / $mapsCommit : 0;
+        $legsRatio  = $b2Data[7]['commit'] > 0 ? $b2Data[7]['real'] / $b2Data[7]['commit'] : 0;
+        $hotdSmeRatio = $b2Data[8]['commit'] > 0 ? $b2Data[8]['real'] / $b2Data[8]['commit'] : 0;
+        $b2Ach    = ($mapsRatio + $legsRatio + $hotdSmeRatio) / 3;
+        $b2Score  = number_format($b2Ach * 100, 1) . '%';
 
-        $b3Row    = $rsLatest(6);
-        $b3Commit = $b3Row ? $toFloat($b3Row->commitment) : 0;
-        $b3Real   = $b3Row ? $toFloat($b3Row->real_ratio) : 0;
-        $b3Score  = $b3Commit > 0 ? number_format($b3Real, 1) . '%' : '-';
-        $b3UpdatedAt = $b3Row?->updated_at?->translatedFormat('d M Y H:i') ?? '-';
+        $b3TypeIds = [9, 10];
+        $b3Labels  = [9 => 'Kecukupan LOP: Gov', 10 => 'Kecukupan LOP: SME'];
+        $b3Data = [];
+        $b3AchSum = 0; $b3AchCount = 0;
+        foreach ($b3TypeIds as $tid) {
+            $row    = $rsLatest($tid);
+            $commit = $row ? $toFloat($row->commitment) : 0;
+            $real   = $row ? $toFloat($row->real_ratio) : 0;
+            $ratio  = $commit > 0 ? ($real / $commit) * 100 : 0;
+            if ($commit > 0) { $b3AchSum += $ratio; $b3AchCount++; }
+            $b3Data[$tid] = [
+                'label'      => $b3Labels[$tid],
+                'commit'     => $commit,
+                'real'       => $real,
+                'ratio'      => $ratio,
+                'updated_at' => $row?->updated_at?->translatedFormat('d M Y H:i') ?? '-',
+            ];
+        }
+        $b3TotalReal   = $b3Data[9]['real']   + $b3Data[10]['real'];
+        $b3TotalCommit = $b3Data[9]['commit'] + $b3Data[10]['commit'];
+        $b3Ach   = $b3TotalCommit > 0 ? $b3TotalReal / $b3TotalCommit : 0;
+        $b3Score = number_format($b3Ach * 100, 1) . '%';
+        $b3UpdatedAt = $b3Data[9]['updated_at'] !== '-' ? $b3Data[9]['updated_at'] : ($b3Data[10]['updated_at'] ?? '-');
 
-        $b4Row7    = $rsLatest(7);
-        $b4Row8    = $rsLatest(8);
-        $b4Commit7 = $b4Row7 ? $toFloat($b4Row7->commitment) : 0;
-        $b4Real7   = $b4Row7 ? $toFloat($b4Row7->real_ratio) : 0;
-        $b4Commit8 = $b4Row8 ? $toFloat($b4Row8->commitment) : 0;
-        $b4Real8   = $b4Row8 ? $toFloat($b4Row8->real_ratio) : 0;
-        $b4RpMillion = (0.30 * $b4Real7) + (0.70 * $b4Real8);
-        $b4Score = number_format($b4RpMillion, 1) . '%';
-        $b4UpdatedAt = $b4Row7?->updated_at?->translatedFormat('d M Y H:i') ?? ($b4Row8?->updated_at?->translatedFormat('d M Y H:i') ?? '-');
+        $rsLatestByUser = function (int $typeId, int $userId) use ($filterPeriodeRs) {
+            return RisingStar::where('type_id', $typeId)
+                ->where('user_id', $userId)
+                ->tap($filterPeriodeRs)
+                ->orderBy('created_at', 'desc')
+                ->first();
+        };
+
+        $b4Rows = [
+            ['label' => 'AOSODOMORO 0-3 Bulan: Gov', 'row' => $rsLatestByUser(11, 2)],
+            ['label' => 'AOSODOMORO 0-3 Bulan: SME', 'row' => $rsLatestByUser(11, 4)],
+            ['label' => 'AOSODOMORO >3 Bulan: Gov',  'row' => $rsLatestByUser(12, 2)],
+            ['label' => 'AOSODOMORO >3 Bulan: SME',  'row' => $rsLatestByUser(12, 4)],
+        ];
+
+        $b4Data = [];
+        foreach ($b4Rows as $item) {
+            $row    = $item['row'];
+            $commit = $row ? $toFloat($row->commitment) : 0;
+            $real   = $row ? $toFloat($row->real_ratio) : 0;
+            $b4Data[] = [
+                'label'      => $item['label'],
+                'commit'     => $commit,
+                'real'       => $real,
+                'updated_at' => $row?->updated_at?->translatedFormat('d M Y H:i') ?? '-',
+            ];
+        }
+
+        $real03   = $b4Data[0]['real']   + $b4Data[1]['real'];
+        $commit03 = $b4Data[0]['commit'] + $b4Data[1]['commit'];
+        $real3p   = $b4Data[2]['real']   + $b4Data[3]['real'];
+        $commit3p = $b4Data[2]['commit'] + $b4Data[3]['commit'];
+        $ratio03  = $commit03 > 0 ? $real03 / $commit03 : 0;
+        $ratio3p  = $commit3p > 0 ? $real3p / $commit3p : 0;
+        $b4RpMillion = (0.30 * $ratio03) + (0.70 * $ratio3p);
+        $b4Ach       = $b4RpMillion > 0 ? $b4RpMillion / 0.70 : 0;
+        $b4Score     = number_format($b4Ach * 100, 1) . '%';
+        $b4RpDisplay = number_format($b4RpMillion * 100, 1);
+        $b4UpdatedAt = collect($b4Data)->first(fn($d) => $d['updated_at'] !== '-')['updated_at'] ?? '-';
 
         $filterPeriodePsak = function ($q) use ($filtered, $filterBulan, $filterTahun) {
             if ($filtered && $filterBulan) $q->whereMonth('periode', $filterBulan);
@@ -489,8 +548,8 @@ class ReportController extends Controller
             'ctcCt0Real', 'ctcData', 'lossRateReal', 'lossRateAch',
             'b1Data', 'b1Score',
             'b2Data', 'b2Score',
-            'b3Commit', 'b3Real', 'b3Score', 'b3UpdatedAt',
-            'b4Commit7', 'b4Real7', 'b4Commit8', 'b4Real8', 'b4RpMillion', 'b4Score', 'b4UpdatedAt',
+            'b3Data', 'b3Score', 'b3UpdatedAt',
+            'b4Data', 'b4RpMillion', 'b4RpDisplay', 'b4Score', 'b4UpdatedAt',
             'psakData',
             'scallingSegments', 'scallingTypes', 'scallingData',
             'hsiData', 'teldaData', 'teldaRegions', 'upsellingData',

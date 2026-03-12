@@ -66,6 +66,17 @@
             return                 ['bg' => 'background:#16a34a;', 'text' => 'text-white',      'label' => number_format($ach,1,',','.') . '%'];
         }
 
+        function worstColor($colors) {
+            $priority = ['bg-black text-white' => 4, 'bg-red-500 text-white' => 3, 'bg-yellow-300' => 2, 'bg-green-500 text-white' => 1];
+            $worst = 0;
+            $worstClass = '';
+            foreach ($colors as $c) {
+                $p = $priority[$c] ?? 0;
+                if ($p > $worst) { $worst = $p; $worstClass = $c; }
+            }
+            return $worstClass;
+        }
+
         $bulanNames = ['','Januari','Februari','Maret','April','Mei','Juni',
                        'Juli','Agustus','September','Oktober','November','Desember'];
 
@@ -135,7 +146,8 @@
             $row['achColor']  = getColorClass($rowPct, $fairnessRs);
         }
         unset($row);
-        $b1ScoreColor = getColorClass($b1Score, $fairnessRs);
+        $b1RowColors  = array_column(array_map(fn($r) => ['c' => $r['achColor']], array_values($b1Data)), 'c');
+        $b1ScoreColor = worstColor($b1RowColors) ?: getColorClass($b1Score, $fairnessRs);
 
         foreach ($b2Data as &$row) {
             $rowPct = $row['commit'] > 0 ? number_format($row['ratio'], 1) . '%' : '-';
@@ -143,10 +155,20 @@
             $row['achColor']  = getColorClass($rowPct, $fairnessRs);
         }
         unset($row);
-        $b2ScoreColor = getColorClass($b2Score, $fairnessRs);
+        $b2RowColors  = array_column(array_map(fn($r) => ['c' => $r['achColor']], array_values($b2Data)), 'c');
+        $b2ScoreColor = worstColor($b2RowColors) ?: getColorClass($b2Score, $fairnessRs);
 
-        $b3ScoreColor   = getColorClass($b3Score, $fairnessRs);
-        $b4ScoreColor   = getColorClass($b4Score, $fairnessB4);
+        $b3RowColors  = array_map(fn($r) => getColorClass(
+            $r['commit'] > 0 ? number_format($r['real'] / $r['commit'] * 100, 1).'%' : '-',
+            $fairnessRs
+        ), array_values($b3Data));
+        $b3ScoreColor = worstColor($b3RowColors) ?: getColorClass($b3Score, $fairnessRs);
+
+        $b4RowColors  = array_map(fn($r) => getColorClass(
+            $r['commit'] > 0 ? number_format($r['real'] / $r['commit'] * 100, 1).'%' : '-',
+            $fairnessB4
+        ), array_values($b4Data));
+        $b4ScoreColor = worstColor($b4RowColors) ?: getColorClass($b4Score, $fairnessB4);
         $b4RpMillionFmt = number_format($b4RpMillion, 1);
 
         $scalingDetailRoutes = [
@@ -696,7 +718,7 @@
                                 <td class="border border-gray-300 px-2 py-1 text-center text-[10px] no-print">{{ $lossRateUpdatedAt }}</td>
                             </tr>
 
-                            @php $rsSectionRows = count($b1Data) + count($b2Data) + 1 + 2; @endphp
+                            @php $rsSectionRows = count($b1Data) + count($b2Data) + count($b3Data) + count($b4Data); @endphp
 
                             <tr class="border-b-2 border-black font-bold">
                                 <td class="border border-gray-400 text-center">4</td>
@@ -742,37 +764,48 @@
                                 </tr>
                             @endforeach
 
+                            @foreach($b3Data as $tid => $row)
+                            @php $b3RowPct = $row['commit'] > 0 ? number_format($row['ratio'], 1) . '%' : '-'; @endphp
                             <tr>
-                                <td class="border border-gray-400 px-2 py-1 font-semibold">c&nbsp;&nbsp;Bintang 3</td>
-                                <td class="border border-gray-400 px-2 py-1">Kecukupan LOP</td>
+                                @if($loop->first)
+                                    <td rowspan="{{ count($b3Data) }}" class="border border-gray-400 px-2 py-1 font-semibold align-top">c&nbsp;&nbsp;Bintang 3</td>
+                                @endif
+                                <td class="border border-gray-400 px-2 py-1">{{ $row['label'] }}</td>
                                 <td class="border border-gray-400 text-center">%</td>
-                                <td class="border border-gray-400 px-2 text-right">{{ $b3Commit > 0 ? number_format($b3Commit, 0) : '' }}</td>
+                                <td class="border border-gray-400 px-2 text-right">{{ $row['commit'] > 0 ? number_format($row['commit'], 0) : '' }}</td>
                                 <td class="border border-gray-400"></td>
-                                <td class="border border-gray-400 px-2 text-right font-bold {{ $b3ScoreColor }}">{{ $b3Real > 0 ? number_format($b3Real, 1) : '' }}</td>
+                                <td class="border border-gray-400 px-2 text-right font-bold {{ getColorClass($b3RowPct, $fairnessRs) }}">{{ $row['real'] > 0 ? number_format($row['real'], 1) : '' }}</td>
                                 <td class="border border-gray-400"></td>
-                                <td class="border border-gray-400 text-center">{{ $fairnessRs }}</td>
-                                <td colspan="2" class="border border-gray-400 text-center font-bold {{ $b3ScoreColor }}">{{ $b3Score }}</td>
-                                <td class="border border-gray-300 px-2 py-1 text-center text-[10px] no-print">{{ $b3UpdatedAt }}</td>
+                                @if($loop->first)
+                                    <td rowspan="{{ count($b3Data) }}" class="border border-gray-400 text-center align-middle">{{ $fairnessRs }}</td>
+                                    <td rowspan="{{ count($b3Data) }}" colspan="2" class="border border-gray-400 text-center font-bold align-middle {{ $b3ScoreColor }}">{{ $b3Score }}</td>
+                                @endif
+                                <td class="border border-gray-300 px-2 py-1 text-center text-[10px] no-print">{{ $row['updated_at'] ?? '-' }}</td>
                             </tr>
+                        @endforeach
 
+                            @foreach($b4Data as $bi => $b4row)
                             <tr>
-                                <td rowspan="2" class="border border-gray-400 px-2 py-1 align-top font-semibold">d&nbsp;&nbsp;Bintang 4</td>
-                                <td class="border border-gray-400 px-2 py-1">AOSODOMORO 0-3 Bulan</td>
-                                <td rowspan="2" class="border border-gray-400 text-center align-middle">%</td>
-                                <td class="border border-gray-400 px-2 text-right">{{ $b4Commit7 > 0 ? number_format($b4Commit7, 0) : '' }}</td>
+                                @if($loop->first)
+                                    <td rowspan="{{ count($b4Data) }}" class="border border-gray-400 px-2 py-1 align-top font-semibold">d&nbsp;&nbsp;Bintang 4</td>
+                                @endif
+                                <td class="border border-gray-400 px-2 py-1">{{ $b4row['label'] }}</td>
+                                <td class="border border-gray-400 text-center">%</td>
+                                <td class="border border-gray-400 px-2 text-right">{{ $b4row['commit'] > 0 ? number_format($b4row['commit'], 0) : '' }}</td>
                                 <td class="border border-gray-400"></td>
-                                <td class="border border-gray-400 px-2 text-right">{{ $b4Real7 > 0 ? number_format($b4Real7, 1) : '' }}</td>
-                                <td rowspan="2" class="border border-gray-400 px-2 text-right align-middle">{{ $b4RpMillion > 0 ? number_format($b4RpMillion, 1) : '' }}</td>
-                                <td rowspan="2" class="border border-gray-400 text-center align-middle">{{ $fairnessB4 }}</td>
-                                <td rowspan="2" colspan="2" class="border border-gray-400 text-center font-bold align-middle {{ $b4ScoreColor }}">{{ $b4Score }}</td>
-                                <td rowspan="2" class="border border-gray-300 px-2 py-1 text-center text-slate-600 text-[10px] no-print">{{ $b4UpdatedAt }}</td>
+                                @php
+                                    $b4RowPct   = $b4row['commit'] > 0 ? number_format($b4row['real'] / $b4row['commit'] * 100, 1) . '%' : '-';
+                                    $b4RowColor = getColorClass($b4RowPct, $fairnessB4);
+                                @endphp
+                                <td class="border border-gray-400 px-2 text-right font-bold {{ $b4RowColor }}">{{ $b4row['real'] > 0 ? number_format($b4row['real'], 1) : '' }}</td>
+                                @if($loop->first)
+                                    <td rowspan="{{ count($b4Data) }}" class="border border-gray-400 px-2 text-right align-middle">{{ $b4RpMillion > 0 ? $b4RpDisplay : '' }}%</td>
+                                    <td rowspan="{{ count($b4Data) }}" class="border border-gray-400 text-center align-middle">{{ $fairnessB4 }}</td>
+                                    <td rowspan="{{ count($b4Data) }}" colspan="2" class="border border-gray-400 text-center font-bold align-middle {{ $b4ScoreColor }}">{{ $b4Score }}</td>
+                                    <td rowspan="{{ count($b4Data) }}" class="border border-gray-300 px-2 py-1 text-center text-[10px] no-print">{{ $b4UpdatedAt }}</td>
+                                @endif
                             </tr>
-                            <tr>
-                                <td class="border border-gray-400 px-2 py-1">AOSODOMORO &gt;3 Bulan</td>
-                                <td class="border border-gray-400 px-2 text-right">{{ $b4Commit8 > 0 ? number_format($b4Commit8, 0) : '' }}</td>
-                                <td class="border border-gray-400"></td>
-                                <td class="border border-gray-400 px-2 text-right">{{ $b4Real8 > 0 ? number_format($b4Real8, 1) : '' }}</td>
-                            </tr>
+                        @endforeach
 
                             @php
                                 $fairnessPsak = '0-100';
