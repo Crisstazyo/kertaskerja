@@ -470,17 +470,23 @@ class AdminController extends Controller
         ? $request->commitment
         : ($existing->commitment ?? null);
 
-    $realRatio = $request->filled('real_ratio')
-        ? $request->real_ratio
-        : ($existing->real_ratio ?? null);
+    $lastRealRow = Ctc::where('segment', $request->segment)
+        ->where('periode', $periode)
+        ->whereNotNull('real_ratio')
+        ->orderBy('created_at', 'desc')
+        ->first();
+
+    $realRatio     = $request->filled('real_ratio') ? $request->real_ratio : ($lastRealRow->real_ratio ?? null);
+    $realUpdatedAt = $request->filled('real_ratio') ? now() : ($lastRealRow->real_updated_at ?? null);
 
     Ctc::create([
-        'user_id'    => Auth::id(),
-        'segment'    => $request->segment,
-        'periode'    => $periode,
-        'status'     => $request->status,
-        'commitment' => $commitment,
-        'real_ratio' => $realRatio,
+        'user_id'         => Auth::id(),
+        'segment'         => $request->segment,
+        'periode'         => $periode,
+        'status'          => $request->status,
+        'commitment'      => $commitment,
+        'real_ratio'      => $realRatio,
+        'real_updated_at' => $realUpdatedAt,
     ]);
 
     return back()->with('success', 'Data CTC periode ' . Carbon::parse($periode)->format('F Y') . ' berhasil disimpan.');
@@ -541,17 +547,23 @@ class AdminController extends Controller
         ? $request->commitment
         : ($existing->commitment ?? null);
 
-    $realRatio = $request->filled('real_ratio')
-        ? $request->real_ratio
-        : ($existing->real_ratio ?? null);
+    $lastRealRow = Ct0::where('region', $request->region)
+        ->where('periode', $periode)
+        ->whereNotNull('real_ratio')
+        ->orderBy('created_at', 'desc')
+        ->first();
+
+    $realRatio     = $request->filled('real_ratio') ? $request->real_ratio : ($lastRealRow->real_ratio ?? null);
+    $realUpdatedAt = $request->filled('real_ratio') ? now() : ($lastRealRow->real_updated_at ?? null);
 
     Ct0::create([
-        'user_id'    => Auth::id(),
-        'region'     => $request->region,
-        'periode'    => $periode,
-        'status'     => $request->status,
-        'commitment' => $commitment,
-        'real_ratio' => $realRatio,
+        'user_id'         => Auth::id(),
+        'region'          => $request->region,
+        'periode'         => $periode,
+        'status'          => $request->status,
+        'commitment'      => $commitment,
+        'real_ratio'      => $realRatio,
+        'real_updated_at' => $realUpdatedAt,
     ]);
 
     return back()->with('success', 'Data CT0 periode ' . Carbon::parse($periode)->format('F Y') . ' berhasil disimpan.');

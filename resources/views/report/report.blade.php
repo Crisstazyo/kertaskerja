@@ -689,7 +689,7 @@
                                 <td class="border border-gray-400"></td>
                                 <td class="border border-gray-400"></td>
                                 <td colspan="2" class="border border-gray-400"></td>
-                                <td class="border border-gray-300 px-2 py-1 text-center text-[10px] no-print">-</td>
+                                <td class="border border-gray-300 px-2 py-1 text-center text-[10px] no-print">{{ $ctcCt0UpdatedAt }}</td>
                             </tr>
 
                             @foreach(['Sales HSI (all)', 'Churn', 'Winback'] as $seg)

@@ -164,7 +164,7 @@ class ReportController extends Controller
                 'commit' => $commit,
                 'real'   => $real,
                 'ach' => $commit == 0 ? '-' : number_format(($real / $commit) * 100, 1, ',', '.') . '%',
-                'updated_at' => $row?->updated_at?->translatedFormat('d M Y H:i') ?? '-',
+                'updated_at' => $row?->real_updated_at?->translatedFormat('d M Y H:i') ?? '-',
             ];
         }
 
@@ -172,8 +172,9 @@ class ReportController extends Controller
         $ct0TotalReal   = array_sum(array_column($ct0Data, 'real'));
         $ct0Score = $ct0TotalCommit == 0 ? '-' : number_format(($ct0TotalReal / $ct0TotalCommit) * 100, 1, ',', '.') . '%';
 
-        $ctcCt0Row  = Ctc::where('segment', 'CT0')->tap($filterPeriodeCt0)->orderBy('created_at', 'desc')->first();
-        $ctcCt0Real = $ctcCt0Row ? $toFloat($ctcCt0Row->real_ratio) : 0;
+        $ctcCt0Row       = Ctc::where('segment', 'CT0')->tap($filterPeriodeCt0)->orderBy('created_at', 'desc')->first();
+        $ctcCt0Real      = $ctcCt0Row ? $toFloat($ctcCt0Row->real_ratio) : 0;
+        $ctcCt0UpdatedAt = $ctcCt0Row?->real_updated_at?->translatedFormat('d M Y H:i') ?? '-';
 
         $ctcSegments = ['Sales HSI (all)', 'Churn', 'Winback'];
         $ctcData = [];
@@ -190,7 +191,7 @@ class ReportController extends Controller
                 'commit'     => $commit,
                 'real'       => $real,
                 'ach'        => $ach,
-                'updated_at' => $row?->updated_at?->translatedFormat('d M Y H:i') ?? '-',
+                'updated_at' => $row?->real_updated_at?->translatedFormat('d M Y H:i') ?? '-',
             ];
         }
 
@@ -552,7 +553,7 @@ class ReportController extends Controller
             'utipCorrective',
             'newUtipPeriodes',
             'ct0Data', 'ct0Score', 'ct0TotalCommit', 'ct0TotalReal',
-            'ctcCt0Real', 'ctcData', 'lossRateReal', 'lossRateAch',
+            'ctcCt0Real', 'ctcCt0UpdatedAt','ctcData', 'lossRateReal', 'lossRateAch',
             'b1Data', 'b1Score',
             'b2Data', 'b2Score',
             'b3Data', 'b3Score', 'b3UpdatedAt',
