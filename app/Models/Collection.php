@@ -12,15 +12,10 @@ class Collection extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'user_id',
-        'type',
-        'status',
-        'segment',
-        'periode',
-        'plan',
-        'commitment',
-        'real_ratio',
-    ];
+    'user_id', 'type', 'status', 'segment',
+    'periode', 'plan', 'commitment', 'real_ratio',
+    'real_updated_at',
+];
 
     /**
      * The attributes that should be cast.
@@ -28,12 +23,22 @@ class Collection extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'plan'       => 'float',
-        'commitment' => 'float',
-        'real_ratio' => 'float',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
-    ];
+    'plan'            => 'float',
+    'commitment'      => 'float',
+    'real_ratio'      => 'float',
+    'created_at'      => 'datetime',
+    'updated_at'      => 'datetime',
+    'real_updated_at' => 'datetime',
+];
+
+protected static function booted(): void
+{
+    static::updating(function ($model) {
+        if ($model->isDirty('real_ratio')) {
+            $model->real_updated_at = now();
+        }
+    });
+}
     public function user()
     {
         return $this->belongsTo(User::class);

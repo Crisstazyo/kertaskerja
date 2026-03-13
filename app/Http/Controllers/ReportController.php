@@ -46,11 +46,15 @@ class ReportController extends Controller
 
         $c3mrKomitmen  = $latestVal('C3MR', 'commitment');
         $c3mrRealisasi = $latestVal('C3MR', 'real_ratio');
-        $c3mrUpdatedAt = Collection::where('type','C3MR')->tap($filterPeriode)->orderBy('created_at','desc')->first()?->updated_at?->translatedFormat('d M Y H:i') ?? '-';
+        $c3mrRow = Collection::where('type','C3MR')
+            ->tap($filterPeriode)->orderBy('created_at','desc')->first();
+        $c3mrUpdatedAt = $c3mrRow?->real_updated_at?->translatedFormat('d M Y H:i') ?? '-';
 
         $bilperKomitmen  = $latestVal('Billing Perdana', 'commitment');
         $bilperRealisasi = $latestVal('Billing Perdana', 'real_ratio');
-        $bilperUpdatedAt = Collection::where('type','Billing Perdana')->tap($filterPeriode)->orderBy('created_at','desc')->first()?->updated_at?->translatedFormat('d M Y H:i') ?? '-';
+        $bilperRow = Collection::where('type','Billing Perdana')
+            ->tap($filterPeriode)->orderBy('created_at','desc')->first();
+        $bilperUpdatedAt = $bilperRow?->real_updated_at?->translatedFormat('d M Y H:i') ?? '-';
 
         $crData = [];
         $segmentMap = [
@@ -65,7 +69,10 @@ class ReportController extends Controller
                 'komitmen'  => $latestVal('Collection Ratio', 'commitment', $dbSegment),
                 'realisasi' => $latestVal('Collection Ratio', 'real_ratio', $dbSegment),
             ];
-            $crUpdatedAt[$key] = Collection::where('type','Collection Ratio')->where('segment',$dbSegment)->tap($filterPeriode)->orderBy('created_at','desc')->first()?->updated_at?->translatedFormat('d M Y H:i') ?? '-';
+            $crRow = Collection::where('type','Collection Ratio')
+                ->where('segment',$dbSegment)->tap($filterPeriode)
+                ->orderBy('created_at','desc')->first();
+            $crUpdatedAt[$key] = $crRow?->real_updated_at?->translatedFormat('d M Y H:i') ?? '-';
         }
 
         // UTIP Corrective — ambil record terbaru dalam periode filter
@@ -79,7 +86,7 @@ class ReportController extends Controller
             'planRp'   => $utipCorRow ? $toFloat($utipCorRow->plan)       : 0,
             'commitRp' => $utipCorRow ? $toFloat($utipCorRow->commitment) : 0,
             'realRp'   => $utipCorRow ? $toFloat($utipCorRow->real_ratio) : 0,
-            'updated_at' => $utipCorRow?->updated_at?->translatedFormat('d M Y H:i') ?? '-',
+            'updated_at' => $utipCorRow?->real_updated_at?->translatedFormat('d M Y H:i') ?? '-',
         ];
 
         $periodes = [
@@ -119,7 +126,7 @@ class ReportController extends Controller
                     'planRp'   => $row ? $toFloat($row->plan)       : 0,
                     'commitRp' => $row ? $toFloat($row->commitment) : 0,
                     'realRp'   => $row ? $toFloat($row->real_ratio) : 0,
-                    'updated_at' => $row?->updated_at?->translatedFormat('d M Y H:i') ?? '-',
+                    'updated_at' => $row?->real_updated_at?->translatedFormat('d M Y H:i') ?? '-',
                 ];
             }
         }

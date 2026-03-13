@@ -99,14 +99,14 @@ class AdminController extends Controller
                 ->orderBy('created_at', 'desc')
                 ->value('commitment');
 
-        $lastReal = $request->filled('real_ratio')
-            ? $request->real_ratio
-            : Collection::where('type', 'Collection Ratio')
-                ->where('segment', $request->segment)
-                ->where('periode', $periodeDate)
-                ->whereNotNull('real_ratio')
-                ->orderBy('created_at', 'desc')
-                ->value('real_ratio');
+        $lastRealRow = Collection::where('type', 'Collection Ratio')
+            ->where('periode', $periodeDate)
+            ->whereNotNull('real_ratio')
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        $lastReal           = $request->filled('real_ratio') ? $request->real_ratio : ($lastRealRow->real_ratio ?? null);
+        $lastRealUpdatedAt  = $request->filled('real_ratio') ? now() : ($lastRealRow->real_updated_at ?? null);
 
         Collection::create([
             'user_id'    => Auth::id(),
@@ -116,6 +116,7 @@ class AdminController extends Controller
             'status'     => $request->status,
             'commitment' => $lastCommitment,
             'real_ratio' => $lastReal,
+            'real_updated_at'  => $lastRealUpdatedAt,
         ]);
 
         return back()->with('success', 'Data berhasil disimpan');
@@ -187,22 +188,23 @@ class AdminController extends Controller
                 ->orderBy('created_at', 'desc')
                 ->value('commitment');
 
-        $lastReal = $request->filled('real_ratio')
-            ? $request->real_ratio
-            : Collection::where('type', 'C3MR')
-                ->where('periode', $periodeDate)
-                ->whereNotNull('real_ratio')
-                ->orderBy('created_at', 'desc')
-                ->value('real_ratio');
+        $lastRealRow = Collection::where('type', 'C3MR')
+            ->where('periode', $periodeDate)
+            ->whereNotNull('real_ratio')
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        $lastReal           = $request->filled('real_ratio') ? $request->real_ratio : ($lastRealRow->real_ratio ?? null);
+        $lastRealUpdatedAt  = $request->filled('real_ratio') ? now() : ($lastRealRow->real_updated_at ?? null);
 
         Collection::create([
-            'user_id'    => Auth::id(),
-            'type'       => 'C3MR',
-            'segment'    => $request->segment,
-            'periode'    => $periodeDate,
-            'status'     => $request->status,
-            'commitment' => $lastCommitment,
-            'real_ratio' => $lastReal,
+            'user_id'          => Auth::id(),
+            'type'             => 'C3MR',
+            'periode'          => $periodeDate,
+            'status'           => $request->status,
+            'commitment'       => $lastCommitment,
+            'real_ratio'       => $lastReal,
+            'real_updated_at' => $lastRealUpdatedAt,
         ]);
 
         return back()->with('success', 'Data berhasil disimpan');
@@ -285,13 +287,14 @@ class AdminController extends Controller
                 ->orderBy('created_at', 'desc')
                 ->value('commitment');
 
-        $lastReal = $request->filled('real_ratio')
-            ? $request->real_ratio
-            : Collection::where('type', 'Billing Perdana')
-                ->where('periode', $periodeDate)
-                ->whereNotNull('real_ratio')
-                ->orderBy('created_at', 'desc')
-                ->value('real_ratio');
+        $lastRealRow = Collection::where('type', 'Billing Perdana')
+            ->where('periode', $periodeDate)
+            ->whereNotNull('real_ratio')
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+            $lastReal           = $request->filled('real_ratio') ? $request->real_ratio : ($lastRealRow->real_ratio ?? null);
+            $lastRealUpdatedAt  = $request->filled('real_ratio') ? now() : ($lastRealRow->real_updated_at ?? null);
 
         Collection::create([
             'user_id'    => Auth::id(),
@@ -300,6 +303,7 @@ class AdminController extends Controller
             'status'     => $request->status,
             'commitment' => $lastCommitment,
             'real_ratio' => $lastReal,
+            'real_updated_at'  =>  $lastRealUpdatedAt,
         ]);
 
         return back()->with('success', 'Data berhasil disimpan');
@@ -391,21 +395,23 @@ class AdminController extends Controller
                 ->orderBy('created_at', 'desc')
                 ->value('commitment');
 
-        $realRatio = $request->filled('real_ratio')
-            ? $request->real_ratio
-            : Collection::where('type', $request->type)
-                ->whereNotNull('real_ratio')
-                ->orderBy('created_at', 'desc')
-                ->value('real_ratio');
+        $lastRealRow = Collection::where('type', $request->type)
+            ->whereNotNull('real_ratio')
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        $realRatio         = $request->filled('real_ratio') ? $request->real_ratio : ($lastRealRow->real_ratio ?? null);
+        $realUpdatedAt     = $request->filled('real_ratio') ? now() : ($lastRealRow->real_updated_at ?? null);
 
         Collection::create([
-            'user_id'    => Auth::id(),
-            'type'       => $request->type,
-            'periode'    => $periodeDate,
-            'status'     => $request->status,
-            'plan'       => $plan,
-            'commitment' => $commitment,
-            'real_ratio' => $realRatio,
+            'user_id'         => Auth::id(),
+            'type'            => $request->type,
+            'periode'         => $periodeDate,
+            'status'          => $request->status,
+            'plan'            => $plan,
+            'commitment'      => $commitment,
+            'real_ratio'      => $realRatio,
+            'real_updated_at' => $realUpdatedAt,
         ]);
 
         return back()->with('success', 'Data berhasil disimpan');

@@ -103,6 +103,7 @@ class CollectionController extends Controller
             'periode'    => $request->periode,
             'commitment' => $lastCommitment,
             'real_ratio' => $request->ratio_aktual,
+            'real_updated_at'  => now(),
         ]);
 
         return redirect()->back()->with('success', 'C3MR Realisasi berhasil disimpan');
@@ -192,6 +193,7 @@ class CollectionController extends Controller
             'periode'    => $request->periode,
             'commitment' => $lastCommitment,
             'real_ratio' => $request->ratio_aktual,
+            'real_updated_at'  => now(),
         ]);
 
         return redirect()->back()->with('success', 'Billing Perdana Realisasi berhasil disimpan');
@@ -283,6 +285,7 @@ class CollectionController extends Controller
             'status'     => $request->status,
             'commitment' => $lastCommitment,
             'real_ratio' => $request->real_ratio,
+            'real_updated_at'  => now(),
         ]);
 
         return back()->with('success', 'Data berhasil disimpan');
@@ -397,6 +400,7 @@ class CollectionController extends Controller
             'plan'       => $lastPlan,
             'commitment' => $lastCommitment,
             'real_ratio' => $request->ratio_aktual,
+            'real_updated_at'  => now(),
         ]);
 
         return redirect()->back()->with('success', 'UTIP Realisasi berhasil disimpan');
