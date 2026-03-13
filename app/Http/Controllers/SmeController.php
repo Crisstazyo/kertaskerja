@@ -470,6 +470,7 @@ public function storeAosodomoro03Bulan(Request $request)
         'status'     => 'active',
         'commitment' => $lastCommitment,
         'real_ratio' => $request->real_ratio,
+        'real_updated_at' => now(),
     ]);
 
     return redirect()->route('dashboard.sme.aosodomoro-0-3-bulan')
@@ -547,6 +548,7 @@ public function storeAosodomoro03Bulan(Request $request)
         'status'     => 'active',
         'commitment' => $lastCommitment,
         'real_ratio' => $request->real_ratio,
+        'real_updated_at' => now(),
     ]);
 
     return redirect()->route('dashboard.sme.aosodomoro-above-3-bulan')

@@ -228,7 +228,7 @@ class ReportController extends Controller
                 'commit' => $commit,
                 'real'   => $real,
                 'ratio'  => $ratio,
-                'updated_at' => $row?->updated_at?->translatedFormat('d M Y H:i') ?? '-',
+                'updated_at' => $row?->real_updated_at?->translatedFormat('d M Y H:i') ?? '-',
             ];
         }
         $gmRatio   = $b1Data[3]['commit'] > 0 ? $b1Data[3]['real'] / $b1Data[3]['commit'] : 0;
@@ -253,7 +253,7 @@ class ReportController extends Controller
                 'commit' => $commit,
                 'real'   => $real,
                 'ratio'  => $ratio,
-                'updated_at' => $row?->updated_at?->translatedFormat('d M Y H:i') ?? '-',
+                'updated_at' => $row?->real_updated_at?->translatedFormat('d M Y H:i') ?? '-',
             ];
         }
         $mapsReal   = $b2Data[5]['real']   + $b2Data[6]['real'];
@@ -279,7 +279,7 @@ class ReportController extends Controller
                 'commit'     => $commit,
                 'real'       => $real,
                 'ratio'      => $ratio,
-                'updated_at' => $row?->updated_at?->translatedFormat('d M Y H:i') ?? '-',
+                'updated_at' => $row?->real_updated_at?->translatedFormat('d M Y H:i') ?? '-',
             ];
         }
         $b3TotalReal   = $b3Data[9]['real']   + $b3Data[10]['real'];
@@ -312,7 +312,7 @@ class ReportController extends Controller
                 'label'      => $item['label'],
                 'commit'     => $commit,
                 'real'       => $real,
-                'updated_at' => $row?->updated_at?->translatedFormat('d M Y H:i') ?? '-',
+                'updated_at' => $row?->real_updated_at?->translatedFormat('d M Y H:i') ?? '-',
             ];
         }
 

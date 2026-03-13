@@ -7,13 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 class RisingStar extends Model
 {
     protected $fillable = [
-        'user_id',
-        'type_id',
-        'status',
-        'periode',
-        'commitment',
-        'real_ratio',
-    ];
+    'user_id', 'type_id', 'status',
+    'periode', 'commitment', 'real_ratio',
+    'real_updated_at',
+];
 
     /**
      * The attributes that should be cast.
@@ -21,9 +18,20 @@ class RisingStar extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
-    ];
+    'created_at'      => 'datetime',
+    'updated_at'      => 'datetime',
+    'real_updated_at' => 'datetime',
+];
+
+protected static function booted(): void
+{
+    static::updating(function ($model) {
+        if ($model->isDirty('real_ratio')) {
+            $model->real_updated_at = now();
+        }
+    });
+}
+
     public function scopeMainType($query, $typeNumber)
     {
         return $query->whereHas('type', function ($q) use ($typeNumber) {

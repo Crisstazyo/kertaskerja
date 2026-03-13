@@ -246,17 +246,24 @@ class Admin2Controller extends Controller
             ? $values['commitment']
             : ($existing->commitment ?? null);
 
-        $realRatio = isset($values['real_ratio']) && $values['real_ratio'] !== null
-            ? $values['real_ratio']
-            : ($existing->real_ratio ?? null);
+        $lastRealRow = RisingStar::where('user_id', $userId)
+            ->where('type_id', (int) $request->type_id)
+            ->where('periode', $periode)
+            ->whereNotNull('real_ratio')
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        $realRatio     = $request->filled('real_ratio') ? $request->real_ratio : ($lastRealRow->real_ratio ?? null);
+        $realUpdatedAt = $request->filled('real_ratio') ? now() : ($lastRealRow->real_updated_at ?? null);
 
         RisingStar::create([
-            'user_id'    => $userId,
-            'type_id'    => (int) $request->type_id,
-            'periode'    => $periode,
-            'status'     => $values['status'] ?? 'active',
-            'commitment' => $commitment,
-            'real_ratio' => $realRatio,
+            'user_id'         => $userId,
+            'type_id'         => (int) $request->type_id,
+            'periode'         => $periode,
+            'status'          => $values['status'] ?? 'active',
+            'commitment'      => $commitment,
+            'real_ratio'      => $realRatio,
+            'real_updated_at' => $realUpdatedAt,
         ]);
 
         return back()->with(

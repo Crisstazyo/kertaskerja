@@ -270,13 +270,17 @@ class GovController extends Controller
         ->orderBy('created_at', 'desc')
         ->first();
 
+    $realRatio     = isset($values['real_ratio']) ? $values['real_ratio'] : ($last?->real_ratio);
+    $realUpdatedAt = isset($values['real_ratio']) ? now() : ($last?->real_updated_at);
+
     return RisingStar::create([
-        'user_id'    => auth()->id(),
-        'type_id'    => $typeId,
-        'periode'    => $periode,
-        'status'     => 'active',
-        'commitment' => $values['commitment'] ?? ($last?->commitment),
-        'real_ratio' => $values['real_ratio'] ?? ($last?->real_ratio),
+        'user_id'         => auth()->id(),
+        'type_id'         => $typeId,
+        'periode'         => $periode,
+        'status'          => 'active',
+        'commitment'      => $values['commitment'] ?? ($last?->commitment),
+        'real_ratio'      => $realRatio,
+        'real_updated_at' => $realUpdatedAt,
     ]);
 }
 
