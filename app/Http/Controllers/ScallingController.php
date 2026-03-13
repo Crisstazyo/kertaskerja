@@ -28,7 +28,7 @@ class ScallingController extends Controller
         'NIPNAS'                   => 'nipnas',
         'AM'                       => 'am',
         'MITRA'                    => 'mitra',
-        'PLAN BULAN BILLCOMP 2025' => 'plan_bulan_billcomp_2025',
+        'EST BULAN BC'             => 'plan_bulan_billcomp_2025',
         'EST NILAI BC'             => 'est_nilai_bc',
     ];
 
