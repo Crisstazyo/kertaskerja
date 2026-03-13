@@ -99,6 +99,15 @@ class AdminController extends Controller
                 ->orderBy('created_at', 'desc')
                 ->value('commitment');
 
+        $lastReal = $request->filled('real_ratio')
+            ? $request->real_ratio
+            : Collection::where('type', 'Collection Ratio')
+                ->where('segment', $request->segment)
+                ->where('periode', $periodeDate)
+                ->whereNotNull('real_ratio')
+                ->orderBy('created_at', 'desc')
+                ->value('real_ratio');
+
         Collection::create([
             'user_id'    => Auth::id(),
             'type'       => 'Collection Ratio',
@@ -106,7 +115,7 @@ class AdminController extends Controller
             'periode'    => $periodeDate,
             'status'     => $request->status,
             'commitment' => $lastCommitment,
-            'real_ratio' => $request->real_ratio,
+            'real_ratio' => $lastReal,
         ]);
 
         return back()->with('success', 'Data berhasil disimpan');
@@ -178,6 +187,14 @@ class AdminController extends Controller
                 ->orderBy('created_at', 'desc')
                 ->value('commitment');
 
+        $lastReal = $request->filled('real_ratio')
+            ? $request->real_ratio
+            : Collection::where('type', 'C3MR')
+                ->where('periode', $periodeDate)
+                ->whereNotNull('real_ratio')
+                ->orderBy('created_at', 'desc')
+                ->value('real_ratio');
+
         Collection::create([
             'user_id'    => Auth::id(),
             'type'       => 'C3MR',
@@ -185,7 +202,7 @@ class AdminController extends Controller
             'periode'    => $periodeDate,
             'status'     => $request->status,
             'commitment' => $lastCommitment,
-            'real_ratio' => $request->real_ratio,
+            'real_ratio' => $lastReal,
         ]);
 
         return back()->with('success', 'Data berhasil disimpan');
@@ -268,77 +285,85 @@ class AdminController extends Controller
                 ->orderBy('created_at', 'desc')
                 ->value('commitment');
 
+        $lastReal = $request->filled('real_ratio')
+            ? $request->real_ratio
+            : Collection::where('type', 'Billing Perdana')
+                ->where('periode', $periodeDate)
+                ->whereNotNull('real_ratio')
+                ->orderBy('created_at', 'desc')
+                ->value('real_ratio');
+
         Collection::create([
             'user_id'    => Auth::id(),
             'type'       => 'Billing Perdana',
             'periode'    => $periodeDate,
             'status'     => $request->status,
             'commitment' => $lastCommitment,
-            'real_ratio' => $request->real_ratio,
+            'real_ratio' => $lastReal,
         ]);
 
         return back()->with('success', 'Data berhasil disimpan');
     }
 
     public function utipTable(Request $request)
-{
-    $query = Collection::with('user')
+    {
+        $query = Collection::with('user')
+            ->where('type', 'like', '%UTIP%')
+            ->orderByRaw("CASE WHEN type LIKE '%Corrective%' THEN 0 ELSE 1 END")
+            ->orderBy('created_at', 'desc');
+
+        if ($request->filled('user')) {
+            $query->where('user_id', $request->user);
+        }
+        if ($request->filled('tipe')) {
+            $query->where('type', $request->tipe);
+        }
+        if ($request->filled('bulan')) {
+            $query->whereMonth('created_at', $request->bulan);
+        }
+        if ($request->filled('tahun')) {
+            $query->whereYear('created_at', $request->tahun);
+        }
+        if ($request->filled('cari')) {
+            $query->where(function($q) use ($request) {
+                $q->where('type', 'like', '%'.$request->cari.'%')
+                ->orWhere('real_ratio', 'like', '%'.$request->cari.'%')
+                ->orWhere('commitment', 'like', '%'.$request->cari.'%');
+            });
+        }
+
+        $collections = $query->paginate(20)->withQueryString();
+
+        $tahuns = Collection::where('type', 'like', '%UTIP%')
+            ->selectRaw('YEAR(created_at) as tahun')
+            ->distinct()
+            ->orderBy('tahun', 'desc')
+            ->pluck('tahun');
+
+        $tipes = Collection::where('type', 'like', '%UTIP%')
+            ->distinct()
+            ->orderByRaw("CASE WHEN type LIKE '%Corrective%' THEN 0 ELSE 1 END")
+            ->orderBy('type')
+            ->pluck('type');
+
+        $users = Collection::with('user')
         ->where('type', 'like', '%UTIP%')
-        ->orderByRaw("CASE WHEN type LIKE '%Corrective%' THEN 0 ELSE 1 END")
-        ->orderBy('created_at', 'desc');
+        ->get()
+        ->pluck('user')
+        ->filter()        // buang null
+        ->unique('id')
+        ->values();
 
-    if ($request->filled('user')) {
-        $query->where('user_id', $request->user);
+        $selectedTipe  = $request->tipe;
+        $selectedBulan = $request->bulan;
+        $selectedTahun = $request->tahun;
+        $selectedCari  = $request->cari;
+
+        return view('admin.collection.utip', compact(
+            'collections', 'users', 'tahuns', 'tipes',
+            'selectedTipe', 'selectedBulan', 'selectedTahun', 'selectedCari'
+        ));
     }
-    if ($request->filled('tipe')) {
-        $query->where('type', $request->tipe);
-    }
-    if ($request->filled('bulan')) {
-        $query->whereMonth('created_at', $request->bulan);
-    }
-    if ($request->filled('tahun')) {
-        $query->whereYear('created_at', $request->tahun);
-    }
-    if ($request->filled('cari')) {
-        $query->where(function($q) use ($request) {
-            $q->where('type', 'like', '%'.$request->cari.'%')
-              ->orWhere('real_ratio', 'like', '%'.$request->cari.'%')
-              ->orWhere('commitment', 'like', '%'.$request->cari.'%');
-        });
-    }
-
-    $collections = $query->paginate(20)->withQueryString();
-
-    $tahuns = Collection::where('type', 'like', '%UTIP%')
-        ->selectRaw('YEAR(created_at) as tahun')
-        ->distinct()
-        ->orderBy('tahun', 'desc')
-        ->pluck('tahun');
-
-    $tipes = Collection::where('type', 'like', '%UTIP%')
-        ->distinct()
-        ->orderByRaw("CASE WHEN type LIKE '%Corrective%' THEN 0 ELSE 1 END")
-        ->orderBy('type')
-        ->pluck('type');
-
-    $users = Collection::with('user')
-    ->where('type', 'like', '%UTIP%')
-    ->get()
-    ->pluck('user')
-    ->filter()        // buang null
-    ->unique('id')
-    ->values();
-
-    $selectedTipe  = $request->tipe;
-    $selectedBulan = $request->bulan;
-    $selectedTahun = $request->tahun;
-    $selectedCari  = $request->cari;
-
-    return view('admin.collection.utip', compact(
-        'collections', 'users', 'tahuns', 'tipes',
-        'selectedTipe', 'selectedBulan', 'selectedTahun', 'selectedCari'
-    ));
-}
 
     public function utipStore(Request $request)
     {
@@ -387,34 +412,34 @@ class AdminController extends Controller
     }
 
     public function ctcTable(Request $request)
-{
-    $query = Ctc::with('user')->orderBy('created_at', 'desc');
+    {
+        $query = Ctc::with('user')->orderBy('created_at', 'desc');
 
-    if ($request->filled('bulan')) {
-        $query->whereMonth('periode', $request->bulan);
+        if ($request->filled('bulan')) {
+            $query->whereMonth('periode', $request->bulan);
+        }
+        if ($request->filled('tahun')) {
+            $query->whereYear('periode', $request->tahun);
+        }
+        if ($request->filled('segment')) {
+            $query->where('segment', $request->segment);
+        }
+
+        $collections = $query->paginate(15)->withQueryString();
+
+        $tahuns = Ctc::selectRaw('YEAR(periode) as tahun')
+            ->distinct()->orderBy('tahun', 'desc')->pluck('tahun');
+
+        $users           = User::all();
+        $selectedBulan   = $request->bulan;
+        $selectedTahun   = $request->tahun;
+        $selectedSegment = $request->segment;
+
+        return view('admin.ctc.ctc', compact(
+            'collections', 'users', 'tahuns',
+            'selectedBulan', 'selectedTahun', 'selectedSegment'
+        ));
     }
-    if ($request->filled('tahun')) {
-        $query->whereYear('periode', $request->tahun);
-    }
-    if ($request->filled('segment')) {
-        $query->where('segment', $request->segment);
-    }
-
-    $collections = $query->paginate(15)->withQueryString();
-
-    $tahuns = Ctc::selectRaw('YEAR(periode) as tahun')
-        ->distinct()->orderBy('tahun', 'desc')->pluck('tahun');
-
-    $users           = User::all();
-    $selectedBulan   = $request->bulan;
-    $selectedTahun   = $request->tahun;
-    $selectedSegment = $request->segment;
-
-    return view('admin.ctc.ctc', compact(
-        'collections', 'users', 'tahuns',
-        'selectedBulan', 'selectedTahun', 'selectedSegment'
-    ));
-}
     public function ctcStore(Request $request)
 {
     $request->validate([

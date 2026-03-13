@@ -312,7 +312,7 @@
                                                                 <tr>
                                                                     @php
                                                                         $first = $previewRows->first()->toArray();
-                                                                        $excluded = ['id', 'imports_log_id', 'created_at', 'updated_at']; // tambahkan kolom lain kalau perlu
+                                                                        $excluded = ['id', 'imports_log_id', 'created_at', 'updated_at', 'is_manual']; // tambahkan kolom lain kalau perlu
                                                                         $headers = array_diff(array_keys($first), $excluded);
                                                                     @endphp
                                                                     @foreach($headers as $header)

@@ -302,7 +302,7 @@
                             <th rowspan="2" class="px-3 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest border-r border-slate-100 bg-slate-50">CC</th>
                             <th rowspan="2" class="px-4 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest border-r border-slate-100 bg-slate-50">AM</th>
                             <th rowspan="2" class="px-4 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest border-r border-slate-100 bg-emerald-50">Mitra</th>
-                            <th rowspan="2" class="px-4 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest border-r border-slate-100 bg-slate-50">Plan Bulan</th>
+                            <th rowspan="2" class="px-4 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest border-r border-slate-100 bg-slate-50">Est Bulan BC</th>
                             <th rowspan="2" class="px-4 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest border-r border-slate-100 bg-slate-50">Est Nilai BC</th>
                             <th class="px-3 py-2 text-center text-[10px] font-black text-white border-r border-slate-100 bg-blue-600">F0</th>
                             <th class="px-3 py-2 text-center text-[10px] font-black text-white border-r border-slate-100 bg-purple-600">F1</th>
@@ -352,7 +352,7 @@
                             <td class="px-4 py-2.5 text-slate-600 border-r border-slate-100">{{ $row->am }}</td>
                             <td class="px-4 py-2.5 text-slate-700 border-r border-slate-100 bg-emerald-50 font-semibold">{{ $row->mitra }}</td>
                             <td class="px-4 py-2.5 whitespace-nowrap text-slate-600 border-r border-slate-100 text-center">{{ $row->plan_bulan_billcomp_2025 }}</td>
-                            <td class="px-4 py-2.5 whitespace-nowrap font-black text-slate-800 border-r border-slate-100">{{ number_format($row->est_nilai_bc, 0, ',', '.') }}</td>
+                            <td class="px-4 py-2.5 whitespace-nowrap font-black text-right text-slate-800 border-r border-slate-100">{{ number_format($row->est_nilai_bc, 0, ',', '.') }}</td>
                             {{-- F0 --}}
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-blue-50">
                                 <input type="checkbox" class="funnel-checkbox w-4 h-4 text-blue-600 rounded cursor-pointer"
@@ -441,7 +441,7 @@
                                     {{ $checked('delivery_billing_complete') ? 'checked' : '' }}>
                             </td>
                             {{-- NILAI BILL COMP --}}
-                            <td class="px-2 py-2.5 text-center bg-violet-50 nilai-billcomp-cell" data-row-id="{{ $row->id }}">
+                            <td class="px-2 py-2.5 text-right bg-violet-50 nilai-billcomp-cell" data-row-id="{{ $row->id }}">
                                 <span class="font-black text-slate-800">
                                     @php
                                         $masterChecked = $funnel && $funnel->delivery_billing_complete;
@@ -470,11 +470,11 @@
                     <tfoot>
                         <tr class="border-t-2 border-red-200 bg-slate-50">
                             <td colspan="7" class="px-4 py-3 text-right text-xs font-black text-slate-700 uppercase tracking-widest border-r border-slate-100">TOTAL:</td>
-                            <td class="px-4 py-3 text-center font-black text-emerald-700 border-r border-slate-100 bg-emerald-50">
+                            <td class="px-4 py-3 text-right font-black text-emerald-700 border-r border-slate-100 bg-emerald-50">
                                 {{ number_format($dataRows->sum(fn($r) => floatval($r->est_nilai_bc ?? 0)), 0, ',', '.') }}
                             </td>
                             <td colspan="20" class="border-r border-slate-100"></td>
-                            <td class="px-4 py-3 text-center font-black text-violet-700 bg-violet-50" id="total-nilai-billcomp">
+                            <td class="px-4 py-3 text-right font-black text-violet-700 bg-violet-50" id="total-nilai-billcomp">
                                 @php
                                     $totalBillComp = $funnelMap->filter(fn($f) => $f && $f->delivery_billing_complete)
                                         ->sum(function($f) use ($dataRows) {
