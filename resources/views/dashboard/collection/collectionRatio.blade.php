@@ -124,12 +124,9 @@
                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 text-center">Segment</label>
                             <select name="segment" required
                                 class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors bg-white">
-                                @if($latestSeg->isEmpty())
-                                        <option value="" disabled selected>Segment belum ditambahkan</option>
-                                @endif
-                                @foreach($latestSeg as $seg)
-                                    <option value="{{ $seg->segment }}" {{ $selectedSegment == $seg->segment ? 'selected' : '' }}>{{ $seg->segment }}
-                                    </option>
+                                <option value="">— Pilih Segment —</option>
+                                @foreach(['Government', 'Private', 'SOE', 'SME'] as $seg)
+                                    <option value="{{ $seg }}" {{ ($selectedSegment ?? '') == $seg ? 'selected' : '' }}>{{ $seg }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -175,9 +172,8 @@
                             <select name="segment" onchange="this.form.submit()"
                                 class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-700 focus:outline-none focus:border-red-400 bg-white">
                                 <option value="">Semua Segment</option>
-                                @foreach($segments as $seg)
-                                    <option value="{{ $seg }}" {{ $selectedSegment == $seg ? 'selected' : '' }}>{{ $seg }}
-                                    </option>
+                                @foreach(['Government', 'Private', 'SOE', 'SME'] as $seg)
+                                    <option value="{{ $seg }}" {{ ($selectedSegment ?? '') == $seg ? 'selected' : '' }}>{{ $seg }}</option>
                                 @endforeach
                             </select>
                         </div>

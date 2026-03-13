@@ -91,25 +91,25 @@
         }
 
         $fairnessC3mr   = '96-100';
-        $scoreC3mr      = $c3mrKomitmen == 0 ? '-' : number_format(($c3mrRealisasi / $c3mrKomitmen) * 100, 1) . '%';
+        $scoreC3mr      = $c3mrKomitmen == 0 ? '-' : number_format(($c3mrRealisasi / $c3mrKomitmen) * 100, 1, ',', '.') . '%';
         $colorC3mr      = getColorClass($scoreC3mr, $fairnessC3mr);
 
         $fairnessBilper = '99-100';
-        $scoreBilper    = $bilperKomitmen == 0 ? '-' : number_format(($bilperRealisasi / $bilperKomitmen) * 100, 1) . '%';
+        $scoreBilper    = $bilperKomitmen == 0 ? '-' : number_format(($bilperRealisasi / $bilperKomitmen) * 100, 1, ',', '.') . '%';
         $colorBilper    = getColorClass($scoreBilper, $fairnessBilper);
 
         $fairnessCR     = '90-100';
         $crScores = []; $crVals = [];
         foreach ($crData as $seg => $val) {
-            $pct = $val['komitmen'] == 0 ? '-' : number_format(($val['realisasi'] / $val['komitmen']) * 100, 1) . '%';
+            $pct = $val['komitmen'] == 0 ? '-' : number_format(($val['realisasi'] / $val['komitmen']) * 100, 1, ',', '.') . '%';
             $crScores[$seg] = ['text' => $pct, 'color' => getColorClass($pct, $fairnessCR)];
             $crVals[$seg]   = $val['komitmen'] == 0 ? 0 : ($val['realisasi'] / $val['komitmen']) * 100;
         }
-        $crTotalPct   = number_format(($crVals['GOV']*0.4)+($crVals['SME']*0.2)+($crVals['PRIVATE']*0.2)+($crVals['SOE']*0.2),1).'%';
+        $crTotalPct   = number_format(($crVals['GOV']*0.4)+($crVals['SME']*0.2)+($crVals['PRIVATE']*0.2)+($crVals['SOE']*0.2),1, ',', '.') . '%';
         $colorCRTotal = getColorClass($crTotalPct, $fairnessCR);
 
         $fairnessUTIP        = '0-100';
-        $achCorrective       = $utipCorrective['commitRp'] == 0 ? '-' : number_format(($utipCorrective['realRp'] / $utipCorrective['commitRp']) * 100, 1) . '%';
+        $achCorrective       = $utipCorrective['commitRp'] == 0 ? '-' : number_format(($utipCorrective['realRp'] / $utipCorrective['commitRp']) * 100, 1, ',', '.') . '%';
         $colorAchCorrective  = getColorClass($achCorrective, $fairnessUTIP);
 
         $allUtipRows      = array_merge([$utipCorrective], $newUtipPeriodes);
@@ -141,7 +141,7 @@
         $fairnessB4   = '0-70';
 
         foreach ($b1Data as &$row) {
-            $rowPct = $row['commit'] > 0 ? number_format($row['ratio'], 1) . '%' : '-';
+            $rowPct = $row['commit'] > 0 ? number_format($row['ratio'], 1, ',', '.') . '%' : '-';
             $row['realPct']   = $rowPct;
             $row['achColor']  = getColorClass($rowPct, $fairnessRs);
         }
@@ -150,7 +150,7 @@
         $b1ScoreColor = worstColor($b1RowColors) ?: getColorClass($b1Score, $fairnessRs);
 
         foreach ($b2Data as &$row) {
-            $rowPct = $row['commit'] > 0 ? number_format($row['ratio'], 1) . '%' : '-';
+            $rowPct = $row['commit'] > 0 ? number_format($row['ratio'], 1, ',', '.') . '%' : '-';
             $row['realPct']   = $rowPct;
             $row['achColor']  = getColorClass($rowPct, $fairnessRs);
         }
@@ -574,9 +574,9 @@
                                 <td class="border border-gray-400 px-2 py-1 font-semibold">a&nbsp;&nbsp;C3MR</td>
                                 <td class="border border-gray-400 px-2 py-1"></td>
                                 <td class="border border-gray-400 text-center">%</td>
-                                <td class="border border-gray-400 px-2 text-right">{{ $c3mrKomitmen > 0 ? number_format($c3mrKomitmen, 1) : '' }}</td>
+                                <td class="border border-gray-400 px-2 text-right">{{ $c3mrKomitmen > 0 ? number_format($c3mrKomitmen, 1, ',', '.') : '' }}</td>
                                 <td class="border border-gray-400"></td>
-                                <td class="border border-gray-400 px-2 text-right">{{ $c3mrRealisasi > 0 ? number_format($c3mrRealisasi, 1) : '' }}</td>
+                                <td class="border border-gray-400 px-2 text-right">{{ $c3mrRealisasi > 0 ? number_format($c3mrRealisasi, 1, ',', '.') : '' }}</td>
                                 <td class="border border-gray-400"></td>
                                 <td class="border border-gray-400 text-center">{{ $fairnessC3mr }}</td>
                                 <td colspan="2" class="border border-gray-400 text-right font-bold {{ $colorC3mr }}">{{ $scoreC3mr }}</td>
@@ -587,9 +587,9 @@
                                 <td class="border border-gray-400 px-2 py-1 font-semibold">b&nbsp;&nbsp;Bilper</td>
                                 <td class="border border-gray-400 px-2 py-1"></td>
                                 <td class="border border-gray-400 text-center">%</td>
-                                <td class="border border-gray-400 px-2 text-right">{{ $bilperKomitmen > 0 ? number_format($bilperKomitmen, 1) : '' }}</td>
+                                <td class="border border-gray-400 px-2 text-right">{{ $bilperKomitmen > 0 ? number_format($bilperKomitmen, 1, ',', '.') : '' }}</td>
                                 <td class="border border-gray-400"></td>
-                                <td class="border border-gray-400 px-2 text-right">{{ $bilperRealisasi > 0 ? number_format($bilperRealisasi, 1) : '' }}</td>
+                                <td class="border border-gray-400 px-2 text-right">{{ $bilperRealisasi > 0 ? number_format($bilperRealisasi, 1, ',', '.') : '' }}</td>
                                 <td class="border border-gray-400"></td>
                                 <td class="border border-gray-400 text-center">{{ $fairnessBilper }}</td>
                                 <td colspan="2" class="border border-gray-400 text-right font-bold {{ $colorBilper }}">{{ $scoreBilper }}</td>
@@ -603,9 +603,9 @@
                                     @endif
                                     <td class="border border-gray-400 px-2 py-1">CR {{ $seg }}</td>
                                     <td class="border border-gray-400 text-center">%</td>
-                                    <td class="border border-gray-400 px-2 text-right">{{ $crData[$seg]['komitmen'] > 0 ? number_format($crData[$seg]['komitmen'], 1) : '' }}</td>
+                                    <td class="border border-gray-400 px-2 text-right">{{ $crData[$seg]['komitmen'] > 0 ? number_format($crData[$seg]['komitmen'], 1, ',', '.') : '' }}</td>
                                     <td class="border border-gray-400"></td>
-                                    <td class="border border-gray-400 px-2 text-right">{{ $crData[$seg]['realisasi'] > 0 ? number_format($crData[$seg]['realisasi'], 1) : '' }}</td>
+                                    <td class="border border-gray-400 px-2 text-right">{{ $crData[$seg]['realisasi'] > 0 ? number_format($crData[$seg]['realisasi'], 1, ',', '.') : '' }}</td>
                                     <td class="border border-gray-400"></td>
                                     @if($si === 0)
                                         <td rowspan="4" class="border border-gray-400 text-center align-middle">{{ $fairnessCR }}</td>
@@ -634,7 +634,7 @@
 
                             @foreach($newUtipPeriodes as $utip)
                                 @php
-                                    $achU      = $utip['commitRp'] == 0 ? '-' : number_format(($utip['realRp'] / $utip['commitRp']) * 100, 1) . '%';
+                                    $achU      = $utip['commitRp'] == 0 ? '-' : number_format(($utip['realRp'] / $utip['commitRp']) * 100, 1, ',', '.') . '%' ;
                                     $colorAchU = getColorClass($achU, $fairnessUTIP);
                                 @endphp
                                 <tr>
@@ -665,9 +665,9 @@
                                     <td class="border border-gray-400 px-2 py-1">{{ $region['label'] }}</td>
                                     <td class="border border-gray-400 text-center">Rp</td>
                                     <td class="border border-gray-400"></td>
-                                    <td class="border border-gray-400 px-2 text-right">{{ $region['commit'] > 0 ? number_format($region['commit'], 1) : '' }}</td>
+                                    <td class="border border-gray-400 px-2 text-right">{{ $region['commit'] > 0 ? number_format($region['commit'], 1, ',', '') : '' }}</td>
                                     <td class="border border-gray-400"></td>
-                                    <td class="border border-gray-400 px-2 text-right">{{ $region['real'] > 0 ? number_format($region['real'], 1) : '' }}</td>
+                                    <td class="border border-gray-400 px-2 text-right">{{ $region['real'] > 0 ? number_format($region['real'], 1, ',', '') : '' }}</td>
                                     @if($ri === 0)
                                         <td rowspan="{{ $ct0RowCount }}" class="border border-gray-400 text-center align-middle">{{ $fairnessCt0 }}</td>
                                     @endif
@@ -698,7 +698,7 @@
                                     <td class="border border-gray-400 text-center">ssl</td>
                                     <td class="border border-gray-400 px-2 text-right">{{ $ctcData[$seg]['commit'] > 0 ? number_format($ctcData[$seg]['commit'], 0) : '' }}</td>
                                     <td class="border border-gray-400"></td>
-                                    <td class="border border-gray-400 px-2 text-right font-semibold">{{ $ctcData[$seg]['real'] > 0 ? number_format($ctcData[$seg]['real'], 0) : '' }}</td>
+                                    <td class="border border-gray-400 px-2 text-right">{{ $ctcData[$seg]['real'] > 0 ? number_format($ctcData[$seg]['real'], 0) : '' }}</td>
                                     <td class="border border-gray-400"></td>
                                     <td class="border border-gray-400 text-center">{{ $fairnessCtc }}</td>
                                     <td colspan="2" class="border border-gray-400 text-right font-bold {{ $ctcData[$seg]['achColor'] }}">{{ $ctcData[$seg]['ach'] }}</td>
@@ -733,9 +733,9 @@
                                     @endif
                                     <td class="border border-gray-400 px-2 py-1">{{ $row['label'] }}</td>
                                     <td class="border border-gray-400 text-center">%</td>
-                                    <td class="border border-gray-400 px-2 text-right">{{ $row['commit'] > 0 ? number_format($row['commit'], 0) : '' }}</td>
+                                    <td class="border border-gray-400 px-2 text-right">{{ $row['commit'] > 0 ? number_format($row['commit'], 0, ',', '.') : '' }}</td>
                                     <td class="border border-gray-400"></td>
-                                    <td class="border border-gray-400 px-2 text-right font-bold {{ $row['achColor'] }}">{{ $row['real'] > 0 ? number_format($row['real'], 1) : '' }}</td>
+                                    <td class="border border-gray-400 px-2 text-right font-bold {{ $row['achColor'] }}">{{ $row['real'] > 0 ? number_format($row['real'], 1, ',', '.') : '' }}</td>
                                     <td class="border border-gray-400"></td>
                                     @if($loop->first)
                                         <td rowspan="{{ count($b1Data) }}" class="border border-gray-400 text-center align-middle">{{ $fairnessRs }}</td>
@@ -752,9 +752,9 @@
                                     @endif
                                     <td class="border border-gray-400 px-2 py-1">{{ $row['label'] }}</td>
                                     <td class="border border-gray-400 text-center">%</td>
-                                    <td class="border border-gray-400 px-2 text-right">{{ $row['commit'] > 0 ? number_format($row['commit'], 0) : '' }}</td>
+                                    <td class="border border-gray-400 px-2 text-right">{{ $row['commit'] > 0 ? number_format($row['commit'], 0, ',', '.') : '' }}</td>
                                     <td class="border border-gray-400"></td>
-                                    <td class="border border-gray-400 px-2 text-right font-bold {{ $row['achColor'] }}">{{ $row['real'] > 0 ? number_format($row['real'], 1) : '' }}</td>
+                                    <td class="border border-gray-400 px-2 text-right font-bold {{ $row['achColor'] }}">{{ $row['real'] > 0 ? number_format($row['real'], 1, ',', '.') : '' }}</td>
                                     <td class="border border-gray-400"></td>
                                     @if($loop->first)
                                         <td rowspan="{{ count($b2Data) }}" class="border border-gray-400 text-center align-middle">{{ $fairnessRs }}</td>
@@ -772,9 +772,9 @@
                                 @endif
                                 <td class="border border-gray-400 px-2 py-1">{{ $row['label'] }}</td>
                                 <td class="border border-gray-400 text-center">%</td>
-                                <td class="border border-gray-400 px-2 text-right">{{ $row['commit'] > 0 ? number_format($row['commit'], 0) : '' }}</td>
+                                <td class="border border-gray-400 px-2 text-right">{{ $row['commit'] > 0 ? number_format($row['commit'], 0, ',', '.') : '' }}</td>
                                 <td class="border border-gray-400"></td>
-                                <td class="border border-gray-400 px-2 text-right font-bold {{ getColorClass($b3RowPct, $fairnessRs) }}">{{ $row['real'] > 0 ? number_format($row['real'], 1) : '' }}</td>
+                                <td class="border border-gray-400 px-2 text-right font-bold {{ getColorClass($b3RowPct, $fairnessRs) }}">{{ $row['real'] > 0 ? number_format($row['real'], 1, ',', '.') : '' }}</td>
                                 <td class="border border-gray-400"></td>
                                 @if($loop->first)
                                     <td rowspan="{{ count($b3Data) }}" class="border border-gray-400 text-center align-middle">{{ $fairnessRs }}</td>
@@ -791,15 +791,15 @@
                                 @endif
                                 <td class="border border-gray-400 px-2 py-1">{{ $b4row['label'] }}</td>
                                 <td class="border border-gray-400 text-center">%</td>
-                                <td class="border border-gray-400 px-2 text-right">{{ $b4row['commit'] > 0 ? number_format($b4row['commit'], 0) : '' }}</td>
+                                <td class="border border-gray-400 px-2 text-right">{{ $b4row['commit'] > 0 ? number_format($b4row['commit'], 0, ',', '.') : '' }}</td>
                                 <td class="border border-gray-400"></td>
                                 @php
-                                    $b4RowPct   = $b4row['commit'] > 0 ? number_format($b4row['real'] / $b4row['commit'] * 100, 1) . '%' : '-';
+                                    $b4RowPct   = $b4row['commit'] > 0 ? number_format($b4row['real'] / $b4row['commit'] * 100, 1, ',', '.') . '%' : '-';
                                     $b4RowColor = getColorClass($b4RowPct, $fairnessB4);
                                 @endphp
-                                <td class="border border-gray-400 px-2 text-right font-bold {{ $b4RowColor }}">{{ $b4row['real'] > 0 ? number_format($b4row['real'], 1) : '' }}</td>
+                                <td class="border border-gray-400 px-2 text-right font-bold {{ $b4RowColor }}">{{ $b4row['real'] > 0 ? number_format($b4row['real'], 1, ',', '.') : '' }}</td>
                                 @if($loop->first)
-                                    <td rowspan="{{ count($b4Data) }}" class="border border-gray-400 px-2 text-right align-middle">{{ $b4RpMillion > 0 ? $b4RpDisplay : '' }}</td>
+                                    <td rowspan="{{ count($b4Data) }}" class="border border-gray-400 px-2 text-right align-middle">{{ $b4RpMillion > 0 ? $b4RpDisplay . '%' : '' }}</td>
                                     <td rowspan="{{ count($b4Data) }}" class="border border-gray-400 text-center align-middle">{{ $fairnessB4 }}</td>
                                     <td rowspan="{{ count($b4Data) }}" colspan="2" class="border border-gray-400 text-center font-bold align-middle {{ $b4ScoreColor }}">{{ $b4Score }}</td>
                                 @endif
@@ -839,18 +839,18 @@
                                             </td>
                                         @endif
                                         <td class="border border-gray-400 px-2 py-1">{{ $ind['label'] }}</td>
-                                        <td class="border border-gray-400 text-center text-xs">TIBS</td>
+                                        <td class="border border-gray-400 text-center text-xs">Rp</td>
                                         <td class="border border-gray-400 px-2 text-right">
                                             {{ $ind['commSsl'] > 0 ? number_format($ind['commSsl'], 0) : ($ind['commRp'] > 0 || $ind['realRp'] > 0 ? '-' : '') }}
                                         </td>
                                         <td class="border border-gray-400 px-2 text-right">
-                                            {{ $ind['commRp'] > 0 ? number_format($ind['commRp'], 0) : ($ind['realRp'] > 0 ? '-' : '') }}
+                                            {{ $ind['commRp'] > 0 ? number_format($ind['commRp'], 0, ',', '.') : ($ind['realRp'] > 0 ? '-' : '') }}
                                         </td>
                                         <td class="border border-gray-400 px-2 text-right">
                                             {{ $ind['realSsl'] > 0 ? number_format($ind['realSsl'], 0) : ($ind['realRp'] > 0 ? '-' : '') }}
                                         </td>
                                         <td class="border border-gray-400 px-2 text-right">
-                                            {{ $ind['realRp'] > 0 ? number_format($ind['realRp'], 0) : '' }}
+                                            {{ $ind['realRp'] > 0 ? number_format($ind['realRp'], 0, ',', '.') : '' }}
                                         </td>
                                         @if($loop->parent->first && $idx === 0)
                                             <td rowspan="{{ $psakAllRows }}" class="border border-gray-400 text-center align-middle">{{ $fairnessPsak }}</td>

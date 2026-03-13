@@ -19,7 +19,7 @@
                         <h1 class="text-2xl font-black tracking-tight text-slate-900 leading-none uppercase">
                             PSAK <span class="text-red-600">Private</span>
                         </h1>
-                        <p class="text-slate-400 text-xs font-bold mt-1 uppercase tracking-tight">Admin mengelola semua data Commitment & Realisasi</p>
+                        <p class="text-slate-400 text-xs font-bold mt-1 uppercase tracking-tight">Admin mengelola semua data Komitmen & Realisasi</p>
                     </div>
                 </div>
                 <div class="flex items-center space-x-4">
@@ -97,12 +97,12 @@
                         </div>
                         <div class="space-y-4">
                             <div>
-                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Commitment (Order)</label>
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Komitmen (SSL)</label>
                                 <input type="number" name="comm_ssl" step="0.01" placeholder="cth: 150" value="{{ old('comm_ssl') }}"
                                     class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors bg-white">
                             </div>
                             <div>
-                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Realisasi (Order)</label>
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Realisasi (SSL)</label>
                                 <input type="number" name="real_ssl" step="0.01" placeholder="cth: 140" value="{{ old('real_ssl') }}"
                                     class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors bg-white">
                             </div>
@@ -117,13 +117,13 @@
                         </div>
                         <div class="space-y-4">
                             <div>
-                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Commitment (Rp)</label>
-                                <input type="number" name="comm_rp" step="0.01" placeholder="cth: 50000000" value="{{ old('comm_rp') }}"
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Komitmen (Rp)</label>
+                                <input type="number" name="comm_rp" step="0.01" placeholder="cth: 50" value="{{ old('comm_rp') }}"
                                     class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors bg-white">
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Realisasi (Rp)</label>
-                                <input type="number" name="real_rp" step="0.01" placeholder="cth: 48000000" value="{{ old('real_rp') }}"
+                                <input type="number" name="real_rp" step="0.01" placeholder="cth: 48" value="{{ old('real_rp') }}"
                                     class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors bg-white">
                             </div>
                         </div>

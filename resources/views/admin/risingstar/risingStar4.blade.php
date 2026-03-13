@@ -120,7 +120,7 @@
 
                         {{-- Commitment --}}
                         <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Commitment (%)</label>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Komitmen (%)</label>
                             <input type="number" name="commitment" step="0.01" min="0"
                                 value="{{ old('commitment') }}"
                                 placeholder="cth: 98.50"
@@ -218,7 +218,7 @@
                     <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">User</th>
                     <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Kategori</th>
                     <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Periode</th>
-                    <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Commitment (%)</th>
+                    <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Komitmen (%)</th>
                     <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Realisasi (%)</th>
                     <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
                 </tr>
@@ -249,14 +249,14 @@
                     </td>
                     <td class="px-6 py-4 text-center">
                         @if($item->commitment !== null)
-                            <span class="text-sm font-black text-slate-800">{{ number_format($item->commitment, 2) }}%</span>
+                            <span class="text-sm font-black text-slate-800">{{ number_format($item->commitment, 2) }}</span>
                         @else
                             <span class="text-slate-300">—</span>
                         @endif
                     </td>
                     <td class="px-6 py-4 text-center">
                         @if($item->real_ratio !== null)
-                            <span class="text-sm font-black text-red-600">{{ number_format($item->real_ratio, 2) }}%</span>
+                            <span class="text-sm font-black text-red-600">{{ number_format($item->real_ratio, 2) }}</span>
                         @else
                             <span class="text-slate-300">—</span>
                         @endif

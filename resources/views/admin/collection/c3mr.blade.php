@@ -106,7 +106,7 @@
                         </div>
                         <div>
                             <label
-                                class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Commitment (%)</label>
+                                class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Komitmen (%)</label>
                             <input type="number" step="0.01" name="commitment" placeholder="cth: 98.50"
                                 class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors">
                         </div>
@@ -143,7 +143,7 @@
                         <div class="w-1 h-6 bg-red-600 rounded-full"></div>
                         <h2 class="text-base font-black text-slate-900 uppercase tracking-wide">Data Collections</h2>
                     </div>
-                    <form method="GET" action="{{ route('admin.c3mr') }}" class="grid grid-cols-4 gap-3">
+                    <form method="GET" action="{{ route('admin.c3mr') }}" class="grid grid-cols-5 gap-3">
                         <div>
                             <label
                                 class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">User</label>
@@ -225,10 +225,10 @@
                                     Periode</th>
                                 <th
                                     class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                                    Commitment</th>
+                                    Komitmen (%)</th>
                                 <th
                                     class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                                    Realisasi</th>
+                                    Realisasi (%)</th>
                                 <th
                                     class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
                                     Status</th>
@@ -261,10 +261,10 @@
                                         {{ $item->periode ? date('d M Y', strtotime($item->periode)) : '—' }}
                                     </td>
                                     <td class="px-6 py-4 text-center font-black text-slate-700">
-                                        {{ $item->commitment.'%' ?? '—' }}</td>
+                                        {{ $item->commitment }}</td>
                                     <td class="px-6 py-4 text-center font-black text-red-600">
-                                        {{ $item->real_ratio.'%' ?? '—' }}</td>
-                                    @php $isActive = ($item->status ?? 'active') === 'active'; 
+                                        {{ $item->real_ratio }}</td>
+                                    @php $isActive = ($item->status ?? 'active') === 'active';
                                     $isAdmin = ($item->user?->role === 'admin'); @endphp
                                     @if($isAdmin)
                                     <td class="px-6 py-4">

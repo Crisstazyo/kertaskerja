@@ -126,7 +126,7 @@
                                 <input type="hidden" name="regions[{{ $regionKey }}][status]" value="active">
 
                                 <label
-                                    class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Commitment</label>
+                                    class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Komitmen (Rp)</label>
                                 <input type="number" name="regions[{{ $regionKey }}][commitment]"
                                     id="{{ $regionKey }}_commitment" value="{{ $commitmentVal ?? '' }}"
                                     placeholder="Masukkan target" min="0" step="0.01" data-telda="{{ $regionKey }}"
@@ -135,7 +135,7 @@
 
                                 <div>
                                     <label
-                                        class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Realisasi</label>
+                                        class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Realisasi (Rp)</label>
                                     <input type="number" name="regions[{{ $regionKey }}][real_ratio]" id="{{ $regionKey }}_real"
                                         value="{{ $realVal ?? '' }}"
                                         placeholder="{{ $realDisabled ? 'Isi commitment dulu' : 'Masukkan realisasi' }}" min="0"
@@ -240,7 +240,7 @@
                                     Region</th>
                                 <th
                                     class="px-4 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                                    Commitment</th>
+                                    Komitmen</th>
                                 <th
                                     class="px-4 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
                                     Realisasi</th>
@@ -264,7 +264,7 @@
                                     <td class="px-4 py-3 text-center">
                                         @if(!is_null($item->commitment))
                                             <span
-                                                class="text-sm font-black text-slate-800">{{ number_format($item->commitment, 2, ',', '.') }}</span>
+                                                class="text-sm font-black text-slate-800">Rp{{ number_format($item->commitment, 2, ',', '.') }}</span>
                                         @else
                                             <span class="text-slate-300">—</span>
                                         @endif
@@ -272,7 +272,7 @@
                                     <td class="px-4 py-3 text-center">
                                         @if(!is_null($item->real_ratio))
                                             <span
-                                                class="text-sm font-black text-red-600">{{ number_format($item->real_ratio, 2, ',', '.') }}</span>
+                                                class="text-sm font-black text-red-600">Rp{{ number_format($item->real_ratio, 2, ',', '.') }}</span>
                                         @else
                                             <span class="text-slate-300">—</span>
                                         @endif

@@ -138,7 +138,7 @@
                         </div>
                         <div>
                             <label
-                                class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Commitment (Rp)</label>
+                                class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Komitmen (Rp)</label>
                             <input type="number" step="0.01" name="commitment" placeholder="cth: 975000"
                                 class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors">
                         </div>
@@ -176,7 +176,7 @@
                         <div class="w-1 h-6 bg-red-600 rounded-full"></div>
                         <h2 class="text-base font-black text-slate-900 uppercase tracking-wide">Data Collections</h2>
                     </div>
-                    <form method="GET" action="{{ route('admin.utip') }}" class="grid grid-cols-5 gap-3">
+                    <form method="GET" action="{{ route('admin.utip') }}" class="grid grid-cols-6 gap-3">
                         <div>
                             <label
                                 class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">User</label>
@@ -268,17 +268,19 @@
                                 <th
                                     class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
                                     Periode</th>
+                                    <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                    Tipe</th>
                                 <th
                                     class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
                                     Plan</th>
                                 <th
                                     class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                                    Commitment</th>
+                                    Komitmen</th>
                                 <th
                                     class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
                                     Realisasi</th>
                                 <th
-                                    class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                    class="px-3 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
                                     Status</th>
                             </tr>
                         </thead>
@@ -308,6 +310,9 @@
                                     <td class="px-6 py-4 text-center text-sm text-slate-400">
                                         {{ $item->periode ? date('d M Y', strtotime($item->periode)) : '—' }}
                                     </td>
+                                    <td class="px-6 py-4 text-center text-xs font-bold text-slate-600">
+                                        {{ $item->type ?? '—' }}
+                                    </td>
                                     <td class="px-6 py-4 text-sm text-center font-black text-slate-700">
                                         {{ $item->plan !== null ? 'Rp'.number_format($item->plan, 0, ',', '.') : '—' }}
                                     </td>
@@ -317,57 +322,23 @@
                                     <td class="px-6 py-4 text-center font-black text-red-600">
                                         {{ $item->real_ratio !== null ? 'Rp'.number_format($item->real_ratio, 0, ',', '.') : '—' }}
                                     </td>
-                                    @php 
-                                        $isActive = ($item->status ?? 'active') === 'active'; 
-                                        $isAdmin = ($item->user?->role === 'admin');
-                                    @endphp
-                                    @if($isAdmin)
-                                    <td class="px-6 py-4 text-center">
-                                        <div class="flex items-center justify-center space-x-2">
-                                            @if ($isActive)
-                                                <span
-                                                    class="text-xs font-bold text-green-700 bg-green-50 border border-green-200 rounded-md px-2.5 py-1">
-                                                    Active
-                                                </span>
-                                            @else
-                                                <span
-                                                    class="text-xs font-bold text-slate-500 bg-slate-100 border border-slate-200 rounded-md px-2.5 py-1">
-                                                    Inactive
-                                                </span>
-                                            @endif
-                                            <form action="{{ route('admin.collection.toggleStatus', $item->id) }}"
-                                                method="POST">
-                                                @csrf
-                                                @method('PATCH')
-                                                <button type="submit"
-                                                    onclick="return confirm('{{ $isActive ? 'Nonaktifkan file ini? User tidak akan bisa mengedit data.' : 'Aktifkan kembali file ini?' }}')"
-                                                    class="inline-flex items-center space-x-1.5 text-xs font-bold px-3 py-1.5 rounded-lg border transition-all duration-200
-                                                            {{ $isActive
-                                                                ? 'text-amber-700 hover:text-white border-amber-200 hover:border-amber-500 bg-amber-50 hover:bg-amber-500'
-                                                                : 'text-green-700 hover:text-white border-green-200 hover:border-green-500 bg-green-50 hover:bg-green-500' }}">
-                                                    @if ($isActive)
-                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
-                                                            viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                                stroke-width="2"
-                                                                d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
-                                                        </svg>
-                                                        <span>Nonaktifkan</span>
-                                                    @else
-                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
-                                                            viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                                stroke-width="2"
-                                                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                        </svg>
-                                                        <span>Aktifkan</span>
-                                                    @endif
-                                                </button>
-                                            </form>
-                                        </div>
+                                   @php $isActive = ($item->status ?? 'active') === 'active'; @endphp
+                                    @if($item->user?->role === 'admin')
+                                    <td class="px-2 py-4 text-center">
+                                        <form action="{{ route('admin.collection.toggleStatus', $item->id) }}" method="POST">
+                                            @csrf
+                                            @method('PATCH')
+                                            <button type="submit"
+                                                class="text-xs font-bold px-3 py-1.5 rounded-lg border transition-all duration-200
+                                                {{ $isActive
+                                                    ? 'text-amber-700 border-amber-200 bg-amber-50 hover:bg-amber-500 hover:text-white hover:border-amber-500'
+                                                    : 'text-green-700 border-green-200 bg-green-50 hover:bg-green-500 hover:text-white hover:border-green-500' }}">
+                                                {{ $isActive ? 'Nonaktifkan' : 'Aktifkan' }}
+                                            </button>
+                                        </form>
                                     </td>
                                     @else
-                                    <td class="px-6 py-4 text-center"></td>
+                                    <td class="px-2 py-4 text-center text-slate-300">—</td>
                                     @endif
                                 </tr>
                             @empty

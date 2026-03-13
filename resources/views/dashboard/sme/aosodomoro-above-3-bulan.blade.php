@@ -192,8 +192,8 @@
                             <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">No</th>
                             <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Tanggal Input</th>
                             <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Periode</th>
-                            <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Komitmen</th>
-                            <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Realisasi</th>
+                            <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Komitmen (%)</th>
+                            <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Realisasi (%)</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
@@ -208,14 +208,14 @@
                             </td>
                             <td class="px-6 py-4 text-center">
                                 @if($item->commitment !== null)
-                                    <span class="text-sm font-black text-slate-700">{{ number_format($item->commitment, 2) }}%</span>
+                                    <span class="text-sm font-black text-slate-700">{{ number_format($item->commitment, 2) }}</span>
                                 @else
                                     <span class="text-slate-400 text-sm">—</span>
                                 @endif
                             </td>
                             <td class="px-6 py-4 text-center">
                                 @if($item->real_ratio !== null)
-                                    <span class="text-sm font-black text-red-600">{{ number_format($item->real_ratio, 2) }}%</span>
+                                    <span class="text-sm font-black text-red-600">{{ number_format($item->real_ratio, 2) }}</span>
                                 @else
                                     <span class="text-xs font-semibold text-slate-400 bg-slate-50 border border-slate-200 rounded-md px-2 py-0.5">—</span>
                                 @endif

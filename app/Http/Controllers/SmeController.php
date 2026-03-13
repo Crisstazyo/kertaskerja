@@ -604,33 +604,45 @@ public function storeUpselling(Request $request)
 {
     $request->validate([
         'type'       => 'required|string',
-        'real_ratio' => 'required|numeric|min:0',
+        'real_ratio' => 'nullable|numeric|min:0',
         'commitment' => 'nullable|numeric|min:0',
     ]);
 
+    if (!$request->filled('real_ratio') && !$request->filled('commitment')) {
+        return redirect()->back()
+            ->withErrors(['real_ratio' => 'Komitmen atau Realisasi wajib diisi salah satu.'])
+            ->withInput();
+    }
+
     $periode = now()->format('Y-m-01');
 
-    $lastRecord = Hsi::where('user_id', auth()->id())
+    $lastCommitment = Hsi::where('user_id', auth()->id())
         ->where('type', $request->type)
         ->where('periode', $periode)
         ->whereNotNull('commitment')
         ->orderBy('created_at', 'desc')
-        ->first();
+        ->value('commitment');
 
-    $commitment = $request->filled('commitment') && $request->commitment > 0
-        ? $request->commitment
-        : ($lastRecord->commitment ?? null);
+    $lastReal = Hsi::where('user_id', auth()->id())
+        ->where('type', $request->type)
+        ->where('periode', $periode)
+        ->whereNotNull('real_ratio')
+        ->orderBy('created_at', 'desc')
+        ->value('real_ratio');
+
+    $commitment = $request->filled('commitment') ? $request->commitment : $lastCommitment;
+    $real       = $request->filled('real_ratio') ? $request->real_ratio : $lastReal;
 
     Hsi::create([
         'user_id'    => auth()->id(),
         'type'       => $request->type,
         'periode'    => $periode,
         'commitment' => $commitment,
-        'real_ratio' => $request->real_ratio,
+        'real_ratio' => $real,
     ]);
 
     return redirect()->route('dashboard.sme.upselling')
-        ->with('success', 'Data realisasi Upselling berhasil disimpan.');
+        ->with('success', 'Data Upselling berhasil disimpan.');
 }
 
     /**

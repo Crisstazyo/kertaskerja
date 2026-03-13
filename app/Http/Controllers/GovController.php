@@ -263,29 +263,24 @@ class GovController extends Controller
     // Hanya kolom yang dikirim yang diupdate — tidak overwrite kolom lain.
     // ══════════════════════════════════════════════════════
     private function upsertRisingStar(int $typeId, array $values): RisingStar
-    {
-        $periode = now()->format('Y-m-01');
+{
+    $periode = now()->format('Y-m-01');
 
-        $record = RisingStar::firstOrNew([
-            'user_id'  => auth()->id(),
-            'type_id'  => $typeId,
-            'periode'  => $periode,
-        ]);
+    $last = RisingStar::where('user_id', auth()->id())
+        ->where('type_id', $typeId)
+        ->where('periode', $periode)
+        ->orderBy('created_at', 'desc')
+        ->first();
 
-        // Hanya isi kolom yang memang dikirim, kolom lain dibiarkan
-        foreach ($values as $col => $val) {
-            $record->{$col} = $val;
-        }
-
-        // Set status active jika record baru
-        if (! $record->exists) {
-            $record->status = 'active';
-        }
-
-        $record->save();
-
-        return $record;
-    }
+    return RisingStar::create([
+        'user_id'    => auth()->id(),
+        'type_id'    => $typeId,
+        'periode'    => $periode,
+        'status'     => 'active',
+        'commitment' => $values['commitment'] ?? ($last?->commitment),
+        'real_ratio' => $values['real_ratio'] ?? ($last?->real_ratio),
+    ]);
+}
 
     // ══ AOSODOMORO 0-3 Bulan (type_id: 7) ══
 
@@ -297,6 +292,7 @@ class GovController extends Controller
         $existing = RisingStar::where('user_id', auth()->id())
             ->where('type_id', 11)
             ->where('periode', $periode)
+            ->orderBy('created_at', 'desc')
             ->first();
 
         $query = RisingStar::with(['user', 'type'])

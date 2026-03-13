@@ -144,7 +144,7 @@
 
                             {{-- Komitmen --}}
                             <div>
-                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Komitmen (%)</label>
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Komitmen (Rp)</label>
                                 <input type="number" step="0.01" name="commitment" value="{{ old('commitment') }}"
                                     placeholder="cth: 95.50"
                                     class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors">
@@ -152,7 +152,7 @@
 
                             {{-- Realisasi --}}
                             <div>
-                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Realisasi (%)</label>
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Realisasi (Rp)</label>
                                 <input type="number" step="0.01" name="real_ratio" value="{{ old('real_ratio') }}"
                                     placeholder="cth: 95.50"
                                     class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors">
@@ -241,8 +241,8 @@
                     <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Tanggal Input</th>
                     <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Periode</th>
                     <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Region</th>
-                    <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Komitmen</th>
-                    <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Realisasi</th>
+                    <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Komitmen (Rp)</th>
+                    <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Realisasi (Rp)</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-slate-100">

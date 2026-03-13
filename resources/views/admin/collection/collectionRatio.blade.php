@@ -119,17 +119,15 @@
                         </div>
                         <div>
                             <label
-                                class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Commitment (%)</label>
+                                class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Komitmen (%)</label>
                             <input type="number" step="0.01" name="commitment" placeholder="cth: 98.50"
-                                class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors"
-                                required>
+                                class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors">
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Realisasi
                                 (%)</label>
                             <input type="number" step="0.01" name="real_ratio" placeholder="cth: 95.50"
-                                class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors"
-                                required>
+                                class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors">
                         </div>
                     </div>
 
@@ -159,7 +157,7 @@
                         <div class="w-1 h-6 bg-red-600 rounded-full"></div>
                         <h2 class="text-base font-black text-slate-900 uppercase tracking-wide">Data Collections</h2>
                     </div>
-                    <form method="GET" action="{{ route('admin.collection-ratio') }}" class="grid grid-cols-5 gap-3">
+                    <form method="GET" action="{{ route('admin.collection-ratio') }}" class="grid grid-cols-6 gap-3">
                         <div>
                             <label
                                 class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">User</label>
@@ -178,10 +176,8 @@
                             <select name="segment" onchange="this.form.submit()"
                                 class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-semibold text-slate-700 focus:outline-none focus:border-red-400 bg-white">
                                 <option value="">Semua Segment</option>
-                                @foreach ($segments as $seg)
-                                    <option value="{{ $seg }}"
-                                        {{ ($selectedSegment ?? '') == $seg ? 'selected' : '' }}>{{ $seg }}
-                                    </option>
+                                @foreach (['Government', 'Private', 'SOE', 'SME'] as $seg)
+                                    <option value="{{ $seg }}" {{ ($selectedSegment ?? '') == $seg ? 'selected' : '' }}>{{ $seg }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -257,10 +253,10 @@
                                     Segment</th>
                                 <th
                                     class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                                    Commitment</th>
+                                    Komitmen (%)</th>
                                 <th
                                     class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                                    Realisasi</th>
+                                    Realisasi (%)</th>
                                 <th
                                     class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
                                     Status</th>
@@ -294,57 +290,23 @@
                                     </td>
                                     <td class="px-6 py-4 text-sm text-slate-700">{{ $item->segment ?? '—' }}</td>
                                     <td class="px-6 py-4 text-center font-black text-slate-700">
-                                        {{ $item->commitment !== null ? $item->commitment . '%' : '—' }}</td>
+                                        {{ $item->commitment !== null ? $item->commitment  : '—' }}</td>
                                     <td class="px-6 py-4 text-center font-black text-red-600">
-                                        {{ $item->real_ratio !== null ? $item->real_ratio . '%' : '—' }}</td>
-                                    <td class="px-6 py-4">
-                                        @php $isActive = ($item->status ?? 'active') === 'active'; 
-                                        $isAdmin = ($item->user?->role === 'admin'); @endphp
-                                        @if($isAdmin)
-                                            <div class="flex items-center justify-center space-x-2">
-                                                @if($isActive)
-                                                    <span
-                                                        class="text-xs font-bold text-green-700 bg-green-50 border border-green-200 rounded-md px-2.5 py-1">
-                                                        Active
-                                                    </span>
-                                                @else
-                                                    <span
-                                                        class="text-xs font-bold text-slate-500 bg-slate-100 border border-slate-200 rounded-md px-2.5 py-1">
-                                                        Inactive
-                                                    </span>
-                                                @endif
-                                                <form action="{{ route('admin.collection.toggleStatus', $item->id) }}"
-                                                    method="POST">
-                                                    @csrf
-                                                    @method('PATCH')
-                                                    <button type="submit"
-                                                        onclick="return confirm('{{ $isActive ? 'Nonaktifkan file ini? User tidak akan bisa mengedit data.' : 'Aktifkan kembali file ini?' }}')"
-                                                        class="inline-flex items-center space-x-1.5 text-xs font-bold px-3 py-1.5 rounded-lg border transition-all duration-200
-                                                                {{ $isActive
-                                                                    ? 'text-amber-700 hover:text-white border-amber-200 hover:border-amber-500 bg-amber-50 hover:bg-amber-500'
-                                                                    : 'text-green-700 hover:text-white border-green-200 hover:border-green-500 bg-green-50 hover:bg-green-500' }}">
-                                                        @if ($isActive)
-                                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
-                                                                viewBox="0 0 24 24">
-                                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                                    stroke-width="2"
-                                                                    d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
-                                                            </svg>
-                                                            <span>Nonaktifkan</span>
-                                                        @else
-                                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
-                                                                viewBox="0 0 24 24">
-                                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                                    stroke-width="2"
-                                                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                            </svg>
-                                                            <span>Aktifkan</span>
-                                                        @endif
-                                                    </button>
-                                                </form>
-                                            </div>
-                                        @else
-                                            <td class="px-6 py-4 text-center">-</td>
+                                        {{ $item->real_ratio !== null ? $item->real_ratio  : '—' }}</td>
+                                    @php $isActive = ($item->status ?? 'active') === 'active'; @endphp
+                                    <td class="px-2 py-4 text-center">
+                                        @if($item->user?->role === 'admin')
+                                            <form action="{{ route('admin.collection.toggleStatus', $item->id) }}" method="POST">
+                                                @csrf
+                                                @method('PATCH')
+                                                <button type="submit"
+                                                    class="text-xs font-bold px-3 py-1.5 rounded-lg border transition-all duration-200
+                                                    {{ $isActive
+                                                        ? 'text-amber-700 border-amber-200 bg-amber-50 hover:bg-amber-500 hover:text-white hover:border-amber-500'
+                                                        : 'text-green-700 border-green-200 bg-green-50 hover:bg-green-500 hover:text-white hover:border-green-500' }}">
+                                                    {{ $isActive ? 'Nonaktifkan' : 'Aktifkan' }}
+                                                </button>
+                                            </form>
                                         @endif
                                     </td>
                                 </tr>
