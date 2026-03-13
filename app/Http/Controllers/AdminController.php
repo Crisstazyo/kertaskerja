@@ -113,51 +113,51 @@ class AdminController extends Controller
     }
 
     public function c3mrTable(Request $request)
-{
-    $query = Collection::with('user')
+    {
+        $query = Collection::with('user')
+            ->where('type', 'C3MR')
+            ->orderBy('created_at', 'desc');
+
+        if ($request->filled('bulan')) {
+            $query->whereMonth('periode', $request->bulan);
+        }
+        if ($request->filled('user')) {
+            $query->where('user_id', $request->user);
+        }
+        if ($request->filled('tahun')) {
+            $query->whereYear('periode', $request->tahun);
+        }
+        if ($request->filled('cari')) {
+            $query->where(function($q) use ($request) {
+                $q->where('real_ratio', 'like', '%'.$request->cari.'%')
+                ->orWhere('commitment', 'like', '%'.$request->cari.'%');
+            });
+        }
+
+        $collections = $query->paginate(20)->withQueryString();
+
+        $tahuns = Collection::where('type', 'C3MR')
+            ->selectRaw('YEAR(periode) as tahun')
+            ->distinct()
+            ->orderBy('tahun', 'desc')
+            ->pluck('tahun');
+
+        $users = Collection::with('user')
         ->where('type', 'C3MR')
-        ->orderBy('created_at', 'desc');
+        ->get()
+        ->pluck('user')
+        ->filter()        // buang null
+        ->unique('id')
+        ->values();
+        $selectedBulan = $request->bulan;
+        $selectedTahun = $request->tahun;
+        $selectedCari  = $request->cari;
 
-    if ($request->filled('bulan')) {
-        $query->whereMonth('periode', $request->bulan);
+        return view('admin.collection.c3mr', compact(
+            'collections', 'users', 'tahuns',
+            'selectedBulan', 'selectedTahun', 'selectedCari'
+        ));
     }
-    if ($request->filled('user')) {
-        $query->where('user_id', $request->user);
-    }
-    if ($request->filled('tahun')) {
-        $query->whereYear('periode', $request->tahun);
-    }
-    if ($request->filled('cari')) {
-        $query->where(function($q) use ($request) {
-            $q->where('real_ratio', 'like', '%'.$request->cari.'%')
-              ->orWhere('commitment', 'like', '%'.$request->cari.'%');
-        });
-    }
-
-    $collections = $query->paginate(20)->withQueryString();
-
-    $tahuns = Collection::where('type', 'C3MR')
-        ->selectRaw('YEAR(periode) as tahun')
-        ->distinct()
-        ->orderBy('tahun', 'desc')
-        ->pluck('tahun');
-
-    $users = Collection::with('user')
-    ->where('type', 'C3MR')
-    ->get()
-    ->pluck('user')
-    ->filter()        // buang null
-    ->unique('id')
-    ->values();
-    $selectedBulan = $request->bulan;
-    $selectedTahun = $request->tahun;
-    $selectedCari  = $request->cari;
-
-    return view('admin.collection.c3mr', compact(
-        'collections', 'users', 'tahuns',
-        'selectedBulan', 'selectedTahun', 'selectedCari'
-    ));
-}
 
     public function c3mrStore(Request $request)
     {

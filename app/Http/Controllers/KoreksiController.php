@@ -17,7 +17,6 @@ class KoreksiController extends Controller
     private const MAX_COL        = 5;
 
     private array $columnMap = [
-        'NO'              => 'no',
         'NAMA PELANGGAN'  => 'nama_pelanggan',
         'NILAI KOMITMEN'  => 'nilai_komitmen',
         'PROGRESS'        => 'progress',
@@ -73,23 +72,14 @@ class KoreksiController extends Controller
         try {
             $spreadsheet = IOFactory::load($tempPath);
             $sheet       = $spreadsheet->getActiveSheet();
-
-            $headerMap  = $this->readAndValidateHeaders($sheet);
-            $highestRow = $sheet->getHighestRow();
-
-            $rows = [];
+            $headerMap   = $this->readAndValidateHeaders($sheet);
+            $highestRow  = $sheet->getHighestRow();
+            $rows        = [];
 
             for ($rowIndex = self::DATA_START_ROW; $rowIndex <= $highestRow; $rowIndex++) {
-                if ($this->isTotalRow($sheet, $rowIndex)) {
-                    break;
-                }
-
+                if ($this->isTotalRow($sheet, $rowIndex)) break;
                 $rowData = $this->readRow($sheet, $rowIndex, $headerMap);
-
-                if ($this->isRowEmpty($rowData)) {
-                    continue;
-                }
-
+                if ($this->isRowEmpty($rowData)) continue;
                 $rows[] = $rowData;
             }
 
@@ -105,19 +95,21 @@ class KoreksiController extends Controller
                         'type'    => 'koreksi',
                     ],
                     [
-                        'original_filename'   => $originalFilename,
-                        'status'              => 'active',
-                        'total_rows_imported' => count($rows),
-                        'uploaded_by'         => auth()->user()->name ?? request()->ip(),
+                        'original_filename' => $originalFilename,
+                        'status'            => 'active',
+                        'uploaded_by'       => auth()->user()->name ?? request()->ip(),
                     ]
                 );
 
-                $log->koreksi()->delete();
+                // ✅ Hanya hapus data dari import Excel sebelumnya, biarkan data manual tetap
+                $log->koreksi()->where('is_manual', false)->delete();
 
+                // Insert data baru dari Excel, tandai is_manual = false
                 $timestamp  = now();
                 $insertRows = array_map(function ($row) use ($log, $timestamp) {
                     return array_merge($row, [
                         'imports_log_id' => $log->id,
+                        'is_manual'      => false,   // ← tandai sebagai import Excel
                         'created_at'     => $timestamp,
                         'updated_at'     => $timestamp,
                     ]);
@@ -126,6 +118,21 @@ class KoreksiController extends Controller
                 foreach (array_chunk($insertRows, 500) as $chunk) {
                     Koreksi::insert($chunk);
                 }
+
+                // ✅ Renumber: data manual duluan (urut by id), lalu data Excel
+                $allRows = $log->koreksi()
+                    ->orderBy('is_manual', 'desc')  // manual = 1 duluan
+                    ->orderBy('id', 'asc')
+                    ->get();
+
+                foreach ($allRows as $index => $row) {
+                    $row->update(['no' => $index + 1]);
+                }
+
+                // ✅ Update total_rows_imported dengan jumlah aktual
+                $log->update([
+                    'total_rows_imported' => $log->koreksi()->count(),
+                ]);
             });
 
             return back()->with(
@@ -154,12 +161,12 @@ class KoreksiController extends Controller
             }
         }
 
-        // Validasi minimal NO dan NAMA PELANGGAN harus ada
-        if (!in_array('NO', $foundHeaders) || !in_array('NAMA PELANGGAN', $foundHeaders)) {
+        // Validasi minimal NAMA PELANGGAN harus ada
+        if (!in_array('NAMA PELANGGAN', $foundHeaders)) {
             $found = implode(', ', $foundHeaders) ?: '(tidak ada)';
             throw new \Exception(
                 "Header tidak ditemukan di baris ke-" . self::HEADER_ROW . ". " .
-                "Kolom terbaca: {$found}. Pastikan header NO dan NAMA PELANGGAN ada di baris " . self::HEADER_ROW . "."
+                "Kolom terbaca: {$found}. Pastikan header NAMA PELANGGAN ada di baris " . self::HEADER_ROW . "."
             );
         }
 
@@ -248,6 +255,7 @@ class KoreksiController extends Controller
             $data = Koreksi::create([
             'imports_log_id'           => $log->id,
             'no'                       => $log->koreksi()->count() + 1,
+            'is_manual'                => true,
             'nama_pelanggan'           => $request->nama_pelanggan,
             'nilai_komitmen'           => $request->nilai_komitmen,
             'realisasi'                => $request->realisasi,
@@ -265,6 +273,7 @@ class KoreksiController extends Controller
 
             $data = Koreksi::create([
             'imports_log_id'           => $import->id,
+            'is_manual'                => true,
             'no'                       => 1,
             'nama_pelanggan'           => $request->nama_pelanggan,
             'nilai_komitmen'           => $request->nilai_komitmen,

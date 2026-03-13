@@ -15,6 +15,7 @@ class Koreksi extends Model
         'nilai_komitmen',
         'progress',
         'realisasi',
+        'is_manual',
         'imports_log_id',
     ];
 
