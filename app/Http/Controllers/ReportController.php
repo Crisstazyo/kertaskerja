@@ -378,7 +378,7 @@ class ReportController extends Controller
                     'realSsl' => $realSsl,
                     'realRp'  => $realRp,
                     'ach'     => $ach,
-                    'updated_at' => $row?->updated_at?->translatedFormat('d M Y H:i') ?? '-',
+                    'updated_at' => $row?->real_updated_at?->translatedFormat('d M Y H:i') ?? '-',
                 ];
             }
 

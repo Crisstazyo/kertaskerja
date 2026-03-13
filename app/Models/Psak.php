@@ -12,16 +12,10 @@ class Psak extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'user_id',
-        'type', // gov, soe, sme, private
-        'status',
-        'periode',
-        'segment', // Not Cose
-        'comm_ssl',
-        'comm_rp',
-        'real_ssl',
-        'real_rp',
-    ];
+    'user_id', 'type', 'status', 'periode', 'segment',
+    'comm_ssl', 'comm_rp', 'real_ssl', 'real_rp',
+    'real_updated_at',
+];
 
     /**
      * The attributes that should be cast.
@@ -29,11 +23,21 @@ class Psak extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
-    ];
-    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
+    'created_at'      => 'datetime',
+    'updated_at'      => 'datetime',
+    'real_updated_at' => 'datetime',
+];
+
+protected static function booted(): void
+{
+    static::updating(function ($model) {
+        if ($model->isDirty('real_rp') || $model->isDirty('real_ssl')) {
+            $model->real_updated_at = now();
+        }
+    });
+}
+public function user()
+{
+    return $this->belongsTo(User::class);
+}
 }

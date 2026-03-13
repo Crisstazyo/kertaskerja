@@ -6,8 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\Collection;
 use App\Models\Ctc;
 use App\Models\Ct0;
-use App\Models\Psak;
 use App\Models\User;
+use App\Models\Psak;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 
@@ -621,15 +621,19 @@ class AdminController extends Controller
             ->orderBy('created_at', 'desc')
             ->first();
 
+        $realFilled    = $request->filled('real_ssl') || $request->filled('real_rp');
+        $realUpdatedAt = $realFilled ? now() : ($existing->real_updated_at ?? null);
+
         Psak::create([
-            'user_id'  => Auth::id(),
-            'type'     => 'Government',
-            'segment'  => $request->segment,
-            'periode'  => $periode,
-            'comm_ssl' => $request->filled('comm_ssl') ? $request->comm_ssl : ($existing->comm_ssl ?? null),
-            'comm_rp'  => $request->filled('comm_rp')  ? $request->comm_rp  : ($existing->comm_rp  ?? null),
-            'real_ssl' => $request->filled('real_ssl') ? $request->real_ssl : ($existing->real_ssl ?? null),
-            'real_rp'  => $request->filled('real_rp')  ? $request->real_rp  : ($existing->real_rp  ?? null),
+            'user_id'         => Auth::id(),
+            'type'            => 'Government',
+            'segment'         => $request->segment,
+            'periode'         => $periode,
+            'comm_ssl'        => $request->filled('comm_ssl') ? $request->comm_ssl : ($existing->comm_ssl ?? null),
+            'comm_rp'         => $request->filled('comm_rp')  ? $request->comm_rp  : ($existing->comm_rp  ?? null),
+            'real_ssl'        => $request->filled('real_ssl') ? $request->real_ssl : ($existing->real_ssl ?? null),
+            'real_rp'         => $request->filled('real_rp')  ? $request->real_rp  : ($existing->real_rp  ?? null),
+            'real_updated_at' => $realUpdatedAt,
         ]);
 
         return back()->with('success', 'Data PSAK Government periode ' . Carbon::parse($periode)->translatedFormat('F Y') . ' berhasil disimpan.');
@@ -687,15 +691,19 @@ class AdminController extends Controller
             ->orderBy('created_at', 'desc')
             ->first();
 
+        $realFilled    = $request->filled('real_ssl') || $request->filled('real_rp');
+        $realUpdatedAt = $realFilled ? now() : ($existing->real_updated_at ?? null);
+
         Psak::create([
-            'user_id'  => Auth::id(),
-            'type'     => 'Private',
-            'segment'  => $request->segment,
-            'periode'  => $periode,
-            'comm_ssl' => $request->filled('comm_ssl') ? $request->comm_ssl : ($existing->comm_ssl ?? null),
-            'comm_rp'  => $request->filled('comm_rp')  ? $request->comm_rp  : ($existing->comm_rp  ?? null),
-            'real_ssl' => $request->filled('real_ssl') ? $request->real_ssl : ($existing->real_ssl ?? null),
-            'real_rp'  => $request->filled('real_rp')  ? $request->real_rp  : ($existing->real_rp  ?? null),
+            'user_id'         => Auth::id(),
+            'type'            => 'Private',
+            'segment'         => $request->segment,
+            'periode'         => $periode,
+            'comm_ssl'        => $request->filled('comm_ssl') ? $request->comm_ssl : ($existing->comm_ssl ?? null),
+            'comm_rp'         => $request->filled('comm_rp')  ? $request->comm_rp  : ($existing->comm_rp  ?? null),
+            'real_ssl'        => $request->filled('real_ssl') ? $request->real_ssl : ($existing->real_ssl ?? null),
+            'real_rp'         => $request->filled('real_rp')  ? $request->real_rp  : ($existing->real_rp  ?? null),
+            'real_updated_at' => $realUpdatedAt,
         ]);
 
         return back()->with('success', 'Data PSAK Private periode ' . Carbon::parse($periode)->translatedFormat('F Y') . ' berhasil disimpan.');
@@ -753,15 +761,19 @@ class AdminController extends Controller
             ->orderBy('created_at', 'desc')
             ->first();
 
+        $realFilled    = $request->filled('real_ssl') || $request->filled('real_rp');
+        $realUpdatedAt = $realFilled ? now() : ($existing->real_updated_at ?? null);
+
         Psak::create([
-            'user_id'  => Auth::id(),
-            'type'     => 'SOE',
-            'segment'  => $request->segment,
-            'periode'  => $periode,
-            'comm_ssl' => $request->filled('comm_ssl') ? $request->comm_ssl : ($existing->comm_ssl ?? null),
-            'comm_rp'  => $request->filled('comm_rp')  ? $request->comm_rp  : ($existing->comm_rp  ?? null),
-            'real_ssl' => $request->filled('real_ssl') ? $request->real_ssl : ($existing->real_ssl ?? null),
-            'real_rp'  => $request->filled('real_rp')  ? $request->real_rp  : ($existing->real_rp  ?? null),
+            'user_id'         => Auth::id(),
+            'type'            => 'SOE',
+            'segment'         => $request->segment,
+            'periode'         => $periode,
+            'comm_ssl'        => $request->filled('comm_ssl') ? $request->comm_ssl : ($existing->comm_ssl ?? null),
+            'comm_rp'         => $request->filled('comm_rp')  ? $request->comm_rp  : ($existing->comm_rp  ?? null),
+            'real_ssl'        => $request->filled('real_ssl') ? $request->real_ssl : ($existing->real_ssl ?? null),
+            'real_rp'         => $request->filled('real_rp')  ? $request->real_rp  : ($existing->real_rp  ?? null),
+            'real_updated_at' => $realUpdatedAt,
         ]);
 
         return back()->with('success', 'Data PSAK SOE periode ' . Carbon::parse($periode)->translatedFormat('F Y') . ' berhasil disimpan.');
@@ -819,15 +831,19 @@ class AdminController extends Controller
             ->orderBy('created_at', 'desc')
             ->first();
 
+        $realFilled    = $request->filled('real_ssl') || $request->filled('real_rp');
+        $realUpdatedAt = $realFilled ? now() : ($existing->real_updated_at ?? null);
+
         Psak::create([
-            'user_id'  => Auth::id(),
-            'type'     => 'SME',
-            'segment'  => $request->segment,
-            'periode'  => $periode,
-            'comm_ssl' => $request->filled('comm_ssl') ? $request->comm_ssl : ($existing->comm_ssl ?? null),
-            'comm_rp'  => $request->filled('comm_rp')  ? $request->comm_rp  : ($existing->comm_rp  ?? null),
-            'real_ssl' => $request->filled('real_ssl') ? $request->real_ssl : ($existing->real_ssl ?? null),
-            'real_rp'  => $request->filled('real_rp')  ? $request->real_rp  : ($existing->real_rp  ?? null),
+            'user_id'         => Auth::id(),
+            'type'            => 'SME',
+            'segment'         => $request->segment,
+            'periode'         => $periode,
+            'comm_ssl'        => $request->filled('comm_ssl') ? $request->comm_ssl : ($existing->comm_ssl ?? null),
+            'comm_rp'         => $request->filled('comm_rp')  ? $request->comm_rp  : ($existing->comm_rp  ?? null),
+            'real_ssl'        => $request->filled('real_ssl') ? $request->real_ssl : ($existing->real_ssl ?? null),
+            'real_rp'         => $request->filled('real_rp')  ? $request->real_rp  : ($existing->real_rp  ?? null),
+            'real_updated_at' => $realUpdatedAt,
         ]);
 
         return back()->with('success', 'Data PSAK SME periode ' . Carbon::parse($periode)->translatedFormat('F Y') . ' berhasil disimpan.');
