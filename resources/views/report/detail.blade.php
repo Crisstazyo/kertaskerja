@@ -57,6 +57,13 @@
                 </h2>
             </div>
             <div class="flex items-center space-x-3 flex-wrap gap-2">
+                <button id="btn-export-detail"
+                    class="flex items-center space-x-2 bg-slate-900 hover:bg-red-600 text-white font-black text-[11px] px-3 py-1 rounded-md transition-all uppercase tracking-widest">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                    </svg>
+                    <span>Export JPG</span>
+                </button>
                 <span class="text-[11px] font-black tracking-widest uppercase px-3 py-1 rounded-md border
                     @if($segment === 'gov')     bg-blue-50   border-blue-200   text-blue-700
                     @elseif($segment === 'private') bg-purple-50 border-purple-200 text-purple-700
@@ -415,8 +422,334 @@
         </div>
         @endif
 
-        @endif {{-- end if koreksi --}}
+        @endif
 
     </div>
 </div>
+<div id="export-overlay"
+    style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:9999;align-items:center;justify-content:center;flex-direction:column;gap:16px;">
+    <div style="width:36px;height:36px;border:4px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:espin 0.8s linear infinite;"></div>
+    <p style="color:white;font-weight:900;font-size:13px;letter-spacing:0.12em;text-transform:uppercase;" id="export-detail-status">Mempersiapkan...</p>
+    <div style="width:280px;height:6px;background:rgba(255,255,255,0.2);border-radius:99px;overflow:hidden;">
+        <div id="export-detail-bar" style="height:100%;background:#ef4444;border-radius:99px;transition:width 0.3s;width:0%;"></div>
+    </div>
+</div>
+
+<div id="export-detail-root"
+    style="position:fixed;left:-99999px;top:0;z-index:-1;background:white;font-family:'Inter','Noto Sans',Arial,sans-serif!important;">
+</div>
+
+<style>
+@keyframes espin { to { transform:rotate(360deg); } }
+.detail-export-page {
+    width:1300px;
+    background:white;
+    padding:24px 32px 56px;
+    font-family:'Inter','Noto Sans',Arial,sans-serif;
+    box-sizing:border-box;
+    -webkit-font-smoothing:antialiased;
+}
+.detail-export-header {
+    display:flex;align-items:center;gap:16px;
+    margin-bottom:4px;padding-bottom:10px;
+    border-bottom:3px solid #dc2626;
+}
+.detail-export-header img { height:36px; }
+.detail-export-header-divider { width:1px;height:36px;background:#e2e8f0; }
+</style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+(function(){
+    var segmentLabel = @json($segmentLabel);
+    var typeLabel    = @json($typeLabel);
+    var periodeLabel = @json($periodeLabel);
+    var logoUrl      = '{{ asset('img/Telkom.png') }}';
+    var isKoreksi    = @json($type === 'koreksi');
+
+    function setProgress(p){ document.getElementById('export-detail-bar').style.width = p+'%'; }
+    function setStatus(t)  { document.getElementById('export-detail-status').textContent = t; }
+    function showOverlay() { var o=document.getElementById('export-overlay'); o.style.display='flex'; setProgress(0); }
+    function hideOverlay() { document.getElementById('export-overlay').style.display='none'; }
+
+    function cloneCards() {
+        var cards = document.querySelector('.grid.grid-cols-2.md\\:grid-cols-4');
+        if (!cards) return '';
+        return cards.outerHTML;
+    }
+
+function cloneTable() {
+    var table = document.querySelector('table');
+    if (!table) return '';
+    var wrapper = document.createElement('div');
+    wrapper.style.cssText = 'overflow:visible;margin-top:14px;';
+    var tClone = table.cloneNode(true);
+
+    tClone.style.cssText = 'width:100%;border-collapse:collapse;font-size:8px;font-family:Inter,Arial,sans-serif;table-layout:auto;';
+
+    var oldCg = tClone.querySelector('colgroup');
+    if (oldCg) oldCg.remove();
+
+    var firstRow = tClone.querySelector('tbody tr');
+    var colCount = firstRow ? firstRow.querySelectorAll('td').length : 30;
+    var isKoreksi = colCount <= 5;
+
+    if (isKoreksi) {
+        var cgK = document.createElement('colgroup');
+        var koreksiWidths = ['40px', '280px', '160px', '120px', '160px'];
+        koreksiWidths.forEach(function(w) {
+            var col = document.createElement('col');
+            col.style.width = w;
+            cgK.appendChild(col);
+        });
+        tClone.insertBefore(cgK, tClone.firstChild);
+
+        tClone.querySelectorAll('th').forEach(function(th) {
+            var bg    = window.getComputedStyle(th).backgroundColor;
+            var color = window.getComputedStyle(th).color;
+            th.style.cssText = 'border:1px solid rgba(255,255,255,0.15);padding:8px 10px;font-size:8px;'
+                + 'background:'+bg+';color:'+color+';font-weight:800;'
+                + 'text-align:center;vertical-align:middle;'
+                + 'text-transform:uppercase;letter-spacing:0.08em;';
+        });
+
+        tClone.querySelectorAll('td').forEach(function(td) {
+            var bg  = window.getComputedStyle(td).backgroundColor;
+            var col = window.getComputedStyle(td).color;
+            var fw  = window.getComputedStyle(td).fontWeight;
+            var ta  = window.getComputedStyle(td).textAlign;
+            td.style.cssText = 'border:1px solid #e2e8f0;padding:6px 10px 10px 10px;font-size:8px;'
+                + 'background:'+bg+';color:'+col+';font-weight:'+fw+';'
+                + 'text-align:'+ta+';vertical-align:middle;';
+        });
+
+        wrapper.appendChild(tClone);
+        return wrapper.outerHTML;
+    }
+
+    var widths = [
+        '35px',
+        '130px',
+        '65px',
+        '65px',
+        '105px',
+        '70px',
+        '40px',
+        '110px',
+        '60px',
+        '65px',
+        '55px',
+        '26px',
+        '26px',
+        '26px',
+        '75px',
+        '26px',
+        '75px',
+        '26px',
+        '26px',
+        '60px',
+        '80px',
+        '55px',
+        '70px',
+        '26px',
+        '70px',
+        '90px',
+        '55px',
+        '75px',
+        '65px',
+        '12px',
+    ];
+
+    var cg = document.createElement('colgroup');
+    widths.forEach(function(w) {
+        var col = document.createElement('col');
+        col.style.width = w;
+        cg.appendChild(col);
+    });
+    tClone.insertBefore(cg, tClone.firstChild);
+
+    var checkCells   = new Set();
+    var greyCells    = new Set();
+
+    tClone.querySelectorAll('td').forEach(function(td) {
+        if (td.querySelector('span.bg-green-500, span[class*="bg-green-500"]')) checkCells.add(td);
+        else if (td.querySelector('span.bg-slate-100, span[class*="bg-slate-100"]')) greyCells.add(td);
+    });
+
+    tClone.querySelectorAll('td').forEach(function(td) {
+        if (checkCells.has(td)) {
+            td.innerHTML = '<div style="width:100%;text-align:center;line-height:1;">'
+                + '<svg viewBox="0 0 16 16" width="13" height="13" xmlns="http://www.w3.org/2000/svg" style="display:inline-block;vertical-align:middle;">'
+                + '<circle cx="8" cy="8" r="7.5" fill="#22c55e"/>'
+                + '<polyline points="4.5,8.5 7,11 11.5,5.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>'
+                + '</svg></div>';
+            return;
+        }
+        if (greyCells.has(td)) {
+            td.innerHTML = '<div style="width:100%;text-align:center;line-height:1;">'
+                + '<svg viewBox="0 0 16 16" width="10" height="10" xmlns="http://www.w3.org/2000/svg" style="display:inline-block;vertical-align:middle;">'
+                + '<circle cx="8" cy="8" r="7.5" fill="#e2e8f0"/>'
+                + '</svg></div>';
+            return;
+        }
+        var dashSpan = td.querySelector('span.text-slate-300');
+        if (dashSpan && dashSpan.textContent.trim() === '—') {
+            td.innerHTML = '<span style="color:#cbd5e1;font-size:8px;">—</span>';
+            return;
+        }
+    });
+
+    tClone.querySelectorAll('th').forEach(function(th) {
+        var bg    = window.getComputedStyle(th).backgroundColor;
+        var color = window.getComputedStyle(th).color;
+        var rowspan  = th.getAttribute('rowspan');
+        var colspan  = th.getAttribute('colspan');
+        var tr       = th.parentElement;
+        var theadRows = Array.from(th.closest('thead').querySelectorAll('tr'));
+        var isFirstRow = theadRows.indexOf(tr) === 0;
+        var isMergedDown = rowspan && parseInt(rowspan) > 1;
+        var isGroupHeader = colspan && parseInt(colspan) > 1;
+        var isSingleTop = isFirstRow && !isMergedDown && !isGroupHeader;
+
+        var padBottom = isMergedDown ? '4px' : (isGroupHeader || isSingleTop) ? '6px' : '20px';
+        var valign    = (isMergedDown || isGroupHeader || isSingleTop) ? 'middle' : 'bottom';
+        th.style.cssText = 'border:1px solid rgba(0,0,0,0.1);padding:2px 2px '+padBottom+' 2px;font-size:6px;'
+            + 'background:'+bg+';color:'+color+';font-weight:800;'
+            + 'text-align:center;vertical-align:'+valign+';'
+            + 'word-break:break-word;line-height:1.2;'
+            + 'text-transform:uppercase;letter-spacing:0.02em;';
+    });
+
+    // Style td
+    tClone.querySelectorAll('td').forEach(function(td) {
+        var bg  = window.getComputedStyle(td).backgroundColor;
+        var col = window.getComputedStyle(td).color;
+        var fw  = window.getComputedStyle(td).fontWeight;
+        var ta  = window.getComputedStyle(td).textAlign;
+        var idx = td.cellIndex;
+
+        var isCheck = checkCells.has(td);
+        var isGrey  = greyCells.has(td);
+        var isCheckCol = (idx >= 8 && idx <= 27) || idx === 29;
+
+        var extraWrap = '';
+        if (idx === 4) {
+            extraWrap = 'white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
+        } else if (idx === 28 || idx === 7) {
+            extraWrap = 'white-space:nowrap;';
+        } else if (idx <= 5) {
+            extraWrap = 'word-break:break-word;overflow-wrap:break-word;';
+        } else {
+            extraWrap = 'overflow:hidden;';
+        }
+
+        var colorOverride = '';
+        var fontOverride  = '';
+        var sizeOverride  = '';
+        if (isCheck || isGrey) {
+            colorOverride = '';
+            fontOverride  = '';
+            sizeOverride  = 'font-size:0px;';
+        } else if (idx === 28) {
+            colorOverride = 'color:#1e293b;';
+            fontOverride  = 'font-weight:900;';
+            sizeOverride  = 'font-size:7px;';
+        } else if (idx >= 8 && idx !== 7) {
+            colorOverride = 'color:#94a3b8;';
+            fontOverride  = 'font-weight:600;';
+            sizeOverride  = 'font-size:9px;';
+        }
+
+        var align = (isCheckCol)
+            ? 'text-align:center;vertical-align:middle;'
+            : 'text-align:'+ta+';vertical-align:middle;';
+
+        var padding = isCheckCol
+            ? 'padding:0px 1px;'
+            : 'padding:2px 2px 8px 2px;';
+
+        td.style.cssText = 'border:1px solid #e2e8f0;font-size:7px;'
+            + padding
+            + 'background:'+bg+';'+colorOverride+fontOverride+sizeOverride
+            + align + 'line-height:1.4;' + extraWrap;
+    });
+
+    wrapper.appendChild(tClone);
+    return wrapper.outerHTML;
+}
+    function buildExportEl() {
+        var headerHtml = '<div class="detail-export-header">'
+            + '<img src="'+logoUrl+'" crossorigin="anonymous">'
+            + '<div class="detail-export-header-divider"></div>'
+            + '<div>'
+            +   '<div style="font-size:8.5px;font-weight:800;letter-spacing:0.3em;color:#dc2626;text-transform:uppercase;margin-bottom:2px;">Witel Sumut</div>'
+            +   '<div style="font-size:15px;font-weight:900;text-transform:uppercase;color:#0f172a;line-height:1;">Detail Scalling</div>'
+            +   '<div style="font-size:8px;color:#64748b;font-weight:600;margin-top:3px;text-transform:uppercase;letter-spacing:0.05em;">'
+            +     segmentLabel + ' &nbsp;|&nbsp; ' + typeLabel + ' &nbsp;|&nbsp; ' + periodeLabel
+            +   '</div>'
+            + '</div>'
+            + '</div>';
+
+        var cardsHtml = cloneCards();
+        var tableHtml = cloneTable();
+
+        var div = document.createElement('div');
+        div.className = 'detail-export-page';
+        div.innerHTML = headerHtml
+            + '<div style="margin-top:12px;">' + cardsHtml + '</div>'
+            + tableHtml;
+        return div;
+    }
+
+    document.getElementById('btn-export-detail').addEventListener('click', async function() {
+        showOverlay();
+        setStatus('Mempersiapkan...');
+        setProgress(20);
+
+        var fontLink = document.getElementById('export-font-link');
+        if (!fontLink) {
+            fontLink = document.createElement('link');
+            fontLink.id   = 'export-font-link';
+            fontLink.rel  = 'stylesheet';
+            fontLink.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap';
+            document.head.appendChild(fontLink);
+        }
+
+        var el   = buildExportEl();
+        var root = document.getElementById('export-detail-root');
+        root.appendChild(el);
+
+        await document.fonts.ready;
+        await new Promise(function(r){ setTimeout(r, 200); });
+
+        setStatus('Merender...');
+        setProgress(60);
+
+        var canvas = await html2canvas(el, {
+            scale: 1.8,
+            useCORS: true,
+            backgroundColor: '#ffffff',
+            logging: false,
+            imageTimeout: 15000,
+        });
+
+        root.removeChild(el);
+        setProgress(95);
+
+        var filename = 'detail-'
+            + segmentLabel.toLowerCase() + '-'
+            + typeLabel.toLowerCase().replace(/\s+/g,'-') + '-'
+            + periodeLabel.toLowerCase().replace(/\s+/g,'-') + '.jpg';
+
+        var a = document.createElement('a');
+        a.href = canvas.toDataURL('image/jpeg', 0.95);
+        a.download = filename;
+        a.click();
+
+        setProgress(100);
+        await new Promise(function(r){ setTimeout(r, 400); });
+        hideOverlay();
+    });
+})();
+</script>
 @endsection

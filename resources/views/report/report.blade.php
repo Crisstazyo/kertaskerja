@@ -918,7 +918,7 @@
     .export-page {
         width:860px;
         background:white;
-        padding:32px 36px 36px;
+        padding:24px 24px 28px;
         font-family:'Inter','Noto Sans',Arial,sans-serif;
         box-sizing:border-box;
         -webkit-font-smoothing:antialiased;
@@ -1140,9 +1140,7 @@
 
     // ═══ Clone tr → HTML string ═══
     function cloneTrFull(tr, skipFirstTd) {
-        var tds = Array.from(tr.querySelectorAll('td, th')).filter(function(td) {
-            return !td.classList.contains('no-print');
-        });
+    var tds = Array.from(tr.querySelectorAll('td, th'));
         if (!tds.length) return '';
         var startIdx = 0;
         if (skipFirstTd) {
@@ -1164,6 +1162,7 @@
 
             var isSectionHeaderCell = (colspanVal === '10' || colspanVal === '11');
 
+            var isNoPrint = td.classList.contains('no-print');
             var style;
             if (isSectionHeaderCell) {
                 style = 'background:#f8fafc;color:#1e293b;font-weight:700;font-size:8.5px;'
@@ -1171,6 +1170,11 @@
                       + 'border:1px solid #d1d5db;'
                       + 'text-align:left;vertical-align:middle;'
                       + 'word-break:break-word;overflow-wrap:break-word;line-height:1.4;';
+            } else if (isNoPrint) {
+                style = 'text-align:center;vertical-align:top;'
+          + 'padding:2px 4px 8px 4px;border:1px solid #cbd5e1;'
+          + 'font-size:8px;color:#1e293b;font-weight:400;'
+          + 'line-height:1.4;word-break:break-word;overflow-wrap:break-word;';
             } else {
                 style = resolveColor(td)
                       + resolveAlign(cls)
@@ -1205,8 +1209,8 @@
 
     function colgroupHtml(withNo) {
         var cols = withNo
-            ? '<col style="width:22px"><col style="width:105px"><col style="width:130px"><col style="width:42px"><col style="width:60px"><col style="width:60px"><col style="width:60px"><col style="width:60px"><col style="width:52px"><col style="width:42px"><col style="width:42px">'
-            : '<col style="width:105px"><col style="width:130px"><col style="width:42px"><col style="width:60px"><col style="width:60px"><col style="width:60px"><col style="width:60px"><col style="width:52px"><col style="width:42px"><col style="width:42px">';
+            ? '<col style="width:20px"><col style="width:90px"><col style="width:110px"><col style="width:32px"><col style="width:50px"><col style="width:50px"><col style="width:50px"><col style="width:50px"><col style="width:40px"><col style="width:38px"><col style="width:38px"><col style="width:72px">'
+            : '<col style="width:90px"><col style="width:110px"><col style="width:32px"><col style="width:50px"><col style="width:50px"><col style="width:50px"><col style="width:50px"><col style="width:40px"><col style="width:38px"><col style="width:38px"><col style="width:72px">';
         return '<colgroup>'+cols+'</colgroup>';
     }
 
@@ -1222,6 +1226,7 @@
              + '<th rowspan="2" '+thStyle+'>Fairness</th>'
              + '<th rowspan="2" '+thStyle+'>Ach</th>'
              + '<th rowspan="2" '+thStyle+'>Score</th>'
+             + '<th rowspan="2" '+thStyle+'>Last Update</th>'
              + '</tr>'
              + '<tr>'
              + '<th '+thStyle+'>Amount</th><th '+thStyle+'>Rp (Mio)</th>'
@@ -1256,13 +1261,13 @@
         var div = document.createElement('div');
         div.className = 'export-page';
         div.innerHTML =
-            pageHeaderHtml(sec.no+'. '+sec.name)
-          + '<div class="export-section-badge">'+sec.no+'. '+sec.name+'</div>'
-          + '<table class="export-table" style="table-layout:fixed;width:100%;">'
-          +   colgroupHtml(false)
-          +   '<thead style="background:#4a7795;">'+colHeaderHtml(false)+'</thead>'
-          +   '<tbody>'+bodyHtml+'</tbody>'
-          + '</table>';
+            pageHeaderHtml(sec.name)
+        + '<div class="export-section-badge">'+sec.name+'</div>'
+        + '<table class="export-table" style="table-layout:fixed;width:100%;">'
+        +   colgroupHtml(false)
+        +   '<thead style="background:#4a7795;">'+colHeaderHtml(false)+'</thead>'
+        +   '<tbody>'+bodyHtml+'</tbody>'
+        + '</table>';
         return div;
     }
 
@@ -1379,25 +1384,38 @@
     }
 
     async function doExportFull() {
-        showOverlay();
-        for (var i = 0; i < SECTIONS.length; i++) {
-            var sec = SECTIONS[i];
-            var pct = Math.round(10 + (i / SECTIONS.length) * 80);
-            setProgress(pct);
-            setStatus('Memproses '+sec.no+'. '+sec.name+'... ('+( i+1 )+'/'+SECTIONS.length+')');
+    showOverlay();
+    for (var i = 0; i < SECTIONS.length; i++) {
+        var sec = SECTIONS[i];
+        var pct = Math.round(10 + (i / SECTIONS.length) * 80);
+        setProgress(pct);
+        setStatus('Memproses '+sec.no+'. '+sec.name+'... ('+( i+1 )+'/'+SECTIONS.length+')');
 
-            var trElements = getSectionRows(sec.keyword);
-            var pageEl     = buildSectionPageEl(sec, trElements);
-            var canvas     = await renderToCanvas(pageEl);
-            downloadCanvas(canvas, 'report-'+sec.no+'-'+slugify(sec.name)+'-'+slugify(periodeLabel)+'.jpg');
+        var trElements = getSectionRows(sec.keyword);
+        var bodyHtml = '';
+        trElements.forEach(function(tr) { bodyHtml += cloneTrFull(tr, true); });
 
-            await new Promise(function(r){ setTimeout(r, 150); });
-        }
-        setProgress(100);
-        setStatus('Selesai!');
-        await new Promise(function(r){ setTimeout(r, 400); });
-        hideOverlay();
+        var div = document.createElement('div');
+        div.className = 'export-page';
+        div.innerHTML =
+            pageHeaderHtml(sec.no+'. '+sec.name)
+          + '<div class="export-section-badge">'+sec.no+'. '+sec.name+'</div>'
+          + '<table class="export-table" style="table-layout:fixed;width:100%;">'
+          +   colgroupHtml(false)
+          +   '<thead style="background:#4a7795;">'+colHeaderHtml(false)+'</thead>'
+          +   '<tbody>'+bodyHtml+'</tbody>'
+          + '</table>';
+
+        var canvas = await renderToCanvas(div);
+        downloadCanvas(canvas, 'report-'+sec.no+'-'+slugify(sec.name)+'-'+slugify(periodeLabel)+'.jpg');
+
+        await new Promise(function(r){ setTimeout(r, 150); });
     }
+    setProgress(100);
+    setStatus('Selesai!');
+    await new Promise(function(r){ setTimeout(r, 400); });
+    hideOverlay();
+}
 
 })();
 </script>

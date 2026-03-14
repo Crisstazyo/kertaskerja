@@ -243,7 +243,7 @@
                         <div class="w-1 h-6 bg-red-600 rounded-full"></div>
                         <h2 class="text-base font-black text-slate-900 uppercase tracking-wide">Data Collections</h2>
                     </div>
-                    <form method="GET" action="{{ route('admin.collection-ratio') }}" class="grid grid-cols-6 gap-3">
+                    <form method="GET" action="{{ route('admin.collection-ratio') }}" class="grid grid-cols-5 gap-3">
                         <div>
                             <label
                                 class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Segment</label>
@@ -365,7 +365,7 @@
                                     <td class="px-6 py-4 text-center font-black text-red-600">
                                         {{ $item->real_ratio !== null ? $item->real_ratio  : '0' }}</td>
                                     @php $isActive = ($item->status ?? 'active') === 'active'; @endphp
-                                    
+
                                 </tr>
                             @empty
                                 <tr>

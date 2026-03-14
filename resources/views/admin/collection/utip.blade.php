@@ -180,7 +180,7 @@
                     </form>
                 </div>
             </div>
-          
+
             {{-- ══ PANEL RINGKASAN ══ --}}
             <div id="panel-ringkasan" class="hidden mb-8">
                 <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
@@ -270,7 +270,7 @@
                         <div class="w-1 h-6 bg-red-600 rounded-full"></div>
                         <h2 class="text-base font-black text-slate-900 uppercase tracking-wide">Data Collections</h2>
                     </div>
-                    <form method="GET" action="{{ route('admin.utip') }}" class="grid grid-cols-6 gap-3">
+                    <form method="GET" action="{{ route('admin.utip') }}" class="grid grid-cols-5 gap-3">
                         <div>
                             <label
                                 class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Tipe</label>
@@ -350,7 +350,7 @@
                                 <th
                                     class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
                                     Periode</th>
-                                <th 
+                                <th
                                     class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
                                     Tipe</th>
                                 <th
@@ -403,7 +403,7 @@
                                         {{ $item->real_ratio !== null ? 'Rp'.number_format($item->real_ratio, 0, ',', '.') : '—' }}
                                     </td>
                                    @php $isActive = ($item->status ?? 'active') === 'active'; @endphp
-                                    
+
                                 </tr>
                             @empty
                                 <tr>

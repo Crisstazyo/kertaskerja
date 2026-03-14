@@ -169,7 +169,7 @@
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-slate-100">
-                                
+
                                 @forelse($ringkasanAll as $item)
                                     @php $isActive = ($item->status ?? 'active') === 'active'; @endphp
                                     <tr class="hover:bg-slate-50 transition-colors">
@@ -234,7 +234,7 @@
                         <div class="w-1 h-6 bg-red-600 rounded-full"></div>
                         <h2 class="text-base font-black text-slate-900 uppercase tracking-wide">Data Collections</h2>
                     </div>
-                    <form method="GET" action="{{ route('admin.c3mr') }}" class="grid grid-cols-5 gap-3">
+                    <form method="GET" action="{{ route('admin.c3mr') }}" class="grid grid-cols-4 gap-3">
                         <div>
                             <label
                                 class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Bulan</label>
@@ -308,7 +308,7 @@
                                 <th
                                     class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
                                     Realisasi (%)</th>
-                                
+
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100">
@@ -343,7 +343,7 @@
                                         {{ $item->real_ratio ?? '0' }}</td>
                                     @php $isActive = ($item->status ?? 'active') === 'active';
                                     $isAdmin = ($item->user?->role === 'admin'); @endphp
-                                    
+
                                 </tr>
                             @empty
                                 <tr>

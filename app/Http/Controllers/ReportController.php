@@ -23,6 +23,12 @@ class ReportController extends Controller
         $filterBulan = $request->input('bulan');
         $filterTahun = $request->input('tahun');
 
+        if (!$filtered) {
+            $filtered    = true;
+            $filterBulan = Carbon::now()->month;
+            $filterTahun = Carbon::now()->year;
+        }
+
         $filterPeriode = function ($q) use ($filtered, $filterBulan, $filterTahun) {
             if ($filtered && $filterBulan) {
                 $q->whereMonth('periode', $filterBulan);
@@ -113,22 +119,17 @@ class ReportController extends Controller
         // New UTIP — exact match by type, ambil record terbaru
         $newUtipPeriodes = [];
         foreach ($periodes as $p) {
-            if ($filtered && $filterBulan && $filterBulan != $p['bulan']) continue;
-            if ($filtered && $filterTahun && $filterTahun != $p['tahun']) continue;
-
             $row = Collection::where('type', $p['type'])
                 ->orderBy('created_at', 'desc')
                 ->first();
 
-            if (!$filtered || $row) {
-                $newUtipPeriodes[] = [
-                    'label'    => $p['label'],
-                    'planRp'   => $row ? $toFloat($row->plan)       : 0,
-                    'commitRp' => $row ? $toFloat($row->commitment) : 0,
-                    'realRp'   => $row ? $toFloat($row->real_ratio) : 0,
-                    'updated_at' => $row?->real_updated_at?->translatedFormat('d M Y H:i') ?? '-',
-                ];
-            }
+            $newUtipPeriodes[] = [
+                'label'      => $p['label'],
+                'planRp'     => $row ? $toFloat($row->plan)       : 0,
+                'commitRp'   => $row ? $toFloat($row->commitment) : 0,
+                'realRp'     => $row ? $toFloat($row->real_ratio) : 0,
+                'updated_at' => $row?->real_updated_at?->translatedFormat('d M Y H:i') ?? '-',
+            ];
         }
 
         $filterPeriodeCt0 = function ($q) use ($filtered, $filterBulan, $filterTahun) {
