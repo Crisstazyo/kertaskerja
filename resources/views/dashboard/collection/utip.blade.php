@@ -100,6 +100,7 @@
                 <div class="p-8">
                     <form action="{{ route('collection.utip.storeRealisasi') }}" method="POST">
                         @csrf
+                        
                         <!-- <input type="hidden" name="type" id="type-input" value="{{ $utips->first()->type ?? '' }}"> -->
                         <div class="max-w-md mx-auto space-y-5">
                             <div>

@@ -66,7 +66,7 @@
             @foreach(['Government', 'Private', 'SOE', 'SME'] as $seg)
             @php
                 $latest = $latestSeg?->where('segment', $seg)->first();
-                $pct = $collections->where('segment', $seg)->first()?->real_ratio;
+                $pct = $latestSeg->where('segment', $seg)->first()?->real_ratio;
                 $kom = $latest?->commitment;
             @endphp
             <div class="bg-white rounded-2xl border-2 border-slate-100 overflow-hidden">
@@ -90,7 +90,7 @@
                         <div class="flex items-center justify-between">
                             <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Komitmen</span>
                             <span class="text-sm font-black text-red-600">
-                                {{ $kom !== null ? number_format($kom, 2).'%' : '—' }}
+                                {{ $kom !== null ? number_format($kom, 2).'%' : '0' }}
                             </span>
                         </div>
                     </div>
@@ -119,10 +119,19 @@
                     <input type="hidden" name="user_id" value="{{ auth()->id() }}">
                     <input type="hidden" name="status" value="active">
                     <input type="hidden" name="commitment" value="">
+                    @php
+                        $commitmentMap = [];
+                        foreach(['Government', 'Private', 'SOE', 'SME'] as $seg) {
+                            $commitmentMap[$seg] = $latestSeg->where('segment', $seg)->first()?->commitment;
+                        }
+                    @endphp
+                    <script>
+                        const commitmentMap = @json($commitmentMap);
+                    </script>
                     <div class="max-w-md mx-auto space-y-5">
                         <div>
                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 text-center">Segment</label>
-                            <select name="segment" required
+                            <select name="segment" required onchange="checkCommitment(this.value)"
                                 class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors bg-white">
                                 <option value="">— Pilih Segment —</option>
                                 @foreach(['Government', 'Private', 'SOE', 'SME'] as $seg)
@@ -143,8 +152,9 @@
                             </div>
                         </div>
                         <div class="flex items-center justify-center pt-2">
-                            <button type="submit"
-                                class="flex items-center space-x-2 bg-slate-900 hover:bg-red-600 text-white font-bold text-xs px-6 py-3 rounded-xl transition-all duration-200 uppercase tracking-wider shadow-md hover:shadow-lg hover:shadow-red-200">
+                            <button type="submit" id="btn-simpan" disabled
+                                class="flex items-center space-x-2 bg-slate-400 cursor-not-allowed text-white font-bold text-xs px-6 py-3 rounded-xl uppercase tracking-wider shadow-md transition-all duration-200"
+                                title="Pilih segment terlebih dahulu">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                                 </svg>
@@ -256,10 +266,10 @@
                                         @endif
                                     </td>
                                     <td class="px-6 py-4 text-center font-black text-slate-700">
-                                        {{ $item->commitment !== null ? number_format($item->commitment, 2).'%' : '—' }}
+                                        {{ $item->commitment !== null ? number_format($item->commitment, 2).'%' : '0' }}
                                     </td>
                                     <td class="px-6 py-4 text-center font-black text-red-600">
-                                        {{ $item->real_ratio !== null ? number_format($item->real_ratio, 2).'%' : '—' }}
+                                        {{ $item->real_ratio !== null ? number_format($item->real_ratio, 2).'%' : '0' }}
                                     </td>
                                 </tr>
                             @empty
@@ -318,5 +328,23 @@
                 setTimeout(() => flash.remove(), 500);
             }
         }, 5000);
+        
+        // ← Tambahkan ini
+        function checkCommitment(segment) {
+            const btn = document.getElementById('btn-simpan');
+            const hasCommitment = segment && commitmentMap[segment] !== null && commitmentMap[segment] !== undefined;
+
+            if (hasCommitment) {
+                btn.disabled = false;
+                btn.className = 'flex items-center space-x-2 bg-slate-900 hover:bg-red-600 text-white font-bold text-xs px-6 py-3 rounded-xl transition-all duration-200 uppercase tracking-wider shadow-md hover:shadow-lg hover:shadow-red-200 cursor-pointer';
+                btn.title = '';
+            } else {
+                btn.disabled = true;
+                btn.className = 'flex items-center space-x-2 bg-slate-400 cursor-not-allowed text-white font-bold text-xs px-6 py-3 rounded-xl uppercase tracking-wider shadow-md transition-all duration-200';
+                btn.title = segment
+                    ? 'Segment ' + segment + ' belum memiliki nilai komitmen untuk periode ini'
+                    : 'Pilih segment terlebih dahulu';
+            }
+        }
     </script>
 @endsection

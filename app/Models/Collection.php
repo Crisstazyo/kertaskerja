@@ -13,7 +13,7 @@ class Collection extends Model
      */
     protected $fillable = [
     'user_id', 'type', 'status', 'segment',
-    'periode', 'plan', 'commitment', 'real_ratio',
+    'periode', 'plan', 'commitment', 'real_ratio', 'is_latest',
     'real_updated_at',
 ];
 

@@ -78,7 +78,7 @@
             <div class="bg-white rounded-2xl border-2 border-slate-100 p-6 relative overflow-hidden">
                 <div class="absolute top-0 left-0 right-0 h-1" style="background: linear-gradient(90deg, #dc2626, #ef4444);"></div>
                 <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Target Commitment — {{ $periodeLabel }}</p>
-                @if($bill && $bill->commitment !== null)
+                @if($bill && $bill->commitment !== null && $bill->status === 'active')
                     <p class="text-4xl font-black text-slate-900">{{ number_format($bill->commitment, 2) }}<span class="text-2xl text-red-600">%</span></p>
                     <p class="text-xs text-slate-400 font-semibold mt-2 uppercase tracking-wide">Ditetapkan oleh Admin</p>
                 @else
@@ -90,10 +90,10 @@
                 <div class="absolute top-0 left-0 right-0 h-1 bg-green-500"></div>
                 <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Realisasi Terakhir — {{ $periodeLabel }}</p>
                 @php $latestReal = $activities->first(); @endphp
-                @if($bill && $bill->commitment !== null)
-                    @if($latestReal && $latestReal->real_ratio !== null)
-                        <p class="text-4xl font-black text-green-600">{{ number_format($latestReal->real_ratio, 2) }}<span class="text-2xl">%</span></p>
-                        <p class="text-xs text-slate-400 font-semibold mt-2 uppercase tracking-wide">Terakhir diperbarui: {{ $latestReal->created_at->translatedFormat('d M Y H:i') }}</p>
+                @if($bill && $bill->commitment !== null && $bill->status === 'active')
+                    @if($bill && $bill->real_ratio !== null)
+                        <p class="text-4xl font-black text-green-600">{{ number_format($bill->real_ratio, 2) }}<span class="text-2xl">%</span></p>
+                        <p class="text-xs text-slate-400 font-semibold mt-2 uppercase tracking-wide">Terakhir diperbarui: {{ $bill->created_at->translatedFormat('d M Y H:i') }}</p>
                     @else
                         <p class="text-2xl font-black text-slate-300">—</p>
                         <p class="text-xs text-slate-400 font-semibold mt-2">Belum ada realisasi untuk periode ini</p>
@@ -135,7 +135,7 @@
                                 </div>
                             </div>
                         </div>
-                        @if ($bill && $bill->commitment !== null)
+                        @if ($bill && $bill->commitment !== null && $bill->status === 'active')
                             <div class="flex items-center justify-center pt-2">
                                 <button type="submit"
                                     class="flex items-center space-x-2 bg-slate-900 hover:bg-red-600 text-white font-bold text-xs px-6 py-3 rounded-xl transition-all duration-200 uppercase tracking-wider shadow-md hover:shadow-lg hover:shadow-red-200">
@@ -234,10 +234,10 @@
                                 {{ $activity->periode ? \Carbon\Carbon::parse($activity->periode)->translatedFormat('F Y') : '—' }}
                             </td>
                             <td class="px-6 py-4 text-center font-black text-slate-700">
-                                {{ $activity->commitment !== null ? number_format($activity->commitment, 2).'%' : '—' }}
+                                {{ $activity->commitment !== null ? number_format($activity->commitment, 2).'%' : '0' }}
                             </td>
                             <td class="px-6 py-4 text-center font-black text-red-600">
-                                {{ $activity->real_ratio !== null ? number_format($activity->real_ratio, 2).'%' : '—' }}
+                                {{ $activity->real_ratio !== null ? number_format($activity->real_ratio, 2).'%' : '0' }}
                             </td>
                         </tr>
                         @empty

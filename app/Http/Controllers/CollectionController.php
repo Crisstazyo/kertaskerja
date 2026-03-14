@@ -7,6 +7,7 @@ use App\Models\Collection;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class CollectionController extends Controller
 {
@@ -24,23 +25,13 @@ class CollectionController extends Controller
     $currentYear = Carbon::now()->year;
     $currentDate = Carbon::now();
 
-    $hasMonthlyCommitment = Collection::where('user_id', Auth::id())
-        ->where('type', 'C3MR')
-        ->where('status', 'active')
-        ->whereYear('periode', $currentDate->year)
-        ->whereMonth('periode', $currentDate->month)
-        ->exists();
-
     $comm = Collection::where('type', 'C3MR')
         ->whereYear('periode', $currentDate->year)
         ->whereMonth('periode', $currentDate->month)
-        ->where('status', 'active')
-        ->whereHas('user', function ($query) {
-            $query->where('role', 'admin');
-        })
+        ->where('is_latest', true)
         ->whereNotNull('commitment')
-        ->orderBy('updated_at', 'desc')
         ->first();
+        // dd($comm);
 
     $periode = Collection::where('type', 'C3MR')
         ->orderBy('updated_at', 'asc')
@@ -49,7 +40,8 @@ class CollectionController extends Controller
         ->first();
 
     $query = Collection::where('type', 'C3MR')
-        ->orderBy('updated_at', 'desc');
+        ->orderBy('created_at', 'desc');
+        // dd($query->get());
 
     if ($request->filled('bulan')) {
         $query->whereMonth('periode', $request->bulan);
@@ -79,35 +71,42 @@ class CollectionController extends Controller
     $selectedCari  = $request->cari;
 
     return view('dashboard.collection.c3mr', compact(
-        'hasMonthlyCommitment', 'activities', 'comm', 'periode',
+         'activities', 'comm', 'periode',
         'tahuns', 'selectedBulan', 'selectedTahun', 'selectedCari'
     ));
 }
 
     public function storeC3mrRealisasi(Request $request)
-    {
-        $request->validate([
-            'periode' => 'required|string',
-            'ratio_aktual' => 'required|numeric',
-        ]);
+{
+    $request->validate([
+        'periode'      => 'required|string',
+        'ratio_aktual' => 'required|numeric',
+    ]);
 
-        $lastCommitment = Collection::where('type', 'C3MR')
+    $lastCommitment = Collection::where('type', 'C3MR')
+        ->where('periode', $request->periode)
+        ->where('is_latest', true)   // ← ambil dari is_latest, bukan orderBy
+        ->value('commitment');
+
+    DB::transaction(function () use ($request, $lastCommitment) {
+        // Set semua record periode ini is_latest = false
+        Collection::where('type', 'C3MR')
             ->where('periode', $request->periode)
-            ->whereNotNull('commitment')
-            ->orderBy('created_at', 'desc')
-            ->value('commitment');
+            ->update(['is_latest' => false]);
 
         Collection::create([
-            'user_id'    => Auth::id(),
-            'type'       => 'C3MR',
-            'periode'    => $request->periode,
-            'commitment' => $lastCommitment,
-            'real_ratio' => $request->ratio_aktual,
-            'real_updated_at'  => now(),
+            'user_id'         => Auth::id(),
+            'type'            => 'C3MR',
+            'periode'         => $request->periode,
+            'is_latest'       => true,
+            'commitment'      => $lastCommitment,
+            'real_ratio'      => $request->ratio_aktual,
+            'real_updated_at' => now(),
         ]);
+    });
 
-        return redirect()->back()->with('success', 'C3MR Realisasi berhasil disimpan');
-    }
+    return redirect()->back()->with('success', 'C3MR Realisasi berhasil disimpan');
+}
 
     public function billing(Request $request)
     {
@@ -115,23 +114,13 @@ class CollectionController extends Controller
         $currentYear = Carbon::now()->year;
         $currentDate = Carbon::now();
 
-        $hasMonthlyCommitment = Collection::where('user_id', Auth::id())
-            ->where('type', 'Billing Perdana')
-            ->where('status', 'active')
-            ->whereMonth('updated_at', $currentMonth)
-            ->whereYear('updated_at', $currentYear)
-            ->exists();
-
         $bill = Collection::where('type', 'Billing Perdana')
             ->whereYear('periode', $currentDate->year)
             ->whereMonth('periode', $currentDate->month)
-            ->where('status', 'active')
-            ->whereHas('user', function ($query) {
-                $query->where('role', 'admin');
-            })
+            ->where('is_latest', true)
             ->whereNotNull('commitment')
-            ->orderBy('updated_at', 'desc')
             ->first();
+        // dd($bill);
 
         $periode = Collection::where('type', 'Billing Perdana')
             ->orderBy('updated_at', 'asc')
@@ -140,7 +129,7 @@ class CollectionController extends Controller
             ->first();
 
         $query = Collection::where('type', 'Billing Perdana')
-            ->orderBy('updated_at', 'desc');
+            ->orderBy('created_at', 'desc');
 
         if ($request->filled('bulan')) {
             $query->whereMonth('periode', $request->bulan);
@@ -170,7 +159,7 @@ class CollectionController extends Controller
         $selectedCari  = $request->cari;
 
         return view('dashboard.collection.billing', compact(
-            'hasMonthlyCommitment', 'activities', 'bill', 'periode',
+             'activities', 'bill', 'periode',
             'tahuns', 'selectedBulan', 'selectedTahun', 'selectedCari'
         ));
     }
@@ -183,18 +172,25 @@ class CollectionController extends Controller
         ]);
         $lastCommitment = Collection::where('type', 'Billing Perdana')
             ->where('periode', $request->periode)
-            ->whereNotNull('commitment')
-            ->orderBy('created_at', 'desc')
+            ->where('is_latest', true)
             ->value('commitment');
 
-        Collection::create([
-            'user_id'    => Auth::id(),
-            'type'       => 'Billing Perdana',
-            'periode'    => $request->periode,
-            'commitment' => $lastCommitment,
-            'real_ratio' => $request->ratio_aktual,
-            'real_updated_at'  => now(),
-        ]);
+        DB::transaction(function () use ($request, $lastCommitment) {
+            // Set semua record periode ini is_latest = false
+            Collection::where('type', 'Billing Perdana')
+                ->where('periode', $request->periode)
+                ->update(['is_latest' => false]);
+
+            Collection::create([
+                'user_id'         => Auth::id(),
+                'type'            => 'Billing Perdana',
+                'periode'         => $request->periode,
+                'is_latest'       => true,
+                'commitment'      => $lastCommitment,
+                'real_ratio'      => $request->ratio_aktual,
+                'real_updated_at' => now(),
+            ]);
+        });
 
         return redirect()->back()->with('success', 'Billing Perdana Realisasi berhasil disimpan');
     }
@@ -204,28 +200,22 @@ class CollectionController extends Controller
         $query = Collection::where('type', 'Collection Ratio')
             ->orderBy('created_at', 'desc');
 
-        $latestSeg = \App\Models\Collection::where('type', 'Collection Ratio')
-                    ->where('status', 'active')
-                    ->whereHas('user', function ($query) {
-                        $query->where('role', 'admin');
-                    })
-                    ->whereYear('periode', now()->year)
-                    ->whereMonth('periode', now()->month)
-                    ->orderBy('created_at', 'desc')
-                    ->get();
+        // ← Ganti filter role admin + orderBy ke is_latest, scope per segment
+        $latestSeg = Collection::where('type', 'Collection Ratio')
+            ->where('is_latest', true)
+            ->whereYear('periode', now()->year)
+            ->whereMonth('periode', now()->month)
+            ->get();
 
         if ($request->filled('segment')) {
             $query->where('segment', $request->segment);
         }
-
         if ($request->filled('bulan')) {
-        $query->whereMonth('periode', $request->bulan);
+            $query->whereMonth('periode', $request->bulan);
         }
-
         if ($request->filled('tahun')) {
             $query->whereYear('periode', $request->tahun);
         }
-
         if ($request->filled('cari')) {
             $query->where(function($q) use ($request) {
                 $q->where('segment', 'like', '%'.$request->cari.'%')
@@ -237,16 +227,11 @@ class CollectionController extends Controller
         $collections = $query->paginate(10)->withQueryString();
 
         $segments = Collection::where('type', 'Collection Ratio')
-            ->whereNotNull('segment')
-            ->distinct()
-            ->orderBy('segment')
-            ->pluck('segment');
+            ->whereNotNull('segment')->distinct()->orderBy('segment')->pluck('segment');
 
         $tahuns = Collection::where('type', 'Collection Ratio')
             ->selectRaw('YEAR(periode) as tahun')
-            ->distinct()
-            ->orderBy('tahun', 'desc')
-            ->pluck('tahun');
+            ->distinct()->orderBy('tahun', 'desc')->pluck('tahun');
 
         $selectedSegment = $request->segment;
         $selectedBulan   = $request->bulan;
@@ -264,73 +249,62 @@ class CollectionController extends Controller
         $request->validate([
             'status'     => 'required|in:active,inactive',
             'periode'    => 'required|date_format:Y-m',
-            'segment'    => 'nullable|string',
-            'commitment' => 'nullable|string',
+            'segment'    => 'required|string',
             'real_ratio' => 'nullable|string',
         ]);
+
         $periodeDate = $request->periode . '-01';
 
+        // ← Ambil commitment dari is_latest, scope per segment
         $lastCommitment = Collection::where('type', 'Collection Ratio')
             ->where('segment', $request->segment)
             ->where('periode', $periodeDate)
-            ->whereNotNull('commitment')
-            ->orderBy('created_at', 'desc')
+            ->where('is_latest', true)
             ->value('commitment');
 
-        Collection::create([
-            'user_id'    => Auth::id(),
-            'type'       => 'Collection Ratio',
-            'segment'    => $request->segment,
-            'periode'    => $periodeDate,
-            'status'     => $request->status,
-            'commitment' => $lastCommitment,
-            'real_ratio' => $request->real_ratio,
-            'real_updated_at'  => now(),
-        ]);
+        DB::transaction(function () use ($request, $periodeDate, $lastCommitment) {
+            Collection::where('type', 'Collection Ratio')
+                ->where('segment', $request->segment)
+                ->where('periode', $periodeDate)
+                ->update(['is_latest' => false]);
+
+            Collection::create([
+                'user_id'         => Auth::id(),
+                'type'            => 'Collection Ratio',
+                'segment'         => $request->segment,
+                'periode'         => $periodeDate,
+                'status'          => $request->status,
+                'is_latest'       => true,
+                'commitment'      => $lastCommitment,
+                'real_ratio'      => $request->real_ratio,
+                'real_updated_at' => now(),
+            ]);
+        });
 
         return back()->with('success', 'Data berhasil disimpan');
     }
 
     public function utip(Request $request)
     {
-        $currentMonth = Carbon::now()->month;
-        $currentYear = Carbon::now()->year;
+        $currentDate = Carbon::now();
 
-        $hasMonthlyCommitment = Collection::where('user_id', Auth::id())
-            ->where('type', 'like', '%UTIP%')
+        // ← Tambahkan filter whereYear + whereMonth periode
+        $utips = Collection::where('type', 'like', '%UTIP%')
+            ->where('is_latest', true)
             ->where('status', 'active')
-            ->whereMonth('updated_at', $currentMonth)
-            ->whereYear('updated_at', $currentYear)
-            ->exists();
-
-        $utips = Collection::select('id', 'type', 'plan', 'commitment', 'status')
-            ->with('user:id,name,role')
-            ->where('type', 'like', '%UTIP%')
-            ->where('status', 'active')
-            ->whereHas('user', function ($query) {
-                $query->where('role', 'admin');
-            })
-            ->orderBy('created_at', 'desc')
-            ->get()
-            ->unique('type')
-            ->values();
+            ->whereYear('periode', $currentDate->year)
+            ->whereMonth('periode', $currentDate->month)
+            ->orderByRaw("CASE WHEN type LIKE '%Corrective%' THEN 0 ELSE 1 END")
+            ->orderBy('type')
+            ->get();
 
         $query = Collection::where('type', 'like', '%UTIP%')
             ->orderByRaw("CASE WHEN type LIKE '%Corrective%' THEN 0 ELSE 1 END")
             ->orderBy('created_at', 'desc');
 
-        if ($request->filled('tipe')) {
-            $query->where('type', $request->tipe);
-        }
-
-        if ($request->filled('bulan')) {
-            $query->whereMonth('updated_at', $request->bulan);
-        }
-
-        if ($request->filled('tahun')) {
-            $query->whereYear('updated_at', $request->tahun);
-        }
-
+        if ($request->filled('tipe'))  $query->where('type', $request->tipe);
+        if ($request->filled('bulan')) $query->whereMonth('periode', $request->bulan); // ← fix: periode
+        if ($request->filled('tahun')) $query->whereYear('periode', $request->tahun);  // ← fix: periode
         if ($request->filled('cari')) {
             $query->where(function($q) use ($request) {
                 $q->where('type', 'like', '%'.$request->cari.'%')
@@ -341,24 +315,22 @@ class CollectionController extends Controller
 
         $activities = $query->paginate(10)->withQueryString();
 
+        // ← fix: tahun dari periode
         $tahuns = Collection::where('type', 'like', '%UTIP%')
-            ->selectRaw('YEAR(updated_at) as tahun')
-            ->distinct()
-            ->orderBy('tahun', 'desc')
-            ->pluck('tahun');
+            ->selectRaw('YEAR(periode) as tahun')
+            ->distinct()->orderBy('tahun', 'desc')->pluck('tahun');
 
         $tipes = Collection::where('type', 'like', '%UTIP%')
-            ->distinct()
-            ->orderBy('type')
-            ->pluck('type');
+            ->distinct()->orderBy('type')->pluck('type');
 
         $selectedTipe  = $request->tipe;
         $selectedBulan = $request->bulan;
         $selectedTahun = $request->tahun;
         $selectedCari  = $request->cari;
 
+        // ← hapus $hasMonthlyCommitment dari compact
         return view('dashboard.collection.utip', compact(
-            'hasMonthlyCommitment', 'activities', 'utips',
+            'activities', 'utips',
             'tahuns', 'tipes', 'selectedTipe', 'selectedBulan', 'selectedTahun', 'selectedCari'
         ));
     }
@@ -367,41 +339,33 @@ class CollectionController extends Controller
     {
         $request->validate([
             'ratio_aktual' => 'required|numeric',
-            'type' => 'required|string',
+            'type'         => 'required|string',
         ]);
 
-        $currentMonth = Carbon::now()->month;
-        $currentYear = Carbon::now()->year;
+        // ← Ambil semua dari is_latest, scope per type
+        $latest = Collection::where('type', $request->type)
+            ->where('is_latest', true)
+            ->first();
 
-        $lastCommitment = Collection::where('type', $request->type)
-            ->whereNotNull('commitment')
-            ->orderBy('created_at', 'desc')
-            ->value('commitment');
+        // Tolak jika tipe belum punya data is_latest (belum di-setup admin)
+        abort_if(!$latest, 422, 'Tipe UTIP ini belum memiliki data aktif.');
 
-        $lastPlan = Collection::where('type', $request->type)
-            ->whereNotNull('plan')
-            ->orderBy('created_at', 'desc')
-            ->value('plan');
+        DB::transaction(function () use ($request, $latest) {
+            Collection::where('type', $request->type)
+                ->where('periode', $latest->periode)
+                ->update(['is_latest' => false]);
 
-        $lastCommitment = Collection::where('type', $request->type)
-            ->whereNotNull('commitment')
-            ->orderBy('created_at', 'desc')
-            ->value('commitment');
-
-        $lastPeriode = Collection::where('type', $request->type)
-            ->whereNotNull('periode')
-            ->orderBy('created_at', 'desc')
-            ->value('periode');
-
-        Collection::create([
-            'user_id'    => Auth::id(),
-            'type'       => $request->type,
-            'periode'    => $lastPeriode,
-            'plan'       => $lastPlan,
-            'commitment' => $lastCommitment,
-            'real_ratio' => $request->ratio_aktual,
-            'real_updated_at'  => now(),
-        ]);
+            Collection::create([
+                'user_id'         => Auth::id(),
+                'type'            => $request->type,
+                'periode'         => $latest->periode,
+                'is_latest'       => true,
+                'plan'            => $latest->plan,
+                'commitment'      => $latest->commitment,
+                'real_ratio'      => $request->ratio_aktual,
+                'real_updated_at' => now(),
+            ]);
+        });
 
         return redirect()->back()->with('success', 'UTIP Realisasi berhasil disimpan');
     }
