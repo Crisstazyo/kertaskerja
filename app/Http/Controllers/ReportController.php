@@ -503,7 +503,7 @@ class ReportController extends Controller
         $hsiData = [
             'commit_amount' => (float) ($hsiAgencyRow->commitment ?? 0),
             'real_amount'   => (float) ($hsiAgencyRow->real_ratio ?? 0),
-            'updated_at'    => $hsiAgencyRow?->updated_at?->translatedFormat('d M Y H:i') ?? '-',
+            'updated_at' => $hsiAgencyRow?->real_updated_at?->translatedFormat('d M Y H:i') ?? '-',
         ];
 
         $teldaRegions = [
@@ -530,7 +530,7 @@ class ReportController extends Controller
                 'label'     => $regionLabel,
                 'commit_rp' => $record ? (float) $record->commitment : null,
                 'real_rp'   => $record ? (float) $record->real_ratio : null,
-                'updated_at' => $record?->updated_at?->translatedFormat('d M Y H:i') ?? '-',
+                'updated_at' => $record?->real_updated_at?->translatedFormat('d M Y H:i') ?? '-',
             ];
         }
 
@@ -543,7 +543,7 @@ class ReportController extends Controller
         $upsellingData = [
             'commit_rp' => (float) ($upsellingRow->commitment ?? 0),
             'real_rp'   => (float) ($upsellingRow->real_ratio ?? 0),
-            'updated_at' => $upsellingRow?->updated_at?->translatedFormat('d M Y H:i') ?? '-',
+            'updated_at' => $upsellingRow?->real_updated_at?->translatedFormat('d M Y H:i') ?? '-',
         ];
 
         return view('report.report', compact(

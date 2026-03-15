@@ -653,22 +653,24 @@ public function storeUpselling(Request $request)
         ->orderBy('created_at', 'desc')
         ->value('commitment');
 
-    $lastReal = Hsi::where('user_id', auth()->id())
+    $lastRealRow = Hsi::where('user_id', auth()->id())
         ->where('type', $request->type)
         ->where('periode', $periode)
         ->whereNotNull('real_ratio')
         ->orderBy('created_at', 'desc')
-        ->value('real_ratio');
+        ->first();
 
-    $commitment = $request->filled('commitment') ? $request->commitment : $lastCommitment;
-    $real       = $request->filled('real_ratio') ? $request->real_ratio : $lastReal;
+    $commitment    = $request->filled('commitment') ? $request->commitment : $lastCommitment;
+    $real          = $request->filled('real_ratio') ? $request->real_ratio : ($lastRealRow->real_ratio ?? null);
+    $realUpdatedAt = $request->filled('real_ratio') ? now() : ($lastRealRow->real_updated_at ?? null);
 
     Hsi::create([
-        'user_id'    => auth()->id(),
-        'type'       => $request->type,
-        'periode'    => $periode,
-        'commitment' => $commitment,
-        'real_ratio' => $real,
+        'user_id'         => auth()->id(),
+        'type'            => $request->type,
+        'periode'         => $periode,
+        'commitment'      => $commitment,
+        'real_ratio'      => $real,
+        'real_updated_at' => $realUpdatedAt,
     ]);
 
     return redirect()->route('dashboard.sme.upselling')

@@ -355,16 +355,22 @@ public function hsiStore(Request $request)
         ? $request->commitment
         : ($existing->commitment ?? null);
 
-    $realRatio = $request->filled('real_ratio')
-        ? $request->real_ratio
-        : ($existing->real_ratio ?? null);
+    $lastRealRow = Hsi::where('type', $request->type)
+        ->where('periode', $periodeDate)
+        ->whereNotNull('real_ratio')
+        ->orderBy('created_at', 'desc')
+        ->first();
+
+    $realRatio     = $request->filled('real_ratio') ? $request->real_ratio : ($lastRealRow->real_ratio ?? null);
+    $realUpdatedAt = $request->filled('real_ratio') ? now() : ($lastRealRow->real_updated_at ?? null);
 
     Hsi::create([
-        'user_id'    => Auth::id(),
-        'type'       => $request->type,
-        'periode'    => $periodeDate,
-        'commitment' => $commitment,
-        'real_ratio' => $realRatio,
+        'user_id'         => Auth::id(),
+        'type'            => $request->type,
+        'periode'         => $periodeDate,
+        'commitment'      => $commitment,
+        'real_ratio'      => $realRatio,
+        'real_updated_at' => $realUpdatedAt,
     ]);
 
     return back()->with('success', 'Data HSI periode ' . Carbon::parse($periodeDate)->format('F Y') . ' berhasil disimpan.');
@@ -456,18 +462,25 @@ public function teldaStore(Request $request)
         ? $data['commitment']
         : ($existing->commitment ?? null);
 
-    $realRatio = $realFilled
-        ? $data['real_ratio']
-        : ($existing->real_ratio ?? null);
+    $lastRealRow = Telda::where('periode', $periode)
+        ->where('region', $data['region'])
+        ->whereNotNull('real_ratio')
+        ->orderBy('created_at', 'desc')
+        ->first();
+
+    $realRatio     = $realFilled ? $data['real_ratio'] : ($lastRealRow->real_ratio ?? null);
+    $realUpdatedAt = $realFilled ? now() : ($lastRealRow->real_updated_at ?? null);
 
     Telda::create([
-        'user_id'    => Auth::id(),
-        'periode'    => $periode,
-        'region'     => $data['region'],
-        'status'     => $data['status'] ?? 'active',
-        'commitment' => $commitment,
-        'real_ratio' => $realRatio,
+        'user_id'         => Auth::id(),
+        'periode'         => $periode,
+        'region'          => $data['region'],
+        'status'          => $data['status'] ?? 'active',
+        'commitment'      => $commitment,
+        'real_ratio'      => $realRatio,
+        'real_updated_at' => $realUpdatedAt,
     ]);
+
 }
 
     return back()->with('success', 'Data Telda periode ' . Carbon::parse($periode)->format('F Y') . ' berhasil disimpan.');
