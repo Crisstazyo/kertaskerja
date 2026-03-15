@@ -3,9 +3,9 @@
 @section('title', 'Login - SOLID Dashboard')
 
 @section('content')
-<div class="min-h-screen flex flex-col md:flex-row bg-slate-50">
+<div class="min-h-screen flex flex-col lg:flex-row bg-slate-50">
 
-    <div class="hidden md:flex md:w-1/2 lg:w-2/3 relative items-center justify-center p-12 overflow-hidden bg-white">
+    <div class="hidden lg:flex lg:w-1/2 xl:w-2/3 relative items-center justify-center p-12 overflow-hidden bg-white">
 
         <img src="https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&q=80"
              class="absolute inset-0 w-full h-full object-cover opacity-60" alt="Bright Office">
@@ -41,8 +41,26 @@
         </div>
     </div>
 
-    <div class="w-full md:w-1/2 lg:w-1/3 flex items-center justify-center p-8 lg:p-16 bg-white z-20 border-l border-slate-100 shadow-2xl">
-        <div class="w-full max-w-sm">
+    <div class="w-full lg:w-1/2 xl:w-1/3 relative flex items-center justify-center min-h-screen lg:min-h-0 p-8 lg:p-16 lg:bg-white lg:border-l border-slate-100 lg:shadow-2xl">
+
+        {{-- Background foto mobile only --}}
+        <div class="absolute inset-0 lg:hidden">
+            <img src="https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&q=80"
+                 class="w-full h-full object-cover" alt="">
+            <div class="absolute inset-0 bg-white/80 backdrop-blur-sm"></div>
+        </div>
+
+        {{-- Branding mobile only --}}
+        <div class="absolute top-8 left-8 z-20 lg:hidden flex items-center gap-4">
+            <img src="{{ asset('img/Telkom.png') }}" alt="Logo Telkom" class="h-10 w-auto">
+            <div class="w-px h-10 bg-slate-300"></div>
+            <div>
+                <p class="text-[10px] font-black tracking-widest text-red-600 uppercase">Telkom Indonesia</p>
+                <p class="text-base font-light text-slate-800">Witel Sumut</p>
+            </div>
+        </div>
+
+        <div class="relative z-10 w-full max-w-sm mt-20 lg:mt-0">
             <div class="mb-6">
                 <h2 class="text-4xl font-black text-red-600 mb-2 tracking-tight">Login</h2>
                 <p class="text-slate-500 font-medium text-base">Selamat datang di Kertas Kerja</p>
