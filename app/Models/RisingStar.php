@@ -8,7 +8,7 @@ class RisingStar extends Model
 {
     protected $fillable = [
     'user_id', 'type_id', 'status',
-    'periode', 'commitment', 'real_ratio',
+    'periode', 'commitment', 'real_ratio', 'is_latest',
     'real_updated_at',
 ];
 

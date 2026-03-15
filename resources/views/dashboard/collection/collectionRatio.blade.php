@@ -60,26 +60,70 @@
                 </div>
             @endif
 
+        {{-- ══ PERIODE SELECTOR ══ --}}
+        @php
+            $periodeLabel     = \Carbon\Carbon::createFromFormat('Y-m', $selectedPeriode)->translatedFormat('F Y');
+            $isCurrentPeriode = $selectedPeriode === now()->format('Y-m');
+        @endphp
+
+        <form method="GET" action="{{ route('collection.cr') }}" class="mb-6" id="form-periode">
+            @foreach(request()->except('selected_periode') as $key => $val)
+                <input type="hidden" name="{{ $key }}" value="{{ $val }}">
+            @endforeach
+            <div class="flex items-center space-x-3">
+                <label class="text-xs font-black text-slate-500 uppercase tracking-widest">Periode:</label>
+                <div class="relative">
+                    <select name="selected_periode" onchange="document.getElementById('form-periode').submit()"
+                        class="appearance-none text-sm font-bold text-slate-700 bg-white border-2 border-slate-200 hover:border-red-400 rounded-xl pl-4 pr-10 py-2.5 shadow-sm focus:outline-none focus:border-red-400 cursor-pointer transition-colors">
+                        @foreach($periodeOptions as $p)
+                            <option value="{{ $p }}" {{ $p === $selectedPeriode ? 'selected' : '' }}>
+                                {{ \Carbon\Carbon::createFromFormat('Y-m', $p)->translatedFormat('F Y') }}
+                                {{ $p === now()->format('Y-m') ? '(Berjalan)' : '' }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-3 flex items-center">
+                        <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </div>
+                </div>
+                @if(!$isCurrentPeriode)
+                <span class="text-xs font-bold text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-1.5">
+                    Melihat periode lampau
+                </span>
+                @endif
+            </div>
+        </form>
+
         {{-- ══ STATUS CARDS ══ --}}
-        @php $periodeLabel = now()->translatedFormat('F Y'); @endphp
         <div class="grid grid-cols-2 md:grid-cols-4 gap-5 mb-8">
             @foreach(['Government', 'Private', 'SOE', 'SME'] as $seg)
             @php
-                $latest = $latestSeg?->where('segment', $seg)->first();
-                $pct = $latestSeg->where('segment', $seg)->first()?->real_ratio;
-                $kom = $latest?->commitment;
+                $latest = $latestSeg->where('segment', $seg)->first();
+                $pct    = $latest?->real_ratio;
+                $kom    = $latest?->commitment;
+                $segLocked = in_array($seg, $lockedSegments);
             @endphp
-            <div class="bg-white rounded-2xl border-2 border-slate-100 overflow-hidden">
-                <div class="h-1" style="background: linear-gradient(90deg, #dc2626, #ef4444);"></div>
+            <div class="bg-white rounded-2xl border-2 {{ $segLocked ? 'border-slate-200 opacity-70' : 'border-slate-100' }} overflow-hidden">
+                <div class="h-1" style="background: {{ $segLocked ? '#cbd5e1' : 'linear-gradient(90deg, #dc2626, #ef4444)' }};"></div>
                 <div class="p-5">
                     <div class="flex items-center justify-between mb-4">
                         <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">{{ $seg }}</span>
-                        <span class="text-[10px] font-bold text-slate-300 uppercase">{{ $periodeLabel }}</span>
+                        <div class="flex items-center space-x-1">
+                            @if($segLocked)
+                            <span class="text-[9px] font-black text-slate-400 bg-slate-100 border border-slate-200 rounded px-1.5 py-0.5 uppercase">🔒 Locked</span>
+                            @else
+                            <span class="text-[10px] font-bold text-slate-300 uppercase">{{ $periodeLabel }}</span>
+                            @endif
+                        </div>
                     </div>
                     <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Realisasi</p>
                     @if($kom !== null)
                         @if($pct !== null)
-                            <p class="text-4xl font-black text-green-600 leading-none mb-4">{{ number_format($pct, 2) }}<span class="text-xl">%</span></p>
+                            <p class="text-4xl font-black {{ $segLocked ? 'text-slate-400' : 'text-green-600' }} leading-none mb-4">
+                                {{ number_format($pct, 2) }}<span class="text-xl">%</span>
+                            </p>
                         @else
                             <p class="text-3xl font-black text-slate-200 leading-none mb-4">—</p>
                         @endif
@@ -89,7 +133,7 @@
                     <div class="border-t border-slate-100 pt-3">
                         <div class="flex items-center justify-between">
                             <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Komitmen</span>
-                            <span class="text-sm font-black text-red-600">
+                            <span class="text-sm font-black {{ $segLocked ? 'text-slate-400' : 'text-red-600' }}">
                                 {{ $kom !== null ? number_format($kom, 2).'%' : '0' }}
                             </span>
                         </div>
@@ -109,9 +153,16 @@
                         <p class="text-xs text-slate-400 font-semibold mt-0.5">Pilih segment lalu catat realisasi ratio.</p>
                     </div>
                 </div>
-                <span class="text-[10px] font-black tracking-widest text-red-600 bg-red-50 border border-red-100 rounded-md px-3 py-1 uppercase">
-                    {{ $periodeLabel }}
-                </span>
+                <div class="flex items-center space-x-2">
+                    <span class="text-[10px] font-black tracking-widest text-red-600 bg-red-50 border border-red-100 rounded-md px-3 py-1 uppercase">
+                        {{ $periodeLabel }}
+                    </span>
+                    @if(!$isCurrentPeriode)
+                    <span class="text-[10px] font-black tracking-widest text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-3 py-1 uppercase">
+                        Periode Lampau
+                    </span>
+                    @endif
+                </div>
             </div>
             <div class="p-8">
                 <form action="{{ route('collection.cr.storeRealisasi') }}" method="POST">
@@ -127,6 +178,7 @@
                     @endphp
                     <script>
                         const commitmentMap = @json($commitmentMap);
+                        const lockedSegments = @json($lockedSegments);  {{-- ← tambahkan --}}
                     </script>
                     <div class="max-w-md mx-auto space-y-5">
                         <div>
@@ -139,7 +191,13 @@
                                 @endforeach
                             </select>
                         </div>
-                        <input type="hidden" name="periode" value="{{ date('Y-m') }}">
+                        <div id="segment-locked-warning" class="hidden flex items-center space-x-2 text-amber-700 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
+                            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                            </svg>
+                            <p class="text-xs font-bold">Segment ini sudah dinonaktifkan untuk periode berjalan.</p>
+                        </div>
+                        <input type="hidden" name="periode" value="{{ $selectedPeriode }}">
                         <div>
                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 text-center">Realisasi (%)</label>
                             <div class="relative">
@@ -331,19 +389,32 @@
         
         // ← Tambahkan ini
         function checkCommitment(segment) {
-            const btn = document.getElementById('btn-simpan');
+            const btn     = document.getElementById('btn-simpan');
+            const warning = document.getElementById('segment-locked-warning');
+
+            const isLocked      = segment && lockedSegments.includes(segment);
             const hasCommitment = segment && commitmentMap[segment] !== null && commitmentMap[segment] !== undefined;
 
-            if (hasCommitment) {
+            // Tampilkan warning jika locked
+            if (isLocked) {
+                warning.classList.remove('hidden');
+            } else {
+                warning.classList.add('hidden');
+            }
+
+            // Disable button jika locked ATAU tidak ada commitment
+            if (!isLocked && hasCommitment) {
                 btn.disabled = false;
                 btn.className = 'flex items-center space-x-2 bg-slate-900 hover:bg-red-600 text-white font-bold text-xs px-6 py-3 rounded-xl transition-all duration-200 uppercase tracking-wider shadow-md hover:shadow-lg hover:shadow-red-200 cursor-pointer';
                 btn.title = '';
             } else {
                 btn.disabled = true;
                 btn.className = 'flex items-center space-x-2 bg-slate-400 cursor-not-allowed text-white font-bold text-xs px-6 py-3 rounded-xl uppercase tracking-wider shadow-md transition-all duration-200';
-                btn.title = segment
-                    ? 'Segment ' + segment + ' belum memiliki nilai komitmen untuk periode ini'
-                    : 'Pilih segment terlebih dahulu';
+                btn.title = isLocked
+                    ? 'Segment ' + segment + ' sudah dinonaktifkan untuk periode ini'
+                    : (segment
+                        ? 'Segment ' + segment + ' belum memiliki nilai komitmen untuk periode ini'
+                        : 'Pilih segment terlebih dahulu');
             }
         }
     </script>

@@ -147,6 +147,8 @@ class AdminController extends Controller
             ->orderByDesc('periode')
             ->get();
 
+            // dd($ringkasanAll);
+
         $tahuns = Collection::where('type', 'C3MR')
             ->selectRaw('YEAR(periode) as tahun')
             ->distinct()->orderBy('tahun', 'desc')->pluck('tahun');

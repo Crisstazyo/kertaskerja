@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Models\Telda;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class Admin2Controller extends Controller
 {
@@ -159,25 +160,27 @@ class Admin2Controller extends Controller
     ));
 }
 
-    public function risingStar4Table(Request $request)
+public function risingStar4Table(Request $request)
 {
     $types = RisingStarType::where('type', '4')->get();
-
     $query = RisingStar::with(['type', 'user'])
         ->mainType(4)
         ->orderBy('created_at', 'desc');
 
-    if ($request->filled('bulan')) {
-        $query->whereMonth('periode', $request->bulan);
-    }
-    if ($request->filled('tahun')) {
-        $query->whereYear('periode', $request->tahun);
-    }
-    if ($request->filled('type_id')) {
-        $query->where('type_id', $request->type_id);
-    }
+    if ($request->filled('bulan'))   $query->whereMonth('periode', $request->bulan);
+    if ($request->filled('tahun'))   $query->whereYear('periode', $request->tahun);
+    if ($request->filled('type_id')) $query->where('type_id', $request->type_id);
 
     $rstars = $query->paginate(15)->withQueryString();
+
+    // ← Tambahkan ini
+    $ringkasanAll = RisingStar::with(['type', 'user'])
+        ->mainType(4)
+        ->where('is_latest', true)
+        ->orderByDesc('periode')
+        ->orderBy('type_id')
+        ->get();
+        // dd($ringkasanAll);
 
     $tahuns = RisingStar::mainType(4)
         ->selectRaw('YEAR(periode) as tahun')
@@ -189,9 +192,18 @@ class Admin2Controller extends Controller
     $selectedType  = $request->type_id;
 
     return view('admin.risingstar.risingStar4', compact(
-        'rstars', 'types', 'users', 'tahuns',
+        'rstars', 'ringkasanAll', 'types', 'users', 'tahuns',
         'selectedBulan', 'selectedTahun', 'selectedType'
     ));
+}
+
+public function toggleRisingStarStatus($id)
+{
+    $item = \App\Models\RisingStar::findOrFail($id);
+    abort_if(!$item->is_latest, 403, 'Hanya record terbaru yang bisa diubah statusnya.');
+    $item->status = $item->status === 'active' ? 'inactive' : 'active';
+    $item->save();
+    return back()->with('success', 'Status berhasil diubah');
 }
 
     // ══ Rising Star Store ══
@@ -236,10 +248,11 @@ class Admin2Controller extends Controller
             $values['real_ratio'] = $request->real_ratio;
         }
 
+        // Scope is_latest per user_id + type_id + periode
         $existing = RisingStar::where('user_id', $userId)
             ->where('type_id', (int) $request->type_id)
             ->where('periode', $periode)
-            ->orderBy('updated_at', 'desc')
+            ->where('is_latest', true)
             ->first();
 
         $commitment = isset($values['commitment']) && $values['commitment'] !== null
@@ -249,22 +262,30 @@ class Admin2Controller extends Controller
         $lastRealRow = RisingStar::where('user_id', $userId)
             ->where('type_id', (int) $request->type_id)
             ->where('periode', $periode)
-            ->whereNotNull('real_ratio')
-            ->orderBy('created_at', 'desc')
+            ->where('is_latest', true)
             ->first();
 
         $realRatio     = $request->filled('real_ratio') ? $request->real_ratio : ($lastRealRow->real_ratio ?? null);
         $realUpdatedAt = $request->filled('real_ratio') ? now() : ($lastRealRow->real_updated_at ?? null);
 
-        RisingStar::create([
-            'user_id'         => $userId,
-            'type_id'         => (int) $request->type_id,
-            'periode'         => $periode,
-            'status'          => $values['status'] ?? 'active',
-            'commitment'      => $commitment,
-            'real_ratio'      => $realRatio,
-            'real_updated_at' => $realUpdatedAt,
-        ]);
+        DB::transaction(function () use ($userId, $request, $periode, $commitment, $realRatio, $realUpdatedAt, $values) {
+            // Set is_latest false untuk kombinasi user + type + periode yang sama
+            RisingStar::where('user_id', $userId)
+                ->where('type_id', (int) $request->type_id)
+                ->where('periode', $periode)
+                ->update(['is_latest' => false]);
+
+            RisingStar::create([
+                'user_id'         => $userId,
+                'type_id'         => (int) $request->type_id,
+                'periode'         => $periode,
+                'status'          => $values['status'] ?? 'active',
+                'is_latest'       => true,
+                'commitment'      => $commitment,
+                'real_ratio'      => $realRatio,
+                'real_updated_at' => $realUpdatedAt,
+            ]);
+        });
 
         return back()->with(
             'success',

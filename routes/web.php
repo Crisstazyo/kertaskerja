@@ -80,6 +80,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/rising-star2', [Admin2Controller::class, 'risingStar2Table'])->name('admin.rising-star2');
         Route::get('/rising-star3', [Admin2Controller::class, 'risingStar3Table'])->name('admin.rising-star3');
         Route::get('/rising-star4', [Admin2Controller::class, 'risingStar4Table'])->name('admin.rising-star4');
+        Route::patch('/rising-star/{id}/toggle-status', [Admin2Controller::class, 'toggleRisingStarStatus'])->name('admin.rising-star.toggleStatus');
         Route::post('/rising-star', [Admin2Controller::class, 'risingStarStore'])->name('admin.rising-star.store');
 
         // Hsi Agency routes

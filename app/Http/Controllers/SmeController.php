@@ -5,8 +5,12 @@ use App\Models\ScallingImport;
 use App\Models\ScallingData;
 use App\Models\RisingStar;
 use App\Models\Hsi;
-
+use App\Models\TaskProgress;
+use App\Models\FunnelTracking;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class SmeController extends Controller
 {
@@ -375,185 +379,209 @@ class SmeController extends Controller
     // Hanya kolom yang dikirim yang diupdate — tidak overwrite kolom lain.
     // ══════════════════════════════════════════════════════
     private function upsertRisingStar(int $typeId, array $values): RisingStar
-    {
-        $periode = now()->format('Y-m-01');
+{
+    // ← Gunakan periode dari $values jika ada, fallback ke bulan berjalan
+    $periode = isset($values['periode']) ? $values['periode'] : now()->format('Y-m-01');
 
-        $record = RisingStar::firstOrNew([
-            'user_id'  => auth()->id(),
-            'type_id'  => $typeId,
-            'periode'  => $periode,
+    $last = RisingStar::where('user_id', auth()->id())
+        ->where('type_id', $typeId)
+        ->where('periode', $periode)
+        ->where('is_latest', true)
+        ->first();
+
+    $realRatio     = isset($values['real_ratio']) ? $values['real_ratio'] : ($last?->real_ratio);
+    $realUpdatedAt = isset($values['real_ratio']) ? now() : ($last?->real_updated_at);
+
+    $result = DB::transaction(function () use ($typeId, $periode, $values, $last, $realRatio, $realUpdatedAt) {
+        RisingStar::where('user_id', auth()->id())
+            ->where('type_id', $typeId)
+            ->where('periode', $periode)
+            ->update(['is_latest' => false]);
+
+        return RisingStar::create([
+            'user_id'         => auth()->id(),
+            'type_id'         => $typeId,
+            'periode'         => $periode,
+            'status'          => 'active',
+            'is_latest'       => true,
+            'commitment'      => $values['commitment'] ?? ($last?->commitment),
+            'real_ratio'      => $realRatio,
+            'real_updated_at' => $realUpdatedAt,
         ]);
+    });
 
-        // Hanya isi kolom yang memang dikirim, kolom lain dibiarkan
-        foreach ($values as $col => $val) {
-            $record->{$col} = $val;
-        }
-
-        // Set status active jika record baru
-        if (! $record->exists) {
-            $record->status = 'active';
-        }
-
-        $record->save();
-
-        return $record;
-    }
+    return $result;
+}
 
     // ══ AOSODOMORO 0-3 Bulan (type_id: 7) ══
 
-public function aosodomoro03Bulan(Request $request)
-{
-    $periode = now()->format('Y-m-01');
+    public function aosodomoro03Bulan(Request $request)
+    {
+        $periodeOptions = RisingStar::where('user_id', auth()->id())
+            ->where('type_id', 11)
+            ->selectRaw('DATE_FORMAT(periode, "%Y-%m") as periode_ym, MAX(periode) as max_periode')
+            ->where('periode', '<=', Carbon::now()->endOfMonth()->format('Y-m-d'))
+            ->groupBy('periode_ym')
+            ->orderByDesc('max_periode')
+            ->pluck('periode_ym');
 
-    $existing = RisingStar::where('user_id', auth()->id())
-        ->where('type_id', 11)
-        ->where('periode', $periode)
-        ->orderBy('created_at', 'desc')
-        ->first();
+        $selectedPeriode = $request->filled('selected_periode')
+            ? $request->selected_periode
+            : Carbon::now()->format('Y-m');
 
-    $query = RisingStar::with(['user', 'type'])
-        ->where('user_id', auth()->id())
-        ->where('type_id', 11)
-        ->orderBy('created_at', 'desc');
+        $periodeDate = $selectedPeriode . '-01';
 
-    if ($request->filled('bulan')) {
-        $query->whereMonth('periode', $request->bulan);
+        $existing = RisingStar::where('user_id', auth()->id())
+            ->where('type_id', 11)
+            ->where('periode', $periodeDate)
+            ->where('is_latest', true)
+            ->first();
+
+        $isLocked = $existing && $existing->status === 'inactive';
+
+        $query = RisingStar::with(['user', 'type'])
+            ->where('user_id', auth()->id())
+            ->where('type_id', 11)
+            ->orderBy('created_at', 'desc');
+
+        if ($request->filled('bulan')) $query->whereMonth('periode', $request->bulan);
+        if ($request->filled('tahun')) $query->whereYear('periode', $request->tahun);
+        if ($request->filled('cari')) {
+            $query->where(function($q) use ($request) {
+                $q->where('commitment', 'like', '%'.$request->cari.'%')
+                ->orWhere('real_ratio', 'like', '%'.$request->cari.'%');
+            });
+        }
+
+        $history = $query->paginate(20)->withQueryString();
+
+        $tahuns = RisingStar::where('user_id', auth()->id())
+            ->where('type_id', 11)
+            ->selectRaw('YEAR(periode) as tahun')
+            ->distinct()->orderBy('tahun', 'desc')->pluck('tahun');
+
+        $selectedBulan = $request->bulan;
+        $selectedTahun = $request->tahun;
+        $selectedCari  = $request->cari;
+
+        return view('dashboard.sme.aosodomoro-0-3-bulan', compact(
+            'history', 'existing', 'isLocked',
+            'periodeOptions', 'selectedPeriode',
+            'tahuns', 'selectedBulan', 'selectedTahun', 'selectedCari'
+        ));
     }
-    if ($request->filled('tahun')) {
-        $query->whereYear('periode', $request->tahun);
+
+    public function storeAosodomoro03Bulan(Request $request)
+    {
+        $request->validate([
+            'real_ratio' => 'required|numeric|min:0',
+            'periode'    => 'required|date_format:Y-m-d',
+        ]);
+
+        $latest = RisingStar::where('user_id', auth()->id())
+            ->where('type_id', 11)
+            ->where('periode', $request->periode)
+            ->where('is_latest', true)
+            ->first();
+
+        if ($latest && $latest->status === 'inactive') {
+            return redirect()->back()
+                ->with('error', 'Input tidak dapat dilakukan. Periode ini sudah dinonaktifkan oleh admin.');
+        }
+
+        $this->upsertRisingStar(11, [
+            'real_ratio' => $request->real_ratio,
+            'periode'    => $request->periode,
+        ]);
+
+        return redirect()->back()
+            ->with('success', 'Data realisasi Aosodomoro 0-3 Bulan berhasil disimpan.');
     }
-    if ($request->filled('cari')) {
-        $query->where(function($q) use ($request) {
-            $q->where('commitment', 'like', '%'.$request->cari.'%')
-              ->orWhere('real_ratio', 'like', '%'.$request->cari.'%');
-        });
-    }
 
-    $history = $query->paginate(20)->withQueryString();
-
-    $tahuns = RisingStar::where('user_id', auth()->id())
-        ->where('type_id', 11)
-        ->selectRaw('YEAR(periode) as tahun')
-        ->distinct()
-        ->orderBy('tahun', 'desc')
-        ->pluck('tahun');
-
-    $selectedBulan = $request->bulan;
-    $selectedTahun = $request->tahun;
-    $selectedCari  = $request->cari;
-
-    return view('dashboard.sme.aosodomoro-0-3-bulan', compact(
-        'history', 'existing', 'tahuns',
-        'selectedBulan', 'selectedTahun', 'selectedCari'
-    ));
-}
-
-public function storeAosodomoro03Bulan(Request $request)
-{
-    $request->validate([
-        'real_ratio' => 'required|numeric|min:0',
-    ]);
-
-    $periode = now()->format('Y-m-01');
-
-    $lastCommitment = RisingStar::where('user_id', auth()->id())
-        ->where('type_id', 11)
-        ->where('periode', $periode)
-        ->whereNotNull('commitment')
-        ->orderBy('created_at', 'desc')
-        ->value('commitment');
-
-    RisingStar::create([
-        'user_id'    => auth()->id(),
-        'type_id'    => 11,
-        'periode'    => $periode,
-        'status'     => 'active',
-        'commitment' => $lastCommitment,
-        'real_ratio' => $request->real_ratio,
-        'real_updated_at' => now(),
-    ]);
-
-    return redirect()->route('dashboard.sme.aosodomoro-0-3-bulan')
-        ->with('success', 'Data realisasi Aosodomoro 0-3 Bulan berhasil disimpan.');
-}
-
-    // ══ AOSODOMORO > 3 Bulan (type_id: 8) ══
+    // ══ AOSODOMORO > 3 Bulan (type_id: 12) ══
 
     public function aosodomoroAbove3Bulan(Request $request)
-{
-    $periode = now()->format('Y-m-01');
+    {
+        $periodeOptions = RisingStar::where('user_id', auth()->id())
+            ->where('type_id', 12)
+            ->selectRaw('DATE_FORMAT(periode, "%Y-%m") as periode_ym, MAX(periode) as max_periode')
+            ->where('periode', '<=', Carbon::now()->endOfMonth()->format('Y-m-d'))
+            ->groupBy('periode_ym')
+            ->orderByDesc('max_periode')
+            ->pluck('periode_ym');
 
-    $existing = RisingStar::where('user_id', auth()->id())
-        ->where('type_id', 12)
-        ->where('periode', $periode)
-        ->orderBy('created_at', 'desc')
-        ->first();
+        $selectedPeriode = $request->filled('selected_periode')
+            ? $request->selected_periode
+            : Carbon::now()->format('Y-m');
 
-    $query = RisingStar::with(['user', 'type'])
-        ->where('user_id', auth()->id())
-        ->where('type_id', 12)
-        ->orderBy('created_at', 'desc');
+        $periodeDate = $selectedPeriode . '-01';
 
-    if ($request->filled('bulan')) {
-        $query->whereMonth('periode', $request->bulan);
+        $existing = RisingStar::where('user_id', auth()->id())
+            ->where('type_id', 12)
+            ->where('periode', $periodeDate)
+            ->where('is_latest', true)
+            ->first();
+
+        $isLocked = $existing && $existing->status === 'inactive';
+
+        $query = RisingStar::with(['user', 'type'])
+            ->where('user_id', auth()->id())
+            ->where('type_id', 12)
+            ->orderBy('created_at', 'desc');
+
+        if ($request->filled('bulan')) $query->whereMonth('periode', $request->bulan);
+        if ($request->filled('tahun')) $query->whereYear('periode', $request->tahun);
+        if ($request->filled('cari')) {
+            $query->where(function($q) use ($request) {
+                $q->where('commitment', 'like', '%'.$request->cari.'%')
+                ->orWhere('real_ratio', 'like', '%'.$request->cari.'%');
+            });
+        }
+
+        $history = $query->paginate(20)->withQueryString();
+
+        $tahuns = RisingStar::where('user_id', auth()->id())
+            ->where('type_id', 12)
+            ->selectRaw('YEAR(periode) as tahun')
+            ->distinct()->orderBy('tahun', 'desc')->pluck('tahun');
+
+        $selectedBulan = $request->bulan;
+        $selectedTahun = $request->tahun;
+        $selectedCari  = $request->cari;
+
+        return view('dashboard.sme.aosodomoro-above-3-bulan', compact(
+            'history', 'existing', 'isLocked',
+            'periodeOptions', 'selectedPeriode',
+            'tahuns', 'selectedBulan', 'selectedTahun', 'selectedCari'
+        ));
     }
-    if ($request->filled('tahun')) {
-        $query->whereYear('periode', $request->tahun);
-    }
-    if ($request->filled('cari')) {
-        $query->where(function($q) use ($request) {
-            $q->where('commitment', 'like', '%'.$request->cari.'%')
-              ->orWhere('real_ratio', 'like', '%'.$request->cari.'%');
-        });
-    }
-
-    $history = $query->paginate(20)->withQueryString();
-
-    $tahuns = RisingStar::where('user_id', auth()->id())
-        ->where('type_id', 12)
-        ->selectRaw('YEAR(periode) as tahun')
-        ->distinct()
-        ->orderBy('tahun', 'desc')
-        ->pluck('tahun');
-
-    $selectedBulan = $request->bulan;
-    $selectedTahun = $request->tahun;
-    $selectedCari  = $request->cari;
-
-    return view('dashboard.sme.aosodomoro-above-3-bulan', compact(
-        'history', 'existing', 'tahuns',
-        'selectedBulan', 'selectedTahun', 'selectedCari'
-    ));
-}
 
     public function storeAosodomoroAbove3Bulan(Request $request)
-{
-    $request->validate([
-        'real_ratio' => 'required|numeric|min:0',
-    ]);
+    {
+        $request->validate([
+            'real_ratio' => 'required|numeric|min:0',
+            'periode'    => 'required|date_format:Y-m-d',
+        ]);
 
-    $periode = now()->format('Y-m-01');
+        $latest = RisingStar::where('user_id', auth()->id())
+            ->where('type_id', 12)
+            ->where('periode', $request->periode)
+            ->where('is_latest', true)
+            ->first();
 
-    $lastCommitment = RisingStar::where('user_id', auth()->id())
-        ->where('type_id', 12)
-        ->where('periode', $periode)
-        ->whereNotNull('commitment')
-        ->orderBy('created_at', 'desc')
-        ->value('commitment');
+        if ($latest && $latest->status === 'inactive') {
+            return redirect()->back()
+                ->with('error', 'Input tidak dapat dilakukan. Periode ini sudah dinonaktifkan oleh admin.');
+        }
 
-    RisingStar::create([
-        'user_id'    => auth()->id(),
-        'type_id'    => 12,
-        'periode'    => $periode,
-        'status'     => 'active',
-        'commitment' => $lastCommitment,
-        'real_ratio' => $request->real_ratio,
-        'real_updated_at' => now(),
-    ]);
+        $this->upsertRisingStar(12, [
+            'real_ratio' => $request->real_ratio,
+            'periode'    => $request->periode,
+        ]);
 
-    return redirect()->route('dashboard.sme.aosodomoro-above-3-bulan')
-        ->with('success', 'Data realisasi Aosodomoro >3 Bulan berhasil disimpan.');
-}
+        return redirect()->back()
+            ->with('success', 'Data realisasi Aosodomoro Above-3 Bulan berhasil disimpan.');
+    }
 
 public function upselling(Request $request)
 {

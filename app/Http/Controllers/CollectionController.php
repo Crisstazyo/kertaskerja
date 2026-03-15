@@ -20,125 +20,139 @@ class CollectionController extends Controller
     }
 
     public function c3mr(Request $request)
-{
-    $currentMonth = Carbon::now()->month;
-    $currentYear = Carbon::now()->year;
-    $currentDate = Carbon::now();
+    {
+        $currentDate = Carbon::now();
 
-    $comm = Collection::where('type', 'C3MR')
-        ->whereYear('periode', $currentDate->year)
-        ->whereMonth('periode', $currentDate->month)
-        ->where('is_latest', true)
-        ->whereNotNull('commitment')
-        ->first();
-        // dd($comm);
+        // ← Ambil semua periode yang tersedia, urutkan terbaru
+        $periodeOptions = Collection::where('type', 'C3MR')
+        ->selectRaw('DATE_FORMAT(periode, "%Y-%m") as periode_ym, MAX(periode) as max_periode')
+        ->where('periode', '<=', Carbon::now()->endOfMonth()->format('Y-m-d')) // ← tambahkan ini
+        ->groupBy('periode_ym')
+        ->orderByDesc('max_periode')
+        ->pluck('periode_ym');
 
-    $periode = Collection::where('type', 'C3MR')
-        ->orderBy('updated_at', 'asc')
-        ->whereYear('periode', $currentDate->year)
-        ->whereMonth('periode', $currentDate->month)
-        ->first();
+        // ← Periode yang dipilih, default ke bulan berjalan
+        $selectedPeriode = $request->filled('selected_periode')
+            ? $request->selected_periode
+            : $currentDate->format('Y-m');
 
-    $query = Collection::where('type', 'C3MR')
-        ->orderBy('created_at', 'desc');
-        // dd($query->get());
+        // ← Parse periode yang dipilih
+        [$selYear, $selMonth] = explode('-', $selectedPeriode);
 
-    if ($request->filled('bulan')) {
-        $query->whereMonth('periode', $request->bulan);
+        // ← $comm mengikuti periode yang dipilih
+        $comm = Collection::where('type', 'C3MR')
+            ->whereYear('periode', $selYear)
+            ->whereMonth('periode', $selMonth)
+            ->where('is_latest', true)
+            ->first();
+
+        $periode = Collection::where('type', 'C3MR')
+            ->whereYear('periode', $selYear)
+            ->whereMonth('periode', $selMonth)
+            ->orderBy('updated_at', 'asc')
+            ->first();
+
+        $query = Collection::where('type', 'C3MR')
+            ->orderBy('created_at', 'desc');
+
+        if ($request->filled('bulan')) $query->whereMonth('periode', $request->bulan);
+        if ($request->filled('tahun')) $query->whereYear('periode', $request->tahun);
+        if ($request->filled('cari')) {
+            $query->where(function($q) use ($request) {
+                $q->where('real_ratio', 'like', '%'.$request->cari.'%')
+                ->orWhere('commitment', 'like', '%'.$request->cari.'%');
+            });
+        }
+
+        $activities = $query->paginate(10)->withQueryString();
+
+        $tahuns = Collection::where('type', 'C3MR')
+            ->selectRaw('YEAR(periode) as tahun')
+            ->distinct()->orderBy('tahun', 'desc')->pluck('tahun');
+
+        $selectedBulan   = $request->bulan;
+        $selectedTahun   = $request->tahun;
+        $selectedCari    = $request->cari;
+
+        return view('dashboard.collection.c3mr', compact(
+            'activities', 'comm', 'periode',
+            'periodeOptions', 'selectedPeriode',
+            'tahuns', 'selectedBulan', 'selectedTahun', 'selectedCari'
+        ));
     }
-
-    if ($request->filled('tahun')) {
-        $query->whereYear('periode', $request->tahun);
-    }
-
-    if ($request->filled('cari')) {
-        $query->where(function($q) use ($request) {
-            $q->where('real_ratio', 'like', '%'.$request->cari.'%')
-              ->orWhere('commitment', 'like', '%'.$request->cari.'%');
-        });
-    }
-
-    $activities = $query->paginate(10)->withQueryString();
-
-    $tahuns = Collection::where('type', 'C3MR')
-        ->selectRaw('YEAR(periode) as tahun')
-        ->distinct()
-        ->orderBy('tahun', 'desc')
-        ->pluck('tahun');
-
-    $selectedBulan = $request->bulan;
-    $selectedTahun = $request->tahun;
-    $selectedCari  = $request->cari;
-
-    return view('dashboard.collection.c3mr', compact(
-         'activities', 'comm', 'periode',
-        'tahuns', 'selectedBulan', 'selectedTahun', 'selectedCari'
-    ));
-}
 
     public function storeC3mrRealisasi(Request $request)
-{
-    $request->validate([
-        'periode'      => 'required|string',
-        'ratio_aktual' => 'required|numeric',
-    ]);
-
-    $lastCommitment = Collection::where('type', 'C3MR')
-        ->where('periode', $request->periode)
-        ->where('is_latest', true)   // ← ambil dari is_latest, bukan orderBy
-        ->value('commitment');
-
-    DB::transaction(function () use ($request, $lastCommitment) {
-        // Set semua record periode ini is_latest = false
-        Collection::where('type', 'C3MR')
-            ->where('periode', $request->periode)
-            ->update(['is_latest' => false]);
-
-        Collection::create([
-            'user_id'         => Auth::id(),
-            'type'            => 'C3MR',
-            'periode'         => $request->periode,
-            'is_latest'       => true,
-            'commitment'      => $lastCommitment,
-            'real_ratio'      => $request->ratio_aktual,
-            'real_updated_at' => now(),
+    {
+        $request->validate([
+            'periode'      => 'required|string',
+            'ratio_aktual' => 'required|numeric',
         ]);
-    });
 
-    return redirect()->back()->with('success', 'C3MR Realisasi berhasil disimpan');
-}
+        // ← Cek status periode yang akan diisi
+        $current = Collection::where('type', 'C3MR')
+            ->where('periode', $request->periode)
+            ->where('is_latest', true)
+            ->first();
+
+        if ($current && $current->status === 'inactive') {
+            return back()->with('error', 'Periode ini sudah dinonaktifkan. Realisasi tidak dapat disimpan.');
+        }
+
+        $lastCommitment = $current?->commitment;
+
+        DB::transaction(function () use ($request, $lastCommitment) {
+            Collection::where('type', 'C3MR')
+                ->where('periode', $request->periode)
+                ->update(['is_latest' => false]);
+
+            Collection::create([
+                'user_id'         => Auth::id(),
+                'type'            => 'C3MR',
+                'periode'         => $request->periode,
+                'is_latest'       => true,
+                'commitment'      => $lastCommitment,
+                'real_ratio'      => $request->ratio_aktual,
+                'real_updated_at' => now(),
+            ]);
+        });
+
+        return redirect()->back()->with('success', 'C3MR Realisasi berhasil disimpan');
+    }
 
     public function billing(Request $request)
     {
-        $currentMonth = Carbon::now()->month;
-        $currentYear = Carbon::now()->year;
         $currentDate = Carbon::now();
 
+        $periodeOptions = Collection::where('type', 'Billing Perdana')
+            ->selectRaw('DATE_FORMAT(periode, "%Y-%m") as periode_ym, MAX(periode) as max_periode')
+            ->where('periode', '<=', Carbon::now()->endOfMonth()->format('Y-m-d'))
+            ->groupBy('periode_ym')
+            ->orderByDesc('max_periode')
+            ->pluck('periode_ym');
+
+        $selectedPeriode = $request->filled('selected_periode')
+            ? $request->selected_periode
+            : $currentDate->format('Y-m');
+
+        [$selYear, $selMonth] = explode('-', $selectedPeriode);
+
         $bill = Collection::where('type', 'Billing Perdana')
-            ->whereYear('periode', $currentDate->year)
-            ->whereMonth('periode', $currentDate->month)
+            ->whereYear('periode', $selYear)
+            ->whereMonth('periode', $selMonth)
             ->where('is_latest', true)
-            ->whereNotNull('commitment')
             ->first();
-        // dd($bill);
 
         $periode = Collection::where('type', 'Billing Perdana')
+            ->whereYear('periode', $selYear)
+            ->whereMonth('periode', $selMonth)
             ->orderBy('updated_at', 'asc')
-            ->whereYear('periode', $currentDate->year)
-            ->whereMonth('periode', $currentDate->month)
             ->first();
 
         $query = Collection::where('type', 'Billing Perdana')
             ->orderBy('created_at', 'desc');
 
-        if ($request->filled('bulan')) {
-            $query->whereMonth('periode', $request->bulan);
-        }
-
-        if ($request->filled('tahun')) {
-            $query->whereYear('periode', $request->tahun);
-        }
-
+        if ($request->filled('bulan')) $query->whereMonth('periode', $request->bulan);
+        if ($request->filled('tahun')) $query->whereYear('periode', $request->tahun);
         if ($request->filled('cari')) {
             $query->where(function($q) use ($request) {
                 $q->where('real_ratio', 'like', '%'.$request->cari.'%')
@@ -150,16 +164,15 @@ class CollectionController extends Controller
 
         $tahuns = Collection::where('type', 'Billing Perdana')
             ->selectRaw('YEAR(periode) as tahun')
-            ->distinct()
-            ->orderBy('tahun', 'desc')
-            ->pluck('tahun');
+            ->distinct()->orderBy('tahun', 'desc')->pluck('tahun');
 
         $selectedBulan = $request->bulan;
         $selectedTahun = $request->tahun;
         $selectedCari  = $request->cari;
 
         return view('dashboard.collection.billing', compact(
-             'activities', 'bill', 'periode',
+            'activities', 'bill', 'periode',
+            'periodeOptions', 'selectedPeriode',
             'tahuns', 'selectedBulan', 'selectedTahun', 'selectedCari'
         ));
     }
@@ -167,16 +180,22 @@ class CollectionController extends Controller
     public function storeBillingRealisasi(Request $request)
     {
         $request->validate([
-            'periode' => 'required|string',
+            'periode'      => 'required|string',
             'ratio_aktual' => 'required|numeric',
         ]);
-        $lastCommitment = Collection::where('type', 'Billing Perdana')
+
+        $current = Collection::where('type', 'Billing Perdana')
             ->where('periode', $request->periode)
             ->where('is_latest', true)
-            ->value('commitment');
+            ->first();
+
+        if ($current && $current->status === 'inactive') {
+            return back()->with('error', 'Periode ini sudah dinonaktifkan. Realisasi tidak dapat disimpan.');
+        }
+
+        $lastCommitment = $current?->commitment;
 
         DB::transaction(function () use ($request, $lastCommitment) {
-            // Set semua record periode ini is_latest = false
             Collection::where('type', 'Billing Perdana')
                 ->where('periode', $request->periode)
                 ->update(['is_latest' => false]);
@@ -197,25 +216,43 @@ class CollectionController extends Controller
 
     public function cr(Request $request)
     {
+        $currentDate = Carbon::now();
+
+        // ← Ambil semua periode yang tersedia, filter bulan depan ke atas
+        $periodeOptions = Collection::where('type', 'Collection Ratio')
+            ->selectRaw('DATE_FORMAT(periode, "%Y-%m") as periode_ym, MAX(periode) as max_periode')
+            ->where('periode', '<=', Carbon::now()->endOfMonth()->format('Y-m-d'))
+            ->groupBy('periode_ym')
+            ->orderByDesc('max_periode')
+            ->pluck('periode_ym');
+
+        $selectedPeriode = $request->filled('selected_periode')
+            ? $request->selected_periode
+            : $currentDate->format('Y-m');
+
+        [$selYear, $selMonth] = explode('-', $selectedPeriode);
+
+        // ← latestSeg dan lockedSegments mengikuti periode yang dipilih
+        $latestSeg = Collection::where('type', 'Collection Ratio')
+            ->where('is_latest', true)
+            ->whereYear('periode', $selYear)
+            ->whereMonth('periode', $selMonth)
+            ->get();
+
+        $lockedSegments = Collection::where('type', 'Collection Ratio')
+            ->where('is_latest', true)
+            ->where('status', 'inactive')
+            ->whereYear('periode', $selYear)
+            ->whereMonth('periode', $selMonth)
+            ->pluck('segment')
+            ->toArray();
+
         $query = Collection::where('type', 'Collection Ratio')
             ->orderBy('created_at', 'desc');
 
-        // ← Ganti filter role admin + orderBy ke is_latest, scope per segment
-        $latestSeg = Collection::where('type', 'Collection Ratio')
-            ->where('is_latest', true)
-            ->whereYear('periode', now()->year)
-            ->whereMonth('periode', now()->month)
-            ->get();
-
-        if ($request->filled('segment')) {
-            $query->where('segment', $request->segment);
-        }
-        if ($request->filled('bulan')) {
-            $query->whereMonth('periode', $request->bulan);
-        }
-        if ($request->filled('tahun')) {
-            $query->whereYear('periode', $request->tahun);
-        }
+        if ($request->filled('segment')) $query->where('segment', $request->segment);
+        if ($request->filled('bulan'))   $query->whereMonth('periode', $request->bulan);
+        if ($request->filled('tahun'))   $query->whereYear('periode', $request->tahun);
         if ($request->filled('cari')) {
             $query->where(function($q) use ($request) {
                 $q->where('segment', 'like', '%'.$request->cari.'%')
@@ -239,7 +276,8 @@ class CollectionController extends Controller
         $selectedCari    = $request->cari;
 
         return view('dashboard.collection.collectionRatio', compact(
-            'collections', 'segments', 'tahuns', 'latestSeg',
+            'collections', 'segments', 'tahuns', 'latestSeg', 'lockedSegments',
+            'periodeOptions', 'selectedPeriode',
             'selectedSegment', 'selectedBulan', 'selectedTahun', 'selectedCari'
         ));
     }
@@ -254,6 +292,20 @@ class CollectionController extends Controller
         ]);
 
         $periodeDate = $request->periode . '-01';
+
+         // ← Cek apakah segment ini inactive untuk periode yang diminta
+        $isLocked = Collection::where('type', 'Collection Ratio')
+            ->where('segment', $request->segment)
+            ->where('periode', $periodeDate)
+            ->where('is_latest', true)
+            ->where('status', 'inactive')
+            ->exists();
+
+        if ($isLocked) {
+            return back()
+                ->withInput()
+                ->with('error', 'Segment ' . $request->segment . ' sudah dinonaktifkan untuk periode ' . \Carbon\Carbon::parse($periodeDate)->translatedFormat('F Y') . '.');
+        }
 
         // ← Ambil commitment dari is_latest, scope per segment
         $lastCommitment = Collection::where('type', 'Collection Ratio')
@@ -298,6 +350,12 @@ class CollectionController extends Controller
             ->orderBy('type')
             ->get();
 
+        $lockedTypes = Collection::where('type', 'like', '%UTIP%')
+            ->where('is_latest', true)
+            ->where('status', 'inactive')
+            ->pluck('type')
+            ->toArray();
+
         $query = Collection::where('type', 'like', '%UTIP%')
             ->orderByRaw("CASE WHEN type LIKE '%Corrective%' THEN 0 ELSE 1 END")
             ->orderBy('created_at', 'desc');
@@ -330,7 +388,7 @@ class CollectionController extends Controller
 
         // ← hapus $hasMonthlyCommitment dari compact
         return view('dashboard.collection.utip', compact(
-            'activities', 'utips',
+            'activities', 'utips', 'lockedTypes',
             'tahuns', 'tipes', 'selectedTipe', 'selectedBulan', 'selectedTahun', 'selectedCari'
         ));
     }
@@ -342,13 +400,16 @@ class CollectionController extends Controller
             'type'         => 'required|string',
         ]);
 
-        // ← Ambil semua dari is_latest, scope per type
         $latest = Collection::where('type', $request->type)
             ->where('is_latest', true)
             ->first();
 
-        // Tolak jika tipe belum punya data is_latest (belum di-setup admin)
         abort_if(!$latest, 422, 'Tipe UTIP ini belum memiliki data aktif.');
+
+        // ← Tambahkan pengecekan status
+        if ($latest->status === 'inactive') {
+            return back()->with('error', 'Tipe UTIP ini sudah dinonaktifkan. Realisasi tidak dapat disimpan.');
+        }
 
         DB::transaction(function () use ($request, $latest) {
             Collection::where('type', $request->type)

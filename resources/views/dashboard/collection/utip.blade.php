@@ -100,20 +100,42 @@
                 <div class="p-8">
                     <form action="{{ route('collection.utip.storeRealisasi') }}" method="POST">
                         @csrf
-                        
+                        @php
+                            $lockedTypesMap = [];
+                            foreach($utips as $utip) {
+                                $lockedTypesMap[$utip->type] = false;
+                            }
+                            // Tambahkan tipe yang locked
+                            foreach($lockedTypes as $lt) {
+                                $lockedTypesMap[$lt] = true;
+                            }
+                        @endphp
+                        <script>
+                            const lockedTypes = @json($lockedTypes);
+                        </script>
                         <!-- <input type="hidden" name="type" id="type-input" value="{{ $utips->first()->type ?? '' }}"> -->
                         <div class="max-w-md mx-auto space-y-5">
                             <div>
                                 <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 text-center">Tipe UTIP</label>
-                                <select name="type" required onchange="document.getElementById('type-input').value = this.value"
+                                <select name="type" required onchange="checkUtipLocked(this.value)"
                                     class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors bg-white">
                                     @if($utips->isEmpty())
                                         <option value="" disabled selected>Tipe UTIP belum ditambahkan</option>
                                     @endif
                                     @foreach($utips as $utip)
-                                        <option value="{{ $utip->type }}" {{ $utip->type == ($utips->first()->type ?? '') ? 'selected' : '' }}>{{ $utip->type }}</option>
+                                        <option value="{{ $utip->type }}" {{ $utip->type == ($utips->first()->type ?? '') ? 'selected' : '' }}>
+                                            {{ $utip->type }}
+                                        </option>
                                     @endforeach
                                 </select>
+
+                                {{-- Warning locked --}}
+                                <div id="utip-locked-warning" class="hidden flex items-center space-x-2 text-amber-700 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
+                                    <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                                    </svg>
+                                    <p class="text-xs font-bold">Tipe UTIP ini sudah dinonaktifkan.</p>
+                                </div>
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 text-center">Realisasi (Rp)</label>
@@ -127,7 +149,7 @@
                                 </div>
                             </div>
                             <div class="flex items-center justify-center pt-2">
-                                <button type="submit"
+                                <button type="submit" id="btn-utip-simpan"
                                     class="flex items-center space-x-2 bg-slate-900 hover:bg-red-600 text-white font-bold text-xs px-6 py-3 rounded-xl transition-all duration-200 uppercase tracking-wider shadow-md hover:shadow-lg hover:shadow-red-200">
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
@@ -279,4 +301,21 @@
 
         </div>
     </div>
+    <script>
+        function checkUtipLocked(type) {
+            const btn     = document.getElementById('btn-utip-simpan');
+            const warning = document.getElementById('utip-locked-warning');
+            const isLocked = type && lockedTypes.includes(type);
+
+            if (isLocked) {
+                warning.classList.remove('hidden');
+                btn.disabled = true;
+                btn.className = 'flex items-center space-x-2 bg-slate-400 cursor-not-allowed text-white font-bold text-xs px-6 py-3 rounded-xl uppercase tracking-wider shadow-md transition-all duration-200';
+            } else {
+                warning.classList.add('hidden');
+                btn.disabled = false;
+                btn.className = 'flex items-center space-x-2 bg-slate-900 hover:bg-red-600 text-white font-bold text-xs px-6 py-3 rounded-xl transition-all duration-200 uppercase tracking-wider shadow-md hover:shadow-lg hover:shadow-red-200';
+            }
+        }
+    </script>
 @endsection

@@ -19,6 +19,8 @@ return new class extends Migration
             $table->date('periode')->nullable();
             $table->string('commitment')->nullable();
             $table->string('real_ratio')->nullable();
+            $table->boolean('is_latest')->default(false);
+            $table->timestamp('real_updated_at')->nullable();
             $table->timestamps();
         });
     }

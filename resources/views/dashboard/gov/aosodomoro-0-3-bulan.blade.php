@@ -53,12 +53,45 @@
         @endif
 
         {{-- ══ STATUS PERIODE INI ══ --}}
-        @php $periode = now()->format('F Y'); @endphp
+        @php
+            $periodeLabel     = \Carbon\Carbon::createFromFormat('Y-m', $selectedPeriode)->translatedFormat('F Y');
+            $isCurrentPeriode = $selectedPeriode === now()->format('Y-m');
+        @endphp
+
+        <form method="GET" action="{{ route('dashboard.gov.aosodomoro-0-3-bulan') }}" class="mb-6" id="form-periode">
+            @foreach(request()->except('selected_periode') as $key => $val)
+                <input type="hidden" name="{{ $key }}" value="{{ $val }}">
+            @endforeach
+            <div class="flex items-center space-x-3">
+                <label class="text-xs font-black text-slate-500 uppercase tracking-widest">Periode:</label>
+                <div class="relative">
+                    <select name="selected_periode" onchange="document.getElementById('form-periode').submit()"
+                        class="appearance-none text-sm font-bold text-slate-700 bg-white border-2 border-slate-200 hover:border-red-400 rounded-xl pl-4 pr-10 py-2.5 shadow-sm focus:outline-none focus:border-red-400 cursor-pointer transition-colors">
+                        @foreach($periodeOptions as $p)
+                            <option value="{{ $p }}" {{ $p === $selectedPeriode ? 'selected' : '' }}>
+                                {{ \Carbon\Carbon::createFromFormat('Y-m', $p)->translatedFormat('F Y') }}
+                                {{ $p === now()->format('Y-m') ? '(Berjalan)' : '' }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-3 flex items-center">
+                        <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </div>
+                </div>
+                @if(!$isCurrentPeriode)
+                <span class="text-xs font-bold text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-1.5">
+                    Melihat periode lampau
+                </span>
+                @endif
+            </div>
+        </form>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-8">
             {{-- Commitment dari Admin --}}
             <div class="bg-white rounded-2xl border-2 border-slate-100 p-6 relative overflow-hidden">
                 <div class="absolute top-0 left-0 right-0 h-1" style="background: linear-gradient(90deg, #dc2626, #ef4444);"></div>
-                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Target Commitment — {{ $periode }}</p>
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Target Commitment — {{ $periodeLabel }}</p>
                 @if($existing && $existing->commitment !== null)
                     <p class="text-4xl font-black text-slate-900">{{ number_format($existing->commitment, 2) }}<span class="text-2xl text-red-600">%</span></p>
                     <p class="text-xs text-slate-400 font-semibold mt-2 uppercase tracking-wide">Ditetapkan oleh Admin</p>
@@ -71,7 +104,7 @@
             {{-- Realisasi saat ini --}}
             <div class="bg-white rounded-2xl border-2 border-slate-100 p-6 relative overflow-hidden">
                 <div class="absolute top-0 left-0 right-0 h-1 bg-green-500"></div>
-                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Realisasi Anda — {{ $periode }}</p>
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Realisasi Anda — {{ $periodeLabel }}</p>
                 @if($existing && $existing->real_ratio !== null)
                     <p class="text-4xl font-black text-green-600">{{ number_format($existing->real_ratio, 2) }}<span class="text-2xl">%</span></p>
                     <p class="text-xs text-slate-400 font-semibold mt-2 uppercase tracking-wide">Terakhir diperbarui: {{ $existing->created_at->format('d M Y H:i') }}</p>
@@ -93,18 +126,46 @@
                         </h2>
                         <p class="text-xs text-slate-400 font-semibold mt-0.5">
                             {{ $existing && $existing->real_ratio !== null
-                                ? 'Nilai akan memperbarui realisasi periode ' . $periode
+                                ? 'Nilai akan memperbarui realisasi periode ' . $periodeLabel
                                 : 'Catat realisasi Aosodomoro periode 0 sampai 3 bulan.' }}
                         </p>
                     </div>
                 </div>
                 <span class="text-[10px] font-black tracking-widest text-red-600 bg-red-50 border border-red-100 rounded-md px-3 py-1 uppercase">
-                    {{ $periode }}
+                    {{ $periodeLabel }}
                 </span>
             </div>
             <div class="p-8">
+                @if($isLocked)
+                {{-- Form dinonaktifkan total, tidak bisa submit dengan cara apapun --}}
+                <div class="max-w-md mx-auto space-y-5">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 text-center">Realisasi (%)</label>
+                        <div class="relative">
+                            <input type="number" disabled
+                                value="{{ $existing?->real_ratio }}"
+                                placeholder="0.00"
+                                class="w-full px-6 py-5 text-4xl font-black text-slate-300 border-2 border-slate-100 rounded-xl bg-slate-50 text-center cursor-not-allowed">
+                            <div class="absolute inset-y-0 right-0 pr-5 flex items-center pointer-events-none">
+                                <span class="text-slate-300 font-black text-2xl">%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex flex-col items-center space-y-2 pt-2">
+                        <button type="button" disabled
+                            class="flex items-center space-x-2 bg-slate-200 text-slate-400 cursor-not-allowed font-bold text-xs px-6 py-3 rounded-xl uppercase tracking-wider">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                            </svg>
+                            <span>Input Dikunci</span>
+                        </button>
+                        <p class="text-xs text-slate-400 font-semibold">Periode ini sudah dinonaktifkan oleh admin</p>
+                    </div>
+                </div>
+                @else
                 <form method="POST" action="{{ route('dashboard.gov.aosodomoro-0-3-bulan.store') }}">
                     @csrf
+                    <input type="hidden" name="periode" value="{{ $selectedPeriode . '-01' }}">
                     <div class="max-w-md mx-auto space-y-5">
                         <div>
                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 text-center">Realisasi (%)</label>
@@ -132,6 +193,7 @@
                         </div>
                     </div>
                 </form>
+                @endif
             </div>
         </div>
 
